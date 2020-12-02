@@ -1,0 +1,3 @@
+[submodule "mod-controller-proto"]
+	path = mod-controller-proto
+	url = https://github.com/moddevices/mod-controller-proto

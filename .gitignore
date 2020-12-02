@@ -1,0 +1,5 @@
+out/
+*.o
+link/LPCmem.ld
+app/inc/config.h
+.last_built

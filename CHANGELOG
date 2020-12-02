@@ -1,0 +1,170 @@
+0.13.15
+=======
+   - NEW: knob hold time to access the secondary function decreased
+
+0.13.14
+=======
+  - FIX: HMI won't freeze after save a pedalboard in the same moment that expression pedal is being used
+  - FIX: HMI won't freeze after install a new effect when a parameter is assigned to expression pedal
+
+0.13.13
+=======
+   - FIX: doesn't remove parameter of screen 1 after turn off the turner (only with pedalboard: C DS1 Echo)
+
+0.13.12
+=======
+   - FIX: sometimes an horizontal blank rect cut the graph
+
+0.13.11
+=======
+   - NEW: HMI user usability improved
+
+0.13.10
+=======
+   - FIX: HMI won't freeze when start up with expression pedal connected
+
+0.13.9
+======
+   - FIX: clean up the screens before start the system restore
+   - NEW: commands glcd_text and glcd_draw
+   - NEW: glcd ports and pins configurations moved to config.h
+   - NEW: peakmeter peak included on protocol and peakmeter widget
+
+0.13.8
+======
+   - FIX: segfault on pedalboards navigation using the foots after came back from tool mode
+   - FIX: banks/pedalboards navigation selection marks
+   - FIX: integer control type working on expression pedal
+   - NEW: rotary text changed to knob
+   - NEW: created command initial_state that initializes banks/pedalboards navigation
+   - FIX: boot stages doesn't stop after forced reset
+
+0.13.7
+======
+
+   - FIX: Big pedalboard name in banks menu would hang device
+
+0.13.6
+======
+
+   - NEW: more heap memory and now using heap_4 algorithm for dynamic memory allocation
+
+0.13.4
+======
+   - FIX: sends the connection confirmation same when the external device is already connected
+
+0.13.3
+======
+   - NEW: control chain has your own task
+   - NEW: clipmeter flag verification is not more recursive
+
+0.13.2
+======
+   - FIX: bank config refactor
+   - FIX: check if led object is not NULL
+
+0.13.1
+======
+   - FIX: pointers verification when parse banks and pedalboards (fix always NO BANKS)
+
+0.13
+====
+   - NEW: HMI don't store anymore the controls list, just the upper control
+   - FIX: checks the return of malloc functions
+   - NEW: freeRTOS reconfiguration (more dynamic memory)
+
+0.12.6
+======
+  - FIX: clock control chain
+  - FIX: just initialize the external devices serial after navigation initialization
+  - NEW: tempearture on system menu
+
+0.12.5
+======
+  - FIX: remove control before assign
+  - FIX: assign bypass after tap-tempo on same footswitch
+  - FIX: check value bounds on tap-tempo
+  - FIX: prevents that navigation functions be used before navigation initialization
+  - FIX: true bypass inversion
+  - FIX: first CLI request don't fail
+  - NEW: cooler speed control
+  - NEW: get current audio mode value when click on menu option
+
+0.12.4
+======
+  - FIX: cdc send
+
+0.12.3
+======
+  - FIX: check last value and foot properties of external devices
+
+0.12.2
+======
+  - FIX: cdc usb refactor (with workaround to cdc_send)
+  - FIX: load the default screen when there is no controls assigned to display
+  - NEW: text of Audio Mode menu
+
+0.12.1
+======
+  - FIX: checks if is already logged on CLI when startup
+
+0.12
+====
+  - NEW: extenal devices core + expression pedal
+  - NEW: CPU power control and power status
+  - NEW: select tuner input
+  - NEW: restart service when click in service name
+  - NEW: block pedalboards navigation when UI connect
+  - NEW: MOD initialization feedback
+
+0.11.7
+======
+  - FIX: headphone crackles
+  - NEW: services, versions and bluetooth system menu functions
+
+0.11.6
+======
+  - FIX: don't updates the footer when is in tool mode
+  - FIX: send tool on / off to UI
+  - NEW: system menu types: byp/proc and yes/no
+  - FIX: checks the bank config before add an control to foot
+
+0.11.5
+======
+  - FIX: footswitches inversion
+
+0.11.4
+======
+  - FIX: monitor task stack size
+
+0.11.3
+======
+  - FIX: usb priority
+
+0.11.2
+======
+  - FIX: jack_bufsize command
+  - FIX: save/reset pedalboard commands
+  - FIX: serial send to long buffers
+
+0.11.1
+======
+  - FIX: load pedalboard
+
+0.11
+====
+  - NEW: menu system functions: pedalboard_reset, pedalboard_save, jack_bufsize
+  - NEW: bank configuration (pedalboards navigation and true bypass)
+
+0.10
+====
+
+  - FIX: check if control is already assigned to foot
+  - NEW: assign enumerated control to foot
+  - NEW: integer type control
+  - FIX: defines the text width to avoid overlapping
+
+0.9
+===
+
+  - All current code was named v0.9
