@@ -415,14 +415,8 @@ void naveg_shift_releaed()
 {
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
-    {
-        static uint8_t color = 0;
-        color++;
-        ledz_set_state(hardware_leds(1), 1, WHITE, 0, 0, 0, 0);
-        ledz_set_state(hardware_leds(1), 1, color, 1, 0, 0, 0);
         return;
-    }
-
+    
     //exit the shift menu, return to opperational mode
     switch(g_prev_device_mode)
     {

@@ -810,7 +810,6 @@ void screen_system_menu(menu_item_t *item)
     switch (item->desc->type)
     {
         case MENU_ROOT:
-            ledz_on(hardware_leds(2), RED);
             list.hover = item->data.hover;
             list.selected = item->data.selected;
             list.count = item->data.list_count;
