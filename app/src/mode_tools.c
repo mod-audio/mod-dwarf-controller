@@ -552,8 +552,22 @@ void TM_enter(uint8_t encoder)
     }
     else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
-        // calls the action callback
-        //if ((g_current_item->desc->action_cb)) g_current_item->desc->action_cb(g_current_item, MENU_EV_ENTER);
+        //first encoder, check if we need to change menu or item
+        if (encoder == 0)
+        {
+            if (g_current_item->desc->type == MENU_ROOT)
+            {
+                menu_enter(encoder);
+            }
+            else 
+            {
+
+            }
+        }
+        else
+        {
+
+        }
     }
 }
 

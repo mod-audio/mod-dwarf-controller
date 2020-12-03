@@ -338,7 +338,8 @@ void naveg_button_pressed(uint8_t button)
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            //pass for tool controls
+            TM_enter(button);
         break;
 
         case MODE_BUILDER:
@@ -416,7 +417,7 @@ void naveg_shift_releaed()
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
         return;
-    
+
     //exit the shift menu, return to opperational mode
     switch(g_prev_device_mode)
     {

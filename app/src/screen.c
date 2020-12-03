@@ -885,57 +885,70 @@ void screen_shift_overlay(uint8_t prev_mode)
     //clear screen first
     screen_clear();
 
-    //TODO_ADAM PLEASE IMPLEMENT THIS SCREEN PROPERLY
-    //everything below is MMMVP
-
     glcd_t *display = hardware_glcds(0);
 
-    // draws something that indicates entering menu
-    textbox_t dummy_1;
-    dummy_1.color = GLCD_BLACK;
-    dummy_1.mode = TEXT_SINGLE_LINE;
-    dummy_1.font = Terminal3x5;
-    dummy_1.height = 0;
-    dummy_1.width = 0;
-    dummy_1.top_margin = 0;
-    dummy_1.bottom_margin = 0;
-    dummy_1.left_margin = 1;
-    dummy_1.right_margin = 1;
-    dummy_1.y = 50;
-    dummy_1.text = "enter/exit menu";
-    dummy_1.align = ALIGN_NONE_NONE;
-    dummy_1.x = 3;
-    widget_textbox(display, &dummy_1);
+    //draw the title 
+    textbox_t title = {};
+    title.color = GLCD_BLACK;
+    title.mode = TEXT_SINGLE_LINE;
+    title.font = Terminal3x5;
+    title.top_margin = 1;
+    title.text = "SHIFT";
+    title.align = ALIGN_CENTER_TOP;
+    widget_textbox(display, &title);
 
-    textbox_t dummy_2;
-    dummy_2.color = GLCD_BLACK;
-    dummy_2.mode = TEXT_SINGLE_LINE;
-    dummy_2.font = Terminal3x5;
-    dummy_2.height = 0;
-    dummy_2.width = 0;
-    dummy_2.top_margin = 0;
-    dummy_2.bottom_margin = 0;
-    dummy_2.left_margin = 1;
-    dummy_2.right_margin = 1;
-    dummy_2.y = 59;
-    dummy_2.text = "builder";
-    dummy_2.align = ALIGN_NONE_NONE;
-    dummy_2.x = 50;
-    widget_textbox(display, &dummy_2);
+    //invert the title area
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
 
-    textbox_t dummy_3;
-    dummy_3.color = GLCD_BLACK;
-    dummy_3.mode = TEXT_SINGLE_LINE;
-    dummy_3.font = Terminal3x5;
-    dummy_3.height = 0;
-    dummy_3.width = 0;
-    dummy_3.top_margin = 0;
-    dummy_3.bottom_margin = 0;
-    dummy_3.left_margin = 1;
-    dummy_3.right_margin = 1;
-    dummy_3.y = 50;
-    dummy_3.text = "save pb";
-    dummy_3.align = ALIGN_NONE_NONE;
-    dummy_3.x = 90;
-    widget_textbox(display, &dummy_3);
+    //draw the outlines
+    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
+    glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
+    glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+
+    //draw the first box, menu/control mode 
+    textbox_t box_1 = {};
+    box_1.color = GLCD_BLACK;
+    box_1.mode = TEXT_SINGLE_LINE;
+    box_1.font = Terminal3x5;
+    box_1.align = ALIGN_NONE_NONE;
+    box_1.y = DISPLAY_HEIGHT - 7;
+    if (prev_mode == MODE_CONTROL)
+    {
+        box_1.text = "MENU";
+        box_1.x = 22;
+    }
+    else
+    { 
+        box_1.text = "CONTROL";
+        box_1.x = 16;
+    }
+    widget_textbox(display, &box_1);
+
+    //draw the second box, TODO Builder MODE
+    textbox_t box_2 = {};
+    box_2.color = GLCD_BLACK;
+    box_2.mode = TEXT_SINGLE_LINE;
+    box_2.font = Terminal3x5;
+    box_2.align = ALIGN_NONE_NONE;
+    box_2.x = 62;
+    box_2.y = DISPLAY_HEIGHT - 7;
+    box_2.text = "-";
+    widget_textbox(display, &box_2);
+
+    //draw the second box, TODO Builder MODE
+    textbox_t box_3 = {};
+    box_3.color = GLCD_BLACK;
+    box_3.mode = TEXT_SINGLE_LINE;
+    box_3.font = Terminal3x5;
+    box_3.align = ALIGN_NONE_NONE;
+    box_3.x = 84;
+    box_3.y = DISPLAY_HEIGHT - 7;
+    box_3.text = "SAVE PB";
+    widget_textbox(display, &box_3);
 }
