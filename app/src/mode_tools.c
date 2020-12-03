@@ -80,8 +80,8 @@ struct TOOL_T {
 ************************************************************************************************************************
 */
 
-static node_t *g_menu, *g_current_menu, *g_current_main_menu;
-static menu_item_t *g_current_item, *g_current_main_item;
+static node_t *g_menu, *g_current_menu;
+static menu_item_t *g_current_item;
 static uint8_t g_max_items_list;
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
@@ -110,10 +110,9 @@ static uint16_t g_bp_state = 0;
 ************************************************************************************************************************
 */
 
-static void tool_on(uint8_t tool, uint8_t display)
+static void tool_on(uint8_t tool)
 {
     g_tool[tool].state = TOOL_ON;
-    g_tool[tool].display = display;
 }
 
 static void tool_off(uint8_t tool)
@@ -158,7 +157,18 @@ static void menu_enter(uint8_t display_id)
     node_t *node = g_current_menu;
     menu_item_t *item = g_current_item;
 
-    if (item->desc->type == MENU_LIST)
+    //we are either in 2 types of menu, the root list, or in a main item that holds 3 ellements
+    if (item->desc->type == MENU_ROOT)
+    {
+        // locates the clicked item
+        node = g_current_menu->first_child;
+        for (i = 0; i < item->data.hover; i++) node = node->next;
+
+        // gets the menu item
+        item = node->data;
+        g_current_item = node->data;
+    }
+    else if (item->desc->type == MENU_LIST)
     {/*
         // locates the clicked item
         node = display_id ? g_current_menu->first_child : g_current_main_menu->first_child;
@@ -219,8 +229,8 @@ static void menu_enter(uint8_t display_id)
     }
 
     // checks the selected item
-    if (item->desc->type == MENU_LIST)
-    {/*
+    if (item->desc->type == MENU_ROOT)
+    {
         // changes the current menu
         g_current_menu = node;
 
@@ -232,24 +242,13 @@ static void menu_enter(uint8_t display_id)
         {
             menu_item_t *item_child = node->data;
 
-            //all the menu items that have a value that needs to be updated when enterign the menu
-            if ((item_child->desc->type == MENU_SET) || (item_child->desc->type == MENU_TOGGLE) || (item_child->desc->type == MENU_VOL) ||
-                (item_child->desc->id == TEMPO_ID) || (item_child->desc->id == TUNER_ID) || (item_child->desc->id == BYPASS_ID) || (item_child->desc->id == BANKS_ID))
-                {
-                    //update the value with menu_ev_none
-                   if (item_child->desc->action_cb) item_child->desc->action_cb(item_child, MENU_EV_NONE);
-                }
             item->data.list[item->data.list_count++] = item_child->name;
         }
 
-        //prevent toggling of these items.
-        if ((item->desc->id != TEMPO_ID) && (item->desc->id != BYPASS_ID) && (item->desc->id != BANKS_ID))
-        {
-            // calls the action callback
-            if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_ENTER);
-        }*/
+        // calls the action callback
+        if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_ENTER);
     }
-    else if (item->desc->type == MENU_CONFIRM ||item->desc->type == MENU_OK)
+    /*else if (item->desc->type == MENU_CONFIRM ||item->desc->type == MENU_OK)
     {
         if (item->desc->type == MENU_OK)
         {
@@ -332,7 +331,7 @@ static void menu_enter(uint8_t display_id)
     }
     else if (item->desc->type == MENU_BAR)
     {
-       /* if (display_id)
+        if (display_id)
         {
             static uint8_t toggle = 0;
             if (toggle == 0)
@@ -353,13 +352,13 @@ static void menu_enter(uint8_t display_id)
                 item = g_current_menu->data;
                 g_current_item = item;
             }
-        }*/
+        }
     }
-
+*/
     if (item->desc->parent_id == DEVICE_ID && item->desc->action_cb)
         item->desc->action_cb(item, MENU_EV_ENTER);
 
-    if (tool_is_on(DISPLAY_TOOL_SYSTEM) && !tool_is_on(DISPLAY_TOOL_NAVIG))
+    if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
         screen_system_menu(item);
         g_update_cb = NULL;
@@ -381,7 +380,7 @@ static void menu_enter(uint8_t display_id)
 
 static void menu_up(uint8_t display_id)
 {
-    menu_item_t *item = (display_id) ? g_current_item : g_current_main_item;
+    menu_item_t *item = g_current_item;
 
         if (item->data.hover > 0)
             item->data.hover--;
@@ -395,7 +394,7 @@ static void menu_up(uint8_t display_id)
 
 static void menu_down(uint8_t display_id)
 {
-    menu_item_t *item = (display_id) ? g_current_item : g_current_main_item;
+    menu_item_t *item = g_current_item;
 
         if (item->data.hover < (item->data.list_count - 1))
             item->data.hover++;
@@ -458,7 +457,7 @@ static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
             node_t *node;
             node = node_child(parent, item);
 
-            if (item->desc->type == MENU_LIST)
+            if (item->desc->type == MENU_ROOT)
                 create_menu_tree(node, &g_menu_desc[i]);
         }
     }
@@ -470,7 +469,7 @@ static void reset_menu_hover(node_t *menu_node)
     for (node = menu_node->first_child; node; node = node->next)
     {
         menu_item_t *item = node->data;
-        if (item->desc->type == MENU_LIST) 
+        if (item->desc->type == MENU_ROOT) 
             item->data.hover = 0;
         reset_menu_hover(node);
     }
@@ -504,7 +503,7 @@ void TM_init(void)
     g_max_items_list++;
 
     // creates the menu tree (recursively)
-    const menu_desc_t root_desc = {"root", MENU_LIST, -1, -1, NULL, 0};
+    const menu_desc_t root_desc = {"root", MENU_ROOT, -1, -1, NULL, 0};
     g_menu = node_create(NULL);
     create_menu_tree(g_menu, &root_desc);
 
@@ -547,19 +546,14 @@ void TM_enter(uint8_t encoder)
 {
     if ((!g_initialized)&&(g_update_cb)) return;
 
-    if (tool_is_on(DISPLAY_TOOL_TUNER) || dialog_active)
+    if (tool_is_on(DISPLAY_TOOL_TUNER))
     {
-        menu_enter(encoder);
+        //menu_enter(encoder);
     }
-    else if (tool_is_on(DISPLAY_TOOL_NAVIG))
-    {
-        if (!naveg_ui_status())
-            system_banks_cb(g_current_main_item, MENU_EV_ENTER);
-    }
-    else if (g_current_item->desc->parent_id == ROOT_ID)
+    else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
         // calls the action callback
-        if ((g_current_item->desc->action_cb)) g_current_item->desc->action_cb(g_current_item, MENU_EV_ENTER);
+        //if ((g_current_item->desc->action_cb)) g_current_item->desc->action_cb(g_current_item, MENU_EV_ENTER);
     }
 }
 
@@ -569,22 +563,33 @@ void TM_up(uint8_t encoder)
         
     if (tool_is_on(DISPLAY_TOOL_TUNER))
     {
+        /*
             //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
             tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
             g_current_menu = g_current_main_menu;
             g_current_item = g_current_main_item;
             menu_up(encoder);
             menu_enter(encoder);
+        */
     }
     else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
-        if (((g_current_menu == g_menu) || (g_current_item->desc->id == ROOT_ID)) && (dialog_active != 1))
+        //first encoder, check if we need to change menu or item
+        if (encoder == 0)
         {
-            g_current_main_menu = g_current_menu;
-            g_current_main_item = g_current_item;
+            if (g_current_item->desc->type == MENU_ROOT)
+            {
+                menu_up(encoder);
+            }
+            else 
+            {
+
+            }
         }
-        menu_up(encoder);
-        if ((dialog_active != 1) || tool_is_on(DISPLAY_TOOL_NAVIG)) menu_enter(encoder);
+        else
+        {
+
+        }
     }
 }
 
@@ -592,24 +597,35 @@ void TM_down(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if ( (tool_is_on(DISPLAY_TOOL_TUNER)) || (tool_is_on(DISPLAY_TOOL_NAVIG)) )
+    if (tool_is_on(DISPLAY_TOOL_TUNER))
     {
+        /*
             //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
             tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
             g_current_menu = g_current_main_menu;
             g_current_item = g_current_main_item;
             menu_down(encoder);
             menu_enter(encoder);
+        */
     }
     else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
-        if (((g_current_menu == g_menu) || (g_current_item->desc->id == ROOT_ID)) && (dialog_active != 1))
+        //first encoder, check if we need to change menu or item
+        if (encoder == 0)
         {
-            g_current_main_menu = g_current_menu;
-            g_current_main_item = g_current_item;
+            if (g_current_item->desc->type == MENU_ROOT)
+            {
+                menu_down(encoder);
+            }
+            else 
+            {
+
+            }
         }
-        menu_down(encoder);
-        if (dialog_active != 1) menu_enter(encoder);
+        else
+        {
+
+        }
     }
 }
 
@@ -619,8 +635,6 @@ void TM_reset_menu(void)
 
     g_current_menu = g_menu;
     g_current_item = g_menu->first_child->data;
-    g_current_main_menu = g_menu;
-    g_current_main_item = g_menu->first_child->data;
     reset_menu_hover(g_menu);
 }
 
@@ -648,7 +662,7 @@ void TM_menu_refresh(void)
 //the menu refresh is to slow for the gains so this one is added that only updates the set value.
 void TM_update_gain(uint8_t display_id, uint8_t update_id, float value, float min, float max, uint8_t dir)
 {
-    node_t *node = display_id ? g_current_menu : g_current_main_menu;
+    node_t *node = g_current_menu;
 
     //updates all items in a menu
     for (node = node->first_child; node; node = node->next)
@@ -713,8 +727,8 @@ void TM_launch_tool(uint8_t tool)
     {
         case TOOL_MENU:
             TM_reset_menu();
+            tool_on(DISPLAY_TOOL_SYSTEM);
             menu_enter(0);
-            screen_system_menu(g_current_item);
         break;
 
         case TOOL_TUNER:

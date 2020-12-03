@@ -369,8 +369,8 @@ void hardware_setup(void)
     // configure and set initial state of shutdown cpu button
     // note: CLR_PIN will make the coreboard reboot unless SET_PIN is called in less than 5s
     //       this is done in the beginning of cli_task()
-    CONFIG_PIN_OUTPUT(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
-    CLR_PIN(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
+    //CONFIG_PIN_OUTPUT(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
+    //CLR_PIN(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
 
     EEPROM_Init();
 

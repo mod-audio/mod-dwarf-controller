@@ -244,7 +244,8 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            //pass for tuner/menu/bypass controls
+            TM_down(encoder);
         break;
 
         case MODE_BUILDER:
@@ -272,7 +273,8 @@ void naveg_enc_up(uint8_t encoder)
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            //pass for tuner/menu/bypass controls
+            TM_up(encoder);
         break;
 
         case MODE_BUILDER:
@@ -305,11 +307,12 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
+            //the foots are not used in this mode
+            return;
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+
         break;
 
         case MODE_BUILDER:
@@ -348,11 +351,15 @@ void naveg_button_pressed(uint8_t button)
                 //enter menu
                 case 0:
                     if (g_prev_device_mode == MODE_CONTROL)
+                    {
                         g_device_mode = MODE_TOOL;
+                        TM_launch_tool(TOOL_MENU);
+                    }
                     else 
+                    {
                         g_device_mode = MODE_CONTROL;
-                    
-                    TM_launch_tool(TOOL_MENU);
+                        CM_print_screen();
+                    }
                 break;
 
                 //enter builder mode
@@ -408,7 +415,13 @@ void naveg_shift_releaed()
 {
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
+    {
+        static uint8_t color = 0;
+        color++;
+        ledz_set_state(hardware_leds(1), 1, WHITE, 0, 0, 0, 0);
+        ledz_set_state(hardware_leds(1), 1, color, 1, 0, 0, 0);
         return;
+    }
 
     //exit the shift menu, return to opperational mode
     switch(g_prev_device_mode)
@@ -419,11 +432,11 @@ void naveg_shift_releaed()
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            TM_launch_tool(TOOL_MENU);
+            g_device_mode = MODE_TOOL;
         break;
 
         case MODE_BUILDER:
