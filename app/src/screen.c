@@ -76,6 +76,19 @@ static tuner_t g_tuner = {0, NULL, 0, 1};
 ************************************************************************************************************************
 */
 
+void print_menu_outlines(void)
+{
+    glcd_t *display = hardware_glcds(0);
+    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
+    glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
+    glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+}
 
 /*
 ************************************************************************************************************************
@@ -133,8 +146,8 @@ void screen_encoder(control_t *control, uint8_t encoder)
         title.font = Terminal3x5;
         title.text = text;
         title.align = ALIGN_NONE_NONE;
-        title.y = encoder_y;
-        title.x = encoder_x;
+        title.y = encoder_y+10;
+        title.x = encoder_x+5;
         widget_textbox(display, &title);
         return;
     }
@@ -846,6 +859,96 @@ void screen_system_menu(menu_item_t *item)
     }
 }
 
+
+void screen_menu_page(node_t *node)
+{
+    //clear screen first
+    screen_clear();
+
+    glcd_t *display = hardware_glcds(0);
+
+    menu_item_t *main_item = node->data;
+
+    //print the title
+    //draw the title 
+    char title_str[45] = {0};
+    strncpy(title_str, "SETTINGS > ", 11);
+    strcat(title_str, main_item->desc->name);
+    title_str[32] = '\0';
+    textbox_t title = {};
+    title.color = GLCD_BLACK;
+    title.mode = TEXT_SINGLE_LINE;
+    title.font = Terminal3x5;
+    title.top_margin = 1;
+    title.text = title_str;
+    title.align = ALIGN_CENTER_TOP;
+    widget_textbox(display, &title);
+
+    //invert the title area
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
+
+    //draw the outlines
+    print_menu_outlines();
+
+    //print the 3 buttons
+    //draw the first box, back
+    textbox_t box_1 = {};
+    box_1.color = GLCD_BLACK;
+    box_1.mode = TEXT_SINGLE_LINE;
+    box_1.font = Terminal3x5;
+    box_1.align = ALIGN_NONE_NONE;
+    box_1.x = 22;
+    box_1.y = DISPLAY_HEIGHT - 7;
+    box_1.text = "BACK";
+    widget_textbox(display, &box_1);
+
+    //draw the second box, TODO Builder MODE
+    textbox_t box_2 = {};
+    box_2.color = GLCD_BLACK;
+    box_2.mode = TEXT_SINGLE_LINE;
+    box_2.font = Terminal3x5;
+    box_2.align = ALIGN_NONE_NONE;
+    box_2.x = 56;
+    box_2.y = DISPLAY_HEIGHT - 7;
+    box_2.text = "PREV";
+    widget_textbox(display, &box_2);
+
+    //draw the third box, save PB
+    textbox_t box_3 = {};
+    box_3.color = GLCD_BLACK;
+    box_3.mode = TEXT_SINGLE_LINE;
+    box_3.font = Terminal3x5;
+    box_3.align = ALIGN_NONE_NONE;
+    box_3.x = 90;
+    box_3.y = DISPLAY_HEIGHT - 7;
+    box_3.text = "NEXT";
+    widget_textbox(display, &box_3);
+    
+    //print the 3 items
+    uint8_t i;
+    node_t *child_nodes = node;
+    for (i = 0; i < 3; i++)
+    {
+        child_nodes = child_nodes->next;
+        menu_item_t *item_child = child_nodes->data;
+
+        switch(item_child->desc->type)
+        {
+            case MENU_TOGGLE:
+
+            break;
+
+            case MENU_BAR:
+
+            break;
+
+            case MENU_LIST:
+
+            break;
+        }
+    }
+}
+
 void screen_tuner(float frequency, char *note, int8_t cents)
 {
     g_tuner.frequency = frequency;
@@ -893,15 +996,7 @@ void screen_shift_overlay(uint8_t prev_mode)
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
 
     //draw the outlines
-    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
-    glcd_vline(display, DISPLAY_WIDTH-1, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
-    glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
-    glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
-    glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
-    glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
-    glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
-    glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
-    glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    print_menu_outlines();
 
     //draw the first box, menu/control mode 
     textbox_t box_1 = {};

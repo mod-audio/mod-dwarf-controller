@@ -157,7 +157,7 @@ static void menu_enter(uint8_t display_id)
     node_t *node = g_current_menu;
     menu_item_t *item = g_current_item;
 
-    //we are either in 2 types of menu, the root list, or in a main item that holds 3 ellements
+    //we can only enter a menu from a root item
     if (item->desc->type == MENU_ROOT)
     {
         // locates the clicked item
@@ -167,65 +167,6 @@ static void menu_enter(uint8_t display_id)
         // gets the menu item
         item = node->data;
         g_current_item = node->data;
-    }
-    else if (item->desc->type == MENU_LIST)
-    {/*
-        // locates the clicked item
-        node = display_id ? g_current_menu->first_child : g_current_main_menu->first_child;
-        for (i = 0; i < item->data.hover; i++) node = node->next;
-
-        // gets the menu item
-        item = node->data;
-        // checks if is 'back to previous'
-        if (item->desc->type == MENU_RETURN)
-        {
-            if (item->desc->action_cb)
-                item->desc->action_cb(item, MENU_EV_ENTER);
-
-            node = node->parent->parent;
-            item = node->data;
-        }
-
-        //extra check if we need to switch back to non-ui connected mode on the current-pb and banks menu
-        else if (((item->desc->id == BANKS_ID) || (item->desc->id == PEDALBOARD_ID)) && (!naveg_ui_status()))
-        {
-            item->desc->type = ((item->desc->id == PEDALBOARD_ID) ? MENU_LIST : MENU_NONE);
-        }
-
-        // updates the current item
-        if ((item->desc->type != MENU_TOGGLE) && (item->desc->type != MENU_NONE)) g_current_item = node->data;
-        // updates this specific toggle items (toggle items with pop-ups)
-        if (item->desc->parent_id == PROFILES_ID) g_current_item = node->data;
-    */
-    }
-    else if (item->desc->type == MENU_CONFIRM  || item->desc->type == MENU_OK)
-    {
-        /*
-        // calls the action callback
-        if ((item->desc->type != MENU_OK) && (item->desc->type != MENU_CANCEL) && (item->desc->action_cb))
-            item->desc->action_cb(item, MENU_EV_ENTER);
-
-        if ((item->desc->id == PEDALBOARD_ID) || (item->desc->id == BANKS_ID))
-        {
-            if (naveg_ui_status())
-            {
-                //change menu type to menu_ok to display pop-up
-                item->desc->type = MENU_MESSAGE;
-                g_current_item = item;
-            }
-            else
-            {
-                //reset the menu type to its original state
-                item->desc->type = ((item->desc->id == PEDALBOARD_ID) ? MENU_LIST : MENU_NONE);
-                g_current_item = item;
-            }
-        }
-        else
-        {
-            // gets the menu item
-            item = display_id ? g_current_menu->data : g_current_main_menu->data;
-            g_current_item = item;
-        }*/
     }
 
     // checks the selected item
@@ -245,121 +186,6 @@ static void menu_enter(uint8_t display_id)
             item->data.list[item->data.list_count++] = item_child->name;
         }
 
-        // calls the action callback
-        if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_ENTER);
-    }
-    /*else if (item->desc->type == MENU_CONFIRM ||item->desc->type == MENU_OK)
-    {
-        if (item->desc->type == MENU_OK)
-        {
-            //if bleutooth activate right away
-            if (item->desc->id == BLUETOOTH_ID+1)
-            {
-                item->desc->action_cb(item, MENU_EV_ENTER);
-            }
-            
-            // highlights the default button
-            item->data.hover = 0;
-
-            // defines the buttons count
-            item->data.list_count = 1;
-        }
-        else
-        {
-            // highlights the default button
-            item->data.hover = 1;
-
-            // defines the buttons count
-            item->data.list_count = 2;
-        }
-
-        // default popup content value
-        item->data.popup_content = NULL;
-        // locates the popup menu
-        i = 0;
-        while (g_menu_popups[i].popup_content)
-        {
-            if (item->desc->id == g_menu_popups[i].menu_id)
-            {
-                item->data.popup_content = g_menu_popups[i].popup_content;
-                item->data.popup_header = g_menu_popups[i].popup_header;
-
-                break;
-            }
-            i++;
-        }
-    }
-    else if (item->desc->type == MENU_TOGGLE)
-    {
-        // calls the action callback
-        if (item->desc->action_cb) item->desc->action_cb(item, MENU_EV_ENTER);
-    }
-    else if (item->desc->type == MENU_OK)
-    {
-        // highlights the default button
-        item->data.hover = 0;
-
-        // defines the buttons count
-        item->data.list_count = 1;
-
-        // default popup content value
-        item->data.popup_content = NULL;
-
-        // locates the popup menu
-        i = 0;
-        while (g_menu_popups[i].popup_content)
-        {
-            if (item->desc->id == g_menu_popups[i].menu_id)
-            {
-                item->data.popup_content = g_menu_popups[i].popup_content;
-                break;
-            }
-            i++;
-        }
-    }
-    else if (item->desc->type == MENU_NONE)
-    {
-        // calls the action callback
-        if (item->desc->action_cb)
-            item->desc->action_cb(item, MENU_EV_ENTER);
-
-        if (display_id)
-        {
-            item = g_current_menu->data;
-            g_current_item = item;
-        }
-    }
-    else if (item->desc->type == MENU_BAR)
-    {
-        if (display_id)
-        {
-            static uint8_t toggle = 0;
-            if (toggle == 0)
-            {
-                toggle = 1;
-                // calls the action callback
-                if ((item->desc->action_cb) && (item->desc->type != MENU_SET))
-                    item->desc->action_cb(item, MENU_EV_ENTER);
-            }
-            else
-            {
-                toggle = 0;
-                if (item->desc->type == MENU_VOL)
-                    system_save_gains_cb(item, MENU_EV_ENTER);
-                else
-                    item->desc->action_cb(item, MENU_EV_ENTER);
-                //resets the menu node
-                item = g_current_menu->data;
-                g_current_item = item;
-            }
-        }
-    }
-*/
-    if (item->desc->parent_id == DEVICE_ID && item->desc->action_cb)
-        item->desc->action_cb(item, MENU_EV_ENTER);
-
-    if (tool_is_on(DISPLAY_TOOL_SYSTEM))
-    {
         screen_system_menu(item);
         g_update_cb = NULL;
         g_update_data = NULL;
@@ -368,6 +194,11 @@ static void menu_enter(uint8_t display_id)
             g_update_cb = item->desc->action_cb;
             g_update_data = item;
         }
+    }
+    else if (item->desc->type == MENU_MAIN)
+    {
+        //print the 3 items on screen
+        screen_menu_page(node);
     }
 
     if (item->desc->type == MENU_CONFIRM2)
@@ -380,6 +211,7 @@ static void menu_enter(uint8_t display_id)
 
 static void menu_up(uint8_t display_id)
 {
+
     menu_item_t *item = g_current_item;
 
         if (item->data.hover > 0)

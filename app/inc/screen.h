@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include "config.h"
 #include "data.h"
-
+#include "node.h"
 
 /*
 ************************************************************************************************************************
@@ -74,6 +74,7 @@ void screen_tuner(float frequency, char *note, int8_t cents);
 void screen_tuner_input(uint8_t input);
 void screen_image(uint8_t display, const uint8_t *image);
 void screen_shift_overlay(uint8_t prev_mode);
+void screen_menu_page(node_t *node);
 
 
 /*

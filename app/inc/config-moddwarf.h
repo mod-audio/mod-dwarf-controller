@@ -283,8 +283,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
     {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"CLOCK_SOURCE_ID",                 MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
-    {"SEND_CLOCK_ID",                   MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \
+    {"CLOCK_SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
+    {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \
     {"MIDI",                            MENU_MAIN,      MIDI_ID,                ROOT_ID,            NULL                       , 0},  \
     {"PEDALBOARD PC CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
     {"SNAPSHOT PC CHANNEL",             MENU_TOGGLE,    MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
