@@ -121,29 +121,21 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
     //no control
     if (!control)
-    {/*
-        //draw back the title line on 16
-        glcd_hline(display, 0, 16, DISPLAY_WIDTH, GLCD_BLACK);
-
+    {
         char text[sizeof(SCREEN_ROTARY_DEFAULT_NAME) + 2];
         strcpy(text, SCREEN_ROTARY_DEFAULT_NAME);
-        text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)-1] = 0 + '1';
+        text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)-1] = encoder + '1';
         text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)] = 0;
 
-        textbox_t title;
+        textbox_t title = {};
         title.color = GLCD_BLACK;
         title.mode = TEXT_SINGLE_LINE;
-        title.font = Terminal7x8;
-        title.height = 0;
-        title.width = 0;
-        title.top_margin = 0;
-        title.bottom_margin = 0;
-        title.left_margin = 0;
-        title.right_margin = 0;
+        title.font = Terminal3x5;
         title.text = text;
-        title.align = ALIGN_CENTER_NONE;
-        title.y = 33 - (Terminal7x8[FONT_HEIGHT] / 2);
-        widget_textbox(display, &title);*/
+        title.align = ALIGN_NONE_NONE;
+        title.y = encoder_y;
+        title.x = encoder_x;
+        widget_textbox(display, &title);
         return;
     }
 
@@ -941,7 +933,7 @@ void screen_shift_overlay(uint8_t prev_mode)
     box_2.text = "-";
     widget_textbox(display, &box_2);
 
-    //draw the second box, TODO Builder MODE
+    //draw the third box, save PB
     textbox_t box_3 = {};
     box_3.color = GLCD_BLACK;
     box_3.mode = TEXT_SINGLE_LINE;
