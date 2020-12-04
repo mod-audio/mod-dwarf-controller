@@ -312,6 +312,91 @@ void widget_listbox(glcd_t *display, listbox_t *listbox)
     }
 }
 
+void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
+{
+    uint8_t i, font_height, max_lines, y_line;
+    uint8_t first_line, focus, center_focus, focus_height;
+    char aux[DISPLAY_WIDTH/2];
+    const char *line_txt;
+
+    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height-3, ~listbox->color);
+
+    font_height = listbox->font[FONT_HEIGHT];
+    max_lines = listbox->height / (font_height + listbox->line_space);
+
+    center_focus = (max_lines / 2) - (1 - (max_lines % 2));
+    first_line = 0;
+
+    if (listbox->hover > center_focus && listbox->count > max_lines)
+    {
+        first_line = listbox->hover - center_focus;
+        if (first_line > ABS(listbox->count - max_lines))
+        {
+            first_line = ABS(listbox->count - max_lines);
+        }
+    }
+
+    if (max_lines > listbox->count) max_lines = listbox->count;
+    focus = listbox->hover - first_line;
+    focus_height = font_height + listbox->line_top_margin + listbox->line_bottom_margin;
+    y_line = listbox->y + listbox->line_space;
+
+    uint8_t lines_to_display, end_of_list = 0, beginning_of_list = 0;
+
+    if (listbox->hover > listbox->count-4)
+    {
+        end_of_list = 1;
+    }
+    else if (listbox->hover < 3)
+    {
+        beginning_of_list = 1;
+    }
+
+    for (i = 0; i < max_lines; i++)
+    {
+        if (i < listbox->count)
+        {
+            line_txt = listbox->list[first_line + i];
+
+            textbox_t menu_line = {};
+            menu_line.color = GLCD_BLACK;
+            menu_line.mode = TEXT_SINGLE_LINE;
+            menu_line.font = Terminal3x5;
+            menu_line.align = ALIGN_CENTER_NONE;
+            menu_line.x = listbox->x + listbox->text_left_margin;
+            menu_line.y = y_line;
+            menu_line.text = line_txt;
+            widget_textbox(display, &menu_line);
+
+            if (i == focus)
+            {
+                glcd_rect_invert(display, listbox->x, y_line - listbox->line_top_margin, listbox->width, focus_height);
+            }
+
+            y_line += font_height + listbox->line_space;
+        }
+    }
+
+    //print arrows
+    if (!end_of_list)
+    {
+        glcd_hline(display, 65, 50, 1, GLCD_BLACK);
+        glcd_hline(display, 61, 50, 1, GLCD_BLACK);
+        glcd_hline(display, 64, 51, 1, GLCD_BLACK);
+        glcd_hline(display, 62, 51, 1, GLCD_BLACK);
+        glcd_hline(display, 63, 52, 1, GLCD_BLACK);
+    }
+
+    if (!beginning_of_list)
+    {
+        glcd_hline(display, 65, 10, 1, GLCD_BLACK);
+        glcd_hline(display, 61, 10, 1, GLCD_BLACK);
+        glcd_hline(display, 64, 9, 1, GLCD_BLACK);
+        glcd_hline(display, 62, 9, 1, GLCD_BLACK);
+        glcd_hline(display, 63, 8, 1, GLCD_BLACK);
+    }
+}
+
 void widget_listbox2(glcd_t *display, listbox_t *listbox) //FIXME: function hardcoded
 {
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);

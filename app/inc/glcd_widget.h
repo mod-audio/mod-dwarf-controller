@@ -139,6 +139,7 @@ typedef struct POPUP_T {
 //widgets
 void widget_textbox(glcd_t *display, textbox_t *textbox);
 void widget_listbox(glcd_t *display, listbox_t *listbox);
+void widget_menu_listbox(glcd_t *display, listbox_t *listbox);
 void widget_listbox2(glcd_t *display, listbox_t *listbox);
 void widget_listbox4(glcd_t *display, listbox_t *listbox);
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox);

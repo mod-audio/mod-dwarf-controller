@@ -748,55 +748,64 @@ void screen_system_menu(menu_item_t *item)
     glcd_t *display;
     display = hardware_glcds(0);
 
-
-    //we dont display a menu on the right screen when we are in the banks.
-    //if ((display == hardware_glcds(DISPLAY_RIGHT)) && (naveg_tool_is_on(DISPLAY_TOOL_NAVIG)))
-    //{
-    //    return;
-    //} 
-
     // clear screen
     glcd_clear(display, GLCD_WHITE);
 
     // draws the title
-    textbox_t title_box;
+    textbox_t title_box = {};
     title_box.color = GLCD_BLACK;
     title_box.mode = TEXT_SINGLE_LINE;
     title_box.font = Terminal3x5;
-    title_box.top_margin = 0;
-    title_box.bottom_margin = 0;
-    title_box.left_margin = 0;
-    title_box.right_margin = 0;
-    title_box.height = 0;
-    title_box.width = 0;
+    title_box.top_margin = 1;
     title_box.align = ALIGN_CENTER_TOP;
     title_box.text = item->name;
+    widget_textbox(display, &title_box);
 
-        if ((item->desc->type == MENU_NONE) || (item->desc->type == MENU_TOGGLE))
-        {
-            if (last_item)
-            {
-                title_box.text = last_item->name;
-                if (title_box.text[strlen(item->name) - 1] == ']')
-                    title_box.text = last_item->desc->name;
-            }
-        }
-        else if (title_box.text[strlen(item->name) - 1] == ']')
-        {
-            title_box.text = item->desc->name;
-        }
-        widget_textbox(display, &title_box);
+    //invert the title area
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
 
-    // title line separator
-    glcd_hline(display, 0, 9, DISPLAY_WIDTH, GLCD_BLACK_WHITE);
-    glcd_hline(display, 0, 10, DISPLAY_WIDTH, GLCD_WHITE);
+    print_menu_outlines();
+
+    //print the 3 buttons
+    //draw the first box, back
+    textbox_t box_1 = {};
+    box_1.color = GLCD_BLACK;
+    box_1.mode = TEXT_SINGLE_LINE;
+    box_1.font = Terminal3x5;
+    box_1.align = ALIGN_NONE_NONE;
+    box_1.x = 18;
+    box_1.y = DISPLAY_HEIGHT - 7;
+    box_1.text = "ENTER>";
+    widget_textbox(display, &box_1);
+
+    //draw the second box, TODO Builder MODE
+    textbox_t box_2 = {};
+    box_2.color = GLCD_BLACK;
+    box_2.mode = TEXT_SINGLE_LINE;
+    box_2.font = Terminal3x5;
+    box_2.align = ALIGN_NONE_NONE;
+    box_2.x = 56;
+    box_2.y = DISPLAY_HEIGHT - 7;
+    box_2.text = "EXIT";
+    widget_textbox(display, &box_2);
+
+    //draw the third box, save PB
+    textbox_t box_3 = {};
+    box_3.color = GLCD_BLACK;
+    box_3.mode = TEXT_SINGLE_LINE;
+    box_3.font = Terminal3x5;
+    box_3.align = ALIGN_NONE_NONE;
+    box_3.x = 96;
+    box_3.y = DISPLAY_HEIGHT - 7;
+    box_3.text = "-";
+    widget_textbox(display, &box_3);
 
     // menu list
     listbox_t list;
-    list.x = 0;
-    list.y = 11;
-    list.width = 128;
-    list.height = 53;
+    list.x = 1;
+    list.y = 12;
+    list.width = 126;
+    list.height = 40;
     list.color = GLCD_BLACK;
     list.font = Terminal3x5;
     list.line_space = 2;
@@ -819,7 +828,7 @@ void screen_system_menu(menu_item_t *item)
             list.selected = item->data.selected;
             list.count = item->data.list_count;
             list.list = item->data.list;
-            widget_listbox(display, &list);
+            widget_menu_listbox(display, &list);
         break;
 
         case MENU_CONFIRM:
