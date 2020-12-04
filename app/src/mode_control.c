@@ -131,33 +131,33 @@ static void step_to_value(control_t *control)
 void set_footswitch_pages_led_state(void)
 {
     //first turn all off
-    ledz_set_state(hardware_leds(0), 0, WHITE, 0, 0, 0, 0);
+    ledz_set_state(hardware_leds(2), 0, WHITE, 0, 0, 0, 0);
 
     switch (g_current_foot_control_page)
     {
         case 0:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_1, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_1, 1, 0, 0, 0);
         break;
         case 1:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_2, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_2, 1, 0, 0, 0);
         break;
         case 2:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_3, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_3, 1, 0, 0, 0);
         break;
         case 3:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_4, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_4, 1, 0, 0, 0);
         break;
         case 4:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_5, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_5, 1, 0, 0, 0);
         break;
         case 5:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_6, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_6, 1, 0, 0, 0);
         break;
         case 6:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_7, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_7, 1, 0, 0, 0);
         break;
         case 7:
-            ledz_set_state(hardware_leds(0), 0, FS_PAGE_COLOR_8, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_8, 1, 0, 0, 0);
         break;
     }
 }
@@ -941,6 +941,10 @@ void CM_dec_control(uint8_t encoder)
 
 void CM_foot_control_change(uint8_t foot, uint8_t value)
 {
+    // checks if there is assigned control
+    if (g_foots[foot] == NULL) 
+        return;
+
     if (!value)
     {
         //check if we use the release action for this actuator

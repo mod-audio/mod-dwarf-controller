@@ -447,9 +447,13 @@ void hardware_setup(void)
 
         // actuators pins configuration
         actuator_set_pins(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH_PINS[i]);
+    
+        //set links for double press
+        if (i > 0)
+            actuator_set_link(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH0);
 
-        // actuators properties
-        //actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, TOOL_MODE_TIME);
+        //set actuator properties
+        actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_DOUBLE_TIME, BUTTON_DOUBLE_PRESS_DEBOUNCE);
     }
 
     //init buttons
@@ -460,9 +464,6 @@ void hardware_setup(void)
 
         // actuators pins configuration
         actuator_set_pins(hardware_actuators(BUTTON0 + i), BUTTON_PINS[i]);
-
-        // actuators properties
-       // actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, TOOL_MODE_TIME);
     }
 
     // default glcd brightness

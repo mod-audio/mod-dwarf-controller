@@ -331,10 +331,26 @@ static void actuators_task(void *pvParameters)
                 //footswitches
                 if (id < 3)
                 {
-                    //if (BUTTON_DOUBLE(status))
-                    //{
-                    //    naveg_foot_double_pressed();
-                    //}
+                    if (BUTTON_DOUBLE(status))
+                    {
+                        switch (id)
+                        {
+                            case 0:
+                                ledz_off(hardware_leds(1), WHITE);
+                                ledz_on(hardware_leds(1), YELLOW);
+                            break;
+
+                            case 1:
+                                ledz_off(hardware_leds(1), WHITE);
+                                ledz_on(hardware_leds(1), GREEN);
+                            break;
+
+                            case 2:
+                                ledz_off(hardware_leds(1), WHITE);
+                                ledz_on(hardware_leds(1), RED);
+                            break;
+                        }
+                    }
                     if (BUTTON_PRESSED(status))
                     {
                         naveg_foot_change(id, 1);
