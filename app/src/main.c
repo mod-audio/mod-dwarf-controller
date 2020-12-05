@@ -338,22 +338,12 @@ static void actuators_task(void *pvParameters)
                     }
                     if (BUTTON_PRESSED(status))
                     {
-                        //naveg_foot_change(id, 1);
-                        if (id == 0)
-                            ledz_on(hardware_leds(1), YELLOW);
-                        else
-                            ledz_on(hardware_leds(1), GREEN);
+                        naveg_foot_change(id, 1);
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
-                        //naveg_foot_change(id, 0);
-                        //trigger LED 
-                        if (id == 0)
-                            ledz_off(hardware_leds(1), YELLOW);
-                        else
-                            ledz_off(hardware_leds(1), GREEN);
-
+                        naveg_foot_change(id, 0);
                     }
                 }
                 //encoder buttons
@@ -361,15 +351,12 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_PRESSED(status))
                     {
-                        //naveg_button_pressed(id-3);
-                        ledz_on(hardware_leds(4), BLUE);
+                        naveg_button_pressed(id-3);
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
-                        //trigger LED 
-                        //naveg_button_released(id-3);
-                        ledz_off(hardware_leds(4), BLUE);
+                        naveg_button_released(id-3);
                     }
                 }
                 //shift button
@@ -377,15 +364,12 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_PRESSED(status))
                     {
-                        //naveg_shift_pressed();
-                        ledz_on(hardware_leds(4), RED);
+                        naveg_shift_pressed();
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
-                        //trigger LED 
-                        //naveg_shift_releaed();
-                        ledz_off(hardware_leds(4), RED);
+                        naveg_shift_releaed();
                     }
                 }
 
