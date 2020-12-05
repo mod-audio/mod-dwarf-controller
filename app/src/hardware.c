@@ -450,10 +450,10 @@ void hardware_setup(void)
     
         //set links for double press
         if (i > 0)
+        {
+            actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_DOUBLE_TIME, BUTTON_DOUBLE_PRESS_DEBOUNCE);
             actuator_set_link(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH0);
-
-        //set actuator properties
-        actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_DOUBLE_TIME, BUTTON_DOUBLE_PRESS_DEBOUNCE);
+        }
     }
 
     //init buttons

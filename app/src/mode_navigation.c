@@ -34,7 +34,7 @@
 ************************************************************************************************************************
 */
 
-enum {BANKS_LIST, PEDALBOARD_LIST};
+enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 
 #define PAGE_DIR_INIT 0
 #define PAGE_DIR_DOWN 1
@@ -76,6 +76,8 @@ static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
 
 static control_t *g_controls[ENCODERS_COUNT], *g_foots[FOOTSWITCHES_COUNT];
+
+static uint8_t g_current_list = PEDALBOARD_LIST;
 
 /*
 ************************************************************************************************************************
@@ -689,70 +691,6 @@ bp_list_t *NM_get_banks(void)
     return (g_bp_state == BANKS_LIST) ? g_banks : g_pedalboards;
 }
 
-/*
-void naveg_bank_config(bank_config_t *bank_conf)
-{
-     if (!g_initialized) return;
-
-    // checks the function number
-    if (bank_conf->function >= BANK_FUNC_COUNT) return;
-
-    // checks the actuator type and actuator id
-    if (bank_conf->hw_id > ENCODERS_COUNT + FOOTSWITCHES_COUNT) return;
-
-    uint8_t i;
-    for (i = 1; i < BANK_FUNC_COUNT; i++)
-    {
-        // checks if the function is already assigned to an actuator
-        if (bank_conf->function != BANK_FUNC_NONE &&
-            bank_conf->function == g_bank_functions[i].function &&
-            bank_conf->hw_id != g_bank_functions[i].hw_id)
-        {
-            // default state of led blink (no blink)
-            //led_blink(hardware_leds(g_bank_functions[i].hw_id - ENCODERS_COUNT), 0, 0);
-
-            // updates the screen and led
-            //led_set_color(hardware_leds(g_bank_functions[i].hw_id - ENCODERS_COUNT), BLACK);
-            if (!tool_mode_has_tool_enabled(g_bank_functions[i].hw_id))
-                screen_footer(g_bank_functions[i].hw_id - ENCODERS_COUNT, NULL, NULL, 0);
-
-            // removes the function
-            g_bank_functions[i].function = BANK_FUNC_NONE;
-            g_bank_functions[i].hw_id = 0xFF;
-        }
-
-        // checks if is replacing a function
-        if ((g_bank_functions[i].function != bank_conf->function) &&
-            (g_bank_functions[i].hw_id == bank_conf->hw_id))
-        {
-            // removes the function
-            g_bank_functions[i].function = BANK_FUNC_NONE;
-            g_bank_functions[i].hw_id = 0xFF;
-
-            // if the new function is none, updates the screen and led
-            if (bank_conf->function == BANK_FUNC_NONE)
-            {
-                // default state of led blink (no blink)
-                //led_blink(hardware_leds(bank_conf->hw_id - ENCODERS_COUNT), 0, 0);
-
-                //led_set_color(hardware_leds(bank_conf->hw_id - ENCODERS_COUNT), BLACK);
-                if (!tool_mode_has_tool_enabled(bank_conf->hw_id))
-                    screen_footer(bank_conf->hw_id - ENCODERS_COUNT, NULL, NULL, 0);
-
-                // checks if has control assigned in this foot
-                // if yes, updates the footer screen
-                if (g_foots[bank_conf->hw_id - ENCODERS_COUNT])
-                    foot_control_add(g_foots[bank_conf->hw_id - ENCODERS_COUNT]);
-            }
-        }
-    }
-
-    // copies the bank function struct
-    if (bank_conf->function != BANK_FUNC_NONE)
-        memcpy(&g_bank_functions[bank_conf->function], bank_conf, sizeof(bank_config_t));
-
-    bank_config_footer();
-}*/
 
 void NM_set_pedalboards(bp_list_t *bp_list)
 {
@@ -785,4 +723,20 @@ void NM_update(void)
 int NM_need_update(void)
 {
     return (g_update_cb ? 1: 0);
+}
+
+void NM_print_screen(void)
+{
+    switch(g_current_list)
+    {
+        case BANKS_LIST:
+        break;
+
+        case PEDALBOARD_LIST:
+            screen_bp_list("PEDALBOARDS", g_pedalboards);
+        break;
+
+        case SNAPSHOT_LIST:
+        break;
+    }
 }

@@ -321,6 +321,64 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
     }
 }
 
+void naveg_foot_double_press(uint8_t foot)
+{
+    //navigation mode
+    if (foot == 1)
+    {
+        switch(g_device_mode)
+        {
+            case MODE_CONTROL:
+                //enter navigation mode
+                NM_print_screen();
+                g_device_mode = MODE_NAVIGATION;
+            break;
+
+            case MODE_NAVIGATION:
+                //enter control mode
+                CM_print_screen();
+                g_device_mode = MODE_CONTROL;
+            break;
+
+            case MODE_TOOL:
+                //we enter the prev mode
+                if (g_prev_device_mode == MODE_NAVIGATION)
+                {
+                    NM_print_screen();
+                    g_device_mode = MODE_NAVIGATION;
+                }
+                else
+                {
+                    CM_print_screen();
+                    g_device_mode = MODE_CONTROL;
+                }
+            break;
+
+            case MODE_BUILDER:
+                //not defined yet
+            break;
+
+            case MODE_SHIFT:
+                //block action
+                return;
+            break;
+        } 
+    }
+
+    //tool mode
+    else if (foot == 2)
+    {
+        if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION))
+        {
+            g_prev_device_mode = g_device_mode;
+            TM_launch_tool(TOOL_TUNER);
+        }
+    }
+
+    //we dont have others atm
+    return;
+}
+
 //used fot the 3 encoder buttons
 void naveg_button_pressed(uint8_t button)
 {
@@ -440,152 +498,6 @@ void naveg_shift_releaed()
     }
 }
 
-/*
-void naveg_toggle_tool(uint8_t tool, uint8_t display)
-{
-    if (!g_initialized) return;
-    static uint8_t banks_loaded = 0;
-    // clears the display
-    screen_clear(display);
-
-    // changes the display to tool mode
-    if (1)
-    {
-        // action to do when the tool is enabled
-        switch (tool)
-        {
-            case DISPLAY_TOOL_NAVIG:
-                // initial state to banks/pedalboards navigation
-                if (!banks_loaded) request_banks_list(2);
-                banks_loaded = 1;
-                tool_mode_trigger_tool(DISPLAY_TOOL_SYSTEM_SUBMENU, 0);
-                display = 1;
-                g_bp_state = BANKS_LIST;
-                break;
-            case DISPLAY_TOOL_TUNER:
-                display_disable_all_tools(display);
-
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
-                // sends the data to GUI
-                ui_comm_webgui_send(CMD_TUNER_ON, strlen(CMD_TUNER_ON));
-
-                // waits the pedalboards list be received
-                ui_comm_webgui_wait_response();
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
-
-                break;
-            case DISPLAY_TOOL_SYSTEM:
-                screen_clear(1);
-                display_disable_all_tools(DISPLAY_LEFT);
-                display_disable_all_tools(DISPLAY_RIGHT);
-                tool_mode_trigger_tool(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
-        }
-
-        // draws the tool
-        tool_on(tool, display);
-        screen_tool(tool, display);
-
-        if (tool == DISPLAY_TOOL_SYSTEM)
-        {
-            //already enter banks menu on display 1
-            menu_enter(1);
-            g_current_main_menu = g_current_menu;
-            g_current_main_item = g_current_item;
-            menu_enter(0);
-        }
-    }
-    // changes the display to control mode
-    else
-    {
-        // action to do when the tool is disabled
-        switch (tool)
-        {
-            case DISPLAY_TOOL_SYSTEM:
-                display_disable_all_tools(display);
-                display_disable_all_tools(1);
-                g_update_cb = NULL;
-                g_update_data = NULL;
-                banks_loaded = 0;
-                // force save gains when leave the menu
-                system_save_gains_cb(NULL, MENU_EV_ENTER);
-                break;
-            case DISPLAY_TOOL_NAVIG:
-                tool_off(DISPLAY_TOOL_NAVIG);
-                tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
-                return;
-                break;
-
-            case DISPLAY_TOOL_TUNER:
-
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
-                // sends the data to GUI
-                ui_comm_webgui_send(CMD_TUNER_OFF, strlen(CMD_TUNER_OFF));
-
-                // waits the pedalboards list be received
-                ui_comm_webgui_wait_response();
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
-
-                tool_off(DISPLAY_TOOL_TUNER);
-
-                if (tool_is_on(DISPLAY_TOOL_SYSTEM))
-                {
-                   tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1); 
-                   return;
-                } 
-
-                break;
-        }
-
-        //clear previous commands in the buffer
-        ui_comm_webgui_clear();
-
-        control_t *control = g_controls[display];
-
-        // draws the control
-        screen_encoder(display, control);
-
-        //draw the top bar
-        display ? screen_ss_name(NULL, 0) : screen_pb_name(NULL, 0);
-
-        //draw the index (do not update values)
-        naveg_set_index(0, display, 0, 0);
-
-        // checks the function assigned to foot and update the footer
-        if (bank_config_check(display)) bank_config_footer();
-        else if (g_foots[display]) foot_control_add(g_foots[display]);
-        else screen_footer(display, NULL, NULL, 0);
-
-        if (tool == DISPLAY_TOOL_SYSTEM)
-        {
-            screen_clear(1);
-            control = g_controls[1];
-            display = 1; 
-     
-            // draws the control
-            screen_encoder(display, control);
-
-            //draw the top bar
-            screen_ss_name(NULL, 0);
-    
-            //draw the index (do not update values)
-            naveg_set_index(0, display, 0, 0);
-
-            // checks the function assigned to foot and update the footer
-            if (bank_config_check(display)) bank_config_footer();
-            else if (g_foots[display]) foot_control_add(g_foots[display]);
-            else screen_footer(display, NULL, NULL, 0);
-        }
-    }
-}
-*/
 uint8_t naveg_dialog_status(void)
 {
     return dialog_active;

@@ -61,7 +61,7 @@ typedef enum {
 
 // Debounce configuration (in miliseconds)
 #define BUTTON_PRESS_DEBOUNCE           15
-#define BUTTON_DOUBLE_PRESS_DEBOUNCE    40
+#define BUTTON_DOUBLE_PRESS_DEBOUNCE    70
 #define BUTTON_RELEASE_DEBOUNCE         50
 #define ENCODER_PRESS_DEBOUNCE          35
 #define ENCODER_RELEASE_DEBOUNCE        100
@@ -69,6 +69,10 @@ typedef enum {
 // Encoders configuration
 #define ENCODER_RESOLUTION          24
 
+//flags
+#define NO_DOUBLE_PRESS_LINK    -1
+#define DOUBLE_PRESSED_LINKED   -2
+#define DOUBLE_PRESSED_LOCKED   -3
 
 /*
 *********************************************************************************************************
@@ -89,8 +93,8 @@ typedef struct BUTTON_T {
 
     uint8_t port, pin;
     uint16_t hold_time, hold_time_counter;
-    uint8_t double_press_button_id;
-    uint16_t last_pressed_time, last_pressed_time_counter;
+    int8_t double_press_button_id;
+    int32_t last_pressed_time, last_pressed_time_counter;
     uint32_t hardware_press_time;
 } button_t;
 

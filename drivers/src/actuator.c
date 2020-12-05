@@ -150,6 +150,9 @@ void actuator_create(actuator_type_t type, uint8_t id, void *actuator)
             button->control = 0;
             button->status = 0;
             button->hardware_press_time = 0;
+            button->last_pressed_time = 0;
+            button->last_pressed_time_counter = 0;
+            button->double_press_button_id = NO_DOUBLE_PRESS_LINK;
             break;
 
         case ROTARY_ENCODER:
@@ -242,6 +245,19 @@ void actuator_set_link(void *actuator, uint8_t linked_actuator_id)
 
     button_t *button = (button_t *) actuator;
     button->double_press_button_id = linked_actuator_id;
+
+    button_t *other_button;
+    other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
+
+    //configure other button constants
+    other_button->double_press_button_id = DOUBLE_PRESSED_LINKED;
+
+    //we need to copy over the double press time to the other actuator if not set manually
+    if (other_button->last_pressed_time == 0)
+    {
+       other_button->last_pressed_time = button->last_pressed_time;
+       other_button->last_pressed_time_counter = button->last_pressed_time_counter;
+    }
 }
 
 void actuator_enable_event(void *actuator, uint8_t events_flags)
@@ -332,8 +348,10 @@ void actuators_clock(void)
                 if (READ_PIN(button->port, button->pin) == BUTTON_ACTIVATED) button_on = BUTTON_ON_FLAG;
                 else button_on = 0;
 
-                //keep time
-                button->hardware_press_time = hardware_timestamp();
+                button_t *other_button = NULL;
+                
+                if (button->double_press_button_id >= 0)
+                    other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
 
                 // button on same state
                 if (button_on == (button->control & BUTTON_ON_FLAG))
@@ -348,6 +366,7 @@ void actuators_clock(void)
                         if (button->hold_time_counter > 0)
                         {
                             button->hold_time_counter--;
+
                             if (button->hold_time_counter == 0)
                             {
                                 SET_FLAG(button->status, EV_BUTTON_HELD);
@@ -357,28 +376,37 @@ void actuators_clock(void)
                             }
                         }
 
-                        // double button press hold
-                        else if (button->last_pressed_time_counter > 0)
+                        //we passed the debounce, now we need to wait for the timer of the double press to be ready before we can set an event
+                        if (button->last_pressed_time_counter > 0)
                         {
                             button->last_pressed_time_counter--;
 
-                            //check other button
-                            button_t *other_button;
-                            other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
-                            if (READ_PIN(other_button->port, other_button->pin) == BUTTON_ACTIVATED)
+                            //check if we need to toggle double press
+                            if (button->double_press_button_id >= 0)
                             {
-                                CLR_FLAG(button->status, EV_BUTTON_PRESSED);
-                                SET_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
+                                if (button_on == (other_button->control & BUTTON_ON_FLAG))
+                                {
+                                    //double press
+                                    CLR_FLAG(button->status, EV_ALL_BUTTON_EVENTS);
+                                    SET_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
 
-                                event(button, EV_BUTTON_PRESSED_DOUBLE);
+                                    event(button, EV_BUTTON_PRESSED_DOUBLE); 
 
-                                // reload double press time counter
-                                button->last_pressed_time_counter = button->last_pressed_time / CLOCK_PERIOD;
+                                    //make sure we only trigger once, and no pressed action
+                                    button->last_pressed_time_counter = -1;
+
+                                    return;
+                                }
                             }
-                            else if (button->last_pressed_time_counter == 0)
+
+                            //timeout
+                            if (button->last_pressed_time_counter == 0)
                             {
+                                //no action when the button is linked and the other one is pressed
+                                if (button->double_press_button_id == DOUBLE_PRESSED_LOCKED)
+                                    return;
+
                                 // update status flags
-                                CLR_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
                                 CLR_FLAG(button->status, EV_BUTTON_RELEASED);
                                 SET_FLAG(button->status, EV_BUTTON_PRESSED);
 
@@ -414,11 +442,24 @@ void actuators_clock(void)
                         // button pressed
                         if (button_on)
                         {
-                            // update status flags
-                            //CLR_FLAG(button->status, EV_BUTTON_RELEASED);
-                            //SET_FLAG(button->status, EV_BUTTON_PRESSED);
+                            //keep time for tap tempo
+                            button->hardware_press_time = hardware_timestamp();
 
-                            //event(button, EV_BUTTON_PRESSED);
+                            //NOT passing any event here as it will mess with the double press
+                            if (button->double_press_button_id == NO_DOUBLE_PRESS_LINK)
+                            {
+                                CLR_FLAG(button->status, EV_BUTTON_RELEASED);
+                                SET_FLAG(button->status, EV_BUTTON_PRESSED);
+
+                                event(button, EV_BUTTON_PRESSED); 
+                            }
+                            else if (button->double_press_button_id >= 0)
+                            {
+                                button_t *other_button;
+                                other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
+
+                                other_button->double_press_button_id = DOUBLE_PRESSED_LOCKED;
+                            }
 
                             // reload debounce counter
                             button->debounce = BUTTON_RELEASE_DEBOUNCE / CLOCK_PERIOD;
@@ -427,8 +468,8 @@ void actuators_clock(void)
                         else
                         {
                             // update status flags
-                            CLR_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
                             CLR_FLAG(button->status, EV_BUTTON_PRESSED);
+                            CLR_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
                             SET_FLAG(button->status, EV_BUTTON_RELEASED);
 
                             // check if must set click flag
@@ -443,6 +484,14 @@ void actuators_clock(void)
 
                             // reload debounce counter
                             button->debounce = BUTTON_PRESS_DEBOUNCE / CLOCK_PERIOD;
+
+                            //make linked button available again if applicable
+                            if (button->double_press_button_id >= 0)
+                            {
+                                button_t *other_button;
+                                other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
+                                other_button->double_press_button_id = DOUBLE_PRESSED_LINKED;
+                            }
                         }
                     }
                 }

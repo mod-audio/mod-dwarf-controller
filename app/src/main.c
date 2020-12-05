@@ -333,33 +333,27 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_DOUBLE(status))
                     {
-                        switch (id)
-                        {
-                            case 0:
-                                ledz_off(hardware_leds(1), WHITE);
-                                ledz_on(hardware_leds(1), YELLOW);
-                            break;
-
-                            case 1:
-                                ledz_off(hardware_leds(1), WHITE);
-                                ledz_on(hardware_leds(1), GREEN);
-                            break;
-
-                            case 2:
-                                ledz_off(hardware_leds(1), WHITE);
-                                ledz_on(hardware_leds(1), RED);
-                            break;
-                        }
+                        //we can keep it with 1 id for now, as foot 0 (middle) does not trigger any action
+                        naveg_foot_double_press(id);
                     }
                     if (BUTTON_PRESSED(status))
                     {
-                        naveg_foot_change(id, 1);
+                        //naveg_foot_change(id, 1);
+                        if (id == 0)
+                            ledz_on(hardware_leds(1), YELLOW);
+                        else
+                            ledz_on(hardware_leds(1), GREEN);
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
+                        //naveg_foot_change(id, 0);
                         //trigger LED 
-                        naveg_foot_change(id, 0);
+                        if (id == 0)
+                            ledz_off(hardware_leds(1), YELLOW);
+                        else
+                            ledz_off(hardware_leds(1), GREEN);
+
                     }
                 }
                 //encoder buttons
@@ -367,13 +361,15 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_PRESSED(status))
                     {
-                        naveg_button_pressed(id-3);
+                        //naveg_button_pressed(id-3);
+                        ledz_on(hardware_leds(4), BLUE);
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
                         //trigger LED 
-                        naveg_button_released(id-3);
+                        //naveg_button_released(id-3);
+                        ledz_off(hardware_leds(4), BLUE);
                     }
                 }
                 //shift button
@@ -381,13 +377,15 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_PRESSED(status))
                     {
-                        naveg_shift_pressed();
+                        //naveg_shift_pressed();
+                        ledz_on(hardware_leds(4), RED);
                     }
                 
                     if (BUTTON_RELEASED(status))
                     {
                         //trigger LED 
-                        naveg_shift_releaed();
+                        //naveg_shift_releaed();
+                        ledz_off(hardware_leds(4), RED);
                     }
                 }
 
