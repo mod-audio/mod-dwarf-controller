@@ -26,6 +26,7 @@
 #include "ui_comm.h"
 #include "images.h"
 #include "uc1701.h"
+#include "mode_navigation.h"
 
 /*
 ************************************************************************************************************************
@@ -84,7 +85,7 @@ static void actuators_cb(void *actuator);
 
 // tasks
 static void webgui_procotol_task(void *pvParameters);
-static void system_procotol_task(void *pvParameters);
+//static void system_procotol_task(void *pvParameters);
 static void displays_task(void *pvParameters);
 static void actuators_task(void *pvParameters);
 static void cli_task(void *pvParameters);
@@ -261,7 +262,7 @@ static void displays_task(void *pvParameters)
         glcd_update(hardware_glcds(i));
         if (++i == GLCD_COUNT) i = 0;
 
-        if (NM_update())
+        if (NM_need_update())
         {
             if (++count == 500000)
             {
@@ -416,7 +417,7 @@ static void setup_task(void *pvParameters)
     xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 4, NULL);
     //xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 2, NULL);
     xTaskCreate(actuators_task, TASK_NAME("act"), 256, NULL, 3, NULL);
-    //xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 2, NULL);
+    xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 2, NULL);
     xTaskCreate(displays_task, TASK_NAME("disp"), 128, NULL, 1, NULL);
 
     // actuators callbacks

@@ -50,11 +50,11 @@ static menu_desc_t g_menu_desc[] = {
     SYSTEM_MENU
     {NULL, 0, -1, -1, NULL, 0}
 };
-
+/*
 static const menu_popup_t g_menu_popups[] = {
     POPUP_CONTENT
     {-1, NULL, NULL}
-};
+};*/
 
 /*
 ************************************************************************************************************************
@@ -89,7 +89,7 @@ static void *g_update_data;
 
 static xSemaphoreHandle g_dialog_sem;
 static uint8_t dialog_active = 0;
-static uint16_t g_bp_state = 0;
+
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -125,34 +125,9 @@ static int tool_is_on(uint8_t tool)
     return g_tool[tool].state;
 }
 
-static void display_disable_all_tools(uint8_t display)
+static void menu_enter(uint8_t encoder)
 {
-    int i;
-
-    if (tool_is_on(DISPLAY_TOOL_TUNER))
-    {
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
-        // sends the data to GUI
-        ui_comm_webgui_send(CMD_TUNER_OFF, strlen(CMD_TUNER_OFF));
-
-        // waits the pedalboards list be received
-        ui_comm_webgui_wait_response();
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
-    }
-    
-    for (i = 0; i < MAX_TOOLS; i++)
-    {
-        if (g_tool[i].display == display)
-            g_tool[i].state = TOOL_OFF;
-    }
-}
-
-static void menu_enter(uint8_t display_id)
-{
+    (void) encoder;
     uint8_t i;
     node_t *node = g_current_menu;
     menu_item_t *item = g_current_item;
@@ -209,9 +184,9 @@ static void menu_enter(uint8_t display_id)
     }
 }
 
-static void menu_up(uint8_t display_id)
+static void menu_up(uint8_t encoder)
 {
-
+    (void) encoder;
     menu_item_t *item = g_current_item;
 
         if (item->data.hover > 0)
@@ -224,8 +199,9 @@ static void menu_up(uint8_t display_id)
 }
 
 
-static void menu_down(uint8_t display_id)
+static void menu_down(uint8_t encoder)
 {
+    (void) encoder;
     menu_item_t *item = g_current_item;
 
         if (item->data.hover < (item->data.list_count - 1))
@@ -238,19 +214,31 @@ static void menu_down(uint8_t display_id)
 }
 
 
-static void tuner_enter(void)
+static void tuner_enter(uint8_t footswitch)
 {
-    static uint8_t input = 1;
-
     char buffer[128];
-    uint32_t i = copy_command(buffer, CMD_TUNER_INPUT);
+    uint32_t i = 0;
 
-    // toggle the input
-    input = (input == 1 ? 2 : 1);
+    if (footswitch == 0)
+    {
+        static uint8_t input = 1;
 
-    // inserts the input number
-    i += int_to_str(input, &buffer[i], sizeof(buffer) - i, 0);
-    buffer[i] = 0;
+        i = copy_command(buffer, CMD_TUNER_INPUT);
+
+        // toggle the input
+        input = (input == 1 ? 2 : 1);
+
+        // inserts the input number
+        i += int_to_str(input, &buffer[i], sizeof(buffer) - i, 0);
+        buffer[i] = 0;
+
+        // updates the screen
+        screen_tuner_input(input);
+    }
+    else
+    {
+        //tuner mute
+    }
 
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
@@ -263,9 +251,6 @@ static void tuner_enter(void)
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
-
-    // updates the screen
-    screen_tuner_input(input);
 }
 
 static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
@@ -380,7 +365,7 @@ void TM_enter(uint8_t encoder)
 
     if (tool_is_on(DISPLAY_TOOL_TUNER))
     {
-        //menu_enter(encoder);
+        
     }
     else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
@@ -475,6 +460,16 @@ void TM_down(uint8_t encoder)
     }
 }
 
+void TM_foot_change(uint8_t foot)
+{
+    if ((!g_initialized)&&(g_update_cb)) return;
+
+    if (tool_is_on(DISPLAY_TOOL_TUNER))
+    {
+        tuner_enter(foot);
+    }
+}
+
 void TM_reset_menu(void)
 {
     if (!g_initialized) return;
@@ -503,48 +498,6 @@ void TM_menu_refresh(void)
         if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_NONE);
     }
     TM_settings_refresh();
-}
-
-//the menu refresh is to slow for the gains so this one is added that only updates the set value.
-void TM_update_gain(uint8_t display_id, uint8_t update_id, float value, float min, float max, uint8_t dir)
-{
-    node_t *node = g_current_menu;
-
-    //updates all items in a menu
-    for (node = node->first_child; node; node = node->next)
-    {
-        // gets the menu item
-        menu_item_t *item = node->data;
-
-        // updates the value
-        if ((item->desc->id == update_id))
-        {
-            item->data.value = value;
-
-            char str_buf[8];
-            float value_bfr;
-            if (!dir)
-            {
-                value_bfr = MAP(item->data.value, min, max, 0, 115);
-                value_bfr -= 15;
-            }
-            else 
-            {
-                value_bfr = MAP(item->data.value, min, max, 0, 100);
-            }
-            int_to_str(value_bfr, str_buf, sizeof(str_buf), 0);
-            strcpy(item->name, item->desc->name);
-            uint8_t q;
-            uint8_t value_size = strlen(str_buf);
-            uint8_t name_size = strlen(item->name);
-            for (q = 0; q < (31 - name_size - value_size - 1); q++)
-            {
-                strcat(item->name, " ");
-            }
-            strcat(item->name, str_buf);
-            strcat(item->name, "%");
-        }
-    }
 }
 
 void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
@@ -578,6 +531,21 @@ void TM_launch_tool(uint8_t tool)
         break;
 
         case TOOL_TUNER:
+                tool_off(TOOL_SYNC);
+                tool_off(TOOL_BYPASS);
+                tool_on(TOOL_TUNER);
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                //ui_comm_webgui_send(CMD_TUNER_ON, strlen(CMD_TUNER_ON));
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+
+                //first screen
+                screen_tuner(0.0, "?", 0);
         break;
 
         case TOOL_SYNC:

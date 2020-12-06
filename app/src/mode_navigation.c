@@ -12,7 +12,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-
+#include "mode_navigation.h"
 #include "config.h"
 #include "hardware.h"
 #include "serial.h"
@@ -67,15 +67,12 @@ enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 ************************************************************************************************************************
 */
 
-static bp_list_t *g_banks, *g_pedalboards, g_snapshots;
+static bp_list_t *g_banks, *g_pedalboards, *g_snapshots;
 static uint16_t g_bp_state, g_current_pedalboard, g_bp_first, g_pb_footswitches;
-static menu_item_t *g_current_item, *g_current_main_item;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static int16_t g_current_bank, g_force_update_pedalboard;
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
-
-static control_t *g_controls[ENCODERS_COUNT], *g_foots[FOOTSWITCHES_COUNT];
 
 static uint8_t g_current_list = PEDALBOARD_LIST;
 
@@ -125,14 +122,14 @@ static void parse_banks_list(void *data, menu_item_t *item)
 
     NM_set_banks(g_banks);
 }
-
+/*
 //only toggled from the naveg toggle tool function
 static void request_banks_list(uint8_t dir)
 {
     g_bp_state = BANKS_LIST;
 
     // sets the response callback
-    comm_webgui_set_response_cb(parse_banks_list, NULL);
+    ui_comm_webgui_set_response_cb(parse_banks_list, NULL);
 
     char buffer[40];
     memset(buffer, 0, 20);
@@ -163,7 +160,7 @@ static void request_banks_list(uint8_t dir)
 
     g_banks->hover = g_current_bank;
     g_banks->selected = g_current_bank;
-}
+}*/
 
 //requested from the bp_up / bp_down functions when we reach the end of a page
 static void request_next_bank_page(uint8_t dir)
@@ -359,6 +356,7 @@ void NM_init(void)
 {
     g_banks = NULL;
     g_pedalboards = NULL;
+    g_snapshots = NULL;
     g_bp_state = BANKS_LIST; 
 
     // initializes the bank functions

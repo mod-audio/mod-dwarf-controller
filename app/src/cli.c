@@ -17,6 +17,7 @@
 #include "images.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "mode_control.h"
 
 #include <string.h>
 

@@ -316,7 +316,6 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
 {
     uint8_t i, font_height, max_lines, y_line;
     uint8_t first_line, focus, center_focus, focus_height;
-    char aux[DISPLAY_WIDTH/2];
     const char *line_txt;
 
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height-3, ~listbox->color);
@@ -341,7 +340,7 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
     focus_height = font_height + listbox->line_top_margin + listbox->line_bottom_margin;
     y_line = listbox->y + listbox->line_space;
 
-    uint8_t lines_to_display, end_of_list = 0, beginning_of_list = 0;
+    uint8_t end_of_list = 0, beginning_of_list = 0;
 
     if (listbox->hover > listbox->count-4)
     {

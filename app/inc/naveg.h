@@ -83,6 +83,7 @@ void naveg_enc_hold(uint8_t encoder);
 void naveg_enc_down(uint8_t encoder);
 void naveg_enc_up(uint8_t encoder);
 void naveg_foot_change(uint8_t foot, uint8_t pressed);
+void naveg_foot_double_press(uint8_t foot);
 void naveg_button_pressed(uint8_t button);
 void naveg_button_released(uint8_t button);
 void naveg_shift_pressed();

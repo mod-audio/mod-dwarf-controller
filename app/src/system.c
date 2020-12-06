@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "mod-protocol.h"
 #include "ui_comm.h"
+#include "mode_tools.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -304,17 +305,8 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     }
     strcat(item->name, str_bfr);
     strcat(item->name, "%");
-
-    //if stereo link is on we need to update the other menu item as well
-    if ((((event == MENU_EV_UP) || (event == MENU_EV_DOWN)) && (dir ? g_sl_out : g_sl_in))&& (item->desc->id != HEADPHONE_VOLUME_ID))
-    {
-        if (strchr(source, '1'))
-            TM_update_gain(DISPLAY_RIGHT, item->desc->id + 1, item->data.value, min, max, dir);
-        else
-            TM_update_gain(DISPLAY_RIGHT, item->desc->id - 1, item->data.value, min, max, dir);
-    }
     
-    TM_settings_refresh(DISPLAY_RIGHT);
+    TM_settings_refresh();
 }
 
 /*
@@ -417,25 +409,25 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         
     }
 }
-
+/*
 void system_pedalboard_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    //if (event == MENU_EV_ENTER && item->data.hover == 0)
-//    //{
-//    //    switch (item->desc->id)
-//    //    {
-//    //        case PEDALBOARD_SAVE_ID:
-//    //            ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
-//    //            break;
-//
-    //        case PEDALBOARD_RESET_ID:
-    //            ui_comm_webgui_send(CMD_PEDALBOARD_RESET, strlen(CMD_PEDALBOARD_RESET));
-    //            break;
-    //    }
-    //}
-}
+    if (event == MENU_EV_ENTER && item->data.hover == 0)
+    {
+        switch (item->desc->id)
+        {
+            case PEDALBOARD_SAVE_ID:
+                ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
+                break;
+
+            case PEDALBOARD_RESET_ID:
+                ui_comm_webgui_send(CMD_PEDALBOARD_RESET, strlen(CMD_PEDALBOARD_RESET));
+                break;
+        }
+    }
+}*/
 
 void system_bluetooth_cb(void *arg, int event)
 {
@@ -691,7 +683,7 @@ void system_sl_in_cb (void *arg, int event)
         set_menu_item_value(MENU_ID_SL_IN, g_sl_in);
 
         //if we toggled to 1, we need to change gain 2 to  gain 1
-        char value_bfr[8] = {};
+        //char value_bfr[8] = {};
         if (g_sl_in == 1)
         {
             //float_to_str(g_gains_volumes[INP_1_GAIN_ID - VOLUME_ID], value_bfr, 8, 1);
@@ -712,7 +704,7 @@ void system_sl_in_cb (void *arg, int event)
     add_chars_to_menu_name(item, str_bfr);
 
     //gains can change because of this, update the menu
-    if (event == MENU_EV_ENTER) TM_settings_refresh(DISPLAY_RIGHT);
+    if (event == MENU_EV_ENTER) TM_settings_refresh();
 }
 
 void system_sl_out_cb (void *arg, int event)
@@ -750,7 +742,7 @@ void system_sl_out_cb (void *arg, int event)
     add_chars_to_menu_name(item, str_bfr);
 
     //gains can change because of this, update the whole menu
-    if (event == MENU_EV_ENTER) TM_menu_refresh(DISPLAY_RIGHT);
+    if (event == MENU_EV_ENTER) TM_menu_refresh();
 }
 
 void system_hp_bypass_cb (void *arg, int event)
@@ -778,7 +770,7 @@ void system_hp_bypass_cb (void *arg, int event)
     add_chars_to_menu_name(item, str_bfr);
 
     //this setting changes just 1 item
-    if (event == MENU_EV_ENTER) TM_menu_refresh(DISPLAY_RIGHT);
+    if (event == MENU_EV_ENTER) TM_menu_refresh();
 }
 
 void system_tuner_cb (void *arg, int event)
@@ -797,7 +789,7 @@ void system_tuner_cb (void *arg, int event)
     add_chars_to_menu_name(item, str_bfr);
 
     //this setting changes just 1 item
-    if (event == MENU_EV_ENTER) TM_settings_refresh(DISPLAY_LEFT);
+    if (event == MENU_EV_ENTER) TM_settings_refresh();
 }
 
 void system_play_cb (void *arg, int event)
@@ -816,7 +808,7 @@ void system_play_cb (void *arg, int event)
     add_chars_to_menu_name(item, str_bfr);
 
     //this setting changes just 1 item
-    if (event == MENU_EV_ENTER) TM_settings_refresh(DISPLAY_LEFT);
+    if (event == MENU_EV_ENTER) TM_settings_refresh();
 }
 
 void system_midi_src_cb (void *arg, int event)
@@ -988,11 +980,11 @@ void system_bpb_cb (void *arg, int event)
     strcat(str_bfr, "/4");
     add_chars_to_menu_name(item, str_bfr);
 }
-
+/*
 void system_bypass_cb (void *arg, int event)
 {
     menu_item_t *item = arg; 
-/*
+
     //0=in1, 1=in2, 2=in1&2
     switch (item->desc->id)
     {
@@ -1041,16 +1033,13 @@ void system_bypass_cb (void *arg, int event)
     }
     else g_bypass[2] = 0;
 
-    //this setting changes just 1 item on the left screen but we need to update the item first
-    //TM_settings_refresh(DISPLAY_LEFT);
-
     //other items can change because of this, update the whole menu on the right, and left because of the quick bypass
     if (event == MENU_EV_ENTER)
     {
         TM_menu_refresh(DISPLAY_LEFT);
         TM_menu_refresh(DISPLAY_RIGHT);
-    }*/
-}
+    }
+}*/
 
 void system_qbp_channel_cb (void *arg, int event)
 {
@@ -1081,10 +1070,10 @@ void system_qbp_channel_cb (void *arg, int event)
     add_chars_to_menu_name(item, channel_value);
 
     //this setting changes just 1 item on the left screen, though it needs to be added to its node, we need to cycle through
-    if (event == MENU_EV_ENTER)TM_menu_refresh(DISPLAY_LEFT);
+    if (event == MENU_EV_ENTER)TM_menu_refresh();
 
     //this setting changes just 1 item on the right screen
-    if (event == MENU_EV_ENTER) TM_settings_refresh(DISPLAY_RIGHT);
+    if (event == MENU_EV_ENTER) TM_settings_refresh();
 }
 
 void system_quick_bypass_cb (void *arg, int event)
@@ -1146,10 +1135,7 @@ void system_quick_bypass_cb (void *arg, int event)
 
      //other items can change because of this, update the whole menu on the right, and left because of the quick bypass
     if (event == MENU_EV_ENTER)
-    {
-        TM_settings_refresh(DISPLAY_LEFT);
-        TM_menu_refresh(DISPLAY_RIGHT);
-    }
+        TM_settings_refresh();
 }
 
 //USER PROFILE X (loading)

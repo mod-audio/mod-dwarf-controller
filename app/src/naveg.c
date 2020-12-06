@@ -69,24 +69,11 @@ static uint8_t g_ui_connected;
 static xSemaphoreHandle g_dialog_sem;
 static uint8_t dialog_active = 0;
 
-static uint8_t g_force_update_pedalboard = 1;
-static uint8_t g_scroll_dir = 1;
-
 // only enabled after "boot" command received
 bool g_should_wait_for_webgui = false;
 
-
-//yolo
-static bp_list_t *g_banks, *g_naveg_pedalboards, g_footswitch_pedalboards;
-static uint16_t g_bp_state, g_current_pedalboard, g_bp_first, g_pb_footswitches;
-static menu_item_t *g_current_item, *g_current_main_item;
-static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
-static node_t *g_menu, *g_current_menu, *g_current_main_menu;
-
-
-static control_t *g_controls[ENCODERS_COUNT], *g_foots[FOOTSWITCHES_COUNT];
 
 static uint8_t g_device_mode, g_prev_device_mode;
 
@@ -162,10 +149,10 @@ void naveg_ui_connection(uint8_t status)
         g_ui_connected = 0;
 
         // reset the banks and pedalboards state after return from ui connection
-        if (g_banks) data_free_banks_list(g_banks);
-        if (g_naveg_pedalboards) data_free_pedalboards_list(g_naveg_pedalboards);
-        g_banks = NULL;
-        g_naveg_pedalboards = NULL;
+        //if (g_banks) data_free_banks_list(g_banks);
+        //if (g_naveg_pedalboards) data_free_pedalboards_list(g_naveg_pedalboards);
+        //g_banks = NULL;
+        //g_naveg_pedalboards = NULL;
     }
     
     //if we where in some menu's, we might need to exit them
@@ -217,12 +204,12 @@ uint8_t naveg_ui_status(void)
 
 void naveg_enc_enter(uint8_t encoder)
 {
-
+    (void) encoder;
 }
 
 void naveg_enc_hold(uint8_t encoder)
 {
-    
+    (void) encoder;
 }
 
 void naveg_enc_down(uint8_t encoder)
@@ -435,6 +422,7 @@ void naveg_button_pressed(uint8_t button)
 
 void naveg_button_released(uint8_t button)
 {
+    (void) button;
     if (!g_initialized) return;
 
     switch(g_device_mode)
@@ -527,10 +515,10 @@ uint8_t naveg_dialog(const char *msg)
     //tool_on(DISPLAY_TOOL_SYSTEM, DISPLAY_LEFT);
     //tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, DISPLAY_RIGHT);
 
-    g_current_menu = dummy_menu;
-    g_current_item = dummy_menu->data;
+    //g_current_menu = dummy_menu;
+    //g_current_item = dummy_menu->data;
 
-    screen_system_menu(g_current_item);
+    //screen_system_menu(g_current_item);
 
     dialog_active = 1;
 
@@ -549,7 +537,8 @@ uint8_t naveg_dialog(const char *msg)
 
         screen_clear();
 
-        return g_current_item->data.hover;
+        //return g_current_item->data.hover;
+        return -1;
     }
     //we can never get here, portMAX_DELAY means wait indefinatly I'm adding this to remove a compiler warning
     else

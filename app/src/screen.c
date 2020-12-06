@@ -636,40 +636,6 @@ void screen_tittle(const void *data, uint8_t update)
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 }
 
-void screen_tool(uint8_t tool, uint8_t display_id)
-{
-    bp_list_t *bp_list;
-    glcd_t *display = hardware_glcds(display_id);
-
-    switch (tool)
-    {
-        case DISPLAY_TOOL_SYSTEM:
-            //naveg_reset_menu();
-            //naveg_enter(DISPLAY_TOOL_SYSTEM);
-            break;
-
-        case DISPLAY_TOOL_TUNER:
-            g_tuner.frequency = 0.0;
-            g_tuner.note = "?";
-            g_tuner.cents = 0;
-            widget_tuner(display, &g_tuner);
-            break;
-
-        case DISPLAY_TOOL_NAVIG:
-            /*bp_list = naveg_get_banks();
-
-            if (naveg_banks_mode_pb() == BANKS_LIST)
-            {
-                screen_bp_list("BANKS", bp_list);
-            }
-            else 
-            {
-                screen_bp_list(naveg_get_current_pb_name(), bp_list);
-            }*/
-            break;
-    }
-}
-
 void screen_bp_list(const char *title, bp_list_t *list)
 {
     //if (!naveg_is_tool_mode(DISPLAY_RIGHT))
@@ -865,6 +831,12 @@ void screen_system_menu(menu_item_t *item)
                 widget_listbox(display, &list);
             }
             break;
+    
+        case MENU_MAIN:
+        case MENU_LIST:
+        case MENU_BAR:
+        case MENU_CONFIRM2:
+            break;
     }
 }
 
@@ -954,6 +926,16 @@ void screen_menu_page(node_t *node)
             case MENU_LIST:
 
             break;
+
+            //others, dont use
+            case MENU_MAIN:
+            case MENU_ROOT:
+            case MENU_CONFIRM2:
+            case MENU_OK:
+            case MENU_NONE:
+            case MENU_CONFIRM:
+
+            break;
         }
     }
 }
@@ -966,7 +948,7 @@ void screen_tuner(float frequency, char *note, int8_t cents)
 
     // checks if tuner is enable and update it
     //if (naveg_is_tool_mode(DISPLAY_TOOL_TUNER))
-    //    widget_tuner(hardware_glcds(1), &g_tuner);
+        widget_tuner(hardware_glcds(1), &g_tuner);
 }
 
 void screen_tuner_input(uint8_t input)
@@ -975,7 +957,7 @@ void screen_tuner_input(uint8_t input)
 
     // checks if tuner is enable and update it
     //if (naveg_is_tool_mode(DISPLAY_TOOL_TUNER))
-    //    widget_tuner(hardware_glcds(1), &g_tuner);
+        widget_tuner(hardware_glcds(1), &g_tuner);
 }
 
 void screen_image(uint8_t display, const uint8_t *image)

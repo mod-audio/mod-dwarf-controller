@@ -67,6 +67,7 @@ uint8_t CM_tap_tempo_status(uint8_t id);
 void CM_draw_encoders(void);
 void CM_draw_foots(void);
 void CM_load_next_footswitch_page();
+void CM_load_next_encoder_page(uint8_t button);
 void CM_print_screen(void);
 
 /*

@@ -32,6 +32,9 @@
 #include "images.h"
 #include "mode_control.h"
 #include "mode_tools.h"
+
+//reset actuator queue
+void reset_queue(void);
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -567,6 +570,8 @@ static void request_control_page(control_t *control, uint8_t dir)
 
 static void control_set(uint8_t id, control_t *control)
 {
+    (void) id;
+
     uint32_t now, delta;
 
     if ((control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) && !(control->properties & FLAG_CONTROL_MOMENTARY))
@@ -981,20 +986,17 @@ void CM_set_control(uint8_t hw_id, float value)
 {
     if (!g_initialized) return;
 
-    uint8_t id;
     control_t *control = NULL;
 
     //encoder
     if (hw_id < ENCODERS_COUNT)
     {
         control = g_controls[hw_id];
-        id = hw_id;
     }
     //button
     else if (hw_id < MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT)
     {
         control = g_foots[hw_id - ENCODERS_COUNT];
-        id = hw_id - ENCODERS_COUNT;
     }
 
     if (control)
@@ -1238,7 +1240,7 @@ void CM_load_next_footswitch_page()
     uint8_t pagefound = 0;
     uint8_t j = g_current_foot_control_page;
     char buffer[30];
-    uint8_t i;
+    uint8_t i = 0;
     while (!pagefound)
     {
         j++;
@@ -1308,7 +1310,7 @@ void CM_load_next_footswitch_page()
 void CM_load_next_encoder_page(uint8_t button)
 {
     char buffer[30];
-    uint8_t i;
+    uint8_t i = 0;
     i += int_to_str(button, &buffer[i], sizeof(buffer) - i, 0);
 
     g_current_encoder_page = button;
