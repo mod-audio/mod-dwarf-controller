@@ -417,7 +417,7 @@ static void setup_task(void *pvParameters)
     xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 4, NULL);
     //xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 2, NULL);
     xTaskCreate(actuators_task, TASK_NAME("act"), 256, NULL, 3, NULL);
-    xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 2, NULL);
+    xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 4, NULL);
     xTaskCreate(displays_task, TASK_NAME("disp"), 128, NULL, 1, NULL);
 
     // actuators callbacks

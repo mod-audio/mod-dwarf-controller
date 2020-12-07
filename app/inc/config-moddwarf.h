@@ -423,7 +423,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 // defines the cli serial
 #define CLI_SERIAL                  1
 // defines how much time wait for console response (in milliseconds)
-#define CLI_RESPONSE_TIMEOUT        500
+#define CLI_RESPONSE_TIMEOUT        200
 
 ///EEPROM adress page defines
 #define HIDE_ACTUATOR_ADRESS               0

@@ -447,11 +447,11 @@ uint8_t cli_restore(uint8_t action)
     }
     else if (action == RESTORE_CHECK_BOOT)
     {
-        button_t *foot_restore = (button_t *) hardware_actuators(FOOTSWITCH0);
+        button_t *foot_restore = (button_t *) hardware_actuators(BUTTON0);
         encoder_t *knob_restore = (encoder_t *) hardware_actuators(ENCODER0);
 
-        button_t *foot_maskrom = (button_t *) hardware_actuators(FOOTSWITCH2);
-        encoder_t *knob_maskrom = (encoder_t *) hardware_actuators(ENCODER1);
+        button_t *foot_maskrom = (button_t *) hardware_actuators(BUTTON2);
+        encoder_t *knob_maskrom = (encoder_t *) hardware_actuators(ENCODER2);
 
         // check if first footswitch and first encoder is pressed down if so enter restore mode
         if (BUTTON_PRESSED(actuator_get_status(foot_restore)) &&
