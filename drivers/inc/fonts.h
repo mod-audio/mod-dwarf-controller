@@ -53,7 +53,7 @@
  *     uint8_t    font_data[];
  *                  // bit field of all characters
  */
-
+/*
 #define ALTEREBRO24_WIDTH 10
 #define ALTEREBRO24_HEIGHT 15
 
@@ -173,7 +173,7 @@ static const uint8_t alterebro24[] = {
     0x03, 0xBF, 0xBE, 0xC0, 0xC0, 0x60, 0x7E, 0x1E, 0x00, 0x00, // 125
     0x06, 0x06, 0x06, 0x00, 0x00, 0x00 // 126
 };
-
+*/
 //TODO REMOVE THIS FONT ONCE WE HAVE A NEW TUNER DESIGN
 /*
  *
@@ -210,7 +210,7 @@ static const uint8_t alterebro24[] = {
  *     uint8_t    font_data[];
  *                  // bit field of all characters
  */
-
+/*
 #define ALTEREBRO49_WIDTH 10
 #define ALTEREBRO49_HEIGHT 30
 
@@ -330,7 +330,7 @@ static const uint8_t alterebro49[] = {
     0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // 126
 
 };
-
+*/
 /*
  *
  * alterebro15nums
@@ -367,6 +367,7 @@ static const uint8_t alterebro49[] = {
  *                  // bit field of all characters
  *
  */
+/*
 #define ALTEREBRO15NUMS_WIDTH 10
 #define ALTEREBRO15NUMS_HEIGHT 7
 
@@ -395,7 +396,7 @@ static const uint8_t alterebro15nums[] = {
     0x01, 0x71, 0x09, 0x07, // 55
     0x36, 0x49, 0x49, 0x36, // 56
     0x46, 0x49, 0x49, 0x3E  // 57
-};
+};*/
 
 //GLCD FontName : Terminal3x5
 //GLCD FontSize : 3 x 5

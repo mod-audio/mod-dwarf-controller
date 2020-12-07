@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -26,8 +25,6 @@
 *           LOCAL CONSTANTS
 ************************************************************************************************************************
 */
-
-static char g_back_to_bank[] = {"< Back to bank list"};
 
 /*
 ************************************************************************************************************************
@@ -241,7 +238,7 @@ bp_list_t *data_parse_pedalboards_list(char **list_data, uint32_t list_count)
 {
     if (!list_data || list_count == 0 || (list_count % 2)) return NULL;
 
-    list_count = (list_count / 2) + 1;
+    list_count = (list_count / 2);
 
     // create an array of banks
     bp_list_t *bp_list = (bp_list_t *) MALLOC(sizeof(bp_list_t));
@@ -262,14 +259,10 @@ bp_list_t *data_parse_pedalboards_list(char **list_data, uint32_t list_count)
     // check memory allocation
     if (!bp_list->names || !bp_list->uids) goto error;
 
-    // first line is 'back to banks list'
-    bp_list->names[0] = g_back_to_bank;
-    bp_list->uids[0] = NULL;
-
     // fill the bp_list struct
-    for (uint32_t i = 0, j = 1; list_data[i] && j < list_count; i += 2, j++)
+    for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 2, j++)
     {
-        bp_list->names[j] = str_duplicate(list_data[i + 0]);
+        bp_list->names[j] = str_duplicate(list_data[i]);
         bp_list->uids[j] = str_duplicate(list_data[i + 1]);
 
         // check memory allocation
@@ -291,7 +284,7 @@ void data_free_pedalboards_list(bp_list_t *bp_list)
 
     if (bp_list->names)
     {
-        for (i = 1; bp_list->names[i]; i++)
+        for (i = 0; bp_list->names[i]; i++)
             FREE(bp_list->names[i]);
 
         FREE(bp_list->names);
@@ -299,7 +292,7 @@ void data_free_pedalboards_list(bp_list_t *bp_list)
 
     if (bp_list->uids)
     {
-        for (i = 1; bp_list->uids[i]; i++)
+        for (i = 0; bp_list->uids[i]; i++)
             FREE(bp_list->uids[i]);
 
         FREE(bp_list->uids);

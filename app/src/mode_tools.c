@@ -539,7 +539,7 @@ void TM_launch_tool(uint8_t tool)
                 g_protocol_busy = true;
                 system_lock_comm_serial(g_protocol_busy);
 
-                //ui_comm_webgui_send(CMD_TUNER_ON, strlen(CMD_TUNER_ON));
+                ui_comm_webgui_send(CMD_TUNER_ON, strlen(CMD_TUNER_ON));
 
                 g_protocol_busy = false;
                 system_lock_comm_serial(g_protocol_busy);

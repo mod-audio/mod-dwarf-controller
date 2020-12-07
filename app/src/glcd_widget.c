@@ -396,23 +396,69 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
     }
 }
 
-void widget_listbox2(glcd_t *display, listbox_t *listbox) //FIXME: function hardcoded
+void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
 {
-    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
+    uint8_t i, font_height, max_lines, y_line;
+    uint8_t first_line, focus, center_focus, focus_height;
+    const char *line_txt;
 
-    if (listbox->selected > 0)
+    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height-3, ~listbox->color);
+
+    font_height = listbox->font[FONT_HEIGHT];
+    max_lines = listbox->height / (font_height + listbox->line_space);
+
+    center_focus = (max_lines / 2) - (1 - (max_lines % 2));
+    first_line = 0;
+
+    if (listbox->hover > center_focus && listbox->count > max_lines)
     {
-        glcd_text(display, listbox->x + listbox->text_left_margin, 19, listbox->list[listbox->selected-1], Terminal5x7, listbox->color);
+        first_line = listbox->hover - center_focus;
+        if (first_line > ABS(listbox->count - max_lines))
+        {
+            first_line = ABS(listbox->count - max_lines);
+        }
     }
 
-    if (listbox->selected < (listbox->count - 1))
-    {
-        glcd_text(display, listbox->x + listbox->text_left_margin, 41, listbox->list[listbox->selected+1], listbox->font, listbox->color);
-    }
+    if (max_lines > listbox->count) max_lines = listbox->count;
+    focus = listbox->hover - first_line;
+    focus_height = 9 + listbox->line_top_margin + listbox->line_bottom_margin;
+    y_line = listbox->y + listbox->line_space;
 
-    glcd_text(display, listbox->x + listbox->text_left_margin + 2, 27, listbox->list[listbox->selected], alterebro24, listbox->color);
-    glcd_rect_invert(display, listbox->x, 27, listbox->width, 13);
+    for (i = 0; i < max_lines; i++)
+    {
+        if (i < listbox->count)
+        {
+            line_txt = listbox->list[first_line + i];
+
+            textbox_t banks_list = {};
+            banks_list.color = GLCD_BLACK;
+            banks_list.mode = TEXT_SINGLE_LINE;
+            banks_list.align = ALIGN_CENTER_NONE;
+            banks_list.x = listbox->x + listbox->text_left_margin;
+            banks_list.text = line_txt;
+            
+            if (i == focus)
+            {
+                y_line += 2;
+                banks_list.font = Terminal5x7;
+            }
+            else 
+                banks_list.font = Terminal3x5;
+
+            banks_list.y = y_line;
+            widget_textbox(display, &banks_list);
+
+            if (i == focus)
+            {
+                glcd_rect_invert(display, listbox->x, y_line -1 - listbox->line_top_margin, listbox->width, focus_height);
+                y_line += 11;
+            }
+            else 
+                y_line += font_height + listbox->line_space;
+        }
+    }
 }
+
 
 void widget_listbox4(glcd_t *display, listbox_t *listbox)
 {
@@ -455,6 +501,64 @@ void widget_listbox4(glcd_t *display, listbox_t *listbox)
             }
         }
     }
+}
+
+void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font)
+{
+    //draw the title line around it
+    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
+
+    uint8_t char_cnt_name = strlen(listbox->name);
+    if (char_cnt_name > 16)
+    {
+        //limit string
+        char_cnt_name = 16;
+    }
+
+    char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
+    strncpy(title_str_bfr, listbox->name, char_cnt_name);
+    title_str_bfr[char_cnt_name] = '\0';
+
+    //clear the name area
+    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +13), 9, ~listbox->color);
+
+    //draw the title
+    glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 4, listbox->y+2, title_str_bfr, title_font, listbox->color);
+
+    //draw the icon before
+    icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
+
+    // invert the name area
+    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +13), 9);
+
+    //draw the list
+    if (listbox->hover > 0)
+    {
+        uint8_t line_length =  strlen(listbox->list[listbox->hover-1]);
+        if (line_length > 20)
+            line_length = 20;
+
+        glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 12, listbox->list[listbox->hover-1], listbox->font, listbox->color);
+    }
+
+    if (listbox->hover < (listbox->count - 1))
+    {
+        uint8_t line_length =  strlen(listbox->list[listbox->hover+1]);
+        if (line_length > 20)
+            line_length = 20;
+
+        glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 32, listbox->list[listbox->hover+1], listbox->font, listbox->color);
+    }
+
+    uint8_t line_length =  strlen(listbox->list[listbox->hover]);
+    if (line_length > 20)
+        line_length = 20;
+
+    glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 22, listbox->list[listbox->hover], listbox->font, listbox->color);
+
+    glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
+
+    FREE(title_str_bfr);
 }
 
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
@@ -857,69 +961,34 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     // draws the title
     glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
     glcd_hline(display, 0, 9, DISPLAY_WIDTH, GLCD_BLACK_WHITE);
-    textbox_t title;
+
+    textbox_t title = {};
     title.color = GLCD_BLACK;
     title.mode = TEXT_SINGLE_LINE;
     title.font = Terminal3x5;
-    title.top_margin = 0;
-    title.bottom_margin = 0;
-    title.left_margin = 0;
-    title.right_margin = 0;
-    title.height = 0;
-    title.width = 0;
     title.text = "TUNER";
     title.align = ALIGN_CENTER_TOP;
-    title.y = 0;
-    title.x = 0;
     widget_textbox(display, &title);
 
     // clears subtitles
     glcd_rect_fill(display, 0, 51, DISPLAY_WIDTH, 12, GLCD_WHITE);
 
     // draws the frequency subtitle
-    char freq_str[16], input_str[16];
+    char freq_str[16];
     uint8_t i = float_to_str(tuner->frequency, freq_str, sizeof(freq_str), 2);
     freq_str[i++] = 'H';
     freq_str[i++] = 'z';
     freq_str[i++] = 0;
-    textbox_t freq, input;
+
+    textbox_t freq = {};
     freq.color = GLCD_BLACK;
     freq.mode = TEXT_SINGLE_LINE;
     freq.align = ALIGN_LEFT_NONE;
     freq.y = 51;
-    freq.height = 0;
-    freq.width = 0;
-    freq.top_margin = 0;
-    freq.bottom_margin = 0;
     freq.left_margin = 1;
-    freq.right_margin = 0;
-    freq.font = alterebro24;
+    freq.font = Terminal7x8;
     freq.text = freq_str;
     widget_textbox(display, &freq);
-
-    // draws the input subtitle
-    i = 0;
-    input_str[i++] = 'I';
-    input_str[i++] = 'N';
-    input_str[i++] = 'P';
-    input_str[i++] = 'U';
-    input_str[i++] = 'T';
-    input_str[i++] = ' ';
-    input_str[i++] = '0' + tuner->input;
-    input_str[i++] = 0;
-    input.color = GLCD_BLACK;
-    input.mode = TEXT_SINGLE_LINE;
-    input.align = ALIGN_RIGHT_NONE;
-    input.y = 51;
-    input.height = 0;
-    input.width = 0;
-    input.top_margin = 0;
-    input.bottom_margin = 0;
-    input.left_margin = 0;
-    input.right_margin = 1;
-    input.font = alterebro24;
-    input.text = input_str;
-    widget_textbox(display, &input);
 
     // constants configurations
     const uint8_t num_bars = 5, y_bars = 21, w_bar = 4, h_bar = 21, bars_space = 3;
@@ -960,18 +1029,13 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
 
     // draws the note box
     glcd_rect_fill(display, 36, 17, 56, 29, GLCD_WHITE);
-    textbox_t note;
+    textbox_t note = {};
     note.color = GLCD_BLACK;
     note.mode = TEXT_SINGLE_LINE;
     note.align = ALIGN_CENTER_NONE;
-    note.top_margin = 0;
     note.bottom_margin = 2;
-    note.left_margin = 0;
-    note.right_margin = 0;
-    note.y = 18;
-    note.height = 0;
-    note.width = 0;
-    note.font = alterebro49;
+    note.y = 28;
+    note.font = Terminal7x8;
     note.text = tuner->note;
     widget_textbox(display, &note);
 

@@ -1367,4 +1367,6 @@ void CM_print_screen(void)
     CM_draw_foots();
 
     CM_draw_encoders();
+
+    //TODO take case of led's
 }

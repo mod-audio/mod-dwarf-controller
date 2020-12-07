@@ -636,44 +636,84 @@ void screen_tittle(const void *data, uint8_t update)
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 }
 
-void screen_bp_list(const char *title, bp_list_t *list)
+void screen_bank_list(bp_list_t *list)
 {
-    //if (!naveg_is_tool_mode(DISPLAY_RIGHT))
-    //    return; 
+    listbox_t list_box = {};
 
-    listbox_t list_box;
-    textbox_t title_box;
+    glcd_t *display = hardware_glcds(0);
 
-    glcd_t *display = hardware_glcds(1);
+    screen_clear();
 
-    // clears the title
-    glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
-
-    // draws the title
-    title_box.color = GLCD_BLACK;
-    title_box.mode = TEXT_SINGLE_LINE;
-    title_box.font = Terminal3x5;
-    title_box.top_margin = 0;
-    title_box.bottom_margin = 0;
-    title_box.left_margin = 0;
-    title_box.right_margin = 0;
-    title_box.height = 0;
-    title_box.width = 0;
-    title_box.text = title;
-    title_box.align = ALIGN_CENTER_TOP;
-    widget_textbox(display, &title_box);
+    //print outlines
+    print_menu_outlines();
 
     // title line separator
-    glcd_hline(display, 0, 9, DISPLAY_WIDTH, GLCD_BLACK_WHITE);
+    glcd_hline(display, 0, 4, DISPLAY_WIDTH, GLCD_BLACK);
+    glcd_vline(display, 0, 4, 3, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 4, 3, GLCD_BLACK);
+
+    //clear title area
+    glcd_rect_fill(display, 41, 0, 44, 9, GLCD_WHITE);
+
+    // draws the title
+    textbox_t title_box = {};
+    title_box.color = GLCD_BLACK;
+    title_box.mode = TEXT_SINGLE_LINE;
+    title_box.font = Terminal5x7;
+    title_box.align = ALIGN_NONE_NONE;
+    title_box.text = "BANKS";
+    title_box.x = 54;
+    title_box.y = 1;
+    widget_textbox(display, &title_box);
+
+    icon_snapshot(display, 43, 1);
+    //MDW_TODO_BANKS_ICON
+
+    //invert title area
+    glcd_rect_invert(display, 41, 0, 44, 9);
+
+    //print the 3 buttons
+    //draw the first box, back
+    textbox_t box_1 = {};
+    box_1.color = GLCD_BLACK;
+    box_1.mode = TEXT_SINGLE_LINE;
+    box_1.font = Terminal3x5;
+    box_1.align = ALIGN_NONE_NONE;
+    box_1.y = DISPLAY_HEIGHT - 7;
+    box_1.x = 20;
+    box_1.text = "ENTER";
+    widget_textbox(display, &box_1);
+
+    //draw the second box, TODO Builder MODE
+    textbox_t box_2 = {};
+    box_2.color = GLCD_BLACK;
+    box_2.mode = TEXT_SINGLE_LINE;
+    box_2.font = Terminal3x5;
+    box_2.align = ALIGN_NONE_NONE;
+    box_2.x = 56;
+    box_2.y = DISPLAY_HEIGHT - 7;
+    box_2.text = "COPY";
+    widget_textbox(display, &box_2);
+
+    //draw the third box, save PB
+    textbox_t box_3 = {};
+    box_3.color = GLCD_BLACK;
+    box_3.mode = TEXT_SINGLE_LINE;
+    box_3.font = Terminal3x5;
+    box_3.align = ALIGN_NONE_NONE;
+    box_3.x = 92;
+    box_3.y = DISPLAY_HEIGHT - 7;
+    box_3.text = "NEW";
+    widget_textbox(display, &box_3);
 
     // draws the list
     if (list)
     {
         uint8_t count = strarr_length(list->names);
-        list_box.x = 0;
+        list_box.x = 1;
         list_box.y = 11;
-        list_box.width = 128;
-        list_box.height = 53;
+        list_box.width = DISPLAY_WIDTH-3;
+        list_box.height = 45;
         list_box.color = GLCD_BLACK;
         list_box.hover = list->hover - list->page_min;
         list_box.selected = list->selected - list->page_min;
@@ -684,7 +724,7 @@ void screen_bp_list(const char *title, bp_list_t *list)
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
         list_box.text_left_margin = 2;
-        widget_listbox(display, &list_box);
+        widget_banks_listbox(display, &list_box);
     }
     else
     {
@@ -693,7 +733,135 @@ void screen_bp_list(const char *title, bp_list_t *list)
             textbox_t message;
             message.color = GLCD_BLACK;
             message.mode = TEXT_SINGLE_LINE;
-            message.font = alterebro24;
+            message.font = Terminal7x8;
+            message.top_margin = 0;
+            message.bottom_margin = 0;
+            message.left_margin = 0;
+            message.right_margin = 0;
+            message.height = 0;
+            message.width = 0;
+            message.text = "To access banks here please disconnect from the graphical interface";
+            message.align = ALIGN_CENTER_MIDDLE;
+            widget_textbox(display, &message);
+        }
+    }
+}
+
+void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
+{
+    listbox_t list_box;
+
+    glcd_t *display = hardware_glcds(0);
+
+    screen_clear();
+
+    // draws the list
+    if (list)
+    {
+        uint8_t char_cnt = strlen(title);
+        textbox_t title_box = {};
+        title_box.color = GLCD_BLACK;
+        title_box.mode = TEXT_SINGLE_LINE;
+        title_box.font = Terminal5x7;
+        title_box.top_margin = 1;
+        title_box.left_margin = 10;
+        title_box.right_margin = 1;
+        title_box.text = title;
+        title_box.align = ALIGN_NONE_NONE;
+        title_box.y = 1;
+        title_box.x = ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7);
+        widget_textbox(display, &title_box);
+
+        //snapshot
+        if (pb_ss_toggle)
+            icon_pedalboard(display, title_box.x - 11, 1);
+        //pb's
+        else 
+            icon_snapshot(display, title_box.x - 11, 1);
+        //MDW_TODO_BANKS_ICON
+
+        //invert the top bar
+        glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
+
+        glcd_vline(display, 0, 17, DISPLAY_HEIGHT - 21, GLCD_BLACK);
+        glcd_vline(display, DISPLAY_WIDTH-1, 17, DISPLAY_HEIGHT - 21, GLCD_BLACK);
+        glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
+        glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+        glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+        glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
+        glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+        glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+        glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+
+        const uint8_t *title_font = Terminal5x7;
+        uint8_t count = strarr_length(list->names);
+        list_box.x = 0;
+        list_box.y = 11;
+        list_box.width = DISPLAY_WIDTH;
+        list_box.height = 45;
+        list_box.color = GLCD_BLACK;
+        list_box.hover = list->hover - list->page_min;
+        list_box.selected = list->selected - list->page_min;
+        list_box.count = count;
+        list_box.list = list->names;
+        list_box.font = Terminal7x8;
+        list_box.line_space = 4;
+        list_box.line_top_margin = 1;
+        list_box.line_bottom_margin = 1;
+        list_box.text_left_margin = 2;
+        list_box.name = "PEDALBOARDS";
+        widget_listbox_pedalboard(display, &list_box, title_font);
+
+        //print the 3 buttons
+        //draw the first box, back
+        textbox_t box_1 = {};
+        box_1.color = GLCD_BLACK;
+        box_1.mode = TEXT_SINGLE_LINE;
+        box_1.font = Terminal3x5;
+        box_1.align = ALIGN_NONE_NONE;
+        box_1.y = DISPLAY_HEIGHT - 7;
+        if (pb_ss_toggle)
+        {
+            box_1.x = 18;
+            box_1.text = "RENAME";
+        }
+        else
+        {
+            box_1.x = 20;
+            box_1.text = "BANKS";
+        }
+        widget_textbox(display, &box_1);
+
+        //draw the second box, TODO Builder MODE
+        textbox_t box_2 = {};
+        box_2.color = GLCD_BLACK;
+        box_2.mode = TEXT_SINGLE_LINE;
+        box_2.font = Terminal3x5;
+        box_2.align = ALIGN_NONE_NONE;
+        box_2.x = 56;
+        box_2.y = DISPLAY_HEIGHT - 7;
+        box_2.text = "SAVE";
+        widget_textbox(display, &box_2);
+
+        //draw the third box, save PB
+        textbox_t box_3 = {};
+        box_3.color = GLCD_BLACK;
+        box_3.mode = TEXT_SINGLE_LINE;
+        box_3.font = Terminal3x5;
+        box_3.align = ALIGN_NONE_NONE;
+        box_3.x = 86;
+        box_3.y = DISPLAY_HEIGHT - 7;
+        box_3.text = "DELETE";
+        widget_textbox(display, &box_3);
+    }
+    else
+    {
+        if (naveg_ui_status())
+        {
+            textbox_t message;
+            message.color = GLCD_BLACK;
+            message.mode = TEXT_SINGLE_LINE;
+            message.font = Terminal7x8;
             message.top_margin = 0;
             message.bottom_margin = 0;
             message.left_margin = 0;
@@ -946,18 +1114,14 @@ void screen_tuner(float frequency, char *note, int8_t cents)
     g_tuner.note = note;
     g_tuner.cents = cents;
 
-    // checks if tuner is enable and update it
-    //if (naveg_is_tool_mode(DISPLAY_TOOL_TUNER))
-        widget_tuner(hardware_glcds(1), &g_tuner);
+    widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
 void screen_tuner_input(uint8_t input)
 {
     g_tuner.input = input;
 
-    // checks if tuner is enable and update it
-    //if (naveg_is_tool_mode(DISPLAY_TOOL_TUNER))
-        widget_tuner(hardware_glcds(1), &g_tuner);
+    widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
 void screen_image(uint8_t display, const uint8_t *image)

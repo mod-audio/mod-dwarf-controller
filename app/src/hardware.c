@@ -201,6 +201,12 @@ static const uint8_t *LED_COLORS[]  = {
 #ifdef DEFAULT_FS_PAGE_COLOR_8
     (const uint8_t []) DEFAULT_FS_PAGE_COLOR_8,
 #endif
+#ifdef DEFAULT_FS_PB_MENU
+    (const uint8_t []) DEFAULT_FS_PB_MENU,
+#endif
+#ifdef DEFAULT_FS_SS_MENU
+    (const uint8_t []) DEFAULT_FS_SS_MENU,
+#endif
 #ifdef DEFAULT_ENCODER_PAGE_COLOR
     (const uint8_t []) DEFAULT_ENCODER_PAGE_COLOR,
 #endif

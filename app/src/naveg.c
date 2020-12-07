@@ -228,6 +228,7 @@ void naveg_enc_down(uint8_t encoder)
 
         case MODE_NAVIGATION:
             //pass to navigation code
+            NM_down();
         break;
 
         case MODE_TOOL:
@@ -257,6 +258,7 @@ void naveg_enc_up(uint8_t encoder)
 
         case MODE_NAVIGATION:
             //pass to navigation code
+            NM_up();
         break;
 
         case MODE_TOOL:
@@ -294,8 +296,19 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_NAVIGATION:
-            //the foots are not used in this mode
-            return;
+            //no release action
+            if (!pressed)
+                return;
+            
+            if (foot == 2)
+            {
+                //change pb <-> ss
+            }
+            else 
+            {
+                NM_change_pbss(foot);
+            }
+            
         break;
 
         case MODE_TOOL:
@@ -358,7 +371,17 @@ void naveg_foot_double_press(uint8_t foot)
         if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION))
         {
             g_prev_device_mode = g_device_mode;
+            g_device_mode = MODE_TOOL;
             TM_launch_tool(TOOL_TUNER);
+        }
+        else if (g_device_mode == MODE_TOOL)
+        {
+            g_device_mode = g_prev_device_mode;
+
+            if (g_device_mode == MODE_CONTROL)
+                CM_print_screen();
+            else 
+                NM_print_screen();
         }
     }
 
@@ -380,6 +403,7 @@ void naveg_button_pressed(uint8_t button)
 
         case MODE_NAVIGATION:
             //pass to navigation code
+            NM_button_pressed(button);
         break;
 
         case MODE_TOOL:
