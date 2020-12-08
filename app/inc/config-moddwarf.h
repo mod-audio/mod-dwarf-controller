@@ -419,6 +419,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 // defines the previous pedalboard footer text
 #define PEDALBOARD_PREV_FOOTER_TEXT "-"
 
+//overlay timeouts
+#define ENCODER_LIST_TIMEOUT        500
+#define FOOT_CONTROLS_TIMEOUT       1000
+
 //// Command line interface configurations
 // defines the cli serial
 #define CLI_SERIAL                  1

@@ -291,28 +291,21 @@ void screen_page_index(uint8_t current, uint8_t available)
     glcd_vline(display, 21, 51, 13, GLCD_BLACK);
 
     //draw the indicator
-    switch (current)
+    //we have 19 pixels available and possible 8 pages
+    uint8_t amount_of_pixel_per_page = (int)20/available;
+    uint8_t remaining_pixels = 20%available;
+
+    uint8_t i, page_bar_x = 1;;
+    for (i = 0; i < current; i++)
     {
-        case 0:
-            glcd_rect_fill(display, 1, 52, 5, 2, GLCD_BLACK);
-        break;
+        page_bar_x += amount_of_pixel_per_page;
 
-        case 1:
-            glcd_rect_fill(display, 6, 52, 5, 2, GLCD_BLACK);
-        break;
-
-        case 2:
-            glcd_rect_fill(display, 11, 52, 5, 2, GLCD_BLACK);
-        break;
-
-        case 3:
-            glcd_rect_fill(display, 16, 52, 5, 2, GLCD_BLACK);
-        break;
-
-        default:
-            glcd_rect_fill(display, 1, 52, 5, 2, GLCD_BLACK);
-        break;
+        //add a remainder pixel
+        if (remaining_pixels > i)
+           page_bar_x++; 
     }
+
+    glcd_rect_fill(display, page_bar_x, 52, (remaining_pixels > i) ? amount_of_pixel_per_page+1:amount_of_pixel_per_page, 2, GLCD_BLACK);
 
     //draw devision line
     glcd_hline(display, 0, 54, 21, GLCD_BLACK);
@@ -1021,7 +1014,7 @@ void screen_menu_page(node_t *node)
     //print the title
     //draw the title 
     char title_str[45] = {0};
-    strncpy(title_str, "SETTINGS > ", 11);
+    strncpy(title_str, "SETTINGS > ", 12);
     strcat(title_str, main_item->desc->name);
     title_str[32] = '\0';
     textbox_t title = {};
@@ -1193,4 +1186,98 @@ void screen_shift_overlay(uint8_t prev_mode)
     box_3.y = DISPLAY_HEIGHT - 7;
     box_3.text = "SAVE PB";
     widget_textbox(display, &box_3);
+}
+
+void screen_control_overlay(control_t *control)
+{
+    overlay_t overlay;
+    overlay.x = 0;
+    overlay.y = 11;
+    overlay.width = DISPLAY_WIDTH;
+    overlay.height = 38;
+    overlay.value_num = control->value;
+
+    glcd_t *display = hardware_glcds(0);
+
+    uint8_t foot_val = control->value;
+    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+    {
+        static char *labels_list[10];
+
+        uint8_t q;
+        for (q = 0; ((q < control->scale_points_count) || (q < 10)); q++)
+        {
+            labels_list[q] = control->scale_points[q]->label;
+        }
+
+        //trigger list overlay widget
+        listbox_t list;
+        list.x = 0;
+        list.y = 11;
+        list.width = DISPLAY_WIDTH;
+        list.height = 38;
+        list.color = GLCD_BLACK;
+        list.font = Terminal5x7;
+        list.line_space = 2;
+        list.line_top_margin = 1;
+        list.line_bottom_margin = 1;
+        list.text_left_margin = 0;
+        list.name = control->label;
+        list.hover = control->step;
+        list.selected = control->step;
+        list.count = control->scale_points_count;
+        list.list = labels_list;
+        widget_listbox_overlay(display, &list);
+    }
+    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
+    {    
+        if (control->properties & FLAG_CONTROL_BYPASS)
+            foot_val = !foot_val;
+
+        //trigger toggle overlay widget
+        overlay.color = GLCD_BLACK;
+        overlay.font = Terminal5x7;
+        overlay.name = control->label;
+        overlay.value = foot_val?"ON":"OFF";
+        overlay.properties = control->properties;
+
+        widget_foot_overlay(display, &overlay);
+    }
+    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        //trigger trigger overlay widget
+        overlay.color = GLCD_BLACK;
+        overlay.font = Terminal5x7;
+        overlay.name = control->label;
+        overlay.value = "TRIGGER";
+        overlay.properties = control->properties;
+
+        widget_foot_overlay(display, &overlay);
+    }
+    else
+    {
+        // footer text composition
+        char value_txt[32];
+        uint8_t i = 0;
+
+        //if unit=ms or unit=bpm -> use 0 decimal points
+        if (strcasecmp(control->unit, "ms") == 0 || strcasecmp(control->unit, "bpm") == 0)
+            i = int_to_str(control->value, value_txt, sizeof(value_txt), 0);
+        //if unit=s or unit=hz or unit=something else-> use 2 decimal points
+        else
+            i = float_to_str(control->value, value_txt, sizeof(value_txt), 2);
+
+        //add space to footer
+        value_txt[i++] = ' ';
+        strcpy(&value_txt[i], control->unit);
+
+        //trigger trigger overlay widget
+        overlay.color = GLCD_BLACK;
+        overlay.font = Terminal5x7;
+        overlay.name = control->label;
+        overlay.value = value_txt;
+        overlay.properties = control->properties;
+        //trigger value overlay widget
+        widget_foot_overlay(display, &overlay);
+    }
 }

@@ -581,6 +581,9 @@ static void control_set(uint8_t id, control_t *control)
         {
             // update the screen
             screen_encoder(control, control->hw_id);
+
+            //display overlay
+            CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
         }
         //footswitch (need to check for pages here)
         else if ((ENCODERS_COUNT <= control->hw_id) && ( control->hw_id < MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT))
@@ -751,6 +754,9 @@ static void control_set(uint8_t id, control_t *control)
             screen_encoder(control, control->hw_id);
         }
     }
+
+    if (ENCODERS_COUNT <= control->hw_id)
+        CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
 
     char buffer[128];
     uint8_t i;
@@ -1235,12 +1241,12 @@ void CM_draw_foots(void)
     }
 }
 
-void CM_load_next_footswitch_page()
+void CM_load_next_page()
 {
     uint8_t pagefound = 0;
     uint8_t j = g_current_foot_control_page;
     char buffer[30];
-    uint8_t i = 0;
+    
     while (!pagefound)
     {
         j++;
@@ -1267,13 +1273,14 @@ void CM_load_next_footswitch_page()
     if (!pagefound)
         return;
 
+    uint8_t i = copy_command(buffer, CMD_DUOX_NEXT_PAGE);
     i += int_to_str(g_current_foot_control_page, &buffer[i], sizeof(buffer) - i, 0);
 
     //clear controls            
     uint8_t q;
-    for (q = 0; q < MAX_FOOT_ASSIGNMENTS; q++)
+    for (q = 0; q < TOTAL_CONTROL_ACTUATORS; q++)
     {
-        CM_remove_control(q + ENCODERS_COUNT);
+        CM_remove_control(q);
     }
 
     //clear actuator queue
@@ -1368,5 +1375,12 @@ void CM_print_screen(void)
 
     CM_draw_encoders();
 
-    //TODO take case of led's
+    set_footswitch_pages_led_state();
+}
+
+void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
+{
+    screen_control_overlay(control);
+
+    hardware_set_overlay_timeout(overlay_time, CM_print_screen);
 }

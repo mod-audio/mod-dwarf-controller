@@ -286,7 +286,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (foot == 2)
             {
                 if (pressed)
-                    CM_load_next_footswitch_page();
+                    CM_load_next_page();
             }
             else 
             {
