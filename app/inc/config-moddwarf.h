@@ -269,6 +269,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define DIALOG_ID           230
 
+//MDW_TODO THESE MENU ITEMS ARE NOT YET IN USE
+//    {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
+//    {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
+
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                       , 0},  \
     {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                       , 0},  \
@@ -281,8 +285,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_volume_cb           , 0},  \
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                       , 0},  \
     {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_volume_cb           , 0},  \
-    {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
-    {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                       , 0},  \
     {"CLOCK_SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
     {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \
