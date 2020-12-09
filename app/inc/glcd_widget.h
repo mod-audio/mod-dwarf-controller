@@ -88,12 +88,19 @@ typedef struct BAR_T {
     const char *value, *unit;
 } bar_t;
 
+typedef struct MENU_BAR_T {
+    uint8_t x, y;
+    uint8_t color;
+    uint8_t width, height;
+    float min, max, value;
+} menu_bar_t;
+
 typedef struct TOGGLE_T {
     uint8_t x, y;
     uint8_t color;
     uint8_t width, height;
     int32_t value;
-    const char *label;
+    uint8_t inner_border;
 } toggle_t;
 
 typedef struct PEAKMETER_T {
@@ -148,6 +155,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 void widget_foot_overlay(glcd_t *display, overlay_t *overlay);
 void widget_list_value(glcd_t *display, listbox_t *listbox);
 void widget_bar_encoder(glcd_t *display, bar_t *bar);
+void widget_bar(glcd_t *display, menu_bar_t *bar);
 void widget_toggle(glcd_t *display, toggle_t *toggle);
 void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm);
 void widget_tuner(glcd_t *display, tuner_t *tuner);

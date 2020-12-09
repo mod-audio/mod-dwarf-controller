@@ -38,7 +38,6 @@
 enum {TOOL_OFF, TOOL_ON};
 
 #define MAX_CHARS_MENU_NAME     (128/4)
-#define MAX_TOOLS               5
 
 /*
 ************************************************************************************************************************
@@ -233,7 +232,7 @@ static void tuner_enter(uint8_t footswitch)
         buffer[i] = 0;
 
         // updates the screen
-        screen_tuner_input(input);
+        //screen_tuner_input(input);
     }
     else
     {
@@ -274,7 +273,7 @@ static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
             node_t *node;
             node = node_child(parent, item);
 
-            if (item->desc->type == MENU_ROOT)
+            if (item->desc->type == MENU_ROOT || item->desc->type == MENU_MAIN)
                 create_menu_tree(node, &g_menu_desc[i]);
         }
     }
@@ -545,7 +544,7 @@ void TM_launch_tool(uint8_t tool)
                 system_lock_comm_serial(g_protocol_busy);
 
                 //first screen
-                screen_tuner(0.0, "?", 0);
+                screen_toggle_tuner(0.0, "?", 0, 0, 1);
         break;
 
         case TOOL_SYNC:

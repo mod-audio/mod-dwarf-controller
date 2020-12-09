@@ -857,6 +857,31 @@ void widget_bar_encoder(glcd_t *display, bar_t *bar)
     glcd_rect_fill(display, (bar->x+1), (bar->y+7), bar_possistion, bar->height - 2, GLCD_BLACK);
 }
 
+void widget_bar(glcd_t *display, menu_bar_t *bar)
+{
+    float OldRange, NewRange, NewValue;
+    int32_t bar_possistion, NewMax, NewMin;
+
+    NewMin = 1;
+    NewMax = bar->width - 2;
+
+    OldRange = bar->max - bar->min;
+    NewRange = NewMax - NewMin;
+
+    NewValue = (((bar->value) * NewRange) / OldRange) + NewMin;
+    bar_possistion = ROUND(NewValue);
+
+    //draw the square
+    glcd_rect(display, bar->x, bar->y+6, bar->width, bar->height, GLCD_BLACK);
+
+    //prevent it from trippin 
+    if (bar_possistion < 1) bar_possistion = 1;
+    if (bar_possistion > bar->width - 2) bar_possistion = bar->width - 2;
+
+    //color in the position area
+    glcd_rect_fill(display, (bar->x+1), (bar->y+7), bar_possistion, bar->height - 2, GLCD_BLACK);
+}
+
 void widget_toggle(glcd_t *display, toggle_t *toggle)
 {
     //draw the square
@@ -873,7 +898,7 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
     label.left_margin = 0;
     label.right_margin = 0;
     label.align = ALIGN_NONE_NONE;
-    label.y = toggle->y + 6;
+    label.y = toggle->y + ((toggle->height - 5)/2);
 
     //trigger
     if (toggle->value >= 2)
@@ -906,7 +931,8 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
         widget_textbox(display, &label);
 
         //color in the position area
-        glcd_rect(display, toggle->x+2, toggle->y+2, toggle->width -4, toggle->height - 4, GLCD_BLACK);
+        if (toggle->inner_border)
+            glcd_rect(display, toggle->x+2, toggle->y+2, toggle->width -4, toggle->height - 4, GLCD_BLACK);
     }
 }
 

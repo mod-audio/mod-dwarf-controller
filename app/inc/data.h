@@ -87,6 +87,7 @@ typedef struct MENU_DATA_T {
 
     // FIXME: need to be improved, not all menu items should have this vars (wasting memory)
     float min, max, value, step;
+    char *unit_text;
 } menu_data_t;
 
 typedef struct MENU_ITEM_T {

@@ -219,6 +219,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.height = 18;
         toggle.color = GLCD_BLACK;
         toggle.value = (control->properties == FLAG_CONTROL_TOGGLED)?control->value:!control->value;
+        toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
@@ -231,6 +232,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.color = GLCD_BLACK;
         //we use 2 and 3 to indicate a trigger in the widget
         toggle.value = control->value ? 3 : 2;
+        toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
     //linear / log / int
@@ -1067,25 +1069,176 @@ void screen_menu_page(node_t *node)
     widget_textbox(display, &box_3);
     
     //print the 3 items
-    uint8_t i;
+
     node_t *child_nodes = node;
+    child_nodes = child_nodes->first_child;
+    menu_item_t *item_child = child_nodes->data;
+
+    uint8_t i;
     for (i = 0; i < 3; i++)
     {
-        child_nodes = child_nodes->next;
-        menu_item_t *item_child = child_nodes->data;
+        //fist decide posistion
+        uint8_t item_x;
+        uint8_t item_y = 15;
+        switch(i)
+        {
+            case 0:
+                item_x = 4;
+            break;
 
+            case 1:
+                item_x = 47;
+            break;
+
+            case 2:
+                item_x = 90;
+            break;
+
+            default:
+                return;
+            break;
+        }
+
+        //print the title
+        char **title_lines = strarr_split(item_child->name, ' ');
+
+        //check if we have 2 lines
+        if (title_lines[1] != NULL)
+        {
+            textbox_t item_title_1 = {};
+            uint8_t char_cnt_name = strlen(title_lines[0]);
+            if (char_cnt_name > 10)
+            {
+                char_cnt_name = 10;
+            }
+            char title_str_bfr[char_cnt_name+1];
+            memset( title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+            strncpy(title_str_bfr, title_lines[0], char_cnt_name);
+            title_str_bfr[char_cnt_name] = 0;
+            item_title_1.color = GLCD_BLACK;
+            item_title_1.mode = TEXT_SINGLE_LINE;
+            item_title_1.font = Terminal3x5;
+            item_title_1.text = title_str_bfr;
+            item_title_1.align = ALIGN_NONE_NONE;
+            item_title_1.x = (item_x + 18 - 2*char_cnt_name);
+            item_title_1.y = item_y;
+            widget_textbox(display, &item_title_1);
+
+            textbox_t item_title_2 = {};
+            char_cnt_name = strlen(title_lines[1]);
+            if (char_cnt_name > 10)
+            {
+                char_cnt_name = 10;
+            }
+            char title_str_bfr2[char_cnt_name+1];
+            memset( title_str_bfr2, 0, (char_cnt_name+1)*sizeof(char));
+            strncpy(title_str_bfr2, title_lines[1], char_cnt_name);
+            title_str_bfr[char_cnt_name] = 0;
+            item_title_2.color = GLCD_BLACK;
+            item_title_2.mode = TEXT_SINGLE_LINE;
+            item_title_2.font = Terminal3x5;
+            item_title_2.text = title_str_bfr2;
+            item_title_2.align = ALIGN_NONE_NONE;
+            item_title_2.x = (item_x + 18 - 2*char_cnt_name);
+            item_title_2.y = item_y+6;
+            widget_textbox(display, &item_title_2);       
+        }
+        else
+        {
+            textbox_t item_title_1 = {};
+            uint8_t char_cnt_name = strlen(title_lines[0]);
+            if (char_cnt_name > 10)
+            {
+                char_cnt_name = 10;
+            }
+            char title_str_bfr[char_cnt_name+1];
+            memset( title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+            strncpy(title_str_bfr, title_lines[0], char_cnt_name);
+            title_str_bfr[char_cnt_name] = 0;
+            item_title_1.color = GLCD_BLACK;
+            item_title_1.mode = TEXT_SINGLE_LINE;
+            item_title_1.font = Terminal3x5;
+            item_title_1.text = title_str_bfr;
+            item_title_1.align = ALIGN_NONE_NONE;
+            item_title_1.x = (item_x + 18 - 2*char_cnt_name);
+            item_title_1.y = item_y+3;
+            widget_textbox(display, &item_title_1);
+        }
+
+        char str_bfr[6];
+        uint8_t char_cnt_name = 0;
         switch(item_child->desc->type)
         {
             case MENU_TOGGLE:
-
+                glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+                toggle_t menu_toggle = {};
+                menu_toggle.x = item_x;
+                menu_toggle.y = item_y+23;
+                menu_toggle.color = GLCD_BLACK;
+                menu_toggle.width = 35;
+                menu_toggle.height = 11;
+                menu_toggle.value = item_child->data.value;
+                widget_toggle(display, &menu_toggle);
             break;
 
-            case MENU_BAR:
-
+            case MENU_BAR:;
+                //print the bar
+                menu_bar_t bar = {};
+                bar.x = item_x;
+                bar.y = item_y + 12;
+                bar.color = GLCD_BLACK;
+                bar.width = 35;
+                bar.height = 7;
+                bar.min = item_child->data.min;
+                bar.max = item_child->data.max;
+                bar.value = item_child->data.value;
+                widget_bar(display, &bar);
+                
+                //MDW_TODO print the value
+                textbox_t item_value_text = {};
+                char *test2 = "TEST";
+                item_child->data.unit_text = test2;
+                char_cnt_name = strlen(item_child->data.unit_text);
+                if (char_cnt_name > 5)
+                {
+                    char_cnt_name = 5;
+                }
+                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                item_value_text.color = GLCD_BLACK;
+                item_value_text.mode = TEXT_SINGLE_LINE;
+                item_value_text.font = Terminal3x5;
+                item_value_text.text = str_bfr;
+                item_value_text.align = ALIGN_NONE_NONE;
+                item_value_text.x = (item_x + 18 - 2*4);
+                item_value_text.y = item_y+30;
+                widget_textbox(display, &item_value_text);
             break;
 
-            case MENU_LIST:
+            case MENU_LIST:;
+                glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+                glcd_rect(display, item_x, item_y+23, 35, 11, GLCD_BLACK);
+                glcd_hline(display, item_x, item_y+29, 5, GLCD_BLACK);
+                glcd_hline(display, item_x+30, item_y+29, 5, GLCD_BLACK);
 
+                textbox_t item_list_text = {};
+                char *test = "TEST";
+                item_child->data.unit_text = test;
+                char_cnt_name = strlen(item_child->data.unit_text);
+                if (char_cnt_name > 5)
+                {
+                    char_cnt_name = 5;
+                }
+                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                item_list_text.color = GLCD_BLACK;
+                item_list_text.mode = TEXT_SINGLE_LINE;
+                item_list_text.font = Terminal3x5;
+                item_list_text.text = str_bfr;
+                item_list_text.align = ALIGN_NONE_NONE;
+                item_list_text.x = (item_x + 18 - 2*4);
+                item_list_text.y = item_y+26;
+                widget_textbox(display, &item_list_text);
             break;
 
             //others, dont use
@@ -1095,26 +1248,48 @@ void screen_menu_page(node_t *node)
             case MENU_OK:
             case MENU_NONE:
             case MENU_CONFIRM:
-
             break;
+        }
+
+        if (!child_nodes->next)
+            return;
+        else
+        {
+            child_nodes = child_nodes->next;
+            item_child = child_nodes->data;   
         }
     }
 }
 
-void screen_tuner(float frequency, char *note, int8_t cents)
+void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute, uint8_t input)
 {
+    screen_clear();
+
+    glcd_t *display = hardware_glcds(0);
+
     g_tuner.frequency = frequency;
     g_tuner.note = note;
     g_tuner.cents = cents;
 
-    widget_tuner(hardware_glcds(0), &g_tuner);
-}
+    textbox_t title = {};
+    title.color = GLCD_BLACK;
+    title.mode = TEXT_SINGLE_LINE;
+    title.font = Terminal5x7;
+    title.top_margin = 1;
+    title.text = "TOOL - TUNER";
+    title.align = ALIGN_CENTER_TOP;
+    widget_textbox(display, &title);
 
-void screen_tuner_input(uint8_t input)
-{
-    g_tuner.input = input;
+    //invert the top bar
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 
-    widget_tuner(hardware_glcds(0), &g_tuner);
+    //draw foots
+    screen_footer(0, "MUTE", mute <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+    screen_footer(1, "INPUT", input==1? "1":"2", FLAG_CONTROL_ENUMERATION);
+    screen_page_index(1, MAX_TOOLS);
+
+    //draw tuner
+    //widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
 void screen_image(uint8_t display, const uint8_t *image)
