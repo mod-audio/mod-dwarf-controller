@@ -22,8 +22,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "ledz.h"
-
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -142,7 +140,6 @@ uint8_t get_volume_array_id(uint8_t menu_id)
     }
 }
 
-
 static void update_status(char *item_to_update, const char *response)
 {
     if (!item_to_update) return;
@@ -155,54 +152,6 @@ static void update_status(char *item_to_update, const char *response)
         strcpy(pstr, response);
     }
 }
-
-
-void add_chars_to_menu_name(menu_item_t *item, char *chars_to_add)
-{
-        //if no good data
-        if ((!chars_to_add)||(!item)) return; 
-
-        //always copy the clean name
-        strcpy(item->name, item->desc->name);
-        uint8_t value_size = strlen(chars_to_add);
-        uint8_t name_size = strlen(item->name);
-        uint8_t q;
-        //add spaces until so we allign the chars_to_add to the left
-        for (q = 0; q < (MENU_LINE_CHARS - name_size - value_size); q++)
-        {
-            strcat(item->name, " ");
-        }
-
-        strcat(item->name, chars_to_add);
-}
-
-//TODO CHECK IF WE CAN USE DYNAMIC MEMORY HERE
-/*static void set_item_value(char *command, uint16_t value)
-{
-    if (g_comm_protocol_bussy) return;
-
-    uint8_t i;
-    char buffer[50];
-
-    i = copy_command((char *)buffer, command);
-
-    // copy the value
-    char str_buf[8];
-    int_to_str(value, str_buf, 4, 0);
-    const char *p = str_buf;
-    while (*p)
-    {
-        buffer[i++] = *p;
-        p++;
-    }
-    buffer[i] = 0;
-
-    // sets the response callback
-    ui_comm_webgui_set_response_cb(NULL, NULL);
-
-    // sends the data to GUI
-    ui_comm_webgui_send(buffer, i);
-}*/
 
 static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 {
@@ -234,28 +183,22 @@ static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 
 static void volume(menu_item_t *item, int event, const char *source, float min, float max, float step)
 {
-    ledz_on(hardware_leds(1), GREEN);
-
 	static uint32_t last_message_time = 0; 
     char value[8] = {};
     static const char *response = NULL;
     cli_command(NULL, CLI_DISCARD_RESPONSE);
     uint8_t dir = (source[0] == 'i') ? 0 : 1;
 
-    ledz_on(hardware_leds(1), RED);
-
     uint32_t message_time = hardware_timestamp();
 
     if (((event == MENU_EV_UP) || (event == MENU_EV_DOWN)) && (dir ? g_sl_out : g_sl_in) && (item->desc->id != HEADPHONE_VOLUME_ID))
     {
-        ledz_on(hardware_leds(1), BLUE);
         //change volume for both
         //PGA (input)
         if (!dir)
         {
         	if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
         	{
-                ledz_on(hardware_leds(2), RED);
             	int_to_str(item->data.value, value, 8, 0);
             	cli_command("mod-amixer in 0 xvol ", CLI_CACHE_ONLY);
             	cli_command(value, CLI_DISCARD_RESPONSE);
@@ -268,7 +211,6 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
         {
         	if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
         	{
-                ledz_on(hardware_leds(2), GREEN);
             	int_to_str(item->data.value, value, 8, 0);
             	cli_command("mod-amixer out 0 xvol ", CLI_CACHE_ONLY);
             	cli_command(value, CLI_DISCARD_RESPONSE);
@@ -279,14 +221,12 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     }
     else
     {
-        ledz_on(hardware_leds(2), BLUE);
         if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
         {
             cli_command("mod-amixer ", CLI_CACHE_ONLY);
             cli_command(source, CLI_CACHE_ONLY);
             cli_command(" xvol", CLI_CACHE_ONLY);
             response = cli_command(NULL, CLI_RETRIEVE_RESPONSE);
-            ledz_on(hardware_leds(3), RED);
             char str[LINE_BUFFER_SIZE+1];
             strcpy(str, response);
 
@@ -300,13 +240,17 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
         {
         	if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
         	{
-                ledz_on(hardware_leds(3), GREEN);
+                if (event == MENU_EV_UP) item->data.value += item->data.step;
+                else item->data.value -= item->data.step;
+
+                if (item->data.value > item->data.max) item->data.value = item->data.max;
+                if (item->data.value < item->data.min) item->data.value = item->data.min;
+
             	int_to_str(item->data.value, value, 8, 0);
             	cli_command("mod-amixer ", CLI_CACHE_ONLY);
             	cli_command(source, CLI_CACHE_ONLY);
             	cli_command(" xvol ", CLI_CACHE_ONLY);
             	cli_command(value, CLI_DISCARD_RESPONSE);
-                ledz_on(hardware_leds(3), BLUE);
             	last_message_time = message_time;
             }
         }
@@ -316,8 +260,7 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     g_gains_volumes[get_volume_array_id(item->desc->id)] = item->data.value;
 
     char str_bfr[8] = {};
-    float value_bfr;
-    ledz_on(hardware_leds(4), RED);
+    float value_bfr = 0;
 
     if (!dir)
     {
@@ -328,17 +271,13 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     {
         value_bfr = MAP(item->data.value, min, max, 0, 100);
     }
-    ledz_on(hardware_leds(4), GREEN);
+
     int_to_str(value_bfr, str_bfr, 8, 0);
-    ledz_on(hardware_leds(5), GREEN);
-    strcpy(item->data.unit_text, str_bfr);
-    ledz_on(hardware_leds(5), RED);
-    strcat(item->name, "%");
-    ledz_on(hardware_leds(4), BLUE);
+    strcat(str_bfr, "%");
+    item->data.unit_text = str_bfr;
+    
     if (event != MENU_EV_NONE)
         TM_print_tool();
-    
-    ledz_on(hardware_leds(4), BLUE);
 }
 
 /*
@@ -580,48 +519,49 @@ void system_volume_cb(void *arg, int event)
     float min, max, step;
     const char *source;
 
-        switch (item->desc->id)
-        {
-            case INP_1_GAIN_ID:
-                source = "in 1";
-                min = 0;
-                max = 98.0;
-                step = 1.0;
-                break;
+    switch (item->desc->id)
+    {
+        case INP_1_GAIN_ID:
+            source = "in 1";
+            min = 0;
+            max = 98.0;
+            step = 1.0;
+            break;
 
-            case INP_2_GAIN_ID:
-                source = "in 2";
-                min = 0.0;
-                max = 98.0;
-                step = 1.0;
-                break;
+        case INP_2_GAIN_ID:
+            source = "in 2";
+            min = 0.0;
+            max = 98.0;
+            step = 1.0;
+            break;
 
-            case OUTP_1_GAIN_ID:
-                source = "out 1";
-                min = -60.0;
-                max = 0.0;
-                step = 2.0;
-                break;
+        case OUTP_1_GAIN_ID:
+            source = "out 1";
+            min = -60.0;
+            max = 0.0;
+            step = 2.0;
+            break;
 
-            case OUTP_2_GAIN_ID:
-                source = "out 2";
-                min = -60.0;
-                max = 0.0;
-                step = 2.0;
-                break;
+        case OUTP_2_GAIN_ID:
+            source = "out 2";
+            min = -60.0;
+            max = 0.0;
+            step = 2.0;
+            break;
 
-            case HEADPHONE_VOLUME_ID:
-                source = "hp";
-                min = -33.0;
-                max = 12.0;
-                step = 3.0;
-                break;
-            default:
-                return;
-                break;
-        }
+        case HEADPHONE_VOLUME_ID:
+            source = "hp";
+            min = -33.0;
+            max = 12.0;
+            step = 3.0;
+            break;
 
-        volume(item, event, source, min, max, step);
+        default:
+            return;
+            break;
+    }
+
+    volume(item, event, source, min, max, step);
 }
 
 void system_display_cb(void *arg, int event)
@@ -772,7 +712,7 @@ void system_hide_actuator_cb(void *arg, int event)
     }
     else if (event == MENU_EV_DOWN)
     {
-        g_actuator_hide = 1;
+        g_actuator_hide = 0;
         
         //also write to EEPROM
         uint8_t write_buffer = g_actuator_hide;
@@ -984,7 +924,7 @@ void system_ss_prog_change_cb (void *arg, int event)
         //let mod-ui know
         set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_snapshot_prog_change);
     }
-    else if (event == MENU_EV_UP)
+    else if (event == MENU_EV_DOWN)
     {
         if (g_snapshot_prog_change > item->data.min) g_snapshot_prog_change--;
         //let mod-ui know
@@ -1020,7 +960,7 @@ void system_pb_prog_change_cb(void *arg, int event)
         //let mod-ui know
         set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_pedalboard_prog_change);
     }
-    else if (event == MENU_EV_UP)
+    else if (event == MENU_EV_DOWN)
     {
         if (g_pedalboard_prog_change > item->data.min) g_pedalboard_prog_change--;
         //let mod-ui know

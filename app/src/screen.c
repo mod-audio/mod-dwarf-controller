@@ -1090,7 +1090,7 @@ void screen_menu_page(node_t *node)
     node_t *child_nodes = node;
     child_nodes = child_nodes->first_child;
     menu_item_t *item_child = child_nodes->data;
-
+/*
     uint8_t i;
     for (i = 0; i < 3; i++)
     {
@@ -1108,7 +1108,7 @@ void screen_menu_page(node_t *node)
             break;
 
             case 2:
-                item_x = 90;
+                item_x = 89;
             break;
 
             default:
@@ -1215,46 +1215,54 @@ void screen_menu_page(node_t *node)
                 bar.value = item_child->data.value;
                 widget_bar(display, &bar);
                 
-                /*textbox_t item_value_text = {};
-                char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 5)
+                if (item_child->data.unit_text)
                 {
-                    char_cnt_name = 5;
+                    textbox_t item_value_text = {};
+                    char_cnt_name = strlen(item_child->data.unit_text);
+                    if (char_cnt_name > 5)
+                    {
+                        char_cnt_name = 5;
+                    }
+                    memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                    strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                    str_bfr[char_cnt_name] = 0;
+                    item_value_text.color = GLCD_BLACK;
+                    item_value_text.mode = TEXT_SINGLE_LINE;
+                    item_value_text.font = Terminal3x5;
+                    item_value_text.text = str_bfr;
+                    item_value_text.align = ALIGN_NONE_NONE;
+                    item_value_text.x = (item_x + 18 - char_cnt_name*4);
+                    item_value_text.y = item_y+30;
+                    widget_textbox(display, &item_value_text);
                 }
-                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                item_value_text.color = GLCD_BLACK;
-                item_value_text.mode = TEXT_SINGLE_LINE;
-                item_value_text.font = Terminal3x5;
-                item_value_text.text = str_bfr;
-                item_value_text.align = ALIGN_NONE_NONE;
-                item_value_text.x = (item_x + 18 - 2*4);
-                item_value_text.y = item_y+30;
-                widget_textbox(display, &item_value_text);*/
             break;
 
             case MENU_LIST:;
                 glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
                 glcd_rect(display, item_x, item_y+23, 35, 11, GLCD_BLACK);
-                glcd_hline(display, item_x, item_y+29, 5, GLCD_BLACK);
-                glcd_hline(display, item_x+30, item_y+29, 5, GLCD_BLACK);
-
-                /*textbox_t item_list_text = {};
-                char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 5)
+                glcd_hline(display, item_x, item_y+28, 5, GLCD_BLACK);
+                glcd_hline(display, item_x+30, item_y+28, 5, GLCD_BLACK);
+                
+                if (item_child->data.unit_text)
                 {
-                    char_cnt_name = 5;
+                    textbox_t item_list_text = {};
+                    char_cnt_name = strlen(item_child->data.unit_text);
+                    if (char_cnt_name > 5)
+                    {
+                        char_cnt_name = 5;
+                    }
+                    memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                    strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                    str_bfr[char_cnt_name] = 0;
+                    item_list_text.color = GLCD_BLACK;
+                    item_list_text.mode = TEXT_SINGLE_LINE;
+                    item_list_text.font = Terminal3x5;
+                    item_list_text.text = str_bfr;
+                    item_list_text.align = ALIGN_NONE_NONE;
+                    item_list_text.x = (item_x + 18 - char_cnt_name*4);
+                    item_list_text.y = item_y+26;
+                    widget_textbox(display, &item_list_text);
                 }
-                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                item_list_text.color = GLCD_BLACK;
-                item_list_text.mode = TEXT_SINGLE_LINE;
-                item_list_text.font = Terminal3x5;
-                item_list_text.text = str_bfr;
-                item_list_text.align = ALIGN_NONE_NONE;
-                item_list_text.x = (item_x + 18 - 2*4);
-                item_list_text.y = item_y+26;
-                widget_textbox(display, &item_list_text);*/
             break;
 
             //others, dont use
@@ -1274,7 +1282,7 @@ void screen_menu_page(node_t *node)
             child_nodes = child_nodes->next;
             item_child = child_nodes->data;   
         }
-    }
+    }*/
 }
 
 void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute, uint8_t input)

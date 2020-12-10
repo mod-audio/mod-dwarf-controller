@@ -182,15 +182,13 @@ static void menu_enter(uint8_t encoder)
         for (i = 0; i < 3; i++)
         {
             if (item_child->desc->action_cb)
-                item_child->desc->action_cb(item, MENU_EV_NONE);
+                item_child->desc->action_cb(item_child, MENU_EV_NONE);
 
-            if (child_nodes->next)
-            {
-                child_nodes = child_nodes->next;
-                item_child = child_nodes->data;
-            }
-            else
+            if (!child_nodes->next)
                 break;
+
+            child_nodes = child_nodes->next;
+            item_child = child_nodes->data;
         }
 
         //print the 3 items on screen

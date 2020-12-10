@@ -309,11 +309,6 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
 
-    ledz_off(hardware_leds(1), WHITE);
-    ledz_off(hardware_leds(2), WHITE);
-    ledz_off(hardware_leds(3), WHITE);
-    ledz_off(hardware_leds(4), WHITE);
-
     switch(g_device_mode)
     {
         case MODE_CONTROL:
