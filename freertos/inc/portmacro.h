@@ -75,6 +75,7 @@ typedef unsigned long UBaseType_t;
 #define portBYTE_ALIGNMENT			8
 /*-----------------------------------------------------------*/
 
+#ifndef CCC_ANALYZER
 /* Scheduler utilities. */
 #define portYIELD() 															\
 {																				\
@@ -86,6 +87,9 @@ typedef unsigned long UBaseType_t;
 	__asm volatile( "dsb" ::: "memory" );										\
 	__asm volatile( "isb" );													\
 }
+#else
+#define portYIELD() {}
+#endif
 
 #define portNVIC_INT_CTRL_REG		( * ( ( volatile uint32_t * ) 0xe000ed04 ) )
 #define portNVIC_PENDSVSET_BIT		( 1UL << 28UL )
@@ -129,10 +133,14 @@ not necessary for to use this port.  They are defined so the common demo files
 	/* Generic helper function. */
 	__attribute__( ( always_inline ) ) static inline uint8_t ucPortCountLeadingZeros( uint32_t ulBitmap )
 	{
+#ifndef CCC_ANALYZER
 	uint8_t ucReturn;
 
 		__asm volatile ( "clz %0, %1" : "=r" ( ucReturn ) : "r" ( ulBitmap ) : "memory" );
 		return ucReturn;
+#else
+		return ulBitmap;
+#endif
 	}
 
 	/* Check the configuration. */
@@ -192,6 +200,7 @@ BaseType_t xReturn;
 
 portFORCE_INLINE static void vPortRaiseBASEPRI( void )
 {
+#ifndef CCC_ANALYZER
 uint32_t ulNewBASEPRI;
 
 	__asm volatile
@@ -202,12 +211,14 @@ uint32_t ulNewBASEPRI;
 		"	dsb														\n" \
 		:"=r" (ulNewBASEPRI) : "i" ( configMAX_SYSCALL_INTERRUPT_PRIORITY ) : "memory"
 	);
+#endif
 }
 
 /*-----------------------------------------------------------*/
 
 portFORCE_INLINE static uint32_t ulPortRaiseBASEPRI( void )
 {
+#ifndef CCC_ANALYZER
 uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 
 	__asm volatile
@@ -223,15 +234,22 @@ uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 	/* This return will not be reached but is necessary to prevent compiler
 	warnings. */
 	return ulOriginalBASEPRI;
+#else
+	return 0;
+#endif
 }
 /*-----------------------------------------------------------*/
 
 portFORCE_INLINE static void vPortSetBASEPRI( uint32_t ulNewMaskValue )
 {
+#ifndef CCC_ANALYZER
 	__asm volatile
 	(
 		"	msr basepri, %0	" :: "r" ( ulNewMaskValue ) : "memory"
 	);
+#else
+	(void)ulNewMaskValue;
+#endif
 }
 /*-----------------------------------------------------------*/
 
