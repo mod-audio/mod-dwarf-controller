@@ -96,8 +96,8 @@ void system_bpb_cb (void *arg, int event);
 void system_bypass_cb (void *arg, int event);
 void system_load_pro_cb(void *arg, int event);
 void system_save_pro_cb(void *arg, int event);
-void system_qbp_channel_cb (void *arg, int event);
-
+void system_qbp_channel_cb(void *arg, int event);
+void system_hide_actuator_cb(void *arg, int event);
 
 /*
 ************************************************************************************************************************

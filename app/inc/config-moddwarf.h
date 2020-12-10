@@ -270,9 +270,15 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DIALOG_ID           230
 
 //MDW_TODO THESE MENU ITEMS ARE NOT YET IN USE
-//    {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
-//    {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
+/*
+    {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
+    {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
 
+    {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                       , 0},  \
+    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    NULL                       , 0},  \
+    {"KNOB LIST",                       MENU_TOGGLE,    KNOB_LIST_ID,           DEVICE_SET_2_ID,    NULL                       , 0},  \
+    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    NULL                       , 0},  \
+*/
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                       , 0},  \
     {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                       , 0},  \
@@ -286,19 +292,15 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                       , 0},  \
     {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_volume_cb           , 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"CLOCK_SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
+    {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
     {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \
     {"MIDI",                            MENU_MAIN,      MIDI_ID,                ROOT_ID,            NULL                       , 0},  \
     {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
-    {"SNAPSHOT PC-CHANNEL",             MENU_TOGGLE,    MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
-    {"DEVICE SETTINGS (1/2)",           MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
+    {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
+    {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_cb          , 0},  \
-    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    NULL                       , 0},  \
-    {"UNASSIGNED ACTUATORS",            MENU_TOGGLE,    UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    NULL                       , 0},  \
-    {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    NULL                       , 0},  \
-    {"KNOB LIST",                       MENU_TOGGLE,    KNOB_LIST_ID,           DEVICE_SET_2_ID,    NULL                       , 0},  \
-    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    NULL                       , 0},  \
+    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_cb          , 0},  \
+    {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb    , 0},  \
     {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
     {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \
     {"STATUS:",                         MENU_NONE,      BLUETOOTH_ID+2,         BLUETOOTH_ID,       NULL                       , 0},  \
@@ -436,12 +438,15 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define HIDE_ACTUATOR_ADRESS               0
 #define DISPLAY_BRIGHTNESS_ADRESS          1
 #define DISPLAY_CONTRAST_ADRESS            2
-#define LED_BRIGHTNESS_ADRESS              3
+#define SL_INPUT_ADRESS                    3
+#define SL_OUTPUT_ADRESS                   4
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
 #define DEFAULT_DISPLAY_BRIGHTNESS         2
 #define DEFAULT_LED_BRIGHTNESS             2
+#define DEFAULT_SL_INPUT                   0
+#define DEFAULT_SL_OUTPUT                  0
 
 //memory used for LED value's 
 #define LED_COLOR_EEMPROM_PAGE             2

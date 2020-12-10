@@ -28,6 +28,7 @@
 #include "ui_comm.h"
 #include "sys_comm.h"
 #include "images.h"
+#include "mode_tools.h"
 
 /*
 ************************************************************************************************************************
@@ -84,6 +85,7 @@ static menu_item_t *g_current_item;
 static uint8_t g_max_items_list;
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
+static uint8_t g_current_tool;
 
 
 static xSemaphoreHandle g_dialog_sem;
@@ -171,6 +173,26 @@ static void menu_enter(uint8_t encoder)
     }
     else if (item->desc->type == MENU_MAIN)
     {
+        g_current_menu = node;
+
+        //make sure we have all menu value's updated 
+        node_t *child_nodes = node->first_child;
+        menu_item_t *item_child = child_nodes->data;
+
+        for (i = 0; i < 3; i++)
+        {
+            if (item_child->desc->action_cb)
+                item_child->desc->action_cb(item, MENU_EV_NONE);
+
+            if (child_nodes->next)
+            {
+                child_nodes = child_nodes->next;
+                item_child = child_nodes->data;
+            }
+            else
+                break;
+        }
+
         //print the 3 items on screen
         screen_menu_page(node);
     }
@@ -183,35 +205,48 @@ static void menu_enter(uint8_t encoder)
     }
 }
 
-static void menu_up(uint8_t encoder)
+static void menu_up(void)
 {
-    (void) encoder;
     menu_item_t *item = g_current_item;
 
-        if (item->data.hover > 0)
-            item->data.hover--;
-
-    if (item->desc->action_cb)
-        item->desc->action_cb(item, MENU_EV_UP);
+    if (item->data.hover > 0)
+        item->data.hover--;
 
     screen_system_menu(item);
 }
 
 
-static void menu_down(uint8_t encoder)
+static void menu_down(void)
 {
-    (void) encoder;
     menu_item_t *item = g_current_item;
 
-        if (item->data.hover < (item->data.list_count - 1))
-            item->data.hover++;
-
-    if (item->desc->action_cb)
-        item->desc->action_cb(item, MENU_EV_DOWN);
+    if (item->data.hover < (item->data.list_count - 1))
+        item->data.hover++;
 
     screen_system_menu(item);
 }
 
+static void menu_change_value(uint8_t encoder, uint8_t action)
+{
+    uint8_t i;
+    node_t *node = g_current_menu->first_child;
+
+    //locate the to be changed item
+    for (i = 0; i < encoder; i++)
+    {
+        if (!node->next)
+            return;
+
+        node = node->next;
+    }
+
+    menu_item_t *item = node->data;
+
+    if (item->desc->action_cb)        
+        item->desc->action_cb(item, action);
+
+    TM_print_tool();
+}
 
 static void tuner_enter(uint8_t footswitch)
 {
@@ -357,8 +392,18 @@ uint8_t TM_has_tool_enabled(void)
     return 0;
 }
 
+void TM_encoder_click(uint8_t encoder)
+{
+    if (tool_is_on(DISPLAY_TOOL_SYSTEM))
+    {
+        if (g_current_item->desc->type != MENU_ROOT)
+        {
+            menu_change_value(encoder, MENU_EV_ENTER);
+        }
+    }
+}
 
-void TM_enter(uint8_t encoder)
+void TM_enter(uint8_t button)
 {
     if ((!g_initialized)&&(g_update_cb)) return;
 
@@ -369,20 +414,44 @@ void TM_enter(uint8_t encoder)
     else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
     {
         //first encoder, check if we need to change menu or item
-        if (encoder == 0)
+        if (button == 0)
         {
             if (g_current_item->desc->type == MENU_ROOT)
             {
-                menu_enter(encoder);
+                menu_enter(button);
             }
             else 
             {
+                //go back to main menu
+                node_t *node = g_current_menu;
+                g_current_menu = node->parent;
+                g_current_item = g_current_menu->data;
 
+                TM_print_tool();
             }
         }
-        else
+        //for other buttons next / prev parrent node
+        else if (button == 1)
         {
+            if (!g_current_menu->prev)
+                return;
 
+            node_t *node = g_current_menu->prev;
+            g_current_menu = node;
+            g_current_item = node->data;
+
+            TM_print_tool();
+        }
+        else if (button == 2)
+        {
+            if (!g_current_menu->next)
+                return;
+
+            node_t *node = g_current_menu->next;
+            g_current_menu = node;
+            g_current_item = node->data;
+
+            TM_print_tool();
         }
     }
 }
@@ -409,16 +478,16 @@ void TM_up(uint8_t encoder)
         {
             if (g_current_item->desc->type == MENU_ROOT)
             {
-                menu_up(encoder);
+                menu_up();
             }
             else 
             {
-
+                menu_change_value(encoder, MENU_EV_DOWN);
             }
         }
         else
         {
-
+            menu_change_value(encoder, MENU_EV_DOWN);
         }
     }
 }
@@ -445,16 +514,16 @@ void TM_down(uint8_t encoder)
         {
             if (g_current_item->desc->type == MENU_ROOT)
             {
-                menu_down(encoder);
+                menu_down();
             }
             else 
             {
-
+                menu_change_value(encoder, MENU_EV_UP);
             }
         }
         else
         {
-
+            menu_change_value(encoder, MENU_EV_UP);
         }
     }
 }
@@ -480,11 +549,12 @@ void TM_reset_menu(void)
 
 void TM_settings_refresh(void)
 {
-    screen_system_menu(g_current_item);
+    //screen_system_menu(g_current_item);
 }
 
 void TM_menu_refresh(void)
 {
+    /*
     node_t *node = g_current_menu;
 
     //updates all items in a menu
@@ -496,11 +566,12 @@ void TM_menu_refresh(void)
         // calls the action callback
         if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_NONE);
     }
-    TM_settings_refresh();
+    TM_settings_refresh();*/
 }
 
 void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
 {
+    /*
     //set value in system.c
     system_update_menu_value(item_ID, value);
 
@@ -511,7 +582,7 @@ void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
             {
                 TM_menu_refresh();
             }
-    }
+    }*/
 
     //when we are not in the menu, did we change the master volume link?
         //TODO update the master volume link widget
@@ -553,4 +624,32 @@ void TM_launch_tool(uint8_t tool)
         case TOOL_BYPASS:
         break;
     }
+}
+
+void TM_print_tool(void)
+{
+    switch (g_current_tool)
+    {
+        case TOOL_MENU:
+            if (g_current_item->desc->type == MENU_MAIN)
+            {
+                //print the 3 items on screen
+                screen_menu_page(g_current_menu);
+            }
+            else if (g_current_item->desc->type == MENU_ROOT)
+            {
+                //print the menu
+                screen_system_menu(g_current_item);
+            }
+        break;
+
+        case TOOL_TUNER:
+        break;
+
+        case TOOL_SYNC:
+        break;
+
+        case TOOL_BYPASS:
+        break;
+    }   
 }

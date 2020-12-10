@@ -1052,9 +1052,17 @@ void screen_menu_page(node_t *node)
     box_2.mode = TEXT_SINGLE_LINE;
     box_2.font = Terminal3x5;
     box_2.align = ALIGN_NONE_NONE;
-    box_2.x = 56;
     box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "PREV";
+    if (node->prev)
+    {
+        box_2.x = 56;
+        box_2.text = "PREV";
+    }
+    else
+    {
+        box_2.x = 62;
+        box_2.text = "-";
+    }
     widget_textbox(display, &box_2);
 
     //draw the third box, save PB
@@ -1063,9 +1071,18 @@ void screen_menu_page(node_t *node)
     box_3.mode = TEXT_SINGLE_LINE;
     box_3.font = Terminal3x5;
     box_3.align = ALIGN_NONE_NONE;
-    box_3.x = 90;
     box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "NEXT";
+    
+    if (node->next)
+    {
+        box_3.text = "NEXT";
+        box_3.x = 90;
+    }
+    else
+    {
+        box_3.text = "-";
+        box_3.x = 96; 
+    }
     widget_textbox(display, &box_3);
     
     //print the 3 items
@@ -1100,7 +1117,11 @@ void screen_menu_page(node_t *node)
         }
 
         //print the title
-        char **title_lines = strarr_split(item_child->name, ' ');
+        char item_title[21];
+        memset(item_title, 0, (21)*sizeof(char));
+        strncpy(item_title, item_child->desc->name, 20);
+        item_title[20] = 0;
+        char **title_lines = strarr_split(item_title, ' ');
 
         //check if we have 2 lines
         if (title_lines[1] != NULL)
@@ -1194,10 +1215,7 @@ void screen_menu_page(node_t *node)
                 bar.value = item_child->data.value;
                 widget_bar(display, &bar);
                 
-                //MDW_TODO print the value
-                textbox_t item_value_text = {};
-                char *test2 = "TEST";
-                item_child->data.unit_text = test2;
+                /*textbox_t item_value_text = {};
                 char_cnt_name = strlen(item_child->data.unit_text);
                 if (char_cnt_name > 5)
                 {
@@ -1212,7 +1230,7 @@ void screen_menu_page(node_t *node)
                 item_value_text.align = ALIGN_NONE_NONE;
                 item_value_text.x = (item_x + 18 - 2*4);
                 item_value_text.y = item_y+30;
-                widget_textbox(display, &item_value_text);
+                widget_textbox(display, &item_value_text);*/
             break;
 
             case MENU_LIST:;
@@ -1221,9 +1239,7 @@ void screen_menu_page(node_t *node)
                 glcd_hline(display, item_x, item_y+29, 5, GLCD_BLACK);
                 glcd_hline(display, item_x+30, item_y+29, 5, GLCD_BLACK);
 
-                textbox_t item_list_text = {};
-                char *test = "TEST";
-                item_child->data.unit_text = test;
+                /*textbox_t item_list_text = {};
                 char_cnt_name = strlen(item_child->data.unit_text);
                 if (char_cnt_name > 5)
                 {
@@ -1238,7 +1254,7 @@ void screen_menu_page(node_t *node)
                 item_list_text.align = ALIGN_NONE_NONE;
                 item_list_text.x = (item_x + 18 - 2*4);
                 item_list_text.y = item_y+26;
-                widget_textbox(display, &item_list_text);
+                widget_textbox(display, &item_list_text);*/
             break;
 
             //others, dont use

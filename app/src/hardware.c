@@ -299,10 +299,6 @@ void write_led_defaults()
 
         eeprom_index++;
     }
-
-    //write LED brightness
-    uint8_t led_brightness_write_buffer = DEFAULT_LED_BRIGHTNESS;
-    EEPROM_Write(0, LED_BRIGHTNESS_ADRESS, &led_brightness_write_buffer, MODE_8_BIT, 1);
 }
 
 void write_o_settings_defaults()
@@ -314,6 +310,10 @@ void write_o_settings_defaults()
     EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
     write_buffer = DEFAULT_HIDE_ACTUATOR;
     EEPROM_Write(0, HIDE_ACTUATOR_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    write_buffer = DEFAULT_SL_INPUT;
+    EEPROM_Write(0, SL_INPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    write_buffer = DEFAULT_SL_OUTPUT;
+    EEPROM_Write(0, SL_OUTPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }
 
 void check_eeprom_defaults(uint16_t current_version)

@@ -204,12 +204,36 @@ uint8_t naveg_ui_status(void)
 
 void naveg_enc_enter(uint8_t encoder)
 {
-    (void) encoder;
+    if (!g_initialized) return;
+
+    // checks the foot id
+    if (encoder >= ENCODERS_COUNT) return;
+
+    switch(g_device_mode)
+    {
+        case MODE_CONTROL:
+ //in control mode, trigger
+        break;
+
+        case MODE_NAVIGATION:
+ //in nav mode, trigger load
+        break;
+
+        case MODE_TOOL:
+            //pass for tuner/menu/bypass controls
+            TM_encoder_click(encoder);
+        break;
+
+        case MODE_BUILDER:
+            //not defined yet
+        break;
+    }
 }
 
 void naveg_enc_hold(uint8_t encoder)
 {
     (void) encoder;
+    //action not used in MVP
 }
 
 void naveg_enc_down(uint8_t encoder)
@@ -227,8 +251,11 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
-            NM_down();
+            if (encoder == 0)
+            {
+                //pass to navigation code
+                NM_down();
+            }
         break;
 
         case MODE_TOOL:
@@ -257,8 +284,11 @@ void naveg_enc_up(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
-            NM_up();
+            if (encoder == 0)
+            {
+                //pass to navigation code
+                NM_up();
+            }
         break;
 
         case MODE_TOOL:
@@ -278,6 +308,11 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
+
+    ledz_off(hardware_leds(1), WHITE);
+    ledz_off(hardware_leds(2), WHITE);
+    ledz_off(hardware_leds(3), WHITE);
+    ledz_off(hardware_leds(4), WHITE);
 
     switch(g_device_mode)
     {
@@ -312,7 +347,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_TOOL:
-
+            //todo trigger tool changes (bypass, taptempo)
         break;
 
         case MODE_BUILDER:
@@ -452,19 +487,19 @@ void naveg_button_released(uint8_t button)
     switch(g_device_mode)
     {
         case MODE_CONTROL:
-            //pass to control mode 
+            //not used
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
+            //not used
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            //not used
         break;
 
         case MODE_BUILDER:
-            //not defined yet
+            //not used
         break;
     }
 }
@@ -497,10 +532,12 @@ void naveg_shift_releaed()
         break;
 
         case MODE_NAVIGATION:
+            NM_print_screen();
+            g_device_mode = MODE_NAVIGATION;
         break;
 
         case MODE_TOOL:
-            TM_launch_tool(TOOL_MENU);
+            TM_print_tool();
             g_device_mode = MODE_TOOL;
         break;
 
