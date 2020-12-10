@@ -1090,7 +1090,7 @@ void screen_menu_page(node_t *node)
     node_t *child_nodes = node;
     child_nodes = child_nodes->first_child;
     menu_item_t *item_child = child_nodes->data;
-/*
+
     uint8_t i;
     for (i = 0; i < 3; i++)
     {
@@ -1282,7 +1282,9 @@ void screen_menu_page(node_t *node)
             child_nodes = child_nodes->next;
             item_child = child_nodes->data;   
         }
-    }*/
+    
+        FREE(title_lines);
+    }
 }
 
 void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute, uint8_t input)

@@ -300,7 +300,7 @@ static void actuators_task(void *pvParameters)
 
         // checks if actuator has successfully taken
         //MDW TODO MAKE LOGIN MANDITORY AGAIN
-        if (xStatus == pdPASS)// && cli_restore(RESTORE_STATUS) == LOGGED_ON_SYSTEM)
+        if (xStatus == pdPASS && cli_restore(RESTORE_STATUS) == LOGGED_ON_SYSTEM)
         {
             type = actuator_info[0];
             id = actuator_info[1];
