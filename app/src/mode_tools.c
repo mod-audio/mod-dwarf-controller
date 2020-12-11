@@ -438,16 +438,51 @@ void TM_enter(uint8_t button)
             g_current_menu = node;
             g_current_item = node->data;
 
+            //make sure we have all menu value's updated 
+            node_t *child_nodes = node->first_child;
+            menu_item_t *item_child = child_nodes->data;
+
+            uint8_t i;
+            for (i = 0; i < 3; i++)
+            {
+                if (item_child->desc->action_cb)
+                    item_child->desc->action_cb(item_child, MENU_EV_NONE);
+
+                if (!child_nodes->next)
+                    break;
+
+                child_nodes = child_nodes->next;
+                item_child = child_nodes->data;
+            }
+
             TM_print_tool();
         }
         else if (button == 2)
         {
-            if (!g_current_menu->next)
+            //twice next, as there is the update we can not enter like this
+            if (!g_current_menu->next->next)
                 return;
 
             node_t *node = g_current_menu->next;
             g_current_menu = node;
             g_current_item = node->data;
+
+            //make sure we have all menu value's updated 
+            node_t *child_nodes = node->first_child;
+            menu_item_t *item_child = child_nodes->data;
+
+            uint8_t i;
+            for (i = 0; i < 3; i++)
+            {
+                if (item_child->desc->action_cb)
+                    item_child->desc->action_cb(item_child, MENU_EV_NONE);
+
+                if (!child_nodes->next)
+                    break;
+
+                child_nodes = child_nodes->next;
+                item_child = child_nodes->data;
+            }
 
             TM_print_tool();
         }

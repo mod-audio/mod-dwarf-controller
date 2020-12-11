@@ -167,12 +167,7 @@ void set_footswitch_pages_led_state(void)
 
 void set_encoder_pages_led_state(void)
 {
-    //first turn all off
-    ledz_set_state(hardware_leds(3), 3, WHITE, 0, 0, 0, 0);
-    ledz_set_state(hardware_leds(4), 4, WHITE, 0, 0, 0, 0);
-    ledz_set_state(hardware_leds(5), 5, WHITE, 0, 0, 0, 0);
-
-    switch (g_current_foot_control_page)
+    switch (g_current_encoder_page)
     {
         case 0:
             ledz_set_state(hardware_leds(3), 3, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
@@ -1273,7 +1268,7 @@ void CM_load_next_page()
     if (!pagefound)
         return;
 
-    uint8_t i = copy_command(buffer, CMD_DUOX_NEXT_PAGE);
+    uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
     i += int_to_str(g_current_foot_control_page, &buffer[i], sizeof(buffer) - i, 0);
 
     //clear controls            
@@ -1318,37 +1313,42 @@ void CM_load_next_encoder_page(uint8_t button)
 {
     char buffer[30];
     uint8_t i = 0;
-    i += int_to_str(button, &buffer[i], sizeof(buffer) - i, 0);
 
     g_current_encoder_page = button;
+
+    screen_encoder_container(g_current_encoder_page); 
 
     //clear controls            
     uint8_t q;
     for (q = 0; q < ENCODERS_COUNT; q++)
     {
+        i = copy_command(buffer, CMD_DWARF_CONTROL_SUBPAGE);
+        i += int_to_str(q, &buffer[i], sizeof(buffer) - i, 0);
+
+        // inserts one space
+        buffer[i++] = ' ';
+
+        i += int_to_str(g_current_encoder_page, &buffer[i], sizeof(buffer) - i, 0);
+
         CM_remove_control(q);
+
+        //clear actuator queue
+        reset_queue();
+
+        //lock actuators
+        g_protocol_busy = true;
+        system_lock_comm_serial(g_protocol_busy);
+
+        ui_comm_webgui_send(buffer, i);
+
+        ui_comm_webgui_wait_response();
+
+        g_protocol_busy = false;
+        system_lock_comm_serial(g_protocol_busy);
     }
 
-    //clear actuator queue
-    reset_queue();
-
-    ui_comm_webgui_clear();
-
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
-    ui_comm_webgui_send(buffer, i);
-
-    ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
-
     //update LED's
-    set_encoder_pages_led_state(); 
-
-    screen_encoder_container(g_current_encoder_page);  
+    set_encoder_pages_led_state();  
 }
 
 void CM_print_screen(void)

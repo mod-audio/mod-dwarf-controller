@@ -306,12 +306,16 @@ void write_o_settings_defaults()
     //set the eeprom default values
     uint8_t write_buffer = ST7565_DEFAULT_CONTRAST;
     EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
     write_buffer = DEFAULT_DISPLAY_BRIGHTNESS;
     EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
     write_buffer = DEFAULT_HIDE_ACTUATOR;
     EEPROM_Write(0, HIDE_ACTUATOR_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
     write_buffer = DEFAULT_SL_INPUT;
     EEPROM_Write(0, SL_INPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    
     write_buffer = DEFAULT_SL_OUTPUT;
     EEPROM_Write(0, SL_OUTPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }

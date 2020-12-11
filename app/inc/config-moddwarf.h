@@ -298,8 +298,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
     {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
     {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_cb          , 0},  \
-    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_cb          , 0},  \
+    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb          , 0},  \
+    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb          , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb    , 0},  \
     {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
     {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \

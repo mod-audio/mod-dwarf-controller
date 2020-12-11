@@ -259,7 +259,7 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     //save gains globaly for stereo link functions
     g_gains_volumes[get_volume_array_id(item->desc->id)] = item->data.value;
 
-    char str_bfr[8] = {};
+    static char str_bfr[8] = {};
     float value_bfr = 0;
 
     if (!dir)
@@ -564,105 +564,54 @@ void system_volume_cb(void *arg, int event)
     volume(item, event, source, min, max, step);
 }
 
-void system_display_cb(void *arg, int event)
+void system_display_brightness_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
-    char str_bfr[8];
+    static char str_bfr[8];
 
-    if (item->desc->id == DISPLAY_BRIGHTNESS_ID)
+    if (g_display_brightness == -1)
     {
-        if (g_display_brightness == -1)
-        {
-            //read EEPROM
-            uint8_t read_buffer = 0;
-            EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
 
-            g_display_brightness = read_buffer;
-
-            hardware_glcd_brightness(g_display_brightness); 
-        }
-
-        if (event == MENU_EV_ENTER)
-        {
-            if (g_display_brightness < MAX_BRIGHTNESS) g_display_brightness++;
-            else g_display_brightness = 0;
-        }
-        else if (event == MENU_EV_UP)
-        {
-            if (g_display_brightness < MAX_BRIGHTNESS) g_display_brightness++;
-        }
-        else if (event == MENU_EV_DOWN)
-        {
-            if (g_display_brightness > 0) g_display_brightness--;
-            else g_display_brightness = 0;
-        }
-        else if (event == MENU_EV_NONE)
-        {
-            //only display value
-            item->data.value = g_display_brightness;
-            item->data.min = 0;
-            item->data.max = 4;
-            item->data.step = 1;
-        }
-
-        hardware_glcd_brightness(g_display_brightness); 
-
-        //also write to EEPROM
-        uint8_t write_buffer = g_display_brightness;
-        EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
-
-        int_to_str((g_display_brightness * 25), str_bfr, 4, 0);
+        g_display_brightness = read_buffer;
     }
-    else
+
+    if (event == MENU_EV_ENTER)
     {
-        if (g_display_brightness == -1)
-        {
-            //read EEPROM
-            uint8_t read_buffer = 0;
-            EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &read_buffer, MODE_8_BIT, 1);
-
-            g_display_contrast = read_buffer;
-
-            st7565p_set_contrast(hardware_glcds(0), g_display_contrast);
-        }
-
-        if (event == MENU_EV_ENTER)
-        {
-            if (g_display_contrast < item->data.max) g_display_contrast++;
-            else g_display_contrast = 0;
-
-            item->data.value = g_display_brightness;
-        }
-        else if (event == MENU_EV_UP)
-        {
-            if (g_display_contrast < item->data.max) g_display_contrast++;
-
-            item->data.value = g_display_brightness;
-        }
-        else if (event == MENU_EV_DOWN)
-        {
-            if (g_display_contrast > item->data.min) g_display_contrast--;
-            else g_display_contrast = item->data.min;
-
-            item->data.value = g_display_brightness;
-        }
-        else if (event == MENU_EV_NONE)
-        {
-            //only display value
-            item->data.value = g_display_brightness;
-            item->data.min = DISPLAY_CONTRAST_MIN;
-            item->data.max = DISPLAY_CONTRAST_MAX;
-            item->data.step = 1;
-        }
-        st7565p_set_contrast(hardware_glcds(0), g_display_contrast); 
-        
-        //also write to EEPROM
-        uint8_t write_buffer = g_display_contrast;
-        EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
-
-        int_to_str((g_display_contrast), str_bfr, 4, 0);
+        if (g_display_brightness < MAX_BRIGHTNESS) g_display_brightness++;
+        else g_display_brightness = 0;
     }
-    
+    else if (event == MENU_EV_UP)
+    {
+        if (g_display_brightness < MAX_BRIGHTNESS) g_display_brightness++;
+        else return;
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (g_display_brightness > 0) g_display_brightness--;
+        else return;
+    }
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_display_brightness;
+        item->data.min = 0;
+        item->data.max = 4;
+        item->data.step = 1;
+    }
+
+    hardware_glcd_brightness(g_display_brightness); 
+
+    //also write to EEPROM
+    uint8_t write_buffer = g_display_brightness;
+    EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    int_to_str((g_display_brightness * 25), str_bfr, 4, 0);
+
+    item->data.value = g_display_brightness;
+
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
 
@@ -670,6 +619,60 @@ void system_display_cb(void *arg, int event)
         TM_print_tool();
 }
 
+void system_display_contrast_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+    static char str_bfr[8];
+
+    if (g_display_contrast == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_display_contrast = read_buffer;
+    }
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_display_contrast < item->data.max) g_display_contrast++;
+        else g_display_contrast = 0;
+    }
+    else if (event == MENU_EV_UP)
+    {
+        if (g_display_contrast < item->data.max) g_display_contrast++;
+        else return;
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (g_display_contrast > item->data.min) g_display_contrast--;
+        else return;
+    }
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_display_contrast;
+        item->data.min = DISPLAY_CONTRAST_MIN;
+        item->data.max = DISPLAY_CONTRAST_MAX;
+        item->data.step = 1;
+    }
+
+    st7565p_set_contrast(hardware_glcds(0), g_display_contrast); 
+        
+    //also write to EEPROM
+    uint8_t write_buffer = g_display_contrast;
+    EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    int_to_str((g_display_contrast), str_bfr, 4, 0);
+
+    item->data.value = g_display_contrast;
+
+    strcat(str_bfr, "%");
+    item->data.unit_text = str_bfr;
+
+    if (event != MENU_EV_NONE)
+        TM_print_tool();
+}
 
 void system_hide_actuator_cb(void *arg, int event)
 {

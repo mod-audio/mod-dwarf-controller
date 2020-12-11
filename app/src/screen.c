@@ -1003,7 +1003,6 @@ void screen_system_menu(menu_item_t *item)
     }
 }
 
-
 void screen_menu_page(node_t *node)
 {
     //clear screen first
@@ -1231,7 +1230,7 @@ void screen_menu_page(node_t *node)
                     item_value_text.font = Terminal3x5;
                     item_value_text.text = str_bfr;
                     item_value_text.align = ALIGN_NONE_NONE;
-                    item_value_text.x = (item_x + 18 - char_cnt_name*4);
+                    item_value_text.x = (item_x + 18 - char_cnt_name*2);
                     item_value_text.y = item_y+30;
                     widget_textbox(display, &item_value_text);
                 }
@@ -1259,7 +1258,7 @@ void screen_menu_page(node_t *node)
                     item_list_text.font = Terminal3x5;
                     item_list_text.text = str_bfr;
                     item_list_text.align = ALIGN_NONE_NONE;
-                    item_list_text.x = (item_x + 18 - char_cnt_name*4);
+                    item_list_text.x = (item_x + 18 - char_cnt_name*2);
                     item_list_text.y = item_y+26;
                     widget_textbox(display, &item_list_text);
                 }

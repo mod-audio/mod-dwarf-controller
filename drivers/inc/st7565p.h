@@ -61,7 +61,7 @@
 #define ST7565P_BACKLIGHT_TURN_ON_WITH_ONE
 
 #define ST7565_DEFAULT_CONTRAST 0x15
-#define DISPLAY_CONTRAST_MAX    0x50
+#define DISPLAY_CONTRAST_MAX    0x40
 #define DISPLAY_CONTRAST_MIN    0x00
 /*
 ************************************************************************************************************************
