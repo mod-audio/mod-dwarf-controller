@@ -73,6 +73,8 @@ void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value);
 void TM_launch_tool(uint8_t tool);
 void TM_print_tool(void);
 void TM_encoder_click(uint8_t encoder);
+menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id);
+
 /*
 ************************************************************************************************************************
 *           CONFIGURATION ERRORS

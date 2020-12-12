@@ -277,7 +277,12 @@ static void volume(menu_item_t *item, int event, const char *source, float min, 
     item->data.unit_text = str_bfr;
     
     if (event != MENU_EV_NONE)
-        TM_print_tool();
+    {
+        if (naveg_get_current_mode() == MODE_TOOL)
+            TM_print_tool();
+        else if (naveg_get_current_mode() == MODE_SHIFT)
+            screen_shift_overlay(0);
+    }
 }
 
 /*
@@ -369,6 +374,33 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         break;
         default:
             return;
+        break;
+        
+    }
+}
+
+float system_get_gain_value(uint8_t item_ID)
+{
+    switch(item_ID)
+    {
+        case INP_1_GAIN_ID: 
+            return (float)g_gains_volumes[get_volume_array_id(INP_1_GAIN_ID)];
+        break;
+        case INP_2_GAIN_ID: 
+            return (float)g_gains_volumes[get_volume_array_id(INP_2_GAIN_ID)];
+        break;
+        case OUTP_1_GAIN_ID: 
+            return (float)g_gains_volumes[get_volume_array_id(OUTP_1_GAIN_ID)];
+        break;
+        case OUTP_2_GAIN_ID: 
+            return (float)g_gains_volumes[get_volume_array_id(OUTP_2_GAIN_ID)];
+        break;
+        case HEADPHONE_VOLUME_ID: 
+            return (float)g_gains_volumes[get_volume_array_id(HEADPHONE_VOLUME_ID)];
+
+        break;
+        default:
+            return 0;
         break;
         
     }

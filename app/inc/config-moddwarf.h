@@ -319,7 +319,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"CONTROLLER:",                     MENU_NONE,      VERSIONS_ID+4,          VERSIONS_ID,        NULL                       , 0},  \
     {"DEVICE",                          MENU_LIST,      DEVICE_ID,              INFO_ID,            NULL                       , 0},  \
     {"SERIAL NUMBER",                   MENU_OK,        DEVICE_ID+1,            DEVICE_ID,          system_tag_cb              , 0},  \
-    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb          , 0},  \
+    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID     ,            system_upgrade_cb          , 0},  \
 
 //POPUP DEFINES
 //PROFILE POPUP TXT

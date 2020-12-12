@@ -686,3 +686,35 @@ void TM_print_tool(void)
         break;
     }   
 }
+
+menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
+{
+    node_t *node = g_menu->first_child->first_child;
+
+    //make sure we have all menu value's updated 
+    node_t *child_nodes;
+    menu_item_t *item_child;
+
+    while(node->next)
+    {   
+        if (node->first_child)
+        {
+            child_nodes = node->first_child;
+            while(child_nodes->next)
+            {
+                item_child = child_nodes->data;
+
+                if (item_child->desc->id == menu_id)
+                {
+                    return item_child;
+                }
+
+                child_nodes = child_nodes->next;
+            }
+        }
+
+        node = node->next;
+    }
+
+    return NULL;                
+}

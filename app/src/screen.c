@@ -90,6 +90,187 @@ void print_menu_outlines(void)
     glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
 }
 
+void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
+{
+    glcd_t *display = hardware_glcds(0);
+
+    //fist decide posistion
+    uint8_t item_x;
+    uint8_t item_y = 15;
+    switch(knob)
+    {
+        case 0:
+            item_x = 4;
+        break;
+
+        case 1:
+            item_x = 47;
+        break;
+
+        case 2:
+            item_x = 89;
+        break;
+
+        default:
+            return;
+        break;
+    }
+
+    //print the title
+    char first_line[10] = {};
+    char second_line[10] = {};
+    uint8_t q, p = 0, line = 0;
+    for (q = 0; q < 20; q++)
+    {
+        if (item_child->desc->name[q] != 0)
+        {
+            if (line)
+            {
+                second_line[p] = item_child->desc->name[q];
+                p++;
+            }
+            else
+            {
+                if (item_child->desc->name[q] ==  ' ')
+                {
+                    first_line[q] = 0;
+                    line = 1;
+                }
+                else
+                    first_line[q] = item_child->desc->name[q];
+            }
+        }
+        else
+            break;
+    }
+    second_line[p] = 0;
+
+    //check if we have 2 lines
+    if (second_line[0] != 0)
+    {
+        textbox_t item_title_1 = {};
+        item_title_1.color = GLCD_BLACK;
+        item_title_1.mode = TEXT_SINGLE_LINE;
+        item_title_1.font = Terminal3x5;
+        item_title_1.text = first_line;
+        item_title_1.align = ALIGN_NONE_NONE;
+        item_title_1.x = (item_x + 18 - 2*strlen(first_line));
+        item_title_1.y = item_y;
+        widget_textbox(display, &item_title_1);
+
+        textbox_t item_title_2 = {};
+        item_title_2.color = GLCD_BLACK;
+        item_title_2.mode = TEXT_SINGLE_LINE;
+        item_title_2.font = Terminal3x5;
+        item_title_2.text = second_line;
+        item_title_2.align = ALIGN_NONE_NONE;
+        item_title_2.x = (item_x + 18 - 2*strlen(second_line));
+        item_title_2.y = item_y+6;
+        widget_textbox(display, &item_title_2);       
+    }
+    else
+    {
+        textbox_t item_title_1 = {};
+        item_title_1.color = GLCD_BLACK;
+        item_title_1.mode = TEXT_SINGLE_LINE;
+        item_title_1.font = Terminal3x5;
+        item_title_1.text = first_line;
+        item_title_1.align = ALIGN_NONE_NONE;
+        item_title_1.x = (item_x + 18 - 2*strlen(first_line));
+        item_title_1.y = item_y+3;
+        widget_textbox(display, &item_title_1);
+    }
+
+    char str_bfr[6];
+    uint8_t char_cnt_name = 0;
+    switch(item_child->desc->type)
+    {
+        case MENU_TOGGLE:
+            glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+            toggle_t menu_toggle = {};
+            menu_toggle.x = item_x;
+            menu_toggle.y = item_y+23;
+            menu_toggle.color = GLCD_BLACK;
+            menu_toggle.width = 35;
+            menu_toggle.height = 11;
+            menu_toggle.value = item_child->data.value;
+            widget_toggle(display, &menu_toggle);
+        break;
+
+        case MENU_BAR:;
+            //print the bar
+            menu_bar_t bar = {};
+            bar.x = item_x;
+            bar.y = item_y + 12;
+            bar.color = GLCD_BLACK;
+            bar.width = 35;
+            bar.height = 7;
+            bar.min = item_child->data.min;
+            bar.max = item_child->data.max;
+            bar.value = item_child->data.value;
+            widget_bar(display, &bar);
+                
+            if (item_child->data.unit_text)
+            {
+                textbox_t item_value_text = {};
+                char_cnt_name = strlen(item_child->data.unit_text);
+                if (char_cnt_name > 5)
+                {
+                    char_cnt_name = 5;
+                }
+                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                str_bfr[char_cnt_name] = 0;
+                item_value_text.color = GLCD_BLACK;
+                item_value_text.mode = TEXT_SINGLE_LINE;
+                item_value_text.font = Terminal3x5;
+                item_value_text.text = str_bfr;
+                item_value_text.align = ALIGN_NONE_NONE;
+                item_value_text.x = (item_x + 18 - char_cnt_name*2);
+                item_value_text.y = item_y+30;
+                widget_textbox(display, &item_value_text);
+            }
+        break;
+
+        case MENU_LIST:;
+            glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+            glcd_rect(display, item_x, item_y+23, 35, 11, GLCD_BLACK);
+            glcd_hline(display, item_x, item_y+28, 5, GLCD_BLACK);
+            glcd_hline(display, item_x+30, item_y+28, 5, GLCD_BLACK);
+                
+            if (item_child->data.unit_text)
+            {
+                textbox_t item_list_text = {};
+                char_cnt_name = strlen(item_child->data.unit_text);
+                if (char_cnt_name > 5)
+                {
+                    char_cnt_name = 5;
+                }
+                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                str_bfr[char_cnt_name] = 0;
+                item_list_text.color = GLCD_BLACK;
+                item_list_text.mode = TEXT_SINGLE_LINE;
+                item_list_text.font = Terminal3x5;
+                item_list_text.text = str_bfr;
+                item_list_text.align = ALIGN_NONE_NONE;
+                item_list_text.x = (item_x + 18 - char_cnt_name*2);
+                item_list_text.y = item_y+26;
+                widget_textbox(display, &item_list_text);
+            }
+        break;
+
+        //others, dont use
+        case MENU_MAIN:
+        case MENU_ROOT:
+        case MENU_CONFIRM2:
+        case MENU_OK:
+        case MENU_NONE:
+        case MENU_CONFIRM:
+        break;
+    }
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -1083,206 +1264,19 @@ void screen_menu_page(node_t *node)
         box_3.x = 96; 
     }
     widget_textbox(display, &box_3);
-    
-    //print the 3 items
 
     node_t *child_nodes = node;
     child_nodes = child_nodes->first_child;
-    menu_item_t *item_child = child_nodes->data;
-
+    
     uint8_t i;
     for (i = 0; i < 3; i++)
     {
-        //fist decide posistion
-        uint8_t item_x;
-        uint8_t item_y = 15;
-        switch(i)
-        {
-            case 0:
-                item_x = 4;
-            break;
-
-            case 1:
-                item_x = 47;
-            break;
-
-            case 2:
-                item_x = 89;
-            break;
-
-            default:
-                return;
-            break;
-        }
-
-        //print the title
-        char item_title[21];
-        memset(item_title, 0, (21)*sizeof(char));
-        strncpy(item_title, item_child->desc->name, 20);
-        item_title[20] = 0;
-        char **title_lines = strarr_split(item_title, ' ');
-
-        //check if we have 2 lines
-        if (title_lines[1] != NULL)
-        {
-            textbox_t item_title_1 = {};
-            uint8_t char_cnt_name = strlen(title_lines[0]);
-            if (char_cnt_name > 10)
-            {
-                char_cnt_name = 10;
-            }
-            char title_str_bfr[char_cnt_name+1];
-            memset( title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-            strncpy(title_str_bfr, title_lines[0], char_cnt_name);
-            title_str_bfr[char_cnt_name] = 0;
-            item_title_1.color = GLCD_BLACK;
-            item_title_1.mode = TEXT_SINGLE_LINE;
-            item_title_1.font = Terminal3x5;
-            item_title_1.text = title_str_bfr;
-            item_title_1.align = ALIGN_NONE_NONE;
-            item_title_1.x = (item_x + 18 - 2*char_cnt_name);
-            item_title_1.y = item_y;
-            widget_textbox(display, &item_title_1);
-
-            textbox_t item_title_2 = {};
-            char_cnt_name = strlen(title_lines[1]);
-            if (char_cnt_name > 10)
-            {
-                char_cnt_name = 10;
-            }
-            char title_str_bfr2[char_cnt_name+1];
-            memset( title_str_bfr2, 0, (char_cnt_name+1)*sizeof(char));
-            strncpy(title_str_bfr2, title_lines[1], char_cnt_name);
-            title_str_bfr[char_cnt_name] = 0;
-            item_title_2.color = GLCD_BLACK;
-            item_title_2.mode = TEXT_SINGLE_LINE;
-            item_title_2.font = Terminal3x5;
-            item_title_2.text = title_str_bfr2;
-            item_title_2.align = ALIGN_NONE_NONE;
-            item_title_2.x = (item_x + 18 - 2*char_cnt_name);
-            item_title_2.y = item_y+6;
-            widget_textbox(display, &item_title_2);       
-        }
-        else
-        {
-            textbox_t item_title_1 = {};
-            uint8_t char_cnt_name = strlen(title_lines[0]);
-            if (char_cnt_name > 10)
-            {
-                char_cnt_name = 10;
-            }
-            char title_str_bfr[char_cnt_name+1];
-            memset( title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-            strncpy(title_str_bfr, title_lines[0], char_cnt_name);
-            title_str_bfr[char_cnt_name] = 0;
-            item_title_1.color = GLCD_BLACK;
-            item_title_1.mode = TEXT_SINGLE_LINE;
-            item_title_1.font = Terminal3x5;
-            item_title_1.text = title_str_bfr;
-            item_title_1.align = ALIGN_NONE_NONE;
-            item_title_1.x = (item_x + 18 - 2*char_cnt_name);
-            item_title_1.y = item_y+3;
-            widget_textbox(display, &item_title_1);
-        }
-
-        char str_bfr[6];
-        uint8_t char_cnt_name = 0;
-        switch(item_child->desc->type)
-        {
-            case MENU_TOGGLE:
-                glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
-                toggle_t menu_toggle = {};
-                menu_toggle.x = item_x;
-                menu_toggle.y = item_y+23;
-                menu_toggle.color = GLCD_BLACK;
-                menu_toggle.width = 35;
-                menu_toggle.height = 11;
-                menu_toggle.value = item_child->data.value;
-                widget_toggle(display, &menu_toggle);
-            break;
-
-            case MENU_BAR:;
-                //print the bar
-                menu_bar_t bar = {};
-                bar.x = item_x;
-                bar.y = item_y + 12;
-                bar.color = GLCD_BLACK;
-                bar.width = 35;
-                bar.height = 7;
-                bar.min = item_child->data.min;
-                bar.max = item_child->data.max;
-                bar.value = item_child->data.value;
-                widget_bar(display, &bar);
-                
-                if (item_child->data.unit_text)
-                {
-                    textbox_t item_value_text = {};
-                    char_cnt_name = strlen(item_child->data.unit_text);
-                    if (char_cnt_name > 5)
-                    {
-                        char_cnt_name = 5;
-                    }
-                    memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                    strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                    str_bfr[char_cnt_name] = 0;
-                    item_value_text.color = GLCD_BLACK;
-                    item_value_text.mode = TEXT_SINGLE_LINE;
-                    item_value_text.font = Terminal3x5;
-                    item_value_text.text = str_bfr;
-                    item_value_text.align = ALIGN_NONE_NONE;
-                    item_value_text.x = (item_x + 18 - char_cnt_name*2);
-                    item_value_text.y = item_y+30;
-                    widget_textbox(display, &item_value_text);
-                }
-            break;
-
-            case MENU_LIST:;
-                glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
-                glcd_rect(display, item_x, item_y+23, 35, 11, GLCD_BLACK);
-                glcd_hline(display, item_x, item_y+28, 5, GLCD_BLACK);
-                glcd_hline(display, item_x+30, item_y+28, 5, GLCD_BLACK);
-                
-                if (item_child->data.unit_text)
-                {
-                    textbox_t item_list_text = {};
-                    char_cnt_name = strlen(item_child->data.unit_text);
-                    if (char_cnt_name > 5)
-                    {
-                        char_cnt_name = 5;
-                    }
-                    memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                    strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                    str_bfr[char_cnt_name] = 0;
-                    item_list_text.color = GLCD_BLACK;
-                    item_list_text.mode = TEXT_SINGLE_LINE;
-                    item_list_text.font = Terminal3x5;
-                    item_list_text.text = str_bfr;
-                    item_list_text.align = ALIGN_NONE_NONE;
-                    item_list_text.x = (item_x + 18 - char_cnt_name*2);
-                    item_list_text.y = item_y+26;
-                    widget_textbox(display, &item_list_text);
-                }
-            break;
-
-            //others, dont use
-            case MENU_MAIN:
-            case MENU_ROOT:
-            case MENU_CONFIRM2:
-            case MENU_OK:
-            case MENU_NONE:
-            case MENU_CONFIRM:
-            break;
-        }
+        print_tripple_menu_items(child_nodes->data, i);
 
         if (!child_nodes->next)
             return;
         else
-        {
-            child_nodes = child_nodes->next;
-            item_child = child_nodes->data;   
-        }
-    
-        FREE(title_lines);
+            child_nodes = child_nodes->next; 
     }
 }
 
@@ -1325,6 +1319,11 @@ void screen_image(uint8_t display, const uint8_t *image)
 
 void screen_shift_overlay(uint8_t prev_mode)
 {
+    static uint8_t previous_mode;
+
+    if (prev_mode)
+        previous_mode = prev_mode;
+    
     //clear screen first
     screen_clear();
 
@@ -1353,7 +1352,7 @@ void screen_shift_overlay(uint8_t prev_mode)
     box_1.font = Terminal3x5;
     box_1.align = ALIGN_NONE_NONE;
     box_1.y = DISPLAY_HEIGHT - 7;
-    if (prev_mode == MODE_CONTROL)
+    if (previous_mode == MODE_CONTROL)
     {
         box_1.text = "MENU";
         box_1.x = 22;
@@ -1366,26 +1365,112 @@ void screen_shift_overlay(uint8_t prev_mode)
     widget_textbox(display, &box_1);
 
     //draw the second box, TODO Builder MODE
-    textbox_t box_2 = {};
-    box_2.color = GLCD_BLACK;
-    box_2.mode = TEXT_SINGLE_LINE;
-    box_2.font = Terminal3x5;
-    box_2.align = ALIGN_NONE_NONE;
-    box_2.x = 62;
-    box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "-";
-    widget_textbox(display, &box_2);
+    glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    textbox_t box_3 = {};
-    box_3.color = GLCD_BLACK;
-    box_3.mode = TEXT_SINGLE_LINE;
-    box_3.font = Terminal3x5;
-    box_3.align = ALIGN_NONE_NONE;
-    box_3.x = 84;
-    box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "SAVE PB";
-    widget_textbox(display, &box_3);
+    glcd_text(display, 84, DISPLAY_HEIGHT - 7, "SAVE PB", Terminal3x5, GLCD_BLACK);
+
+    //print the 3 quick controls, hardcoded for now
+    glcd_text(display, 8, 15, "INPUT-1", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 14, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+
+    char str_bfr[7];
+    uint8_t char_cnt_name = 0;
+
+    //print the bar
+    menu_bar_t bar_1 = {};
+    bar_1.x = 4;
+    bar_1.y = 27;
+    bar_1.color = GLCD_BLACK;
+    bar_1.width = 35;
+    bar_1.height = 7;
+    bar_1.min = 0;
+    bar_1.max = 98;
+    bar_1.value = system_get_gain_value(INP_1_GAIN_ID);
+    widget_bar(display, &bar_1);
+    
+    //unit
+    memset(str_bfr, 0, (6)*sizeof(char));
+    int_to_str(bar_1.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    str_bfr[6] = 0;
+    char_cnt_name = strlen(str_bfr);
+    glcd_text(display, 22 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+    glcd_text(display, 51, 15, "INPUT-2", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 57, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+
+    //print the bar
+    menu_bar_t bar_2 = {};
+    bar_2.x = 47;
+    bar_2.y = 27;
+    bar_2.color = GLCD_BLACK;
+    bar_2.width = 35;
+    bar_2.height = 7;
+    bar_2.min = 0;
+    bar_2.max = 98;
+    bar_2.value = system_get_gain_value(INP_2_GAIN_ID);
+    widget_bar(display, &bar_2);
+    
+    //unit
+    memset(str_bfr, 0, (6)*sizeof(char));
+    int_to_str(bar_2.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    str_bfr[6] = 0;
+    char_cnt_name = strlen(str_bfr);
+    glcd_text(display, 65 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+    glcd_text(display, 91, 15, "OUTPUT", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 99, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+
+    //print the bar
+    menu_bar_t bar_3 = {};
+    bar_3.x = 89;
+    bar_3.y = 27;
+    bar_3.color = GLCD_BLACK;
+    bar_3.width = 35;
+    bar_3.height = 7;
+    bar_3.min = 0;
+    bar_3.max = 98;
+    bar_3.value = system_get_gain_value(OUTP_1_GAIN_ID);
+    widget_bar(display, &bar_3);
+    
+    //unit
+    memset(str_bfr, 0, (6)*sizeof(char));
+    int_to_str(bar_3.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    str_bfr[6] = 0;
+    char_cnt_name = strlen(str_bfr);
+    glcd_text(display, 107 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+/*
+    menu_item_t shift_item;
+    shift_item.desc->name = "INPUT-1 GAIN";
+    shift_item.desc->type = MENU_BAR;
+    shift_item.data.value = system_get_gain_value(INP_1_GAIN_ID);
+    shift_item.data.min = 0.0;
+    shift_item.data.max = 98.0;
+    static char str_bfr[8] = {};
+    int_to_str(shift_item.data.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    shift_item.data.unit_text = str_bfr;
+    print_tripple_menu_items(&shift_item, 0);
+
+    shift_item.desc->name = "INPUT-2 GAIN";
+    shift_item.desc->type = MENU_BAR;
+    shift_item.data.value = system_get_gain_value(INP_2_GAIN_ID);
+    int_to_str(shift_item.data.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    shift_item.data.unit_text = str_bfr;
+    print_tripple_menu_items(&shift_item, 1);
+
+    shift_item.desc->name = "OUTPUT GAIN";
+    shift_item.desc->type = MENU_BAR;
+    shift_item.data.value = system_get_gain_value(OUTP_1_GAIN_ID);
+    int_to_str(shift_item.data.value, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    shift_item.data.unit_text = str_bfr;
+    print_tripple_menu_items(&shift_item, 2);*/
 }
 
 void screen_control_overlay(control_t *control)

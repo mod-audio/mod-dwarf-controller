@@ -263,6 +263,23 @@ void naveg_enc_down(uint8_t encoder)
             TM_down(encoder);
         break;
 
+        case MODE_SHIFT:
+            //do system callbacks, hardcodec for nwo
+            switch (encoder)
+            {
+                case 0:
+                    system_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_DOWN);
+                break;
+                case 1:
+                    system_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_DOWN);
+                break;
+                case 2:
+                    system_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_DOWN);
+                    system_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_DOWN);
+                break;
+            }
+        break;
+
         case MODE_BUILDER:
             //not defined yet
         break;
@@ -294,6 +311,23 @@ void naveg_enc_up(uint8_t encoder)
         case MODE_TOOL:
             //pass for tuner/menu/bypass controls
             TM_up(encoder);
+        break;
+
+        case MODE_SHIFT:
+            //do system callbacks, hardcodec for nwo
+            switch (encoder)
+            {
+                case 0:
+                    system_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_UP);
+                break;
+                case 1:
+                    system_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_UP);
+                break;
+                case 2:
+                    system_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_UP);
+                    system_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_UP);
+                break;
+            }
         break;
 
         case MODE_BUILDER:
