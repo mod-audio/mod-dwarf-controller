@@ -333,7 +333,7 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
 
-    // inserts one space
+    // inserts one spacesend_load_pedalb
     buffer[i++] = ' ';
 
     const char *p = pedalboard_uid;
@@ -457,6 +457,46 @@ static void request_snapshots(uint8_t dir)
     }
 }
 
+static void send_load_snapshot(const char *snapshot_uid)
+{
+    uint16_t i;
+    char buffer[40];
+    memset(buffer, 0, sizeof buffer);
+
+    i = copy_command((char *)buffer, CMD_SNAPSHOTS_LOAD);
+
+    const char *p = snapshot_uid;
+    // copy the snapshot uid
+    if (!*p) 
+    {
+        buffer[i++] = '0';
+    }
+    else
+    {
+        while (*p)
+        {
+            buffer[i++] = *p;
+            p++;
+        }
+    }
+    buffer[i] = 0;
+
+    g_protocol_busy = true;
+    system_lock_comm_serial(g_protocol_busy);
+
+    // sets the response callback
+    ui_comm_webgui_set_response_cb(NULL, NULL);
+
+    // send the data to GUI
+    ui_comm_webgui_send(buffer, i);
+
+    // waits the pedalboard loaded message to be received
+    ui_comm_webgui_wait_response();
+
+    g_protocol_busy = false;
+    system_lock_comm_serial(g_protocol_busy);
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -574,6 +614,15 @@ void NM_enter(void)
 
         // sets the variables to update the screen
         title = g_banks->names[g_banks->hover - g_banks->page_min];
+    }
+    else if (g_current_list == SNAPSHOT_LIST)
+    {
+        send_load_snapshot(g_snapshots->uids[g_snapshots->hover - g_snapshots->page_min -1]);
+
+        g_current_snapshot = g_snapshots->hover;
+
+        // sets the variables to update the screen
+        title = g_pedalboards->names[g_current_pedalboard];
     }
     else
         return;
@@ -946,19 +995,16 @@ void NM_button_pressed(uint8_t button)
 
 void NM_change_pbss(uint8_t next_prev)
 {
-    if (g_current_list == PEDALBOARD_LIST)
+    if (next_prev)
     {
-        if (next_prev)
-        {
-            NM_down();
-        }
-        else
-        {
-            NM_up();
-        }
-
-        NM_enter();
+        NM_down();
     }
+    else
+    {
+        NM_up();
+    }
+
+    NM_enter();
 }
 
 void NM_toggle_pb_ss(void)

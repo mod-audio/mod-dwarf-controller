@@ -71,6 +71,7 @@ void NM_print_screen();
 void NM_button_pressed(uint8_t button);
 void NM_change_pbss(uint8_t next_prev);
 void NM_toggle_pb_ss(void);
+void NM_load_selected(void);
 
 /*
 ************************************************************************************************************************

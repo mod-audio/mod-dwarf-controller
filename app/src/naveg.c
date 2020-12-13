@@ -216,7 +216,7 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
- //in nav mode, trigger load
+            if (encoder == 0) NM_enter();
         break;
 
         case MODE_TOOL:
