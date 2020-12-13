@@ -441,6 +441,9 @@ static void setup_task(void *pvParameters)
     // init the navigation
     naveg_init();
 
+    //init stereo link for shift menu
+    system_recall_stereo_link_settings();
+
     // deletes itself
     vTaskDelete(NULL);
 }

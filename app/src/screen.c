@@ -1448,35 +1448,6 @@ void screen_shift_overlay(uint8_t prev_mode)
     str_bfr[6] = 0;
     char_cnt_name = strlen(str_bfr);
     glcd_text(display, 107 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
-
-/*
-    menu_item_t shift_item;
-    shift_item.desc->name = "INPUT-1 GAIN";
-    shift_item.desc->type = MENU_BAR;
-    shift_item.data.value = system_get_gain_value(INP_1_GAIN_ID);
-    shift_item.data.min = 0.0;
-    shift_item.data.max = 98.0;
-    static char str_bfr[8] = {};
-    int_to_str(shift_item.data.value, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    shift_item.data.unit_text = str_bfr;
-    print_tripple_menu_items(&shift_item, 0);
-
-    shift_item.desc->name = "INPUT-2 GAIN";
-    shift_item.desc->type = MENU_BAR;
-    shift_item.data.value = system_get_gain_value(INP_2_GAIN_ID);
-    int_to_str(shift_item.data.value, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    shift_item.data.unit_text = str_bfr;
-    print_tripple_menu_items(&shift_item, 1);
-
-    shift_item.desc->name = "OUTPUT GAIN";
-    shift_item.desc->type = MENU_BAR;
-    shift_item.data.value = system_get_gain_value(OUTP_1_GAIN_ID);
-    int_to_str(shift_item.data.value, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    shift_item.data.unit_text = str_bfr;
-    print_tripple_menu_items(&shift_item, 2);*/
 }
 
 void screen_control_overlay(control_t *control)

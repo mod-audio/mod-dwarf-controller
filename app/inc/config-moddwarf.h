@@ -283,14 +283,14 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                       , 0},  \
     {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                       , 0},  \
     {"INPUT STEREOLINK",                MENU_TOGGLE,    INP_STEREO_LINK,        AUDIO_INP_ID,       system_sl_in_cb            , 0},  \
-    {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_volume_cb           , 0},  \
-    {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_volume_cb           , 0},  \
+    {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_inp_1_volume_cb     , 0},  \
+    {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_inp_2_volume_cb     , 0},  \
     {"AUDIO OUTPUTS",                   MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                       , 0},  \
     {"OUTPUT STEREOLINK",               MENU_TOGGLE,    OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_sl_out_cb           , 0},  \
-    {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_volume_cb           , 0},  \
-    {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_volume_cb           , 0},  \
+    {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb    , 0},  \
+    {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb    , 0},  \
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                       , 0},  \
-    {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_volume_cb           , 0},  \
+    {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_hp_volume_cb        , 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                       , 0},  \
     {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
     {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \

@@ -61,6 +61,7 @@
 */
 
 // system menu callbacks
+void system_recall_stereo_link_settings(void);
 void system_lock_comm_serial(bool busy);
 void system_update_menu_value(uint8_t item_ID, uint16_t value);
 float system_get_gain_value(uint8_t item_ID);
@@ -78,7 +79,11 @@ void system_release_cb(void *arg, int event);
 void system_device_cb(void *arg, int event);
 void system_tag_cb(void *arg, int event);
 void system_upgrade_cb(void *arg, int event);
-void system_volume_cb(void *arg, int event);
+void system_inp_1_volume_cb(void *arg, int event);
+void system_inp_2_volume_cb(void *arg, int event);
+void system_outp_1_volume_cb(void *arg, int event);
+void system_outp_2_volume_cb(void *arg, int event);
+void system_hp_volume_cb(void *arg, int event);
 void system_save_gains_cb(void *arg, int event);
 void system_banks_cb(void *arg, int event);
 void system_display_brightness_cb(void *arg, int event);
