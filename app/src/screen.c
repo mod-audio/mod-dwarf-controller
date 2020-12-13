@@ -985,8 +985,11 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
         list_box.text_left_margin = 2;
-        list_box.name = "PEDALBOARDS";
-        widget_listbox_pedalboard(display, &list_box, title_font);
+        if (pb_ss_toggle)
+            list_box.name = "PEDALBOARDS";
+        else
+            list_box.name = "SNAPSHOTS";
+        widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
 
         //print the 3 buttons
         //draw the first box, back
@@ -1025,9 +1028,12 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         box_3.mode = TEXT_SINGLE_LINE;
         box_3.font = Terminal3x5;
         box_3.align = ALIGN_NONE_NONE;
-        box_3.x = 86;
+        /*box_3.x = 86;
         box_3.y = DISPLAY_HEIGHT - 7;
-        box_3.text = "DELETE";
+        box_3.text = "DELETE";*/
+        box_3.x = 96;
+        box_3.y = DISPLAY_HEIGHT - 7;
+        box_3.text = "-";
         widget_textbox(display, &box_3);
     }
     else
@@ -1323,7 +1329,7 @@ void screen_shift_overlay(uint8_t prev_mode)
 
     if (prev_mode)
         previous_mode = prev_mode;
-    
+
     //clear screen first
     screen_clear();
 

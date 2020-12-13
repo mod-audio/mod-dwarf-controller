@@ -71,12 +71,12 @@ enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 */
 
 static bp_list_t *g_banks, *g_pedalboards, *g_snapshots;
-static uint16_t g_current_pedalboard, g_bp_first;
+static uint16_t g_current_pedalboard, g_bp_first, g_current_snapshot;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static int16_t g_current_bank, g_force_update_pedalboard;
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
-
+static uint8_t g_snapshots_loaded = 0;
 static uint8_t g_current_list = PEDALBOARD_LIST;
 
 /*
@@ -337,7 +337,7 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     buffer[i++] = ' ';
 
     const char *p = pedalboard_uid;
-    // copy the pedalboard uidf
+    // copy the pedalboard uid
     if (!*p) 
     {
         buffer[i++] = '0';
@@ -366,6 +366,95 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
+}
+
+//called from the request functions and the naveg_initail_state
+static void parse_snapshots_list(void *data, menu_item_t *item)
+{
+    (void) item;
+    char **list = data;
+    uint32_t count = strarr_length(&list[5]);
+
+    // free the navigation pedalboads list
+    if (g_snapshots)
+        data_free_pedalboards_list(g_snapshots);
+
+    if (count == 0)
+        g_snapshots_loaded = 0;
+
+    // parses the list
+    g_snapshots = data_parse_pedalboards_list(&list[5], count);
+
+    if (g_snapshots)
+    {
+        g_snapshots->menu_max = (atoi(list[2]));
+        g_snapshots->page_min = (atoi(list[3]));
+        g_snapshots->page_max = (atoi(list[4])); 
+    }
+
+    g_snapshots_loaded = 1;
+}
+
+static void request_snapshots(uint8_t dir)
+{
+    uint8_t i;
+    char buffer[40];
+    memset(buffer, 0, sizeof buffer);
+
+    // sets the response callback
+    ui_comm_webgui_set_response_cb(parse_snapshots_list, NULL);
+
+    i = copy_command((char *)buffer, CMD_SNAPSHOTS);
+
+    uint8_t bitmask = 0;
+    if (dir == 1) {bitmask |= FLAG_PAGINATION_PAGE_UP;}
+    else if (dir == 2) bitmask |= FLAG_PAGINATION_INITIAL_REQ;
+
+    // insert the direction on buffer
+    i += int_to_str(bitmask, &buffer[i], sizeof(buffer) - i, 0);
+
+    // inserts one space
+    buffer[i++] = ' ';
+
+    if ((dir == PAGE_DIR_INIT))
+    {
+        // insert the current hover on buffer
+        i += int_to_str(0, &buffer[i], sizeof(buffer) - i, 0);
+    } 
+    else
+    {
+        // insert the current hover on buffer
+        i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
+    }
+
+    buffer[i++] = 0;
+
+    uint16_t prev_hover = g_current_snapshot;
+    uint16_t prev_selected = g_current_snapshot;
+
+    if (g_snapshots)
+    {
+        prev_hover = g_snapshots->hover;
+        prev_selected = g_snapshots->selected;
+    }
+    
+    g_protocol_busy = true;
+    system_lock_comm_serial(g_protocol_busy);
+
+    // sends the data to GUI
+    ui_comm_webgui_send(buffer, i);
+
+    // waits the pedalboards list be received
+    ui_comm_webgui_wait_response();
+
+    g_protocol_busy = false;
+    system_lock_comm_serial(g_protocol_busy);
+
+    if (g_snapshots)
+    {
+        g_snapshots->hover = prev_hover;
+        g_snapshots->selected = prev_selected;
+    }
 }
 
 /*
@@ -441,8 +530,6 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
     g_pedalboards->hover = g_current_pedalboard;
     g_pedalboards->selected = g_current_pedalboard;
-
-    //MDW_TODO INIT SNAPSHOTS HERE
 }
 
 void NM_enter(void)
@@ -489,9 +576,7 @@ void NM_enter(void)
         title = g_banks->names[g_banks->hover - g_banks->page_min];
     }
     else
-    {
         return;
-    }
 
     g_pedalboards->selected = g_current_pedalboard;
     g_pedalboards->hover = g_current_pedalboard;
@@ -585,12 +670,49 @@ void NM_up(void)
             }
         }
     }
+    else if (g_current_list == SNAPSHOT_LIST)
+    {
+        //are we reaching the bottom of the menu?
+        if(g_snapshots->page_min == 0) 
+        {
+            //check if we are not already at the end
+            if (g_snapshots->hover == 0) return;
+            else 
+            {
+                //go down till the end
+                //we still have items in our list
+                g_snapshots->hover--;
+                bp_list = g_snapshots;
+                title = g_pedalboards->names[g_current_pedalboard];
+            }
+        }
+        else
+        {
+            //we always keep 3 items in front of us, if not request new page
+            if (g_snapshots->hover <= (g_snapshots->page_min + 4))
+            {
+                g_snapshots->hover--;
+                title = g_pedalboards->names[g_current_pedalboard];
+                //request new page
+                request_snapshots(PAGE_DIR_DOWN);
+
+                bp_list = g_snapshots;
+            }   
+            //we have items, just go up
+            else 
+            {
+                g_snapshots->hover--;
+                bp_list = g_snapshots;
+                title = g_pedalboards->names[g_current_pedalboard];
+            }
+        }
+    }
     else return;
 
     if (g_current_list == PEDALBOARD_LIST)
-    {
         screen_pbss_list(title, bp_list, PB_MODE);
-    }
+    else if (g_current_list == SNAPSHOT_LIST)
+        screen_pbss_list(title, bp_list, SS_MODE);
     else 
         screen_bank_list(bp_list);
 }
@@ -674,10 +796,48 @@ void NM_down(void)
             }
         }
     }
+    else if (g_current_list == SNAPSHOT_LIST)
+    {
+        //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
+        if(g_snapshots->page_max == g_snapshots->menu_max)
+        {
+            //check if we are not already at the end, we dont need so substract by one, since the "> back to banks" item is added on parsing
+            if (g_snapshots->hover == g_snapshots->menu_max - 1) return;
+            else 
+            {
+                //we still have items in our list
+                g_snapshots->hover++;
+                bp_list = g_snapshots;
+                title = g_pedalboards->names[g_current_pedalboard];
+            }
+        }
+        else 
+        {
+            //we always keep 3 items in front of us, if not request new page
+            if (g_snapshots->hover >= (g_snapshots->page_max - 4))
+            {
+                title = g_banks->names[g_banks->hover - g_banks->page_min];
+                //request new page
+                request_snapshots(PAGE_DIR_UP);
+
+                g_snapshots->hover++;
+                bp_list = g_snapshots;
+            }   
+            //we have items, just go down
+            else 
+            {
+                g_snapshots->hover++;
+                bp_list = g_snapshots;
+                title = g_pedalboards->names[g_current_pedalboard];
+            }
+        }
+    }
     else return;
 
     if (g_current_list == PEDALBOARD_LIST)
         screen_pbss_list(title, bp_list, PB_MODE);
+    else if (g_current_list == SNAPSHOT_LIST)
+        screen_pbss_list(title, bp_list, SS_MODE);
     else 
         screen_bank_list(bp_list);
 }
@@ -798,5 +958,28 @@ void NM_change_pbss(uint8_t next_prev)
         }
 
         NM_enter();
+    }
+}
+
+void NM_toggle_pb_ss(void)
+{
+    if (g_current_list == PEDALBOARD_LIST)
+    {
+        if (!g_snapshots_loaded) //load
+            request_snapshots(PAGE_DIR_INIT);
+
+        if (!g_snapshots_loaded) //no snapshots available TODO popup
+            return;
+
+        //display them
+        screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
+
+        g_current_list = SNAPSHOT_LIST;
+    }
+    else
+    {
+        screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
+
+        g_current_list = PEDALBOARD_LIST;
     }
 }

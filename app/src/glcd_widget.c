@@ -503,7 +503,7 @@ void widget_listbox4(glcd_t *display, listbox_t *listbox)
     }
 }
 
-void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font)
+void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
 {
     //draw the title line around it
     glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
@@ -526,8 +526,11 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 4, listbox->y+2, title_str_bfr, title_font, listbox->color);
 
     //draw the icon before
-    icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
-
+    if (toggle)
+        icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
+    else 
+        icon_snapshot(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
+    
     // invert the name area
     glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +13), 9);
 

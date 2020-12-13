@@ -367,6 +367,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (foot == 2)
             {
                 //change pb <-> ss
+                NM_toggle_pb_ss();
             }
             else 
             {
