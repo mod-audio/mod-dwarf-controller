@@ -546,15 +546,10 @@ void naveg_shift_pressed()
 
     //make sure all values are up to date
     system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
-    ledz_on(hardware_leds(3), RED);
-    menu_item_t *item = TM_get_menu_item_by_ID(INP_2_GAIN_ID);
-    ledz_on(hardware_leds(3), GREEN);
-    system_inp_2_volume_cb(item, MENU_EV_NONE);
-    ledz_on(hardware_leds(4), RED);
+    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
     system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
-    ledz_on(hardware_leds(5), RED);
     system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_NONE);
-    ledz_on(hardware_leds(6), RED);
+
     screen_shift_overlay(g_prev_device_mode);
 }
 

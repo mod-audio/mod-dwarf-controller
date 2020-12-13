@@ -510,23 +510,17 @@ void system_inp_2_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        ledz_on(hardware_leds(3), BLUE);
-        
         response = cli_command("mod-amixer in 2 xvol", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
-        ledz_on(hardware_leds(4), BLUE);
 
         item->data.min = 0.0;
         item->data.max = 98.0;
         item->data.step = 1.0;
-        ledz_on(hardware_leds(5), BLUE);
         item->data.value = atoi(str);
-        ledz_on(hardware_leds(6), BLUE);
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        ledz_on(hardware_leds(3), RED);
         if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
         {
             
@@ -535,7 +529,6 @@ void system_inp_2_volume_cb(void *arg, int event)
             
             if (item->data.value > item->data.max) item->data.value = item->data.max;
             if (item->data.value < item->data.min) item->data.value = item->data.min;
-            ledz_on(hardware_leds(4), RED);
             int_to_str(item->data.value, value, 8, 0);
 
             if (g_sl_in)
@@ -551,7 +544,6 @@ void system_inp_2_volume_cb(void *arg, int event)
                 cli_command(value, CLI_DISCARD_RESPONSE);
                 g_in_2_volume = item->data.value;
             }
-            ledz_on(hardware_leds(5), RED);
             last_message_time = message_time;
         }
     }
@@ -559,15 +551,12 @@ void system_inp_2_volume_cb(void *arg, int event)
     static char str_bfr[8] = {};
     float value_bfr = 0;
     value_bfr = MAP(item->data.value, item->data.min, item->data.max, 0, 100); 
-    ledz_on(hardware_leds(3), GREEN);
     int_to_str(value_bfr, str_bfr, 8, 0);
     strcat(str_bfr, "%");
-    ledz_on(hardware_leds(4), GREEN);
     item->data.unit_text = str_bfr;
 
     if (event != MENU_EV_NONE)
     {
-        ledz_on(hardware_leds(5), GREEN);
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
@@ -655,7 +644,7 @@ void system_outp_2_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = li_command("mod-amixer out 2 xvol", CLI_RETRIEVE_RESPONSE);
+        response = cli_command("mod-amixer out 2 xvol", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
@@ -723,7 +712,7 @@ void system_hp_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = ccli_command("mod-amixer hp xvol", CLI_RETRIEVE_RESPONSE);
+        response = cli_command("mod-amixer hp xvol", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
