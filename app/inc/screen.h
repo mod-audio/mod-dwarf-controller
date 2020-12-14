@@ -73,7 +73,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle);
 void screen_system_menu(menu_item_t *item);
 void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute, uint8_t input);
 void screen_image(uint8_t display, const uint8_t *image);
-void screen_shift_overlay(uint8_t prev_mode);
+void screen_shift_overlay(int8_t prev_mode);
 void screen_menu_page(node_t *node);
 void screen_control_overlay(control_t *control);
 

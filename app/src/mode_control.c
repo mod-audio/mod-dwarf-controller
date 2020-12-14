@@ -79,8 +79,8 @@ static control_t *g_controls[ENCODERS_COUNT], *g_foots[MAX_FOOT_ASSIGNMENTS];
 
 uint8_t g_scroll_dir = 1;
 
-static uint8_t g_current_foot_control_page;
-static uint8_t g_current_encoder_page;
+static uint8_t g_current_foot_control_page = 0;
+static uint8_t g_current_encoder_page = 0;
 static uint8_t g_fs_page_available[8] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 /*
@@ -170,12 +170,18 @@ void set_encoder_pages_led_state(void)
     switch (g_current_encoder_page)
     {
         case 0:
+            ledz_set_state(hardware_leds(4), 4, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
+            ledz_set_state(hardware_leds(5), 5, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
             ledz_set_state(hardware_leds(3), 3, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
         break;
         case 1:
+            ledz_set_state(hardware_leds(3), 3, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
+            ledz_set_state(hardware_leds(5), 5, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
             ledz_set_state(hardware_leds(4), 4, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
         break;
         case 2:
+            ledz_set_state(hardware_leds(3), 3, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
+            ledz_set_state(hardware_leds(4), 4, ENCODER_PAGE_COLOR, 0, 0, 0, 0);
             ledz_set_state(hardware_leds(5), 5, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
         break;
     } 
@@ -1332,19 +1338,9 @@ void CM_load_next_encoder_page(uint8_t button)
 
         CM_remove_control(q);
 
-        //clear actuator queue
-        reset_queue();
-
-        //lock actuators
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
         ui_comm_webgui_send(buffer, i);
 
         ui_comm_webgui_wait_response();
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
     }
 
     //update LED's
@@ -1376,6 +1372,8 @@ void CM_print_screen(void)
     CM_draw_encoders();
 
     set_footswitch_pages_led_state();
+
+    set_encoder_pages_led_state();
 }
 
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time)

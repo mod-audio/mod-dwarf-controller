@@ -165,6 +165,10 @@ void widget_popup(glcd_t *display, popup_t *popup);
 void icon_snapshot(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pedalboard(glcd_t *display, uint8_t x, uint8_t y);
 void icon_overlay(glcd_t *display, uint8_t x, uint8_t y);
+void icon_bank(glcd_t *display, uint8_t x, uint8_t y);
+
+//tmp
+void widget_listbox_mdx(glcd_t *display, listbox_t *listbox);
 
 /*
 ************************************************************************************************************************

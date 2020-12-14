@@ -194,6 +194,11 @@ static void menu_enter(uint8_t encoder)
         //print the 3 items on screen
         screen_menu_page(node);
     }
+    else if (item->desc->type == MENU_CONFIRM)
+    {
+            if (item->desc->action_cb)
+                item->desc->action_cb(item, MENU_EV_ENTER);
+    }
 
     if (item->desc->type == MENU_CONFIRM2)
     {
@@ -398,6 +403,10 @@ void TM_encoder_click(uint8_t encoder)
         {
             menu_change_value(encoder, MENU_EV_ENTER);
         }
+        else
+        {
+            TM_enter(0);
+        }
     }
 }
 
@@ -431,6 +440,12 @@ void TM_enter(uint8_t button)
         //for other buttons next / prev parrent node
         else if (button == 1)
         {
+            if (g_current_item->desc->id == ROOT_ID)
+            {
+                naveg_trigger_mode_change(MODE_CONTROL);
+                return;
+            }
+
             if (!g_current_menu->prev)
                 return;
 
@@ -628,12 +643,14 @@ void TM_launch_tool(uint8_t tool)
     switch (tool)
     {
         case TOOL_MENU:
+            g_current_tool = TOOL_MENU;
             TM_reset_menu();
             tool_on(DISPLAY_TOOL_SYSTEM);
             menu_enter(0);
         break;
 
         case TOOL_TUNER:
+                g_current_tool = TOOL_TUNER;
                 tool_off(TOOL_SYNC);
                 tool_off(TOOL_BYPASS);
                 tool_on(TOOL_TUNER);

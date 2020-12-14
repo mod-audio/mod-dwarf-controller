@@ -842,8 +842,7 @@ void screen_bank_list(bp_list_t *list)
     title_box.y = 1;
     widget_textbox(display, &title_box);
 
-    icon_snapshot(display, 43, 1);
-    //MDW_TODO_BANKS_ICON
+    icon_bank(display, 43, 1);
 
     //invert title area
     glcd_rect_invert(display, 41, 0, 44, 9);
@@ -866,9 +865,12 @@ void screen_bank_list(bp_list_t *list)
     box_2.mode = TEXT_SINGLE_LINE;
     box_2.font = Terminal3x5;
     box_2.align = ALIGN_NONE_NONE;
-    box_2.x = 56;
+    /*box_2.x = 56;
     box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "COPY";
+    box_2.text = "COPY";*/
+    box_2.x = 62;
+    box_2.y = DISPLAY_HEIGHT - 7;
+    box_2.text = "-";
     widget_textbox(display, &box_2);
 
     //draw the third box, save PB
@@ -877,9 +879,12 @@ void screen_bank_list(bp_list_t *list)
     box_3.mode = TEXT_SINGLE_LINE;
     box_3.font = Terminal3x5;
     box_3.align = ALIGN_NONE_NONE;
-    box_3.x = 92;
+    /*box_3.x = 92;
     box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "NEW";
+    box_3.text = "NEW";*/
+    box_3.x = 96;
+    box_3.y = DISPLAY_HEIGHT - 7;
+    box_3.text = "-";
     widget_textbox(display, &box_3);
 
     // draws the list
@@ -949,12 +954,11 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         widget_textbox(display, &title_box);
 
         //snapshot
-        if (pb_ss_toggle)
+        if (!pb_ss_toggle)
             icon_pedalboard(display, title_box.x - 11, 1);
         //pb's
         else 
-            icon_snapshot(display, title_box.x - 11, 1);
-        //MDW_TODO_BANKS_ICON
+            icon_bank(display, title_box.x - 11, 1);
 
         //invert the top bar
         glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -985,7 +989,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
         list_box.text_left_margin = 2;
-        if (pb_ss_toggle)
+        if (!pb_ss_toggle)
             list_box.name = "PEDALBOARDS";
         else
             list_box.name = "SNAPSHOTS";
@@ -1001,8 +1005,10 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         box_1.y = DISPLAY_HEIGHT - 7;
         if (pb_ss_toggle)
         {
-            box_1.x = 18;
-            box_1.text = "RENAME";
+            /*box_1.x = 18;
+            box_1.text = "RENAME";*/
+            box_1.x = 28;
+            box_1.text = "-";
         }
         else
         {
@@ -1011,15 +1017,24 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         }
         widget_textbox(display, &box_1);
 
-        //draw the second box, TODO Builder MODE
+        //draw the second box
         textbox_t box_2 = {};
         box_2.color = GLCD_BLACK;
         box_2.mode = TEXT_SINGLE_LINE;
         box_2.font = Terminal3x5;
         box_2.align = ALIGN_NONE_NONE;
-        box_2.x = 56;
-        box_2.y = DISPLAY_HEIGHT - 7;
-        box_2.text = "SAVE";
+        if (!pb_ss_toggle)
+        {
+            box_2.x = 56;
+            box_2.y = DISPLAY_HEIGHT - 7;
+            box_2.text = "SAVE";
+        }
+        else
+        {
+            box_2.x = 62;
+            box_2.y = DISPLAY_HEIGHT - 7;
+            box_2.text = "-";
+        }
         widget_textbox(display, &box_2);
 
         //draw the third box, save PB
@@ -1118,9 +1133,9 @@ void screen_system_menu(menu_item_t *item)
 
     // menu list
     listbox_t list;
-    list.x = 1;
+    list.x = 6;
     list.y = 12;
-    list.width = 126;
+    list.width = 116;
     list.height = 40;
     list.color = GLCD_BLACK;
     list.font = Terminal3x5;
@@ -1144,7 +1159,10 @@ void screen_system_menu(menu_item_t *item)
             list.selected = item->data.selected;
             list.count = item->data.list_count;
             list.list = item->data.list;
-            widget_menu_listbox(display, &list);
+            if (item->desc->id == MENU_ROOT)
+                widget_menu_listbox(display, &list);
+            else 
+                widget_listbox_mdx(display, &list);
         break;
 
         case MENU_CONFIRM:
@@ -1323,11 +1341,11 @@ void screen_image(uint8_t display, const uint8_t *image)
     glcd_draw_image(display_img, 0, 0, image, GLCD_BLACK);
 }
 
-void screen_shift_overlay(uint8_t prev_mode)
+void screen_shift_overlay(int8_t prev_mode)
 {
     static uint8_t previous_mode;
 
-    if (prev_mode)
+    if (prev_mode != -1)
         previous_mode = prev_mode;
 
     //clear screen first

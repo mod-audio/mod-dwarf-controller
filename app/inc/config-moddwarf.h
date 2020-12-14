@@ -278,6 +278,26 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    NULL                       , 0},  \
     {"KNOB LIST",                       MENU_TOGGLE,    KNOB_LIST_ID,           DEVICE_SET_2_ID,    NULL                       , 0},  \
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    NULL                       , 0},  \
+
+    {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
+    {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \
+    {"STATUS:",                         MENU_NONE,      BLUETOOTH_ID+2,         BLUETOOTH_ID,       NULL                       , 0},  \
+    {"NAME:",                           MENU_NONE,      BLUETOOTH_ID+3,         BLUETOOTH_ID,       NULL                       , 0},  \
+    {"ADDRESS:",                        MENU_NONE,      BLUETOOTH_ID+4,         BLUETOOTH_ID,       NULL                       , 0},  \
+    {"INFO",                            MENU_ROOT,      INFO_ID,                ROOT_ID,            NULL                       , 0},  \
+    {"SERVICES",                        MENU_ROOT,      SERVICES_ID,            INFO_ID,            system_services_cb         , 1},  \
+    {"JACK:",                           MENU_NONE,      SERVICES_ID+1,          SERVICES_ID,        NULL                       , 0},  \
+    {"SSHD:",                           MENU_NONE,      SERVICES_ID+2,          SERVICES_ID,        NULL                       , 0},  \
+    {"MOD-UI:",                         MENU_NONE,      SERVICES_ID+3,          SERVICES_ID,        NULL                       , 0},  \
+    {"DNSMASQ:",                        MENU_NONE,      SERVICES_ID+4,          SERVICES_ID,        NULL                       , 0},  \
+    {"VERSIONS",                        MENU_LIST,      VERSIONS_ID,            INFO_ID,            system_versions_cb         , 0},  \
+    {"VERSION:",                        MENU_NONE,      VERSIONS_ID+1,          VERSIONS_ID,        system_release_cb          , 0},  \
+    {"RESTORE:",                        MENU_NONE,      VERSIONS_ID+2,          VERSIONS_ID,        NULL                       , 0},  \
+    {"SYSTEM:",                         MENU_NONE,      VERSIONS_ID+3,          VERSIONS_ID,        NULL                       , 0},  \
+    {"CONTROLLER:",                     MENU_NONE,      VERSIONS_ID+4,          VERSIONS_ID,        NULL                       , 0},  \
+    {"DEVICE",                          MENU_LIST,      DEVICE_ID,              INFO_ID,            NULL                       , 0},  \
+    {"SERIAL NUMBER",                   MENU_OK,        DEVICE_ID+1,            DEVICE_ID,          system_tag_cb              , 0},  \
+
 */
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                       , 0},  \
@@ -301,24 +321,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb          , 0},  \
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb          , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb    , 0},  \
-    {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
-    {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \
-    {"STATUS:",                         MENU_NONE,      BLUETOOTH_ID+2,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"NAME:",                           MENU_NONE,      BLUETOOTH_ID+3,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"ADDRESS:",                        MENU_NONE,      BLUETOOTH_ID+4,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"INFO",                            MENU_ROOT,      INFO_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"SERVICES",                        MENU_ROOT,      SERVICES_ID,            INFO_ID,            system_services_cb         , 1},  \
-    {"JACK:",                           MENU_NONE,      SERVICES_ID+1,          SERVICES_ID,        NULL                       , 0},  \
-    {"SSHD:",                           MENU_NONE,      SERVICES_ID+2,          SERVICES_ID,        NULL                       , 0},  \
-    {"MOD-UI:",                         MENU_NONE,      SERVICES_ID+3,          SERVICES_ID,        NULL                       , 0},  \
-    {"DNSMASQ:",                        MENU_NONE,      SERVICES_ID+4,          SERVICES_ID,        NULL                       , 0},  \
-    {"VERSIONS",                        MENU_LIST,      VERSIONS_ID,            INFO_ID,            system_versions_cb         , 0},  \
-    {"VERSION:",                        MENU_NONE,      VERSIONS_ID+1,          VERSIONS_ID,        system_release_cb          , 0},  \
-    {"RESTORE:",                        MENU_NONE,      VERSIONS_ID+2,          VERSIONS_ID,        NULL                       , 0},  \
-    {"SYSTEM:",                         MENU_NONE,      VERSIONS_ID+3,          VERSIONS_ID,        NULL                       , 0},  \
-    {"CONTROLLER:",                     MENU_NONE,      VERSIONS_ID+4,          VERSIONS_ID,        NULL                       , 0},  \
-    {"DEVICE",                          MENU_LIST,      DEVICE_ID,              INFO_ID,            NULL                       , 0},  \
-    {"SERIAL NUMBER",                   MENU_OK,        DEVICE_ID+1,            DEVICE_ID,          system_tag_cb              , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID     ,            system_upgrade_cb          , 0},  \
 
 //POPUP DEFINES
@@ -426,7 +428,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 //overlay timeouts
 #define ENCODER_LIST_TIMEOUT        500
-#define FOOT_CONTROLS_TIMEOUT       1000
+#define FOOT_CONTROLS_TIMEOUT       700
 
 //// Command line interface configurations
 // defines the cli serial

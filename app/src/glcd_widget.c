@@ -459,6 +459,64 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
     }
 }
 
+//TODO find something better
+void widget_listbox_mdx(glcd_t *display, listbox_t *listbox)
+{
+    uint8_t i, font_height, max_lines, y_line;
+    uint8_t first_line, focus, center_focus, focus_height;
+    char aux[DISPLAY_WIDTH/2];
+    const char *line_txt;
+
+    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
+
+    font_height = listbox->font[FONT_HEIGHT];
+    max_lines = listbox->height / (font_height + listbox->line_space);
+
+    center_focus = (max_lines / 2) - (1 - (max_lines % 2));
+    first_line = 0;
+
+    if (listbox->hover > center_focus && listbox->count > max_lines)
+    {
+        first_line = listbox->hover - center_focus;
+        if (first_line > ABS(listbox->count - max_lines))
+        {
+            first_line = ABS(listbox->count - max_lines);
+        }
+    }
+
+    if (max_lines > listbox->count) max_lines = listbox->count;
+    focus = listbox->hover - first_line;
+    focus_height = font_height + listbox->line_top_margin + listbox->line_bottom_margin;
+    y_line = listbox->y + listbox->line_space;
+
+    for (i = 0; i < max_lines; i++)
+    {
+        if (i < listbox->count)
+        {
+            line_txt = listbox->list[first_line + i];
+
+            if ((first_line + i) == listbox->selected)
+            {
+                uint8_t j = 0;
+                aux[j++] = ' ';
+                aux[j++] = '>';
+                aux[j++] = ' ';
+                while (*line_txt && j < sizeof(aux)-1) aux[j++] = *line_txt++;
+                aux[j] = 0;
+                line_txt = aux;
+            }
+
+            glcd_text(display, listbox->x + listbox->text_left_margin, y_line, line_txt, listbox->font, listbox->color);
+
+            if (i == focus)
+            {
+                glcd_rect_invert(display, listbox->x, y_line - listbox->line_top_margin, listbox->width, focus_height);
+            }
+
+            y_line += font_height + listbox->line_space;
+        }
+    }
+}
 
 void widget_listbox4(glcd_t *display, listbox_t *listbox)
 {
@@ -572,12 +630,6 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     //hardcoded a bit, removes teh encoder pages that are lower then the widget
     glcd_rect_fill(display, 31, listbox->y+listbox->height, 69, 5, ~listbox->color);
 
-    //draw the box around it
-    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
-    glcd_hline(display, listbox->x, listbox->y+listbox->height, DISPLAY_WIDTH, GLCD_BLACK);
-    glcd_vline(display, 0, listbox->y+5, listbox->height-5, GLCD_BLACK);
-    glcd_vline(display, listbox->x+listbox->width-1, listbox->y+5, listbox->height-5, GLCD_BLACK);
-
     uint8_t char_cnt_name = strlen(listbox->name);
     if (char_cnt_name > 19)
     {
@@ -626,6 +678,12 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 6) / 2), listbox->y + 21, listbox->list[listbox->selected], listbox->font, listbox->color);
 
     glcd_rect_invert(display, listbox->x+1, listbox->y + 20, listbox->width-2, 9);
+
+    //draw the box around it
+    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
+    glcd_hline(display, listbox->x, listbox->y+listbox->height, DISPLAY_WIDTH, GLCD_BLACK);
+    glcd_vline(display, 0, listbox->y+5, listbox->height-5, GLCD_BLACK);
+    glcd_vline(display, listbox->x+listbox->width-1, listbox->y+5, listbox->height-5, GLCD_BLACK);
 
     FREE(title_str_bfr);
 }
@@ -1224,4 +1282,27 @@ void icon_overlay(glcd_t *display, uint8_t x, uint8_t y)
 
     //vertical lines
     glcd_rect(display, x+1, y+1, 1, 1, GLCD_BLACK);
+}
+
+void icon_bank(glcd_t *display, uint8_t x, uint8_t y)
+{
+    // clears the icon area
+    glcd_rect_fill(display, x, y, 9, 7, GLCD_BLACK);
+    // draws the icon
+    glcd_vline(display, x, y, 3, GLCD_WHITE);
+    glcd_vline(display, x, y + 4, 3, GLCD_WHITE);
+    glcd_vline(display, x + 3, y, 3, GLCD_WHITE);
+    glcd_vline(display, x + 3, y + 4, 3, GLCD_WHITE);
+    glcd_vline(display, x + 5, y, 3, GLCD_WHITE);
+    glcd_vline(display, x + 5, y + 4, 3, GLCD_WHITE);
+    glcd_vline(display, x + 8, y, 3, GLCD_WHITE);
+    glcd_vline(display, x + 8, y + 4, 3, GLCD_WHITE);
+    glcd_hline(display, x, y, 4, GLCD_WHITE);
+    glcd_hline(display, x, y + 2, 4, GLCD_WHITE);
+    glcd_hline(display, x, y + 4, 4, GLCD_WHITE);
+    glcd_hline(display, x, y + 6, 4, GLCD_WHITE);
+    glcd_hline(display, x + 5, y, 4, GLCD_WHITE);
+    glcd_hline(display, x + 5, y + 2, 4, GLCD_WHITE);
+    glcd_hline(display, x + 5, y + 4, 4, GLCD_WHITE);
+    glcd_hline(display, x + 5, y + 6, 4, GLCD_WHITE);
 }

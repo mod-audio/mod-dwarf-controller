@@ -282,7 +282,7 @@ void write_led_defaults()
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;
 
-    for (i=0; i<(MAX_COLOR_ID-1); i++)
+    for (i=0; i<(MAX_COLOR_ID); i++)
     {   
         //second eeprom page
         if (eeprom_index > 20)
@@ -492,7 +492,8 @@ void hardware_setup(void)
     uint8_t eeprom_index, eeprom_page;
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;
-    for (i=0; i<(MAX_COLOR_ID-1); i++)
+    
+    for (i=0; i<(MAX_COLOR_ID); i++)
     {
         //second eeprom page
         if (eeprom_index > 20)

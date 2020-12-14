@@ -90,6 +90,7 @@ void naveg_shift_pressed();
 void naveg_shift_releaed();
 uint8_t naveg_dialog_status(void);
 uint8_t naveg_dialog(const char *msg);
+void naveg_trigger_mode_change(uint8_t mode);
 
 /*
 ************************************************************************************************************************

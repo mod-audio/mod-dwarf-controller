@@ -78,6 +78,7 @@ static void *g_update_data;
 static uint8_t g_device_mode, g_prev_device_mode;
 
 uint8_t g_initialized = 0;
+uint8_t g_lock_release = 0;
 
 /*
 ************************************************************************************************************************
@@ -220,7 +221,6 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_TOOL:
-            //pass for tuner/menu/bypass controls
             TM_encoder_click(encoder);
         break;
 
@@ -545,10 +545,10 @@ void naveg_shift_pressed()
     g_device_mode = MODE_SHIFT;
 
     //make sure all values are up to date
-    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
-    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
-    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
-    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_NONE);
+    //system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
+    //system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
+    //system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
+    //system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_NONE);
 
     screen_shift_overlay(g_prev_device_mode);
 }
@@ -642,5 +642,34 @@ uint8_t naveg_dialog(const char *msg)
     {
         //ERROR
         return -1; 
+    }
+}
+
+void naveg_trigger_mode_change(uint8_t mode)
+{
+    //save to return
+    g_prev_device_mode = g_device_mode;
+
+    //toggle shift
+    g_device_mode = mode;
+
+    //exit the shift menu, return to opperational mode
+    switch(g_device_mode)
+    {
+        case MODE_CONTROL:
+            CM_print_screen();
+        break;
+
+        case MODE_NAVIGATION:
+            NM_print_screen();
+        break;
+
+        case MODE_TOOL:
+            TM_print_tool();
+        break;
+
+        case MODE_BUILDER:
+            //not defined yet
+        break;
     }
 }

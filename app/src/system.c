@@ -409,24 +409,24 @@ void system_upgrade_cb(void *arg, int event)
 {
     if (event == MENU_EV_ENTER)
     {
-        menu_item_t *item = arg;
-        button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH0);
+        //menu_item_t *item = arg;
+        //button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH0);
 
         // check if YES option was chosen
-        if (item->data.hover == 0)
-        {
-            uint8_t status = actuator_get_status(foot);
+        //if (item->data.hover == 0)
+        //{
+            //uint8_t status = actuator_get_status(foot);
 
-            // check if footswitch is pressed down
-            if (BUTTON_PRESSED(status))
-            {
+            //// check if footswitch is pressed down
+            //if (BUTTON_PRESSED(status))
+            //{
                 //clear all screens
                 screen_clear();
 
                 // start restore
                 cli_restore(RESTORE_INIT);
-            }
-        }
+            //}
+        //}
     }
 }
 
@@ -494,7 +494,7 @@ void system_inp_1_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(0);
+            screen_shift_overlay(-1);
     }   
 }
 
@@ -560,7 +560,7 @@ void system_inp_2_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(0);
+            screen_shift_overlay(-1);
     }   
 }
 
@@ -628,7 +628,7 @@ void system_outp_1_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(0);
+            screen_shift_overlay(-1);
     } 
 }
 
@@ -696,7 +696,7 @@ void system_outp_2_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(0);
+            screen_shift_overlay(-1);
     } 
 }
 
@@ -753,7 +753,7 @@ void system_hp_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_TOOL)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(0);
+            screen_shift_overlay(-1);
     } 
 }
 
