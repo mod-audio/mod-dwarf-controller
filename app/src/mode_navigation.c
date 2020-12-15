@@ -518,6 +518,18 @@ void NM_init(void)
     }
 }
 
+void NM_clear(void)
+{
+    // reset the banks and pedalboards state after return from ui connection
+    if (g_banks) data_free_banks_list(g_banks);
+    if (g_pedalboards) data_free_pedalboards_list(g_pedalboards);
+    if (g_snapshots) data_free_pedalboards_list(g_snapshots);
+
+    g_banks = NULL;
+    g_pedalboards = NULL;
+    g_snapshots = NULL;
+}
+
 void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, char *pedalboard_uid, char **pedalboards_list)
 {
     if (!pedalboards_list)

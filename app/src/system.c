@@ -407,6 +407,7 @@ void system_tag_cb(void *arg, int event)
 
 void system_upgrade_cb(void *arg, int event)
 {
+    (void) arg;
     if (event == MENU_EV_ENTER)
     {
         //menu_item_t *item = arg;
@@ -1045,12 +1046,9 @@ void system_midi_src_cb (void *arg, int event)
     }
 
     //translate the int to string value for the menu
-    char str_bfr[13] = {};
-    if (g_MIDI_clk_src == 0) strcpy(str_bfr,"INTERNAL");
-    else if (g_MIDI_clk_src == 1) strcpy(str_bfr,"MIDI");
-    else if (g_MIDI_clk_src == 2) strcpy(str_bfr,"ABLETON LINK");
-
-    item->data.unit_text = str_bfr;
+    if (g_MIDI_clk_src == 0) item->data.unit_text ="INTERNAL";
+    else if (g_MIDI_clk_src == 1) item->data.unit_text = "MIDI";
+    else if (g_MIDI_clk_src == 2) item->data.unit_text ="ABLETON LINK";
     
     if (event != MENU_EV_NONE)
         TM_print_tool();
@@ -1109,7 +1107,7 @@ void system_ss_prog_change_cb (void *arg, int event)
         set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_snapshot_prog_change);
     }
 
-    char str_bfr[8] = {};
+    static char str_bfr[8] = {};
     int_to_str(g_snapshot_prog_change, str_bfr, 3, 0);
     //a value of 0 means we turn off
     if (g_snapshot_prog_change == 0) strcpy(str_bfr, "OFF");
@@ -1145,7 +1143,7 @@ void system_pb_prog_change_cb(void *arg, int event)
         set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_pedalboard_prog_change);
     }
 
-    char str_bfr[8] = {};
+    static char str_bfr[8] = {};
     int_to_str(g_pedalboard_prog_change, str_bfr, 3, 0);
     //a value of 0 means we turn off
     if (g_pedalboard_prog_change == 0) strcpy(str_bfr, "OFF");

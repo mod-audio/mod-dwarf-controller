@@ -584,7 +584,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 4, listbox->y+2, title_str_bfr, title_font, listbox->color);
 
     //draw the icon before
-    if (toggle)
+    if (!toggle)
         icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
     else 
         icon_snapshot(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+2);
@@ -625,10 +625,15 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
 {
     //draw the box and tittle
+    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
+    glcd_hline(display, listbox->x, listbox->y+listbox->height, DISPLAY_WIDTH, GLCD_BLACK);
+
     //clear the area
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
     //hardcoded a bit, removes teh encoder pages that are lower then the widget
     glcd_rect_fill(display, 31, listbox->y+listbox->height, 69, 5, ~listbox->color);
+
+    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
 
     uint8_t char_cnt_name = strlen(listbox->name);
     if (char_cnt_name > 19)
@@ -680,10 +685,10 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     glcd_rect_invert(display, listbox->x+1, listbox->y + 20, listbox->width-2, 9);
 
     //draw the box around it
-    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
-    glcd_hline(display, listbox->x, listbox->y+listbox->height, DISPLAY_WIDTH, GLCD_BLACK);
     glcd_vline(display, 0, listbox->y+5, listbox->height-5, GLCD_BLACK);
     glcd_vline(display, listbox->x+listbox->width-1, listbox->y+5, listbox->height-5, GLCD_BLACK);
+    glcd_hline(display, listbox->x, listbox->y+listbox->height+1, DISPLAY_WIDTH, GLCD_WHITE);
+    glcd_hline(display, listbox->x, listbox->y+listbox->height, DISPLAY_WIDTH, GLCD_BLACK);
 
     FREE(title_str_bfr);
 }
@@ -757,39 +762,35 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
     widget_textbox(display, &value);
 
     //invert the value area if needed
-    if (overlay->properties == FLAG_CONTROL_BYPASS)
+    if (overlay->properties & FLAG_CONTROL_BYPASS)
     {
         //weird lv2 stuff, bypass on means effect off
         overlay->value_num = !overlay->value_num;
     }
-    else if (overlay->properties == FLAG_CONTROL_TAP_TEMPO)
+    else if (overlay->properties & FLAG_CONTROL_TAP_TEMPO)
     {
         //always invert a value
         overlay->value_num = 1;
     }
 
-    switch (overlay->properties)
+    if (overlay->properties & FLAG_CONTROL_TRIGGER)
     {
-        case FLAG_CONTROL_TRIGGER:
-            //draw 2 beatifull lines next to the word 'trigger'
-            glcd_hline(display, overlay->x+6, overlay->y+23, 29, GLCD_BLACK);
-            glcd_hline(display, overlay->x+94, overlay->y+23, 29, GLCD_BLACK);
-        // fall through          
-        case FLAG_CONTROL_MOMENTARY:
-        case FLAG_CONTROL_TOGGLED:
-        case FLAG_CONTROL_BYPASS:
-        case FLAG_CONTROL_TAP_TEMPO:
-            //invert the area if value is 1
-            if (overlay->value_num)
-            {
-                uint8_t begin_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8);
-                uint8_t end_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8) + ((6*char_cnt_name) +10);
-                glcd_rect_invert(display, overlay->x + 2, overlay->y + 7, begin_of_tittle_block - 3, 4);
-                glcd_rect_invert(display, end_of_tittle_block + 1, overlay->y + 7, DISPLAY_WIDTH - end_of_tittle_block - 3, 4);
-                //bigger invert
-                glcd_rect_invert(display, overlay->x+2, overlay->y + 11, DISPLAY_WIDTH - 4, overlay->height - 12);
-            }
-        break;
+        glcd_rect_fill(display, overlay->x+3, overlay->y+22, 29, 3, overlay->color);
+        glcd_rect_fill(display, overlay->x+97, overlay->y+22, 29, 3, overlay->color);
+        //draw 2 beatifull lines next to the word 'trigger'
+    }
+    else
+    {
+        //invert the area if value is 1
+        if (overlay->value_num)
+        {
+            uint8_t begin_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8);
+            uint8_t end_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8) + ((6*char_cnt_name) +10);
+            glcd_rect_invert(display, overlay->x + 2, overlay->y + 7, begin_of_tittle_block - 3, 4);
+            glcd_rect_invert(display, end_of_tittle_block + 1, overlay->y + 7, DISPLAY_WIDTH - end_of_tittle_block - 3, 4);
+            //bigger invert
+            glcd_rect_invert(display, overlay->x+2, overlay->y + 11, DISPLAY_WIDTH - 4, overlay->height - 12);
+        }
     }
 
     FREE(title_str_bfr);
@@ -1287,22 +1288,10 @@ void icon_overlay(glcd_t *display, uint8_t x, uint8_t y)
 void icon_bank(glcd_t *display, uint8_t x, uint8_t y)
 {
     // clears the icon area
-    glcd_rect_fill(display, x, y, 9, 7, GLCD_BLACK);
+    glcd_rect_fill(display, x, y, 9, 7, GLCD_WHITE);
     // draws the icon
-    glcd_vline(display, x, y, 3, GLCD_WHITE);
-    glcd_vline(display, x, y + 4, 3, GLCD_WHITE);
-    glcd_vline(display, x + 3, y, 3, GLCD_WHITE);
-    glcd_vline(display, x + 3, y + 4, 3, GLCD_WHITE);
-    glcd_vline(display, x + 5, y, 3, GLCD_WHITE);
-    glcd_vline(display, x + 5, y + 4, 3, GLCD_WHITE);
-    glcd_vline(display, x + 8, y, 3, GLCD_WHITE);
-    glcd_vline(display, x + 8, y + 4, 3, GLCD_WHITE);
-    glcd_hline(display, x, y, 4, GLCD_WHITE);
-    glcd_hline(display, x, y + 2, 4, GLCD_WHITE);
-    glcd_hline(display, x, y + 4, 4, GLCD_WHITE);
-    glcd_hline(display, x, y + 6, 4, GLCD_WHITE);
-    glcd_hline(display, x + 5, y, 4, GLCD_WHITE);
-    glcd_hline(display, x + 5, y + 2, 4, GLCD_WHITE);
-    glcd_hline(display, x + 5, y + 4, 4, GLCD_WHITE);
-    glcd_hline(display, x + 5, y + 6, 4, GLCD_WHITE);
+    glcd_rect(display, x, y, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x, y + 3, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x + 4, y, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x + 4, y + 3, 4, 3, GLCD_BLACK);
 }

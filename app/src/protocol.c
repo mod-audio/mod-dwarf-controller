@@ -286,6 +286,7 @@ void protocol_init(void)
     protocol_add_command(CMD_PEDALBOARD_CLEAR, cb_pedalboard_clear);
     protocol_add_command(CMD_PEDALBOARD_NAME_SET, cb_pedalboard_name);
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
+    protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
 }
 
 /*
@@ -568,6 +569,29 @@ void cb_snapshot_name(proto_t *proto)
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    g_protocol_busy = false;
+    system_lock_comm_serial(g_protocol_busy);
+}
+
+void cb_pages_available(proto_t *proto)
+{
+    //lock actuators
+    g_protocol_busy = true;
+    system_lock_comm_serial(g_protocol_busy);
+
+    uint8_t pages_toggles[8] = {};
+    pages_toggles[0] = atoi(proto->list[1]);
+    pages_toggles[1] = atoi(proto->list[2]);
+    pages_toggles[2] = atoi(proto->list[3]);
+    pages_toggles[3] = atoi(proto->list[4]);
+    pages_toggles[4] = atoi(proto->list[5]);
+    pages_toggles[5] = atoi(proto->list[6]);
+    pages_toggles[6] = atoi(proto->list[7]);
+    pages_toggles[7] = atoi(proto->list[8]);
+
+    CM_set_pages_available(pages_toggles);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 

@@ -149,26 +149,24 @@ void naveg_ui_connection(uint8_t status)
     {
         g_ui_connected = 0;
 
-        // reset the banks and pedalboards state after return from ui connection
-        //if (g_banks) data_free_banks_list(g_banks);
-        //if (g_naveg_pedalboards) data_free_pedalboards_list(g_naveg_pedalboards);
-        //g_banks = NULL;
-        //g_naveg_pedalboards = NULL;
+        NM_clear();
     }
     
     //if we where in some menu's, we might need to exit them
     switch(g_device_mode)
     {
         case MODE_CONTROL:
-            //pass to control mode 
+            //no action needed
         break;
 
         case MODE_NAVIGATION:
-            //pass to navigation code
+            //enter control mode
+            g_device_mode = MODE_CONTROL;
+            CM_print_screen();
         break;
 
         case MODE_TOOL:
-            //pass for tuner controls
+            //no action needed
         break;
 
         case MODE_BUILDER:
@@ -213,7 +211,7 @@ void naveg_enc_enter(uint8_t encoder)
     switch(g_device_mode)
     {
         case MODE_CONTROL:
- //in control mode, trigger
+            CM_toggle_control(encoder);
         break;
 
         case MODE_NAVIGATION:
@@ -395,27 +393,29 @@ void naveg_foot_double_press(uint8_t foot)
         {
             case MODE_CONTROL:
                 //enter navigation mode
-                NM_print_screen();
+                if (g_ui_connected) return;
+
                 g_device_mode = MODE_NAVIGATION;
+                NM_print_screen();
             break;
 
             case MODE_NAVIGATION:
                 //enter control mode
-                CM_print_screen();
                 g_device_mode = MODE_CONTROL;
+                CM_print_screen();
             break;
 
             case MODE_TOOL:
                 //we enter the prev mode
                 if (g_prev_device_mode == MODE_NAVIGATION)
                 {
-                    NM_print_screen();
                     g_device_mode = MODE_NAVIGATION;
+                    NM_print_screen();
                 }
                 else
                 {
-                    CM_print_screen();
                     g_device_mode = MODE_CONTROL;
+                    CM_print_screen();
                 }
             break;
 
@@ -563,18 +563,18 @@ void naveg_shift_releaed()
     switch(g_prev_device_mode)
     {
         case MODE_CONTROL:
-            CM_print_screen();
             g_device_mode = MODE_CONTROL;
+            CM_print_screen();
         break;
 
         case MODE_NAVIGATION:
-            NM_print_screen();
             g_device_mode = MODE_NAVIGATION;
+            NM_print_screen();
         break;
 
         case MODE_TOOL:
-            TM_print_tool();
             g_device_mode = MODE_TOOL;
+            TM_print_tool();
         break;
 
         case MODE_BUILDER:

@@ -391,18 +391,6 @@ void screen_encoder(control_t *control, uint8_t encoder)
         list.text_left_margin = 1;
         widget_list_value(display, &list);
     }
-    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
-    {
-        toggle_t toggle;
-        toggle.x = encoder_x;
-        toggle.y = encoder_y + 6;
-        toggle.width = 35;
-        toggle.height = 18;
-        toggle.color = GLCD_BLACK;
-        toggle.value = (control->properties == FLAG_CONTROL_TOGGLED)?control->value:!control->value;
-        toggle.inner_border = 1;
-        widget_toggle(display, &toggle);
-    }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
         toggle_t toggle;
@@ -413,6 +401,18 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.color = GLCD_BLACK;
         //we use 2 and 3 to indicate a trigger in the widget
         toggle.value = control->value ? 3 : 2;
+        toggle.inner_border = 1;
+        widget_toggle(display, &toggle);
+    }
+    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
+    {
+        toggle_t toggle;
+        toggle.x = encoder_x;
+        toggle.y = encoder_y + 6;
+        toggle.width = 35;
+        toggle.height = 18;
+        toggle.color = GLCD_BLACK;
+        toggle.value = (control->properties == FLAG_CONTROL_TOGGLED)?control->value:!control->value;
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
@@ -690,6 +690,8 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     }
     else 
     {
+        ledz_on(hardware_leds(3), GREEN);
+
         uint8_t char_cnt_name = strlen(name);
         uint8_t char_cnt_value = strlen(value);
 
@@ -714,6 +716,8 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
         char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
 
+        ledz_on(hardware_leds(3), BLUE);
+
         //draw name
         strncpy(title_str_bfr, name, char_cnt_name);
         title_str_bfr[char_cnt_name] = '\0';
@@ -721,6 +725,8 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         footer.align = ALIGN_NONE_NONE;
         footer.x = foot_x + 2;
         widget_textbox(display, &footer);
+
+        ledz_on(hardware_leds(5), RED);
 
         // draws the value field
         textbox_t value_field;
@@ -743,6 +749,8 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
         FREE(title_str_bfr);
         FREE(value_str_bfr);
+
+        ledz_on(hardware_leds(5), GREEN);
     }
     
 }
@@ -955,10 +963,10 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
 
         //snapshot
         if (!pb_ss_toggle)
-            icon_pedalboard(display, title_box.x - 11, 1);
+            icon_bank(display, title_box.x - 11, 1);
         //pb's
         else 
-            icon_bank(display, title_box.x - 11, 1);
+            icon_pedalboard(display, title_box.x - 11, 1);
 
         //invert the top bar
         glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -993,6 +1001,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
             list_box.name = "PEDALBOARDS";
         else
             list_box.name = "SNAPSHOTS";
+
         widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
 
         //print the 3 buttons
@@ -1245,9 +1254,9 @@ void screen_menu_page(node_t *node)
     box_1.mode = TEXT_SINGLE_LINE;
     box_1.font = Terminal3x5;
     box_1.align = ALIGN_NONE_NONE;
-    box_1.x = 22;
+    box_1.x = 20;
     box_1.y = DISPLAY_HEIGHT - 7;
-    box_1.text = "BACK";
+    box_1.text = "<BACK";
     widget_textbox(display, &box_1);
 
     //draw the second box, TODO Builder MODE
@@ -1509,6 +1518,17 @@ void screen_control_overlay(control_t *control)
         list.list = labels_list;
         widget_listbox_overlay(display, &list);
     }
+    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        //trigger trigger overlay widget
+        overlay.color = GLCD_BLACK;
+        overlay.font = Terminal5x7;
+        overlay.name = control->label;
+        overlay.value = "TRIGGER";
+        overlay.properties = control->properties;
+
+        widget_foot_overlay(display, &overlay);
+    }
     else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
     {    
         if (control->properties & FLAG_CONTROL_BYPASS)
@@ -1519,17 +1539,6 @@ void screen_control_overlay(control_t *control)
         overlay.font = Terminal5x7;
         overlay.name = control->label;
         overlay.value = foot_val?"ON":"OFF";
-        overlay.properties = control->properties;
-
-        widget_foot_overlay(display, &overlay);
-    }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
-    {
-        //trigger trigger overlay widget
-        overlay.color = GLCD_BLACK;
-        overlay.font = Terminal5x7;
-        overlay.name = control->label;
-        overlay.value = "TRIGGER";
         overlay.properties = control->properties;
 
         widget_foot_overlay(display, &overlay);

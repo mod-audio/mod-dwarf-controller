@@ -108,6 +108,7 @@ void cb_menu_item_changed(proto_t *proto);
 void cb_pedalboard_clear(proto_t *proto);
 void cb_pedalboard_name(proto_t *proto);
 void cb_snapshot_name(proto_t *proto);
+void cb_pages_available(proto_t *proto);
 
 /*
 ************************************************************************************************************************

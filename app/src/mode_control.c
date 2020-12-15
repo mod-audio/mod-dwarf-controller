@@ -81,7 +81,7 @@ uint8_t g_scroll_dir = 1;
 
 static uint8_t g_current_foot_control_page = 0;
 static uint8_t g_current_encoder_page = 0;
-static uint8_t g_fs_page_available[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 /*
 ************************************************************************************************************************
@@ -245,8 +245,12 @@ static void encoder_control_add(control_t *control)
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
     }
 
-    // update the control screen
-    screen_encoder(control, control->hw_id);
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        // update the control screen
+        screen_encoder(control, control->hw_id);
+    }
 }
 
 // control removed from display
@@ -254,7 +258,7 @@ static void encoder_control_rm(uint8_t hw_id)
 {
     if (hw_id > ENCODERS_COUNT) return;
 
-    if (!g_controls[hw_id])
+    if ((!g_controls[hw_id]) && (naveg_get_current_mode() == MODE_CONTROL))
     {
         screen_encoder(NULL, hw_id);
         return;
@@ -266,7 +270,8 @@ static void encoder_control_rm(uint8_t hw_id)
     {
         data_free_control(control);
         g_controls[hw_id] = NULL;
-        screen_encoder(NULL, hw_id);
+        if (naveg_get_current_mode() == MODE_CONTROL)
+            screen_encoder(NULL, hw_id);
     }
 }
 
@@ -328,6 +333,9 @@ static void foot_control_add(control_t *control)
 
     // stores the foot
     g_foots[control->hw_id - ENCODERS_COUNT] = control;
+
+    if (naveg_get_current_mode() != MODE_CONTROL)
+        return;
 
     if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
@@ -499,7 +507,7 @@ static void foot_control_rm(uint8_t hw_id)
     for (i = 0; i < MAX_FOOT_ASSIGNMENTS; i++)
     {
         // if there is no controls assigned, load the default screen
-        if (!g_foots[i])
+        if ((!g_foots[i]) && (naveg_get_current_mode() == MODE_CONTROL))
         {
             screen_footer(i, NULL, NULL, 0);
             continue;
@@ -512,10 +520,13 @@ static void foot_control_rm(uint8_t hw_id)
             data_free_control(g_foots[i]);
             g_foots[i] = NULL;
 
-            // turn off the led
-            ledz_set_state(hardware_leds(i), i, MAX_COLOR_ID, 0, 0, 0, 0);
+            if (naveg_get_current_mode() == MODE_CONTROL)
+            {
+                // turn off the led
+                ledz_set_state(hardware_leds(i), i, MAX_COLOR_ID, 0, 0, 0, 0);
 
-            screen_footer(i, NULL, NULL, 0);
+                screen_footer(i, NULL, NULL, 0);
+            }
         }
     }
 }
@@ -574,7 +585,7 @@ static void control_set(uint8_t id, control_t *control)
     (void) id;
 
     uint32_t now, delta;
-
+ledz_on(hardware_leds(5), BLUE);
     if ((control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) && !(control->properties & FLAG_CONTROL_MOMENTARY))
     {
         //encoder (pagination is done in the increment / decrement functions)
@@ -762,6 +773,8 @@ static void control_set(uint8_t id, control_t *control)
     char buffer[128];
     uint8_t i;
 
+    ledz_on(hardware_leds(4), RED);
+
     i = copy_command(buffer, CMD_CONTROL_SET);
 
     // insert the hw_id on buffer
@@ -775,6 +788,8 @@ static void control_set(uint8_t id, control_t *control)
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
+    ledz_on(hardware_leds(4), BLUE);
+
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
@@ -782,6 +797,8 @@ static void control_set(uint8_t id, control_t *control)
     if (g_should_wait_for_webgui) {
         ui_comm_webgui_wait_response();
     }
+
+    ledz_on(hardware_leds(4), GREEN);
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
@@ -891,6 +908,30 @@ void CM_inc_control(uint8_t encoder)
     }
     // converts the step to absolute value
     step_to_value(control);
+
+    // applies the control value
+    control_set(encoder, control);
+}
+
+void CM_toggle_control(uint8_t encoder)
+{
+    control_t *control = g_controls[encoder];
+
+    //no control
+    if (!control) return;
+
+    if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        control->value = control->maximum;
+    }
+    else if (control->properties & FLAG_CONTROL_TOGGLED || FLAG_CONTROL_BYPASS)
+    {
+        control->value = !control->value;
+    }
+    else
+    {
+        return;
+    }
 
     // applies the control value
     control_set(encoder, control);
@@ -1381,4 +1422,16 @@ void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
     screen_control_overlay(control);
 
     hardware_set_overlay_timeout(overlay_time, CM_print_screen);
+}
+
+void CM_set_pages_available(uint8_t page_toggles[8])
+{
+    g_fs_page_available[0] = page_toggles[0];
+    g_fs_page_available[1] = page_toggles[1];
+    g_fs_page_available[2] = page_toggles[2];
+    g_fs_page_available[3] = page_toggles[3];
+    g_fs_page_available[4] = page_toggles[4];
+    g_fs_page_available[5] = page_toggles[5];
+    g_fs_page_available[6] = page_toggles[6];
+    g_fs_page_available[7] = page_toggles[7];
 }
