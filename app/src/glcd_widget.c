@@ -1119,7 +1119,7 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
 
     // checks if is tuned
     if (n == 0) 
-        glcd_rect_invert(display, 54, 16, 21, 13);
+        glcd_rect_invert(display, 51, 16, 27, 13);
 
     //draw the outher ends
     glcd_vline(display, 3, 25, 17, GLCD_BLACK);
