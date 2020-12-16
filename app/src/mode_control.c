@@ -585,7 +585,7 @@ static void control_set(uint8_t id, control_t *control)
     (void) id;
 
     uint32_t now, delta;
-ledz_on(hardware_leds(5), BLUE);
+
     if ((control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) && !(control->properties & FLAG_CONTROL_MOMENTARY))
     {
         //encoder (pagination is done in the increment / decrement functions)
@@ -773,8 +773,6 @@ ledz_on(hardware_leds(5), BLUE);
     char buffer[128];
     uint8_t i;
 
-    ledz_on(hardware_leds(4), RED);
-
     i = copy_command(buffer, CMD_CONTROL_SET);
 
     // insert the hw_id on buffer
@@ -788,8 +786,6 @@ ledz_on(hardware_leds(5), BLUE);
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
-    ledz_on(hardware_leds(4), BLUE);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
@@ -797,8 +793,6 @@ ledz_on(hardware_leds(5), BLUE);
     if (g_should_wait_for_webgui) {
         ui_comm_webgui_wait_response();
     }
-
-    ledz_on(hardware_leds(4), GREEN);
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);

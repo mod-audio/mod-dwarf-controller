@@ -1043,95 +1043,90 @@ void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm)
     }
 }
 
-
 void widget_tuner(glcd_t *display, tuner_t *tuner)
 {
-    // draws the title
-    glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
-    glcd_hline(display, 0, 9, DISPLAY_WIDTH, GLCD_BLACK_WHITE);
+    glcd_rect_fill(display, 1, 14, DISPLAY_WIDTH-2, DISPLAY_HEIGHT - 32, GLCD_WHITE);
+    
+    // draw outlines tuner
+    glcd_vline(display, 0, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH - 1, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 51, DISPLAY_WIDTH , GLCD_BLACK);
+    glcd_hline(display, 0,  45, DISPLAY_WIDTH, GLCD_BLACK);
+    
+    //draw the middle line
+    glcd_hline(display, 3, 33, DISPLAY_WIDTH - 6, GLCD_BLACK);
+    
+    //draw the 11 doties
+    uint8_t dotie_count;
+    uint8_t x_pos_doties = 4;
+    for (dotie_count = 0; dotie_count < 11; dotie_count++)
+    {
+        glcd_vline(display, x_pos_doties, 31, 2, GLCD_BLACK);
+        x_pos_doties += 12;
+    }
 
-    textbox_t title = {};
-    title.color = GLCD_BLACK;
-    title.mode = TEXT_SINGLE_LINE;
-    title.font = Terminal3x5;
-    title.text = "TUNER";
-    title.align = ALIGN_CENTER_TOP;
-    widget_textbox(display, &title);
+    //draw the note box
+    glcd_vline(display, 64, 29, 4, GLCD_BLACK);
+    glcd_vline(display, 63, 29, 4, GLCD_BLACK);
+    glcd_vline(display, 65, 29, 4, GLCD_BLACK);
+    glcd_hline(display, 54, 28, 21, GLCD_BLACK);
+    glcd_vline(display, 54, 16, 12, GLCD_BLACK);
+    glcd_vline(display, 74, 16, 12, GLCD_BLACK);
+    glcd_hline(display, 54, 16, 21, GLCD_BLACK);
+    
+    //print note char
+    uint8_t text_width = get_text_width(tuner->note, Terminal7x8);
+    uint8_t textbox_x = (DISPLAY_WIDTH / 2) - (text_width / 2);
+    uint8_t textbox_y = 19;
+    glcd_text(display, textbox_x, textbox_y, tuner->note, Terminal7x8, GLCD_BLACK);
 
-    // clears subtitles
-    glcd_rect_fill(display, 0, 51, DISPLAY_WIDTH, 12, GLCD_WHITE);
-
-    // draws the frequency subtitle
-    char freq_str[16];
-    uint8_t i = float_to_str(tuner->frequency, freq_str, sizeof(freq_str), 2);
-    freq_str[i++] = 'H';
-    freq_str[i++] = 'z';
-    freq_str[i++] = 0;
-
-    textbox_t freq = {};
-    freq.color = GLCD_BLACK;
-    freq.mode = TEXT_SINGLE_LINE;
-    freq.align = ALIGN_LEFT_NONE;
-    freq.y = 51;
-    freq.left_margin = 1;
-    freq.font = Terminal7x8;
-    freq.text = freq_str;
-    widget_textbox(display, &freq);
+    //print value bar
+    glcd_vline(display, 64, 35, 7, GLCD_BLACK);
 
     // constants configurations
-    const uint8_t num_bars = 5, y_bars = 21, w_bar = 4, h_bar = 21, bars_space = 3;
+    const uint8_t num_bar_steps = 5, y_bar = 35, h_bar = 7, w_bar_interval = 12;
     const uint8_t cents_range = 50;
-
-    uint8_t x, n;
+    uint8_t x, n, i;
 
     // calculates the number of bars that need be filled
-    n = (ABS(tuner->cents) + num_bars) / (cents_range / num_bars);
-
+    n = (ABS(tuner->cents) + num_bar_steps) / (cents_range / num_bar_steps);
+    
     // draws the left side bars
-    for (i = 0, x = 1; i < num_bars; i++)
+    for (i = 0, x = 4; (i < num_bar_steps) & (tuner->cents < 0); i++)
     {
         // checks if need fill the bar
-        if (tuner->cents < 0 && i >= (num_bars - n))
-            glcd_rect_fill(display, x, y_bars, w_bar, h_bar, GLCD_BLACK);
+        if (i < (num_bar_steps - n))
+        {
+            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
+        }
         else
-            glcd_rect_fill(display, x, y_bars, w_bar, h_bar, GLCD_WHITE);
-
-        glcd_rect(display, x, y_bars, w_bar, h_bar, GLCD_BLACK);
-
-        x += w_bar + bars_space;
-    }
+        {
+            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
+        }
+        x = x + w_bar_interval;
+    }  
 
     // draws the right side bars
-    for (i = 0, x = 95; i < num_bars; i++)
+    for (i = 0, x = 65; (i < num_bar_steps) & (tuner->cents > 0); i++)
     {
         // checks if need fill the bar
-        if (tuner->cents > 0 && i < n)
-            glcd_rect_fill(display, x, y_bars, w_bar, h_bar, GLCD_BLACK);
+        if (i < n )
+            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
         else
-            glcd_rect_fill(display, x, y_bars, w_bar, h_bar, GLCD_WHITE);
-
-        glcd_rect(display, x, y_bars, w_bar, h_bar, GLCD_BLACK);
-
-        x += w_bar + bars_space;
+            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
+        x = x + w_bar_interval;
     }
 
-    // draws the note box
-    glcd_rect_fill(display, 36, 17, 56, 29, GLCD_WHITE);
-    textbox_t note = {};
-    note.color = GLCD_BLACK;
-    note.mode = TEXT_SINGLE_LINE;
-    note.align = ALIGN_CENTER_NONE;
-    note.bottom_margin = 2;
-    note.y = 28;
-    note.font = Terminal7x8;
-    note.text = tuner->note;
-    widget_textbox(display, &note);
-
     // checks if is tuned
-    if (n == 0) glcd_rect_invert(display, 36, 17, 56, 29);
-    else glcd_rect(display, 36, 17, 56, 29, GLCD_BLACK);
-}
+    if (n == 0) 
+        glcd_rect_invert(display, 54, 16, 21, 13);
 
+    //draw the outher ends
+    glcd_vline(display, 3, 25, 17, GLCD_BLACK);
+    glcd_vline(display, 4, 25, 17, GLCD_BLACK);
+    glcd_vline(display, 125, 25, 17, GLCD_BLACK);
+    glcd_vline(display, 124, 25, 17, GLCD_BLACK);
+} 
 
 void widget_popup(glcd_t *display, popup_t *popup)
 {

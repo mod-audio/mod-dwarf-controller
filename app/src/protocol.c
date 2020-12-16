@@ -465,8 +465,7 @@ void cb_bank_config(proto_t *proto)
 
 void cb_tuner(proto_t *proto)
 {
-    //MDW_TODO fix the last 2 arguments
-    screen_toggle_tuner(atof(proto->list[1]), proto->list[2], atoi(proto->list[3]), 0, 1);
+    screen_update_tuner(atof(proto->list[1]), proto->list[2], atoi(proto->list[3]));
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 

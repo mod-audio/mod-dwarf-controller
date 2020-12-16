@@ -690,8 +690,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     }
     else 
     {
-        ledz_on(hardware_leds(3), GREEN);
-
         uint8_t char_cnt_name = strlen(name);
         uint8_t char_cnt_value = strlen(value);
 
@@ -716,8 +714,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
         char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
 
-        ledz_on(hardware_leds(3), BLUE);
-
         //draw name
         strncpy(title_str_bfr, name, char_cnt_name);
         title_str_bfr[char_cnt_name] = '\0';
@@ -725,8 +721,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         footer.align = ALIGN_NONE_NONE;
         footer.x = foot_x + 2;
         widget_textbox(display, &footer);
-
-        ledz_on(hardware_leds(5), RED);
 
         // draws the value field
         textbox_t value_field;
@@ -749,8 +743,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
         FREE(title_str_bfr);
         FREE(value_str_bfr);
-
-        ledz_on(hardware_leds(5), GREEN);
     }
     
 }
@@ -1338,10 +1330,20 @@ void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute
     //draw foots
     screen_footer(0, "MUTE", mute <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
     screen_footer(1, "INPUT", input==1? "1":"2", FLAG_CONTROL_ENUMERATION);
-    screen_page_index(1, MAX_TOOLS);
+    screen_page_index(0, 1);
 
     //draw tuner
-    //widget_tuner(hardware_glcds(0), &g_tuner);
+    widget_tuner(display, &g_tuner);
+}
+
+void screen_update_tuner(float frequency, char *note, int8_t cents)
+{
+    g_tuner.frequency = frequency;
+    g_tuner.note = note;
+    g_tuner.cents = cents;
+
+    //draw tuner
+    widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
 void screen_image(uint8_t display, const uint8_t *image)
