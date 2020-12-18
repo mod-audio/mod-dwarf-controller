@@ -542,6 +542,8 @@ void cb_pedalboard_clear(proto_t *proto)
         CM_remove_control(i);
     }
 
+    CM_reset_encoder_page();
+
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
     g_protocol_busy = false;

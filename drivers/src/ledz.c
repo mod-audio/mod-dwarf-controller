@@ -127,7 +127,7 @@ typedef struct LED_STATE_T {
 
 static ledz_t g_leds[LEDZ_MAX_INSTANCES];
 static unsigned int g_leds_available = LEDZ_MAX_INSTANCES;
-static led_state_t g_led_state[LEDZ_MAX_INSTANCES];
+static led_state_t g_led_state[LEDZ_MAX_INSTANCES] = {};
 static uint8_t led_colors[MAX_COLOR_ID + 1][3];
 static float g_ledz_brightness = 1;
 /*

@@ -206,6 +206,8 @@ static void menu_enter(uint8_t encoder)
         portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
         xSemaphoreGiveFromISR(g_dialog_sem, &xHigherPriorityTaskWoken);
     }
+
+    TM_print_tool();
 }
 
 static void menu_up(void)
@@ -475,7 +477,7 @@ void TM_enter(uint8_t button)
         else if (button == 2)
         {
             //twice next, as there is the update we can not enter like this
-            if (!g_current_menu->next->next)
+            if (!g_current_menu->next->next || (g_current_item->desc->id == ROOT_ID))
                 return;
 
             node_t *node = g_current_menu->next;
@@ -643,18 +645,32 @@ void TM_launch_tool(uint8_t tool)
 
 void TM_print_tool(void)
 {
+    uint8_t i;
+    for (i = 0; i < 6; i++)
+    {
+        ledz_off(hardware_leds(i), WHITE);
+    }
+
     switch (g_current_tool)
     {
+        //MDW_TODO set proper LED colours
         case TOOL_MENU:
             if (g_current_item->desc->type == MENU_MAIN)
             {
                 //print the 3 items on screen
                 screen_menu_page(g_current_menu);
+
+                set_ledz_trigger_by_color_id(hardware_leds(3), TOGGLED_COLOR, 1, 0, 0, 0);
+                set_ledz_trigger_by_color_id(hardware_leds(4), WHITE, 1, 0, 0, 0);
+                set_ledz_trigger_by_color_id(hardware_leds(5), WHITE, 1, 0, 0, 0);
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
                 //print the menu
                 screen_system_menu(g_current_item);
+
+                set_ledz_trigger_by_color_id(hardware_leds(3), WHITE, 1, 0, 0, 0);
+                set_ledz_trigger_by_color_id(hardware_leds(4), TOGGLED_COLOR, 1, 0, 0, 0);
             }
         break;
 

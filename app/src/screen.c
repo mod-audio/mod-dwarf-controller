@@ -143,7 +143,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     if (second_line[0] != 0)
     {
         glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y, first_line, Terminal3x5, GLCD_BLACK);
-        glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
+        glcd_text(display, (item_x + 18 - 2*strlen(second_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
     }
     else
     {
@@ -625,7 +625,7 @@ void screen_tittle(const void *data, uint8_t update)
     }
 
     //we dont display inside a menu
-    //if (naveg_is_tool_mode(0)) return;
+    if (naveg_get_current_mode() != MODE_CONTROL) return;
 
     // clear the name area
     glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);

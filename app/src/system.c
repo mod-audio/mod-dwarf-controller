@@ -857,7 +857,8 @@ void system_display_contrast_cb(void *arg, int event)
     uint8_t write_buffer = g_display_contrast;
     EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-    int_to_str((g_display_contrast), str_bfr, 4, 0);
+    int mapped_value = MAP(g_display_contrast, (int)DISPLAY_CONTRAST_MIN, (int)DISPLAY_CONTRAST_MAX, 0, 100);
+    int_to_str(mapped_value, str_bfr, 4, 0);
 
     item->data.value = g_display_contrast;
 

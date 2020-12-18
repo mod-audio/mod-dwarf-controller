@@ -487,6 +487,11 @@ void hardware_setup(void)
     EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &display_contrast, MODE_8_BIT, 1);
     st7565p_set_contrast(hardware_glcds(0), display_contrast);
 
+    //set the display brightness
+    uint8_t display_brightness = 0;
+    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &display_brightness, MODE_8_BIT, 1);
+    hardware_glcd_brightness(display_brightness);
+
     //set led colors
     uint8_t led_color_value[3] = {};
     uint8_t eeprom_index, eeprom_page;

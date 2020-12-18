@@ -139,28 +139,28 @@ void set_footswitch_pages_led_state(void)
     switch (g_current_foot_control_page)
     {
         case 0:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_1, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_1, 1, 0, 0, 0);
         break;
         case 1:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_2, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_2, 1, 0, 0, 0);
         break;
         case 2:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_3, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_3, 1, 0, 0, 0);
         break;
         case 3:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_4, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_4, 1, 0, 0, 0);
         break;
         case 4:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_5, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_5, 1, 0, 0, 0);
         break;
         case 5:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_6, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_6, 1, 0, 0, 0);
         break;
         case 6:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_7, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_7, 1, 0, 0, 0);
         break;
         case 7:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_8, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_8, 1, 0, 0, 0);
         break;
     }
 }
@@ -185,6 +185,15 @@ void set_encoder_pages_led_state(void)
             ledz_set_state(hardware_leds(5), 5, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
         break;
     } 
+}
+
+void restore_led_states(void)
+{
+    uint8_t i;
+    for (i = 0; i < 6; i++)
+    {
+        ledz_restore_state(hardware_leds(i), i);
+    }
 }
 
 // control assigned to display
@@ -1339,6 +1348,8 @@ void CM_load_next_page()
             pages_available++;
     }
 
+    g_current_encoder_page = 0;
+
     //update screen
     screen_page_index(g_current_foot_control_page, pages_available);
 }
@@ -1402,6 +1413,8 @@ void CM_print_screen(void)
     set_footswitch_pages_led_state();
 
     set_encoder_pages_led_state();
+
+    restore_led_states();
 }
 
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
@@ -1433,4 +1446,10 @@ void CM_set_pages_available(uint8_t page_toggles[8])
 
     if  (naveg_get_current_mode() == MODE_CONTROL)
         screen_page_index(g_current_foot_control_page, pages_available);
+}
+
+void CM_reset_encoder_page(void)
+{
+    g_current_encoder_page = 0;
+    screen_encoder_container(g_current_encoder_page);
 }

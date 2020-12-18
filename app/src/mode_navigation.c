@@ -104,26 +104,28 @@ static uint8_t g_current_list = PEDALBOARD_LIST;
 
 void set_footswitch_leds(void)
 {
-    ledz_set_state(hardware_leds(0), 0, WHITE, 0, 0, 0, 0);
-    ledz_set_state(hardware_leds(1), 0, WHITE, 0, 0, 0, 0);
-    ledz_set_state(hardware_leds(2), 0, WHITE, 0, 0, 0, 0);
+    uint8_t i;
+    for (i = 0; i < 6; i++)
+    {
+        ledz_off(hardware_leds(i), WHITE);
+    }
 
     switch(g_current_list)
     {
         case BANKS_LIST:
-            ledz_set_state(hardware_leds(2), 2, FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(2),FS_SS_MENU_COLOR, 1, 0, 0, 0);
         break;
 
         case PEDALBOARD_LIST:
-            ledz_set_state(hardware_leds(2), 2, FS_SS_MENU_COLOR, 1, 0, 0, 0);
-            ledz_set_state(hardware_leds(0), 0, FS_PB_MENU_COLOR, 1, 0, 0, 0);
-            ledz_set_state(hardware_leds(1), 1, FS_PB_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(2), FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(0), FS_PB_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(1), FS_PB_MENU_COLOR, 1, 0, 0, 0);
         break;
 
         case SNAPSHOT_LIST:
-            ledz_set_state(hardware_leds(2), 2, FS_PB_MENU_COLOR, 1, 0, 0, 0);
-            ledz_set_state(hardware_leds(0), 0, FS_SS_MENU_COLOR, 1, 0, 0, 0);
-            ledz_set_state(hardware_leds(1), 1, FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(2), FS_PB_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(0), FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            set_ledz_trigger_by_color_id(hardware_leds(1), FS_SS_MENU_COLOR, 1, 0, 0, 0);
         break;
     }
 }

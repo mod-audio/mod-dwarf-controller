@@ -5,9 +5,6 @@
 #include <stdint.h>
 #include "device.h"
 
-//DEVELOPMENT DEFINES REMOVE LATER!!!!!
-#define BOARD_REV_0_1
-
 ////////////////////////////////////////////////////////////////
 ////// SETTINGS RELATED TO HARDWARE
 
@@ -106,19 +103,10 @@
 #define GLCD0_RW_WR_PIN     25
 #define GLCD0_E_RD_PORT     3
 #define GLCD0_E_RD_PIN      26
-
-#ifdef BOARD_REV_0_1
-    #define GLCD0_CS_PORT       4
-    #define GLCD0_CS_PIN        13
-    #define GLCD0_RST_PORT      4
-    #define GLCD0_RST_PIN       14
-#else
-    #define GLCD0_CS_PORT       4
-    #define GLCD0_CS_PIN        14
-    #define GLCD0_RST_PORT      4
-    #define GLCD0_RST_PIN       13
-#endif
-
+#define GLCD0_CS_PORT       4
+#define GLCD0_CS_PIN        14
+#define GLCD0_RST_PORT      4
+#define GLCD0_RST_PIN       13
 #define GLCD0_DATA_PORT     3
 #define GLCD0_DATA_PIN1     0
 #define GLCD0_DATA_PIN2     1
