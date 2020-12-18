@@ -1069,10 +1069,10 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_vline(display, 64, 29, 4, GLCD_BLACK);
     glcd_vline(display, 63, 29, 4, GLCD_BLACK);
     glcd_vline(display, 65, 29, 4, GLCD_BLACK);
-    glcd_hline(display, 54, 28, 21, GLCD_BLACK);
-    glcd_vline(display, 54, 16, 12, GLCD_BLACK);
-    glcd_vline(display, 74, 16, 12, GLCD_BLACK);
-    glcd_hline(display, 54, 16, 21, GLCD_BLACK);
+    glcd_hline(display, 51, 28, 27, GLCD_BLACK);
+    glcd_vline(display, 51, 16, 12, GLCD_BLACK);
+    glcd_vline(display, 77, 16, 12, GLCD_BLACK);
+    glcd_hline(display, 51, 16, 26, GLCD_BLACK);
     
     //print note char
     uint8_t text_width = get_text_width(tuner->note, Terminal7x8);
@@ -1119,7 +1119,7 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
 
     // checks if is tuned
     if (n == 0) 
-        glcd_rect_invert(display, 54, 16, 21, 13);
+        glcd_rect_invert(display, 51, 16, 27, 13);
 
     //draw the outher ends
     glcd_vline(display, 3, 25, 17, GLCD_BLACK);
