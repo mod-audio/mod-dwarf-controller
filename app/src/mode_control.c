@@ -245,15 +245,11 @@ static void encoder_control_add(control_t *control)
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
     }
 
-    if (control->scroll_dir != 2)
+    if (naveg_get_current_mode() == MODE_CONTROL)
     {
-        if (naveg_get_current_mode() == MODE_CONTROL)
-        {
-            // update the control screen
-            screen_encoder(control, control->hw_id);
-        }
+        // update the control screen
+        screen_encoder(control, control->hw_id);
     }
-    else control->scroll_dir = 0;
 }
 
 // control removed from display
@@ -918,7 +914,7 @@ void CM_toggle_control(uint8_t encoder)
     {
         control->value = control->maximum;
     }
-    else if (control->properties & FLAG_CONTROL_TOGGLED || FLAG_CONTROL_BYPASS)
+    else if ((control->properties & FLAG_CONTROL_TOGGLED) || (control->properties & FLAG_CONTROL_BYPASS))
     {
         control->value = !control->value;
     }

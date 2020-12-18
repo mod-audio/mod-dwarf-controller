@@ -503,6 +503,10 @@ void naveg_button_pressed(uint8_t button)
 
                 //send save pb command
                 case 2:
+                    ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
+                    ui_comm_webgui_wait_response();
+
+                    //also give quick overlay
                 break;
             }
         break;
