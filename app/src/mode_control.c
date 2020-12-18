@@ -717,7 +717,7 @@ static void control_set(uint8_t id, control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
     {
-        now = hardware_timestamp();
+        now = actuator_get_click_time(hardware_actuators(FOOTSWITCH0 + (control->hw_id - ENCODERS_COUNT)));
         delta = now - g_tap_tempo[control->hw_id - ENCODERS_COUNT].time;
         g_tap_tempo[control->hw_id - ENCODERS_COUNT].time = now;
 
