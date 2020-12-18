@@ -4,9 +4,11 @@ PRJNAME = mod-dwarf-controller
 # toolchain configuration
 TOOLCHAIN_PREFIX = arm-none-eabi-
 
+ifeq ($(CCC_ANALYZER_OUTPUT_FORMAT),)
 # cpu configuration
 THUMB = -mthumb
 MCU = cortex-m3
+endif
 
 # build configuration
 mod=$(MAKECMDGOALS)
@@ -50,7 +52,11 @@ ALL_OBJ = `find -name "*.o"`
 INC = $(DEVICE_INC) $(CMSIS_INC) $(CDL_INC) $(RTOS_INC) $(DRIVERS_INC) $(APP_INC) $(USB_INC) $(PROTOCOL_INC)
 
 # C flags
+ifeq ($(CCC_ANALYZER_OUTPUT_FORMAT),)
 CFLAGS += -mcpu=$(MCU)
+else
+CFLAGS += -DCCC_ANALYZER -Wshadow -Wno-attributes -m32
+endif
 CFLAGS += -Wall -Wextra -Wpointer-arith -Wredundant-decls -Wsizeof-pointer-memaccess
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUT_DIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 CFLAGS += -MMD -MP -MF $(OUT_DIR)/dep/$(@F).d
@@ -58,12 +64,15 @@ CFLAGS += -I. $(patsubst %,-I%,$(INC))
 CFLAGS += -D$(CPU_SERIE)
 CFLAGS += -O2
 
-
 # Linker flags
 LDFLAGS = -Wl,-Map=$(OUT_DIR)/$(PRJNAME).map,--cref
+ifeq ($(CCC_ANALYZER_OUTPUT_FORMAT),)
 LDFLAGS += -specs=rdimon.specs
 LDFLAGS += -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group
 LDFLAGS += -T./link/LPC.ld
+else
+LDFLAGS += -lm
+endif
 
 # Define programs and commands.
 CC      = $(TOOLCHAIN_PREFIX)gcc
@@ -93,7 +102,11 @@ endif
 
 moddwarf: all
 
+ifeq ($(CCC_ANALYZER_OUTPUT_FORMAT),)
 build: elf lss sym hex bin
+else
+build: elf
+endif
 
 # output files
 elf: $(OUT_DIR)/$(PRJNAME).elf
@@ -103,7 +116,6 @@ hex: $(OUT_DIR)/$(PRJNAME).hex
 bin: $(OUT_DIR)/$(PRJNAME).bin
 
 prebuild:
-	@touch .last_built
 ifneq ($(shell cat .last_built),$(mod))
 	@make clean
 endif
@@ -138,6 +150,10 @@ $(SYM): $(ELF)
 $(ELF): $(OBJ)
 	@echo -e ${GREEN}Linking objects: generating ELF${NOCOLOR}
 	@$(CC) $(THUMB) $(CFLAGS) $(OBJ) --output $@ -nostartfiles $(LDFLAGS)
+
+# ignore warnings for 3rd-party CPU code
+freertos/src/%.o: freertos/src/%.c
+	$(CC) $(CFLAGS) -o $@ -c $< -Wno-unused-parameter -Wno-implicit-fallthrough
 
 %.o: %.c
 	@echo -e ${GREEN}Building $<${NOCOLOR}

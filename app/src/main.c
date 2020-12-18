@@ -145,7 +145,7 @@ static void actuators_cb(void *actuator)
     if (g_protocol_busy)
     {
         if (!naveg_dialog_status()) return;
-    }  
+    }
 
     static uint8_t i, info[ACTUATORS_QUEUE_SIZE][3];
 
@@ -206,7 +206,7 @@ static void webgui_procotol_task(void *pvParameters)
         // parses the message
         if (msg_size > 0)
         {
-            //if parsing messages block the actuator messages. 
+            //if parsing messages block the actuator messages.
             g_protocol_busy = true;
             system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
@@ -237,7 +237,7 @@ static void system_procotol_task(void *pvParameters)
         // parses the message
         if (msg_size > 0)
         {
-            //if parsing messages block the actuator messages. 
+            //if parsing messages block the actuator messages.
             g_protocol_busy = true;
             system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
@@ -314,7 +314,7 @@ static void actuators_task(void *pvParameters)
                     naveg_enc_enter(id);
                 }
                 if (BUTTON_HOLD(status))
-                {   
+                {
                     naveg_enc_hold(id);
                 }
                 if (ENCODER_TURNED_CW(status))
@@ -341,7 +341,7 @@ static void actuators_task(void *pvParameters)
                     {
                         naveg_foot_change(id, 1);
                     }
-                
+
                     if (BUTTON_RELEASED(status))
                     {
                         naveg_foot_change(id, 0);
@@ -354,7 +354,7 @@ static void actuators_task(void *pvParameters)
                     {
                         naveg_button_pressed(id-3);
                     }
-                
+
                     if (BUTTON_RELEASED(status))
                     {
                         naveg_button_released(id-3);
@@ -367,7 +367,7 @@ static void actuators_task(void *pvParameters)
                     {
                         naveg_shift_pressed();
                     }
-                
+
                     if (BUTTON_RELEASED(status))
                     {
                         naveg_shift_releaed();
@@ -509,3 +509,12 @@ void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed portCHAR *pcTaskN
     ledz_on(hardware_leds(5), CYAN);
     while (1);
 }
+
+#ifdef CCC_ANALYZER
+// needed for the static analyzer to link properly
+void _start(void) {}
+void __bss_section_table_end(void) {}
+void __data_section_table(void) {}
+void __data_section_table_end(void) {}
+void _vStackTop(void) {}
+#endif

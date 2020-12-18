@@ -216,6 +216,7 @@ volatile uint32_t ulDummy = 0UL;
 
 void vPortSVCHandler( void )
 {
+#ifndef CCC_ANALYZER
 	__asm volatile (
 					"	ldr	r3, pxCurrentTCBConst2		\n" /* Restore the context. */
 					"	ldr r1, [r3]					\n" /* Use pxCurrentTCBConst to get the pxCurrentTCB address. */
@@ -231,11 +232,13 @@ void vPortSVCHandler( void )
 					"	.align 4						\n"
 					"pxCurrentTCBConst2: .word pxCurrentTCB				\n"
 				);
+#endif
 }
 /*-----------------------------------------------------------*/
 
 static void prvPortStartFirstTask( void )
 {
+#ifndef CCC_ANALYZER
 	__asm volatile(
 					" ldr r0, =0xE000ED08 	\n" /* Use the NVIC offset register to locate the stack. */
 					" ldr r0, [r0] 			\n"
@@ -248,6 +251,7 @@ static void prvPortStartFirstTask( void )
 					" svc 0					\n" /* System call to start first task. */
 					" nop					\n"
 				);
+#endif
 }
 /*-----------------------------------------------------------*/
 
@@ -388,6 +392,7 @@ void vPortExitCritical( void )
 
 void xPortPendSVHandler( void )
 {
+#ifndef CCC_ANALYZER
 	/* This is a naked function. */
 
 	__asm volatile
@@ -420,6 +425,7 @@ void xPortPendSVHandler( void )
 	"pxCurrentTCBConst: .word pxCurrentTCB	\n"
 	::"i"(configMAX_SYSCALL_INTERRUPT_PRIORITY)
 	);
+#endif
 }
 /*-----------------------------------------------------------*/
 

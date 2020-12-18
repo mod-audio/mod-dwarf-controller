@@ -116,7 +116,7 @@ typedef struct LED_STATE_T {
     uint8_t color;
     uint8_t state;
     int16_t time_on, time_off;
-    int8_t amount_of_blinks; 
+    int8_t amount_of_blinks;
 } led_state_t;
 
 /*
@@ -177,7 +177,7 @@ static inline void ledz_give(ledz_t *led)
 static inline ledz_color_t get_color_by_id(uint8_t color_pin_id)
 {
     switch(color_pin_id)
-    {   
+    {
         //red
         case 0:
             return LEDZ_RED;
@@ -243,7 +243,7 @@ ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pin
         return 0;
 
     ledz_t *next = 0;
-    
+
     int i;
     for (i = type - 1; i >= 0; i--)
     {
@@ -286,7 +286,7 @@ void ledz_off(ledz_t* led, ledz_color_t color)
     led->time_off = 0;
     led->brightness = 0;
     led->amount_of_blinks = -1;
-    
+
     ledz_set(led, color, 0);
 }
 
@@ -300,7 +300,7 @@ void ledz_set(ledz_t* led, ledz_color_t color, int value)
     // adjust value
     if (value >= 1)
         value = 1;
-    
+
     int i;
     for (i = 0; led; led = led->next, i++)
     {
@@ -312,7 +312,7 @@ void ledz_set(ledz_t* led, ledz_color_t color, int value)
             led->time_off = 0;
             led->brightness = 0;
             led->amount_of_blinks = -1;
-            
+
             // skip update if value match current state
             if (led->state == value)
                 continue;
@@ -334,7 +334,7 @@ void ledz_blink(ledz_t* led, ledz_color_t color, uint16_t time_on, uint16_t time
         led->blink = 0;
         return;
     }
-    
+
     int i;
     for (i = 0; led; led = led->next, i++)
     {
@@ -374,7 +374,7 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
     for (i = 0; led; led = led->next, i++)
     {
         if (led->color & color)
-        {    
+        {
             // convert brightness value to duty cycle according cie 1931
             int duty_cycle = cie1931[value];
 
@@ -440,7 +440,7 @@ void ledz_tick(void)
         flag_1ms = 1;
     }
 
-    int i;  
+    int i;
     for (i = 0; i < LEDZ_MAX_INSTANCES; i++)
     {
         ledz_t *led = &g_leds[i];
@@ -488,7 +488,7 @@ void ledz_tick(void)
 
                 }
                 //stop blinking
-                else 
+                else
                 {
                     ledz_set_state(led, i, led->color, 1, 0, 0, 0);
                 }
@@ -564,7 +564,7 @@ void ledz_tick(void)
     }
 }
 
-void ledz_set_state(ledz_t* led, uint8_t led_id, uint8_t color, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks)
+void ledz_set_state(ledz_t* led, uint8_t led_id, ledz_color_t color, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks)
 {
     set_ledz_trigger_by_color_id(led, color, state, time_on, time_off, amount_of_blinks);
 
