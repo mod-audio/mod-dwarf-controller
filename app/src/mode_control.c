@@ -1291,7 +1291,7 @@ void CM_load_next_page()
         }
 
         //page found
-        if (g_fs_page_available[j] == 1)
+        if (g_fs_page_available[j])
         {
             g_current_foot_control_page = j;
             pagefound = 1;
@@ -1421,4 +1421,16 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     g_fs_page_available[5] = page_toggles[5];
     g_fs_page_available[6] = page_toggles[6];
     g_fs_page_available[7] = page_toggles[7];
+
+    //sum available pages for screen
+    uint8_t pages_available = 0;
+    uint8_t j;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    if  (naveg_get_current_mode() == MODE_CONTROL)
+        screen_page_index(g_current_foot_control_page, pages_available);
 }
