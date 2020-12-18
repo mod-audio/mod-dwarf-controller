@@ -848,8 +848,6 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
 
 void screen_system_menu(menu_item_t *item)
 {
-    static menu_item_t *last_item = NULL;
-
     glcd_t *display;
     display = hardware_glcds(0);
 
@@ -894,14 +892,6 @@ void screen_system_menu(menu_item_t *item)
     list.line_bottom_margin = 1;
     list.text_left_margin = 2;
 
-    // popup
-    popup_t popup;
-    popup.x = 0;
-    popup.y = 0;
-    popup.width = DISPLAY_WIDTH;
-    popup.height = DISPLAY_HEIGHT;
-    popup.font = Terminal3x5;
-
     switch (item->desc->type)
     {
         case MENU_ROOT:
@@ -915,46 +905,15 @@ void screen_system_menu(menu_item_t *item)
                 widget_listbox_mdx(display, &list);
         break;
 
-        case MENU_CONFIRM:
-        case MENU_OK:
-            if (item->desc->type == MENU_OK)
-            {
-                popup.type = OK_ONLY;
-                popup.type = EMPTY_POPUP;
-            }
-            else
-                popup.type = YES_NO;
-            
-            popup.title = item->data.popup_header;
-            popup.content = item->data.popup_content;
-            popup.button_selected = item->data.hover;
-            widget_popup(display, &popup);
-            break;
-
-        case MENU_TOGGLE:
-                list.hover = last_item->data.hover;
-                list.selected = last_item->data.selected;
-                list.count = last_item->data.list_count;
-                list.list = last_item->data.list;
-                widget_listbox(display, &list);
-            break;
-
-        case MENU_NONE:
-            if (last_item)
-            {
-                list.hover = last_item->data.hover;
-                list.selected = last_item->data.selected;
-                list.count = last_item->data.list_count;
-                list.list = last_item->data.list;
-                widget_listbox(display, &list);
-            }
-            break;
-    
         case MENU_MAIN:
-        case MENU_LIST:
+        case MENU_TOGGLE:
         case MENU_BAR:
+        case MENU_NONE:
+        case MENU_OK:
+        case MENU_LIST:
+        case MENU_CONFIRM:
         case MENU_CONFIRM2:
-            break;
+        break;
     }
 }
 
@@ -1018,7 +977,7 @@ void screen_menu_page(node_t *node)
         text = "-";
         x = 96; 
     }
-    glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     node_t *child_nodes = node;
     child_nodes = child_nodes->first_child;

@@ -595,45 +595,10 @@ void TM_reset_menu(void)
     reset_menu_hover(g_menu);
 }
 
-void TM_settings_refresh(void)
-{
-    //screen_system_menu(g_current_item);
-}
-
-void TM_menu_refresh(void)
-{
-    /*
-    node_t *node = g_current_menu;
-
-    //updates all items in a menu
-    for (node = node->first_child; node; node = node->next)
-    {
-        // gets the menu item
-        menu_item_t *item = node->data;
-
-        // calls the action callback
-        if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_NONE);
-    }
-    TM_settings_refresh();*/
-}
-
 void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
 {
-    /*
     //set value in system.c
     system_update_menu_value(item_ID, value);
-
-    //are we inside the menu? if so we need to update
-    if (tool_is_on(DISPLAY_TOOL_SYSTEM))
-    {
-            if (!tool_is_on(DISPLAY_TOOL_TUNER) && !tool_is_on(DISPLAY_TOOL_NAVIG))
-            {
-                TM_menu_refresh();
-            }
-    }*/
-
-    //when we are not in the menu, did we change the master volume link?
-        //TODO update the master volume link widget
 }
 
 void TM_launch_tool(uint8_t tool)

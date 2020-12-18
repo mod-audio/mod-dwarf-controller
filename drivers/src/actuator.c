@@ -79,9 +79,6 @@ static uint8_t acceleration = 1;
 *********************************************************************************************************
 */
 
-static void event(void *actuator, uint8_t flags);
-
-
 /*
 *********************************************************************************************************
 *   LOCAL CONFIGURATION ERRORS
@@ -275,16 +272,16 @@ void actuator_enable_event(void *actuator, uint8_t events_flags)
 }
 
 
-void actuator_set_event(void *actuator, void (*event)(void *actuator))
+void actuator_set_event(void *actuator, void (*callback)(void *actuator))
 {
     switch (ACTUATOR_TYPE(actuator))
     {
         case BUTTON:
-            ((button_t *)actuator)->event = event;
+            ((button_t *)actuator)->event = callback;
             break;
 
         case ROTARY_ENCODER:
-            ((encoder_t *)actuator)->event = event;
+            ((encoder_t *)actuator)->event = callback;
             break;
     }
 }
@@ -455,10 +452,10 @@ void actuators_clock(void)
                             }
                             else if (button->double_press_button_id >= 0)
                             {
-                                button_t *other_button;
-                                other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
+                                button_t *group_button;
+                                group_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
 
-                                other_button->double_press_button_id = DOUBLE_PRESSED_LOCKED;
+                                group_button->double_press_button_id = DOUBLE_PRESSED_LOCKED;
                             }
 
                             // reload debounce counter
@@ -488,9 +485,9 @@ void actuators_clock(void)
                             //make linked button available again if applicable
                             if (button->double_press_button_id >= 0)
                             {
-                                button_t *other_button;
-                                other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
-                                other_button->double_press_button_id = DOUBLE_PRESSED_LINKED;
+                                button_t *group_button;
+                                group_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
+                                group_button->double_press_button_id = DOUBLE_PRESSED_LINKED;
                             }
                         }
                     }

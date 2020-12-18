@@ -878,22 +878,22 @@ void widget_bar_encoder(glcd_t *display, bar_t *bar)
     //draw the unit if needed
     if (bar->has_unit)
     {
-        textbox_t value;
-        value.color = GLCD_BLACK;
-        value.mode = TEXT_SINGLE_LINE;
-        value.font = Terminal3x5;
-        value.height = 0;
-        value.width = 0;
-        value.top_margin = 0;
-        value.bottom_margin = 0;
-        value.left_margin = 0;
-        value.right_margin = 0;
-        value.text = bar->unit;
-        value.align = ALIGN_NONE_NONE;
+        textbox_t value_box;
+        value_box.color = GLCD_BLACK;
+        value_box.mode = TEXT_SINGLE_LINE;
+        value_box.font = Terminal3x5;
+        value_box.height = 0;
+        value_box.width = 0;
+        value_box.top_margin = 0;
+        value_box.bottom_margin = 0;
+        value_box.left_margin = 0;
+        value_box.right_margin = 0;
+        value_box.text = bar->unit;
+        value_box.align = ALIGN_NONE_NONE;
         //allign to middle, (full width / 2) - (text width / 2)
-        value.x = (bar->x + (bar->width / 2) - 2*strlen(bar->unit)+1);
-        value.y = bar->y + 12 + bar->height + 1;
-        widget_textbox(display, &value);
+        value_box.x = (bar->x + (bar->width / 2) - 2*strlen(bar->unit)+1);
+        value_box.y = bar->y + 12 + bar->height + 1;
+        widget_textbox(display, &value_box);
     }
 
     float OldRange, NewRange, NewValue;
