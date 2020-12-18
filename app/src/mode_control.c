@@ -217,7 +217,7 @@ static void encoder_control_add(control_t *control)
     {
         control->step = 0;
         uint8_t i;
-        control->scroll_dir = g_scroll_dir;
+        //control->scroll_dir = g_scroll_dir;
         for (i = 0; i < control->scale_points_count; i++)
         {
             if (control->value == control->scale_points[i]->value)
@@ -245,12 +245,15 @@ static void encoder_control_add(control_t *control)
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
     }
 
-
-    if (naveg_get_current_mode() == MODE_CONTROL)
+    if (control->scroll_dir != 2)
     {
-        // update the control screen
-        screen_encoder(control, control->hw_id);
+        if (naveg_get_current_mode() == MODE_CONTROL)
+        {
+            // update the control screen
+            screen_encoder(control, control->hw_id);
+        }
     }
+    else control->scroll_dir = 0;
 }
 
 // control removed from display
@@ -533,7 +536,6 @@ static void foot_control_rm(uint8_t hw_id)
 
 static void parse_control_page(void *data, menu_item_t *item)
 {
-
     (void) item;
     char **list = data;
 
@@ -840,14 +842,15 @@ void CM_add_control(control_t *control, uint8_t protocol)
     // first tries remove the control
     CM_remove_control(control->hw_id);
 
+    if (protocol) control->scroll_dir = 2;
+    else control->scroll_dir = 0;
+
     if (control->hw_id < ENCODERS_COUNT)
     {
         encoder_control_add(control);
     }
     else
     {
-        if (protocol) control->scroll_dir = 2;
-        else control->scroll_dir = 0;
         foot_control_add(control);     
     }
 }
@@ -862,9 +865,6 @@ void CM_inc_control(uint8_t encoder)
     if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))
          && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
     {
-        //sets the direction
-        control->scroll_dir = g_scroll_dir = 0;
-
         // increments the step
         if (control->step < (control->steps - 3))
             control->step++;
@@ -941,9 +941,6 @@ void CM_dec_control(uint8_t encoder)
     if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
         && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
     {
-        //sets the direction
-        control->scroll_dir = g_scroll_dir = 0;
-
         // decrements the step
         if (control->step > 2)
             control->step--;

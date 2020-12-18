@@ -602,7 +602,7 @@ void hardware_setup(void)
     // enable interrupt for timer 1
     NVIC_EnableIRQ(TIMER2_IRQn);
     // to start timer
-    TIM_Cmd(LPC_TIM2, ENABLE);
+    IM_Cmd(LPC_TIM2, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Serial initialization
