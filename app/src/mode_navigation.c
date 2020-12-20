@@ -973,6 +973,13 @@ void NM_print_screen(void)
         break;
 
         case SNAPSHOT_LIST:
+            request_snapshots(PAGE_DIR_INIT);
+
+            if (!g_snapshots_loaded) //no snapshots available TODO popup
+                return;
+
+            //display them
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
         break;
     }
 
@@ -1044,4 +1051,6 @@ void NM_toggle_pb_ss(void)
 
         g_current_list = PEDALBOARD_LIST;
     }
+
+    set_footswitch_leds();
 }

@@ -1339,6 +1339,7 @@ void CM_load_next_page()
 
     //update LED's
     set_footswitch_pages_led_state();
+    set_encoder_pages_led_state();
 
     //sum available pages for screen
     uint8_t pages_available = 0;
