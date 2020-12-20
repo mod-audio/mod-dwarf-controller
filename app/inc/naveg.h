@@ -46,7 +46,7 @@ enum {UI_DISCONNECTED, UI_CONNECTED};
 */
 
 //device modes
-enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL, MODE_BUILDER, MODE_SHIFT};
+enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT};
 
 //different tool modes
 enum{TOOL_MENU, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
@@ -59,6 +59,7 @@ enum{TOOL_MENU, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
 bool g_should_wait_for_webgui;
 bool g_protocol_busy;
 bool g_ui_communication_started;
+bool g_device_booted; 
 
 uint8_t g_initialized;
 /*
@@ -76,6 +77,7 @@ uint8_t g_initialized;
 
 uint8_t naveg_get_current_mode(void);
 void naveg_init(void);
+void naveg_turn_off_leds(void);
 void naveg_ui_connection(uint8_t status);
 uint8_t naveg_ui_status(void);
 void naveg_enc_enter(uint8_t encoder);

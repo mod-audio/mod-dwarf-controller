@@ -381,9 +381,6 @@ static void parse_snapshots_list(void *data, menu_item_t *item)
     if (g_snapshots)
         data_free_pedalboards_list(g_snapshots);
 
-    if (count == 0)
-        g_snapshots_loaded = 0;
-
     // parses the list
     g_snapshots = data_parse_pedalboards_list(&list[5], count);
 
@@ -392,9 +389,13 @@ static void parse_snapshots_list(void *data, menu_item_t *item)
         g_snapshots->menu_max = (atoi(list[2]));
         g_snapshots->page_min = (atoi(list[3]));
         g_snapshots->page_max = (atoi(list[4])); 
+    
+        g_snapshots_loaded = 1;
     }
-
-    g_snapshots_loaded = 1;
+    else
+    {
+        g_snapshots_loaded = 0;
+    }
 }
 
 static void request_snapshots(uint8_t dir)
@@ -598,6 +599,8 @@ void NM_enter(void)
         //make sure that we request the right page if we have a selected pedalboard
         if (g_current_bank == g_banks->hover)
             g_pedalboards->hover = g_current_pedalboard;
+        else
+            g_pedalboards->hover = 0;
 
         //index is relevent in our array so - page_min
         request_pedalboards(PAGE_DIR_INIT, atoi(g_banks->uids[g_banks->hover - g_banks->page_min]));
@@ -646,6 +649,8 @@ void NM_enter(void)
 
     if (g_current_list == PEDALBOARD_LIST)
         screen_pbss_list(title, g_pedalboards, PB_MODE);
+    else if (g_current_list == SNAPSHOT_LIST)
+        screen_pbss_list(title, g_pedalboards, SS_MODE);
     else
         screen_bank_list(g_banks);
 }
@@ -955,8 +960,6 @@ int NM_need_update(void)
 
 void NM_print_screen(void)
 {
-    static uint8_t banks_loaded = 0;
-
     switch(g_current_list)
     {
         case BANKS_LIST:
@@ -964,8 +967,8 @@ void NM_print_screen(void)
         break;
 
         case PEDALBOARD_LIST:
-            if (!banks_loaded) request_banks_list(2);
-            banks_loaded = 1;
+            request_banks_list(2);
+            request_pedalboards(2, g_current_bank);
             screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
         break;
 
@@ -1025,8 +1028,7 @@ void NM_toggle_pb_ss(void)
 {
     if (g_current_list == PEDALBOARD_LIST)
     {
-        if (!g_snapshots_loaded) //load
-            request_snapshots(PAGE_DIR_INIT);
+        request_snapshots(PAGE_DIR_INIT);
 
         if (!g_snapshots_loaded) //no snapshots available TODO popup
             return;

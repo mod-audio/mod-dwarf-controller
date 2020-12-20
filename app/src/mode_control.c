@@ -1386,7 +1386,7 @@ void CM_load_next_encoder_page(uint8_t button)
     set_encoder_pages_led_state();  
 }
 
-void CM_print_screen(void)
+void CM_set_screen(void)
 {
     screen_clear();
 
@@ -1415,6 +1415,31 @@ void CM_print_screen(void)
     set_encoder_pages_led_state();
 
     restore_led_states();
+}
+
+void CM_print_screen(void)
+{
+    screen_clear();
+
+    screen_tittle(NULL, 0);
+
+    //sum available pages for screen
+    uint8_t j;
+    uint8_t pages_available = 0;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    //update screen
+    screen_page_index(g_current_foot_control_page, pages_available);
+
+    screen_encoder_container(g_current_encoder_page);
+
+    CM_draw_foots();
+
+    CM_draw_encoders();
 }
 
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time)

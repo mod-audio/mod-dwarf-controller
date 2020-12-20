@@ -492,7 +492,7 @@ void system_inp_1_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL)
+        if (naveg_get_current_mode() == MODE_TOOL_MENU)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
@@ -558,7 +558,7 @@ void system_inp_2_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL)
+        if (naveg_get_current_mode() == MODE_TOOL_MENU)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
@@ -626,7 +626,7 @@ void system_outp_1_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL)
+        if (naveg_get_current_mode() == MODE_TOOL_MENU)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
@@ -694,7 +694,7 @@ void system_outp_2_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL)
+        if (naveg_get_current_mode() == MODE_TOOL_MENU)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
@@ -751,7 +751,7 @@ void system_hp_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL)
+        if (naveg_get_current_mode() == MODE_TOOL_MENU)
             TM_print_tool();
         else if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
@@ -827,12 +827,7 @@ void system_display_contrast_cb(void *arg, int event)
         g_display_contrast = read_buffer;
     }
 
-    if (event == MENU_EV_ENTER)
-    {
-        if (g_display_contrast < item->data.max) g_display_contrast++;
-        else g_display_contrast = 0;
-    }
-    else if (event == MENU_EV_UP)
+    if (event == MENU_EV_UP)
     {
         if (g_display_contrast < item->data.max) g_display_contrast++;
         else return;
@@ -1121,7 +1116,7 @@ void system_pb_prog_change_cb(void *arg, int event)
 
     if (event == MENU_EV_ENTER)
     {
-        set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, item->data.value);
+        set_menu_item_value(MENU_ID_PB_PRGCHNGE, item->data.value);
     }
     else if (event == MENU_EV_NONE)
     {
@@ -1135,13 +1130,13 @@ void system_pb_prog_change_cb(void *arg, int event)
     {
         if (g_pedalboard_prog_change < item->data.max) g_pedalboard_prog_change++;
         //let mod-ui know
-        set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_pedalboard_prog_change);
+        set_menu_item_value(MENU_ID_PB_PRGCHNGE, g_pedalboard_prog_change);
     }
     else if (event == MENU_EV_DOWN)
     {
         if (g_pedalboard_prog_change > item->data.min) g_pedalboard_prog_change--;
         //let mod-ui know
-        set_menu_item_value(MENU_ID_SNAPSHOT_PRGCHGE, g_pedalboard_prog_change);
+        set_menu_item_value(MENU_ID_PB_PRGCHNGE, g_pedalboard_prog_change);
     }
 
     static char str_bfr[8] = {};

@@ -206,9 +206,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 //// Screen definitions
 // defines the default rotary text
-#define SCREEN_ROTARY_DEFAULT_NAME      "KNOB #"
+#define SCREEN_ROTARY_DEFAULT_NAME      "KNOB "
 // defines the default foot text
-#define SCREEN_FOOT_DEFAULT_NAME        "FOOT #"
+#define SCREEN_FOOT_DEFAULT_NAME        "FOOT "
 
 //// System menu configuration
 // includes the system menu callbacks
@@ -449,7 +449,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             1L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                1
+#define FORCE_WRITE_EEPROM                0
 
 #define LED_INTERUPT_TIME     10
 

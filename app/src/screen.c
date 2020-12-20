@@ -516,7 +516,10 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     {
         char text[sizeof(SCREEN_FOOT_DEFAULT_NAME) + 2];
         strcpy(text, SCREEN_FOOT_DEFAULT_NAME);
-        text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = foot_id + '1';
+        if (foot_id == 0)
+            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
+        else 
+            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'C';
         text[sizeof(SCREEN_FOOT_DEFAULT_NAME)] = 0;
 
         glcd_text(display, foot_x + (26 - (strlen(text) * 3)), foot_y + 2, text, Terminal5x7, GLCD_BLACK);
@@ -595,7 +598,7 @@ void screen_tittle(const void *data, uint8_t update)
 
     if (pedalboard_name == NULL)
     {
-        pedalboard_name = (char *) MALLOC(30 * sizeof(char));
+        pedalboard_name = (char *) MALLOC(20 * sizeof(char));
         strcpy(pedalboard_name, "DEFAULT");
         char_cnt = 7;
     }
@@ -606,20 +609,20 @@ void screen_tittle(const void *data, uint8_t update)
 
         // get first list name, copy it to our string buffer
         const char *name_string = *name_list;
-        strncpy(pedalboard_name, name_string, 29);
-        pedalboard_name[29] = 0; // strncpy might not have final null byte
+        strncpy(pedalboard_name, name_string, 19);
+        pedalboard_name[19] = 0; // strncpy might not have final null byte
 
         // go to next name in list
         name_string = *(++name_list);
 
-        while (name_string && ((strlen(pedalboard_name) + strlen(name_string) + 1) < 29))
+        while (name_string && ((strlen(pedalboard_name) + strlen(name_string) + 1) < 19))
         {
             strcat(pedalboard_name, " ");
             strcat(pedalboard_name, name_string);
             name_string = *(++name_list);
             char_cnt++;
         }
-        pedalboard_name[29] = 0;
+        pedalboard_name[19] = 0;
 
         char_cnt = strlen(pedalboard_name);
     }
@@ -681,7 +684,7 @@ void screen_bank_list(bp_list_t *list)
     /*box_2.x = 56;
     box_2.y = DISPLAY_HEIGHT - 7;
     box_2.text = "COPY";*/
-    glcd_text(display, 26, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
     /*box_3.x = 92;
@@ -696,7 +699,7 @@ void screen_bank_list(bp_list_t *list)
         list_box.x = 1;
         list_box.y = 11;
         list_box.width = DISPLAY_WIDTH-3;
-        list_box.height = 45;
+        list_box.height = 39;
         list_box.color = GLCD_BLACK;
         list_box.hover = list->hover - list->page_min;
         list_box.selected = list->selected - list->page_min;
@@ -711,22 +714,7 @@ void screen_bank_list(bp_list_t *list)
     }
     else
     {
-        if (naveg_ui_status())
-        {
-            textbox_t message;
-            message.color = GLCD_BLACK;
-            message.mode = TEXT_SINGLE_LINE;
-            message.font = Terminal7x8;
-            message.top_margin = 0;
-            message.bottom_margin = 0;
-            message.left_margin = 0;
-            message.right_margin = 0;
-            message.height = 0;
-            message.width = 0;
-            message.text = "To access banks here please disconnect from the graphical interface";
-            message.align = ALIGN_CENTER_MIDDLE;
-            widget_textbox(display, &message);
-        }
+        //todo launch quick overlay
     }
 }
 
@@ -743,13 +731,12 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
     {
         uint8_t char_cnt = strlen(title);
         glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, title, Terminal5x7, GLCD_BLACK);
-
         //snapshot
         if (!pb_ss_toggle)
-            icon_bank(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 11, 1);
+            icon_bank(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 12, 1);
         //pb's
         else 
-            icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 11, 1);
+            icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 12, 1);
 
         //invert the top bar
         glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -827,22 +814,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
     }
     else
     {
-        if (naveg_ui_status())
-        {
-            textbox_t message;
-            message.color = GLCD_BLACK;
-            message.mode = TEXT_SINGLE_LINE;
-            message.font = Terminal7x8;
-            message.top_margin = 0;
-            message.bottom_margin = 0;
-            message.left_margin = 0;
-            message.right_margin = 0;
-            message.height = 0;
-            message.width = 0;
-            message.text = "To access banks here please disconnect from the graphical interface";
-            message.align = ALIGN_CENTER_MIDDLE;
-            widget_textbox(display, &message);
-        }
+        //todo launch quick overlay
     }
 }
 
@@ -967,7 +939,7 @@ void screen_menu_page(node_t *node)
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    if (node->next)
+    if (node->next->next)
     {
         text = "NEXT";
         x = 90;
@@ -1070,18 +1042,17 @@ void screen_shift_overlay(int8_t prev_mode)
     print_menu_outlines();
 
     //draw the first box, menu/control mode 
-    uint8_t x;
+    uint8_t x = 22;
     char *text;
-    if (previous_mode == MODE_CONTROL)
+    if (previous_mode != MODE_TOOL_MENU)
     {
         text = "MENU";
-        x = 22;
     }
     else
     { 
-        text = "CONTROL";
-        x = 16;
+        text = "EXIT";
     }
+
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE

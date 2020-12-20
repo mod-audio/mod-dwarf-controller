@@ -488,23 +488,19 @@ void cb_restore(proto_t *proto)
 void cb_boot(proto_t *proto)
 {
     g_should_wait_for_webgui = true;
-    
-    //set the display brightness 
-    //system_update_menu_value(MENU_ID_BRIGHTNESS, atoi(proto->list[1]));
-
-    //set the quick bypass link
-    //system_update_menu_value(MENU_ID_QUICK_BYPASS, atoi(proto->list[2]));
 
     //set the tuner mute state 
-    //system_update_menu_value(MENU_ID_TUNER_MUTE, atoi(proto->list[3]));
+    //system_update_menu_value(MENU_ID_TUNER_MUTE, atoi(proto->list[1]));
 
     //set the current user profile 
-    //system_update_menu_value(MENU_ID_CURRENT_PROFILE, atoi(proto->list[4]));
+    //system_update_menu_value(MENU_ID_CURRENT_PROFILE, atoi(proto->list[2]));
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
+    g_device_booted = true; 
+
     //after boot we are ready to print the control vieuw
-    CM_print_screen();
+    CM_set_screen();
 }
 
 void cb_menu_item_changed(proto_t *proto)
@@ -542,7 +538,8 @@ void cb_pedalboard_clear(proto_t *proto)
         CM_remove_control(i);
     }
 
-    CM_reset_encoder_page();
+    if (naveg_get_current_mode() == MODE_CONTROL)
+        CM_reset_encoder_page();
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 

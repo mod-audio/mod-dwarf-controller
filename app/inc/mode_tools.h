@@ -70,10 +70,11 @@ void TM_settings_refresh(void);
 void TM_menu_refresh(void);
 void TM_update_gain(uint8_t display_id, uint8_t update_id, float value, float min, float max, uint8_t dir);
 void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value);
-void TM_launch_tool(uint8_t tool);
+void TM_launch_tool(int8_t tool);
 void TM_print_tool(void);
 void TM_encoder_click(uint8_t encoder);
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id);
+void TM_turn_off_tuner(void);
 
 /*
 ************************************************************************************************************************
