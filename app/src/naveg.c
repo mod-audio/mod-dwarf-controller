@@ -186,27 +186,6 @@ void naveg_ui_connection(uint8_t status)
             //not defined yet
         break;
     }
-
-    /*
-    if ((tool_mode_status(DISPLAY_TOOL_NAVIG)) || tool_mode_status(DISPLAY_TOOL_SYSTEM))
-    {
-        naveg_toggle_tool(DISPLAY_TOOL_SYSTEM, 0);
-        node_t *node = g_current_main_menu;
-
-        //sets the pedalboard items back to original
-        for (node = node->first_child; node; node = node->next)
-        {
-            // gets the menu item
-            menu_item_t *item = node->data;
-
-            if ((item->desc->id == PEDALBOARD_ID) || (item->desc->id == BANKS_ID))
-            {
-                item->desc->type = ((item->desc->id == PEDALBOARD_ID) ? MENU_LIST : MENU_NONE);
-                g_current_item = item;
-            }
-        }
-    }*/
-
 }
 
 uint8_t naveg_ui_status(void)

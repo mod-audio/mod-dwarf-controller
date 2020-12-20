@@ -85,10 +85,6 @@ static uint8_t g_current_list = PEDALBOARD_LIST;
 ************************************************************************************************************************
 */
 
-//static uint8_t bank_config_check(uint8_t foot);
-//static void bank_config_update(uint8_t bank_func_idx);
-//static void bank_config_footer(void);
-
 /*
 ************************************************************************************************************************
 *           LOCAL CONFIGURATION ERRORS
