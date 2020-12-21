@@ -622,6 +622,8 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         item_str_bfr[line_length] = '\0';
         
         glcd_text(display, item_x, listbox->y + 12, item_str_bfr, listbox->font, listbox->color);
+    
+        FREE(item_str_bfr);
     }
 
     if (listbox->hover < (listbox->count - 1))
@@ -642,9 +644,11 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         item_str_bfr[line_length] = '\0';
 
         glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
+    
+        FREE(item_str_bfr);
     }
 
-    uint8_t line_length =  strlen(listbox->list[listbox->hover]);
+    uint8_t line_length = strlen(listbox->list[listbox->hover]);
     if (line_length > 15)
         line_length = 15;
 
@@ -664,6 +668,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
 
     FREE(title_str_bfr);
+    FREE(item_str_bfr);
 }
 
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
