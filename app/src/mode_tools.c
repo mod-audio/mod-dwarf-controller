@@ -253,45 +253,6 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     TM_print_tool();
 }
 
-static void tuner_enter(uint8_t footswitch)
-{
-    char buffer[128];
-    uint32_t i = 0;
-
-    if (footswitch == 0)
-    {
-        static uint8_t input = 1;
-
-        i = copy_command(buffer, CMD_TUNER_INPUT);
-
-        // toggle the input
-        input = (input == 1 ? 2 : 1);
-
-        // inserts the input number
-        i += int_to_str(input, &buffer[i], sizeof(buffer) - i, 0);
-        buffer[i] = 0;
-
-        // updates the screen
-        //screen_tuner_input(input);
-    }
-    else
-    {
-        //tuner mute
-    }
-
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
-    // sends the data to GUI
-    ui_comm_webgui_send(buffer, i);
-
-    // waits the pedalboards list be received
-    ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
-}
-
 static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
 {
     uint8_t i;
@@ -592,7 +553,14 @@ void TM_foot_change(uint8_t foot)
 
     if (tool_is_on(DISPLAY_TOOL_TUNER))
     {
-        tuner_enter(foot);
+        if (foot == 0)
+        {
+            system_tuner_mute_cb(NULL, MENU_EV_ENTER);
+        }
+        else if (foot == 1)
+        {
+            system_tuner_input_cb(NULL, MENU_EV_ENTER);
+        }
     }
 }
 
@@ -748,32 +716,4 @@ void TM_turn_off_tuner(void)
 uint8_t TM_check_tool_status(void)
 {
     return g_current_tool;
-}
-
-void TM_foot_variable_change(uint8_t foot)
-{
-    switch (g_current_tool)
-    {
-        //MDW_TODO set proper LED colours
-        case TOOL_MENU:
-            //no foot actions here
-        break;
-
-        case TOOL_TUNER:
-            if (foot == 0)
-            {
-                system_tuner_mute_cb(NULL, MENU_EV_ENTER);
-            }
-            else if (foot == 1)
-            {
-                system_tuner_input_cb(NULL, MENU_EV_ENTER);
-            }
-        break;
-
-        case TOOL_SYNC:
-        break;
-
-        case TOOL_BYPASS:
-        break;
-    } 
 }

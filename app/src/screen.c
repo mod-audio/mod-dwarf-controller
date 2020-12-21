@@ -51,7 +51,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST};
 */
 
 static tuner_t g_tuner = {0, NULL, 0, 1};
-static uint8_t g_hide_non_assigned_actuators = 0;
+static bool g_hide_non_assigned_actuators = 0;
 
 /*
 ************************************************************************************************************************
