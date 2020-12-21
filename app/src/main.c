@@ -115,7 +115,7 @@ int main(void)
 {
     // initialize hardware
     hardware_setup();
-
+    
     // this task is used to setup the system and create the other tasks
     xTaskCreate(setup_task, NULL, 256, NULL, 1, NULL);
 

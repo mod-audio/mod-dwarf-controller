@@ -108,7 +108,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
         break;
 
         case 2:
-            item_x = 89;
+            item_x = 90;
         break;
 
         default:
@@ -119,6 +119,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     //print the title
     char first_line[10] = {};
     char second_line[10] = {};
+
     uint8_t q, p = 0, line = 0;
     for (q = 0; q < 20; q++)
     {
@@ -165,7 +166,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
         item_title_2.text = second_line;
         item_title_2.align = ALIGN_NONE_NONE;
         item_title_2.x = (item_x + 18 - 2*strlen(second_line));
-        item_title_2.y = item_y+6;
+        item_title_2.y = item_y + 6;
         widget_textbox(display, &item_title_2);       
     }
     else
@@ -177,7 +178,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
         item_title_1.text = first_line;
         item_title_1.align = ALIGN_NONE_NONE;
         item_title_1.x = (item_x + 18 - 2*strlen(first_line));
-        item_title_1.y = item_y+3;
+        item_title_1.y = item_y + 3;
         widget_textbox(display, &item_title_1);
     }
 
@@ -220,7 +221,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 }
                 memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
                 strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                str_bfr[char_cnt_name] = 0;
+                str_bfr[char_cnt_name] = 0;                            
                 item_value_text.color = GLCD_BLACK;
                 item_value_text.mode = TEXT_SINGLE_LINE;
                 item_value_text.font = Terminal3x5;
@@ -234,29 +235,76 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
 
         case MENU_LIST:;
             glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
-            glcd_rect(display, item_x, item_y+23, 35, 11, GLCD_BLACK);
-            glcd_hline(display, item_x, item_y+28, 5, GLCD_BLACK);
-            glcd_hline(display, item_x+30, item_y+28, 5, GLCD_BLACK);
                 
             if (item_child->data.unit_text)
             {
-                textbox_t item_list_text = {};
-                char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 5)
+                //print the value
+                char first_val_line[10] = {};
+                char second_val_line[10] = {};
+
+                uint8_t q, p = 0, val_line = 0;
+                
+                for (q = 0; q < 20; q++)
                 {
-                    char_cnt_name = 5;
+                    if(item_child->data.unit_text[q] != 0)
+                    {
+                        if (val_line)
+                        {
+                            second_val_line[p] = item_child->data.unit_text[q];
+                            p++;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+                        }
+                        else
+                        {
+                            if (item_child->data.unit_text[q] == ' ')
+                            {
+                                first_val_line[q] = 0;
+                                val_line = 1;                                
+                            }
+                            else
+                                first_val_line[q] = item_child->data.unit_text[q];
+                        }
+                    }
+                    else
+                        break;
                 }
-                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                str_bfr[char_cnt_name] = 0;
-                item_list_text.color = GLCD_BLACK;
-                item_list_text.mode = TEXT_SINGLE_LINE;
-                item_list_text.font = Terminal3x5;
-                item_list_text.text = str_bfr;
-                item_list_text.align = ALIGN_NONE_NONE;
-                item_list_text.x = (item_x + 18 - char_cnt_name*2);
-                item_list_text.y = item_y+26;
-                widget_textbox(display, &item_list_text);
+
+                second_val_line[p] = 0;
+                if (p != 0)
+                
+                //check if we have 2 lines
+                {
+                    textbox_t item_val_0 = {};
+                    item_val_0.color = GLCD_BLACK;
+                    item_val_0.mode = TEXT_SINGLE_LINE;
+                    item_val_0.font = Terminal3x5;
+                    item_val_0.text = first_val_line;
+                    item_val_0.align = ALIGN_NONE_NONE;
+                    item_val_0.x = (item_x + 18 - 2*strlen(first_val_line));
+                    item_val_0.y = item_y + 24;
+                    widget_textbox(display, &item_val_0);
+
+                    textbox_t item_val_2 = {};
+                    item_val_2.color = GLCD_BLACK;
+                    item_val_2.mode = TEXT_SINGLE_LINE;
+                    item_val_2.font = Terminal3x5;
+                    item_val_2.text = second_val_line;
+                    item_val_2.align = ALIGN_NONE_NONE;
+                    item_val_2.x = (item_x + 18 - 2*strlen(second_val_line));
+                    item_val_2.y = item_y + 31;
+                    widget_textbox(display, &item_val_2);
+                }
+                else
+                {
+                    textbox_t item_val_1 = {};
+                    item_val_1.color = GLCD_BLACK;
+                    item_val_1.mode = TEXT_SINGLE_LINE;
+                    item_val_1.font = Terminal3x5;
+                    item_val_1.text = first_val_line;
+                    item_val_1.align = ALIGN_NONE_NONE;
+                    item_val_1.x = (item_x + 18 - 2*strlen(first_val_line));
+                    item_val_1.y = item_y + 26;
+                    widget_textbox(display, &item_val_1);
+                }
             }
         break;
 
