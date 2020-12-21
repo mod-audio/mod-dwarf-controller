@@ -472,8 +472,9 @@ void TM_enter(uint8_t button)
                 item_child = child_nodes->data;
             }
 
-            g_current_item->data.hover--;
-            g_current_item->data.selected--;
+            node_t *sync_node = g_current_menu->parent;;
+            menu_item_t* sync_item = sync_node->data;
+            sync_item->data.hover--;
 
             TM_print_tool();
         }
@@ -504,8 +505,9 @@ void TM_enter(uint8_t button)
                 item_child = child_nodes->data;
             }
 
-            g_current_item->data.hover++;
-            g_current_item->data.selected++;
+            node_t *sync_node = g_current_menu->parent;;
+            menu_item_t* sync_item = sync_node->data;
+            sync_item->data.hover++;
 
             TM_print_tool();
         }

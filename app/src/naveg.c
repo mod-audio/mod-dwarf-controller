@@ -535,8 +535,8 @@ void naveg_button_pressed(uint8_t button)
                             break;
 
                             case MODE_TOOL_MENU:
-                                g_device_mode = MODE_TOOL_MENU;
-                                TM_launch_tool(TOOL_MENU);
+                                g_device_mode = MODE_CONTROL;
+                                CM_set_screen();
                             break;
 
                             case MODE_BUILDER:
