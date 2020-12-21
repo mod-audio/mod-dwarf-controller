@@ -1329,8 +1329,8 @@ void icon_bank(glcd_t *display, uint8_t x, uint8_t y)
     // clears the icon area
     glcd_rect_fill(display, x, y, 9, 7, GLCD_WHITE);
     // draws the icon
-    glcd_rect(display, x, y, 4, 3, GLCD_WHITE);
-    glcd_rect(display, x, y + 4, 4, 3, GLCD_WHITE);
-    glcd_rect(display, x + 5, y, 4, 3, GLCD_WHITE);
-    glcd_rect(display, x + 5, y + 4, 4, 3, GLCD_WHITE);
+    glcd_rect(display, x, y, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x, y + 4, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x + 5, y, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x + 5, y + 4, 4, 3, GLCD_BLACK);
 }
