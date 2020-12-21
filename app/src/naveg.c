@@ -371,7 +371,16 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
         case MODE_TOOL_FOOT:
         case MODE_TOOL_MENU:
-            //todo trigger tool changes (bypass, taptempo)
+            if (!pressed) return;
+            
+            if (foot < 2)
+            {
+                TM_foot_variable_change(foot);
+            }
+            else if (foot == 2)
+            {
+                //TODO change to other tools
+            }
         break;
 
         case MODE_BUILDER:

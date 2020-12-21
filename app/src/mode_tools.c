@@ -683,7 +683,7 @@ void TM_print_tool(void)
 
         case TOOL_TUNER:
                  //first screen
-                screen_toggle_tuner(0.0, "?", 0, 0, 1);
+                screen_toggle_tuner(0.0, "?", 0);
         break;
 
         case TOOL_SYNC:
@@ -746,4 +746,32 @@ void TM_turn_off_tuner(void)
 uint8_t TM_check_tool_status(void)
 {
     return g_current_tool;
+}
+
+void TM_foot_variable_change(uint8_t foot)
+{
+    switch (g_current_tool)
+    {
+        //MDW_TODO set proper LED colours
+        case TOOL_MENU:
+            //no foot actions here
+        break;
+
+        case TOOL_TUNER:
+            if (foot == 0)
+            {
+                system_tuner_mute_cb(NULL, MENU_EV_ENTER);
+            }
+            else if (foot == 1)
+            {
+                system_tuner_input_cb(NULL, MENU_EV_ENTER);
+            }
+        break;
+
+        case TOOL_SYNC:
+        break;
+
+        case TOOL_BYPASS:
+        break;
+    } 
 }
