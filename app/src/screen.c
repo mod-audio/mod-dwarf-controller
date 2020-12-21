@@ -144,46 +144,12 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     //check if we have 2 lines
     if (second_line[0] != 0)
     {
-<<<<<<< HEAD
-        textbox_t item_title_1 = {};
-        item_title_1.color = GLCD_BLACK;
-        item_title_1.mode = TEXT_SINGLE_LINE;
-        item_title_1.font = Terminal3x5;
-        item_title_1.text = first_line;
-        item_title_1.align = ALIGN_NONE_NONE;
-        item_title_1.x = (item_x + 18 - 2*strlen(first_line));
-        item_title_1.y = item_y;
-        widget_textbox(display, &item_title_1);
-
-        textbox_t item_title_2 = {};
-        item_title_2.color = GLCD_BLACK;
-        item_title_2.mode = TEXT_SINGLE_LINE;
-        item_title_2.font = Terminal3x5;
-        item_title_2.text = second_line;
-        item_title_2.align = ALIGN_NONE_NONE;
-        item_title_2.x = (item_x + 18 - 2*strlen(second_line));
-        item_title_2.y = item_y + 6;
-        widget_textbox(display, &item_title_2);       
-    }
-    else
-    {
-        textbox_t item_title_1 = {};
-        item_title_1.color = GLCD_BLACK;
-        item_title_1.mode = TEXT_SINGLE_LINE;
-        item_title_1.font = Terminal3x5;
-        item_title_1.text = first_line;
-        item_title_1.align = ALIGN_NONE_NONE;
-        item_title_1.x = (item_x + 18 - 2*strlen(first_line));
-        item_title_1.y = item_y + 3;
-        widget_textbox(display, &item_title_1);
-=======
         glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y, first_line, Terminal3x5, GLCD_BLACK);
         glcd_text(display, (item_x + 18 - 2*strlen(second_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
     }
     else
     {
         glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y+3, first_line, Terminal3x5, GLCD_BLACK);
->>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
     }
 
     char str_bfr[6];
@@ -224,20 +190,9 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 }
                 memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
                 strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-<<<<<<< HEAD
-                str_bfr[char_cnt_name] = 0;                            
-                item_value_text.color = GLCD_BLACK;
-                item_value_text.mode = TEXT_SINGLE_LINE;
-                item_value_text.font = Terminal3x5;
-                item_value_text.text = str_bfr;
-                item_value_text.align = ALIGN_NONE_NONE;
-                item_value_text.x = (item_x + 18 - char_cnt_name*2);
-                item_value_text.y = item_y+30;
-                widget_textbox(display, &item_value_text);
-=======
+
                 str_bfr[char_cnt_name] = 0;
                 glcd_text(display, (item_x + 18 - char_cnt_name*2), item_y+30, str_bfr, Terminal3x5, GLCD_BLACK);
->>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
             }
         break;
 
@@ -246,7 +201,6 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 
             if (item_child->data.unit_text)
             {
-<<<<<<< HEAD
                 //print the value
                 char first_val_line[10] = {};
                 char second_val_line[10] = {};
@@ -254,10 +208,6 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 uint8_t q, p = 0, val_line = 0;
                 
                 for (q = 0; q < 20; q++)
-=======
-                char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 5)
->>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
                 {
                     if(item_child->data.unit_text[q] != 0)
                     {
@@ -281,50 +231,17 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                         break;
                 }
 
+                //check if we have 2 lines
                 second_val_line[p] = 0;
                 if (p != 0)
-                
-                //check if we have 2 lines
                 {
-                    textbox_t item_val_0 = {};
-                    item_val_0.color = GLCD_BLACK;
-                    item_val_0.mode = TEXT_SINGLE_LINE;
-                    item_val_0.font = Terminal3x5;
-                    item_val_0.text = first_val_line;
-                    item_val_0.align = ALIGN_NONE_NONE;
-                    item_val_0.x = (item_x + 18 - 2*strlen(first_val_line));
-                    item_val_0.y = item_y + 24;
-                    widget_textbox(display, &item_val_0);
-
-                    textbox_t item_val_2 = {};
-                    item_val_2.color = GLCD_BLACK;
-                    item_val_2.mode = TEXT_SINGLE_LINE;
-                    item_val_2.font = Terminal3x5;
-                    item_val_2.text = second_val_line;
-                    item_val_2.align = ALIGN_NONE_NONE;
-                    item_val_2.x = (item_x + 18 - 2*strlen(second_val_line));
-                    item_val_2.y = item_y + 31;
-                    widget_textbox(display, &item_val_2);
+                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+24, first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
                 }
                 else
                 {
-                    textbox_t item_val_1 = {};
-                    item_val_1.color = GLCD_BLACK;
-                    item_val_1.mode = TEXT_SINGLE_LINE;
-                    item_val_1.font = Terminal3x5;
-                    item_val_1.text = first_val_line;
-                    item_val_1.align = ALIGN_NONE_NONE;
-                    item_val_1.x = (item_x + 18 - 2*strlen(first_val_line));
-                    item_val_1.y = item_y + 26;
-                    widget_textbox(display, &item_val_1);
+                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+26, first_val_line, Terminal3x5, GLCD_BLACK);
                 }
-<<<<<<< HEAD
-=======
-                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
-                str_bfr[char_cnt_name] = 0;
-                glcd_text(display, (item_x + 18 - char_cnt_name*2), item_y+26, str_bfr, Terminal3x5, GLCD_BLACK);
->>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
             }
         break;
 
