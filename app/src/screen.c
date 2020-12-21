@@ -236,7 +236,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 if (p != 0)
                 {
                     glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+24, first_val_line, Terminal3x5, GLCD_BLACK);
-                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 18 - 2*strlen(second_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
                 }
                 else
                 {
