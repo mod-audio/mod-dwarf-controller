@@ -1167,7 +1167,7 @@ void screen_shift_overlay(int8_t prev_mode)
     char_cnt_name = strlen(str_bfr);
     glcd_text(display, 65 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
 
-    glcd_text(display, 91, 15, "OUTPUT", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 95, 15, "OUTPUT", Terminal3x5, GLCD_BLACK);
     glcd_text(display, 99, 21, "GAIN", Terminal3x5, GLCD_BLACK);
 
     //print the bar
