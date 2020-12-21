@@ -51,6 +51,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST};
 */
 
 static tuner_t g_tuner = {0, NULL, 0, 1};
+static uint8_t g_hide_non_assigned_actuators = 0;
 
 /*
 ************************************************************************************************************************
@@ -235,6 +236,11 @@ void screen_clear(void)
     glcd_clear(hardware_glcds(0), GLCD_WHITE);
 }
 
+void screen_set_hide_non_assigned_actuators(uint8_t hide)
+{
+    g_hide_non_assigned_actuators = hide;
+}
+
 void screen_encoder(control_t *control, uint8_t encoder)
 {    
     glcd_t *display = hardware_glcds(0);
@@ -270,11 +276,21 @@ void screen_encoder(control_t *control, uint8_t encoder)
     if (!control)
     {
         char text[sizeof(SCREEN_ROTARY_DEFAULT_NAME) + 2];
-        strcpy(text, SCREEN_ROTARY_DEFAULT_NAME);
-        text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)-1] = encoder + '1';
-        text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)] = 0;
+        uint8_t item_x = encoder_x+5;
+        if (g_hide_non_assigned_actuators)
+        {
+            text[0] = '-';
+            text[1] = 0;
+            item_x+=10;
+        }
+        else
+        {
+            strcpy(text, SCREEN_ROTARY_DEFAULT_NAME);
+            text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)-1] = encoder + '1';
+            text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)] = 0;
+        }
 
-        glcd_text(display, encoder_x+5, encoder_y+10, text, Terminal3x5, GLCD_BLACK);
+        glcd_text(display, item_x, encoder_y+10, text, Terminal3x5, GLCD_BLACK);
         return;
     }
 
@@ -515,12 +531,21 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     if (name == NULL && value == NULL)
     {
         char text[sizeof(SCREEN_FOOT_DEFAULT_NAME) + 2];
-        strcpy(text, SCREEN_FOOT_DEFAULT_NAME);
-        if (foot_id == 0)
-            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
-        else 
-            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'C';
-        text[sizeof(SCREEN_FOOT_DEFAULT_NAME)] = 0;
+
+        if (g_hide_non_assigned_actuators)
+        {
+            text[0] = '-';
+            text[1] = 0;
+        }
+        else
+        {
+            strcpy(text, SCREEN_FOOT_DEFAULT_NAME);
+            if (foot_id == 0)
+                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
+            else 
+                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'C';
+            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)] = 0;
+        }
 
         glcd_text(display, foot_x + (26 - (strlen(text) * 3)), foot_y + 2, text, Terminal5x7, GLCD_BLACK);
         return;

@@ -366,13 +366,12 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             {
                 NM_change_pbss(foot);
             }
-            
         break;
 
         case MODE_TOOL_FOOT:
         case MODE_TOOL_MENU:
             if (!pressed) return;
-            
+
             if (foot < 2)
             {
                 TM_foot_variable_change(foot);
