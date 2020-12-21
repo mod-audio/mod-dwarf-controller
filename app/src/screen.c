@@ -15,7 +15,6 @@
 #include "protocol.h"
 #include <string.h>
 
-
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -33,20 +32,17 @@ enum {BANKS_LIST, PEDALBOARD_LIST};
 ************************************************************************************************************************
 */
 
-
 /*
 ************************************************************************************************************************
 *           LOCAL DATA TYPES
 ************************************************************************************************************************
 */
 
-
 /*
 ************************************************************************************************************************
 *           LOCAL MACROS
 ************************************************************************************************************************
 */
-
 
 /*
 ************************************************************************************************************************
@@ -62,13 +58,11 @@ static tuner_t g_tuner = {0, NULL, 0, 1};
 ************************************************************************************************************************
 */
 
-
 /*
 ************************************************************************************************************************
 *           LOCAL CONFIGURATION ERRORS
 ************************************************************************************************************************
 */
-
 
 /*
 ************************************************************************************************************************
@@ -149,6 +143,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     //check if we have 2 lines
     if (second_line[0] != 0)
     {
+<<<<<<< HEAD
         textbox_t item_title_1 = {};
         item_title_1.color = GLCD_BLACK;
         item_title_1.mode = TEXT_SINGLE_LINE;
@@ -180,6 +175,14 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
         item_title_1.x = (item_x + 18 - 2*strlen(first_line));
         item_title_1.y = item_y + 3;
         widget_textbox(display, &item_title_1);
+=======
+        glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y, first_line, Terminal3x5, GLCD_BLACK);
+        glcd_text(display, (item_x + 18 - 2*strlen(second_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
+    }
+    else
+    {
+        glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y+3, first_line, Terminal3x5, GLCD_BLACK);
+>>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
     }
 
     char str_bfr[6];
@@ -213,7 +216,6 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 
             if (item_child->data.unit_text)
             {
-                textbox_t item_value_text = {};
                 char_cnt_name = strlen(item_child->data.unit_text);
                 if (char_cnt_name > 5)
                 {
@@ -221,6 +223,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 }
                 memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
                 strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+<<<<<<< HEAD
                 str_bfr[char_cnt_name] = 0;                            
                 item_value_text.color = GLCD_BLACK;
                 item_value_text.mode = TEXT_SINGLE_LINE;
@@ -230,6 +233,10 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 item_value_text.x = (item_x + 18 - char_cnt_name*2);
                 item_value_text.y = item_y+30;
                 widget_textbox(display, &item_value_text);
+=======
+                str_bfr[char_cnt_name] = 0;
+                glcd_text(display, (item_x + 18 - char_cnt_name*2), item_y+30, str_bfr, Terminal3x5, GLCD_BLACK);
+>>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
             }
         break;
 
@@ -238,6 +245,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 
             if (item_child->data.unit_text)
             {
+<<<<<<< HEAD
                 //print the value
                 char first_val_line[10] = {};
                 char second_val_line[10] = {};
@@ -245,6 +253,10 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 uint8_t q, p = 0, val_line = 0;
                 
                 for (q = 0; q < 20; q++)
+=======
+                char_cnt_name = strlen(item_child->data.unit_text);
+                if (char_cnt_name > 5)
+>>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
                 {
                     if(item_child->data.unit_text[q] != 0)
                     {
@@ -305,6 +317,13 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                     item_val_1.y = item_y + 26;
                     widget_textbox(display, &item_val_1);
                 }
+<<<<<<< HEAD
+=======
+                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                str_bfr[char_cnt_name] = 0;
+                glcd_text(display, (item_x + 18 - char_cnt_name*2), item_y+26, str_bfr, Terminal3x5, GLCD_BLACK);
+>>>>>>> 2e158d3d8239ae9351dde2b3e1f67c63efda29d4
             }
         break;
 
@@ -369,15 +388,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)-1] = encoder + '1';
         text[sizeof(SCREEN_ROTARY_DEFAULT_NAME)] = 0;
 
-        textbox_t title = {};
-        title.color = GLCD_BLACK;
-        title.mode = TEXT_SINGLE_LINE;
-        title.font = Terminal3x5;
-        title.text = text;
-        title.align = ALIGN_NONE_NONE;
-        title.y = encoder_y+10;
-        title.x = encoder_x+5;
-        widget_textbox(display, &title);
+        glcd_text(display, encoder_x+5, encoder_y+10, text, Terminal3x5, GLCD_BLACK);
         return;
     }
 
@@ -390,26 +401,12 @@ void screen_encoder(control_t *control, uint8_t encoder)
     }
 
     char title_str_bfr[char_cnt_name+1];
-    memset( title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+    memset(title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
     strncpy(title_str_bfr, control->label, char_cnt_name);
     title_str_bfr[char_cnt_name] = 0;
 
-    textbox_t title;
-    title.color = GLCD_BLACK;
-    title.mode = TEXT_SINGLE_LINE;
-    title.font = Terminal3x5;
-    title.height = 0;
-    title.width = 0;
-    title.top_margin = 0;
-    title.bottom_margin = 0;
-    title.left_margin = 0;
-    title.right_margin = 0;
-    title.text = title_str_bfr;
-    title.align = ALIGN_NONE_NONE;
     //allign to middle, (full width / 2) - (text width / 2)
-    title.x = (encoder_x + 18 - 2*char_cnt_name);
-    title.y = encoder_y;
-    widget_textbox(display, &title);
+    glcd_text(display, (encoder_x + 18 - 2*char_cnt_name), encoder_y, title_str_bfr, Terminal3x5, GLCD_BLACK);
 
     // list type control
     if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
@@ -542,21 +539,7 @@ void screen_page_index(uint8_t current, uint8_t available)
     glcd_hline(display, 0, 54, 21, GLCD_BLACK);
 
     // draws the text field
-    textbox_t index;
-    index.color = GLCD_BLACK;
-    index.mode = TEXT_SINGLE_LINE;
-    index.font = Terminal5x7;
-    index.height = 0;
-    index.width = 0;
-    index.bottom_margin = 0;
-    index.left_margin = 0;
-    index.right_margin = 0;
-    index.align = ALIGN_NONE_NONE;
-    index.top_margin = 0;
-    index.text = str_current;
-    index.x = 3;
-    index.y = 56;
-    widget_textbox(display, &index);
+    glcd_text(display, 3, 56, str_current, Terminal5x7, GLCD_BLACK);
 }
 
 void screen_encoder_container(uint8_t current_encoder_page)
@@ -585,55 +568,13 @@ void screen_encoder_container(uint8_t current_encoder_page)
     glcd_hline(display, 97, 47, 31, GLCD_BLACK);
 
     //indicator 1
-    textbox_t index_1;
-    index_1.color = GLCD_BLACK;
-    index_1.mode = TEXT_SINGLE_LINE;
-    index_1.font = Terminal3x5;
-    index_1.height = 0;
-    index_1.width = 0;
-    index_1.bottom_margin = 0;
-    index_1.left_margin = 0;
-    index_1.right_margin = 0;
-    index_1.align = ALIGN_NONE_NONE;
-    index_1.top_margin = 0;
-    index_1.text = "I";
-    index_1.x = 40;
-    index_1.y = 45;
-    widget_textbox(display, &index_1);
+    glcd_text(display, 40, 45, "I", Terminal3x5, GLCD_BLACK);
 
     //indicator 2
-    textbox_t index_2;
-    index_2.color = GLCD_BLACK;
-    index_2.mode = TEXT_SINGLE_LINE;
-    index_2.font = Terminal3x5;
-    index_2.height = 0;
-    index_2.width = 0;
-    index_2.bottom_margin = 0;
-    index_2.left_margin = 0;
-    index_2.right_margin = 0;
-    index_2.align = ALIGN_NONE_NONE;
-    index_2.top_margin = 0;
-    index_2.text = "II";
-    index_2.x = 61;
-    index_2.y = 45;
-    widget_textbox(display, &index_2);
+    glcd_text(display, 61, 45, "II", Terminal3x5, GLCD_BLACK);
 
     //indicator 3
-    textbox_t index_3;
-    index_3.color = GLCD_BLACK;
-    index_3.mode = TEXT_SINGLE_LINE;
-    index_3.font = Terminal3x5;
-    index_3.height = 0;
-    index_3.width = 0;
-    index_3.bottom_margin = 0;
-    index_3.left_margin = 0;
-    index_3.right_margin = 0;
-    index_3.align = ALIGN_NONE_NONE;
-    index_3.top_margin = 0;
-    index_3.text = "III";
-    index_3.x = 82;
-    index_3.y = 45;
-    widget_textbox(display, &index_3);
+    glcd_text(display, 82, 45, "III", Terminal3x5, GLCD_BLACK);
 
     //invert the current one
     switch (current_encoder_page)
@@ -685,30 +626,17 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
     glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
 
-    // draws the name field
-    textbox_t footer;
-    footer.color = GLCD_BLACK;
-    footer.mode = TEXT_SINGLE_LINE;
-    footer.font = Terminal5x7;
-    footer.height = 0;
-    footer.width = 0;
-    footer.top_margin = 0;
-    footer.bottom_margin = 0;
-    footer.left_margin = 1;
-    footer.right_margin = 1;
-    footer.y = foot_y + 2;
-
     if (name == NULL && value == NULL)
     {
         char text[sizeof(SCREEN_FOOT_DEFAULT_NAME) + 2];
         strcpy(text, SCREEN_FOOT_DEFAULT_NAME);
-        text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = foot_id + '1';
+        if (foot_id == 0)
+            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
+        else 
+            text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'C';
         text[sizeof(SCREEN_FOOT_DEFAULT_NAME)] = 0;
 
-        footer.text = text;
-        footer.x = foot_x + (26 - (strlen(text) * 3));
-        footer.align = ALIGN_NONE_NONE;
-        widget_textbox(display, &footer);
+        glcd_text(display, foot_x + (26 - (strlen(text) * 3)), foot_y + 2, text, Terminal5x7, GLCD_BLACK);
         return;
     }
     //if we are in toggle, trigger or byoass mode we dont have a value
@@ -720,14 +648,12 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
             //limit string
             char_cnt_name = 7;
         }
+
         char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
         strncpy(title_str_bfr, name, char_cnt_name);
         title_str_bfr[char_cnt_name] = '\0';
 
-        footer.text = title_str_bfr;
-        footer.x = foot_x + (26 - (strlen(title_str_bfr) * 3));
-        footer.align = ALIGN_NONE_NONE;
-        widget_textbox(display, &footer);
+        glcd_text(display, foot_x + (26 - (strlen(title_str_bfr) * 3)), foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
     
         if (value[1] == 'N')
         {
@@ -765,29 +691,12 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         //draw name
         strncpy(title_str_bfr, name, char_cnt_name);
         title_str_bfr[char_cnt_name] = '\0';
-        footer.text = title_str_bfr;
-        footer.align = ALIGN_NONE_NONE;
-        footer.x = foot_x + 2;
-        widget_textbox(display, &footer);
+        glcd_text(display, foot_x + 2, foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
 
         // draws the value field
-        textbox_t value_field;
-        value_field.color = GLCD_BLACK;
-        value_field.mode = TEXT_SINGLE_LINE;
-        value_field.font = Terminal5x7;
-        value_field.height = 0;
-        value_field.width = 0;
-        value_field.top_margin = 0;
-        value_field.bottom_margin = 0;
-        value_field.left_margin = 1;
-        value_field.right_margin = 1;
-        value_field.y = foot_y + 2;
         strncpy(value_str_bfr, value, char_cnt_value);
         value_str_bfr[char_cnt_value] = '\0';
-        value_field.text = value_str_bfr;
-        value_field.align = ALIGN_NONE_NONE;
-        value_field.x = foot_x + (50 - ((strlen(value_str_bfr)) * 6));
-        widget_textbox(display, &value_field);
+        glcd_text(display, foot_x + (50 - ((strlen(value_str_bfr)) * 6)), foot_y + 2, value_str_bfr, Terminal5x7, GLCD_BLACK);
 
         FREE(title_str_bfr);
         FREE(value_str_bfr);
@@ -803,7 +712,7 @@ void screen_tittle(const void *data, uint8_t update)
 
     if (pedalboard_name == NULL)
     {
-        pedalboard_name = (char *) MALLOC(30 * sizeof(char));
+        pedalboard_name = (char *) MALLOC(20 * sizeof(char));
         strcpy(pedalboard_name, "DEFAULT");
         char_cnt = 7;
     }
@@ -814,47 +723,33 @@ void screen_tittle(const void *data, uint8_t update)
 
         // get first list name, copy it to our string buffer
         const char *name_string = *name_list;
-        strncpy(pedalboard_name, name_string, 29);
-        pedalboard_name[29] = 0; // strncpy might not have final null byte
+        strncpy(pedalboard_name, name_string, 19);
+        pedalboard_name[19] = 0; // strncpy might not have final null byte
 
         // go to next name in list
         name_string = *(++name_list);
 
-        while (name_string && ((strlen(pedalboard_name) + strlen(name_string) + 1) < 29))
+        while (name_string && ((strlen(pedalboard_name) + strlen(name_string) + 1) < 19))
         {
             strcat(pedalboard_name, " ");
             strcat(pedalboard_name, name_string);
             name_string = *(++name_list);
             char_cnt++;
         }
-        pedalboard_name[29] = 0;
+        pedalboard_name[19] = 0;
 
         char_cnt = strlen(pedalboard_name);
     }
 
     //we dont display inside a menu
-    //if (naveg_is_tool_mode(0)) return;
+    if (naveg_get_current_mode() != MODE_CONTROL) return;
 
     // clear the name area
     glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
 
-    textbox_t title;
-    title.color = GLCD_BLACK;
-    title.mode = TEXT_SINGLE_LINE;
-    title.font = Terminal5x7;
-    title.top_margin = 1;
-    title.bottom_margin = 0;
-    title.left_margin = 10;
-    title.right_margin = 1;
-    title.height = 0;
-    title.width = 0;
-    title.text = pedalboard_name;
-    title.align = ALIGN_NONE_NONE;
-    title.y = 1;
-    title.x = ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7);
-    widget_textbox(display, &title);
+    glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, pedalboard_name, Terminal5x7, GLCD_BLACK);
 
-    icon_pedalboard(display, title.x - 11, 1);
+    icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 11, 1);
 
     //invert the top bar
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -897,43 +792,19 @@ void screen_bank_list(bp_list_t *list)
 
     //print the 3 buttons
     //draw the first box, back
-    textbox_t box_1 = {};
-    box_1.color = GLCD_BLACK;
-    box_1.mode = TEXT_SINGLE_LINE;
-    box_1.font = Terminal3x5;
-    box_1.align = ALIGN_NONE_NONE;
-    box_1.y = DISPLAY_HEIGHT - 7;
-    box_1.x = 20;
-    box_1.text = "ENTER";
-    widget_textbox(display, &box_1);
+    glcd_text(display, 20, DISPLAY_HEIGHT - 7, "ENTER", Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
-    textbox_t box_2 = {};
-    box_2.color = GLCD_BLACK;
-    box_2.mode = TEXT_SINGLE_LINE;
-    box_2.font = Terminal3x5;
-    box_2.align = ALIGN_NONE_NONE;
     /*box_2.x = 56;
     box_2.y = DISPLAY_HEIGHT - 7;
     box_2.text = "COPY";*/
-    box_2.x = 62;
-    box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "-";
-    widget_textbox(display, &box_2);
+    glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    textbox_t box_3 = {};
-    box_3.color = GLCD_BLACK;
-    box_3.mode = TEXT_SINGLE_LINE;
-    box_3.font = Terminal3x5;
-    box_3.align = ALIGN_NONE_NONE;
     /*box_3.x = 92;
     box_3.y = DISPLAY_HEIGHT - 7;
     box_3.text = "NEW";*/
-    box_3.x = 96;
-    box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "-";
-    widget_textbox(display, &box_3);
+    glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     // draws the list
     if (list)
@@ -942,7 +813,7 @@ void screen_bank_list(bp_list_t *list)
         list_box.x = 1;
         list_box.y = 11;
         list_box.width = DISPLAY_WIDTH-3;
-        list_box.height = 45;
+        list_box.height = 39;
         list_box.color = GLCD_BLACK;
         list_box.hover = list->hover - list->page_min;
         list_box.selected = list->selected - list->page_min;
@@ -957,22 +828,7 @@ void screen_bank_list(bp_list_t *list)
     }
     else
     {
-        if (naveg_ui_status())
-        {
-            textbox_t message;
-            message.color = GLCD_BLACK;
-            message.mode = TEXT_SINGLE_LINE;
-            message.font = Terminal7x8;
-            message.top_margin = 0;
-            message.bottom_margin = 0;
-            message.left_margin = 0;
-            message.right_margin = 0;
-            message.height = 0;
-            message.width = 0;
-            message.text = "To access banks here please disconnect from the graphical interface";
-            message.align = ALIGN_CENTER_MIDDLE;
-            widget_textbox(display, &message);
-        }
+        //todo launch quick overlay
     }
 }
 
@@ -988,25 +844,13 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
     if (list)
     {
         uint8_t char_cnt = strlen(title);
-        textbox_t title_box = {};
-        title_box.color = GLCD_BLACK;
-        title_box.mode = TEXT_SINGLE_LINE;
-        title_box.font = Terminal5x7;
-        title_box.top_margin = 1;
-        title_box.left_margin = 10;
-        title_box.right_margin = 1;
-        title_box.text = title;
-        title_box.align = ALIGN_NONE_NONE;
-        title_box.y = 1;
-        title_box.x = ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7);
-        widget_textbox(display, &title_box);
-
+        glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, title, Terminal5x7, GLCD_BLACK);
         //snapshot
         if (!pb_ss_toggle)
-            icon_bank(display, title_box.x - 11, 1);
+            icon_bank(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 12, 1);
         //pb's
         else 
-            icon_pedalboard(display, title_box.x - 11, 1);
+            icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 12, 1);
 
         //invert the top bar
         glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -1046,85 +890,50 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
 
         //print the 3 buttons
         //draw the first box, back
-        textbox_t box_1 = {};
-        box_1.color = GLCD_BLACK;
-        box_1.mode = TEXT_SINGLE_LINE;
-        box_1.font = Terminal3x5;
-        box_1.align = ALIGN_NONE_NONE;
-        box_1.y = DISPLAY_HEIGHT - 7;
+        
+        uint8_t x;
+        char *text;
         if (pb_ss_toggle)
         {
             /*box_1.x = 18;
             box_1.text = "RENAME";*/
-            box_1.x = 28;
-            box_1.text = "-";
+            x = 28;
+            text = "-";
         }
         else
         {
-            box_1.x = 20;
-            box_1.text = "BANKS";
+            x = 20;
+            text = "BANKS";
         }
-        widget_textbox(display, &box_1);
+        glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
         //draw the second box
-        textbox_t box_2 = {};
-        box_2.color = GLCD_BLACK;
-        box_2.mode = TEXT_SINGLE_LINE;
-        box_2.font = Terminal3x5;
-        box_2.align = ALIGN_NONE_NONE;
         if (!pb_ss_toggle)
         {
-            box_2.x = 56;
-            box_2.y = DISPLAY_HEIGHT - 7;
-            box_2.text = "SAVE";
+            x = 56;
+            text = "SAVE";
         }
         else
         {
-            box_2.x = 62;
-            box_2.y = DISPLAY_HEIGHT - 7;
-            box_2.text = "-";
+            x = 62;
+            text = "-";
         }
-        widget_textbox(display, &box_2);
+        glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
         //draw the third box, save PB
-        textbox_t box_3 = {};
-        box_3.color = GLCD_BLACK;
-        box_3.mode = TEXT_SINGLE_LINE;
-        box_3.font = Terminal3x5;
-        box_3.align = ALIGN_NONE_NONE;
         /*box_3.x = 86;
         box_3.y = DISPLAY_HEIGHT - 7;
         box_3.text = "DELETE";*/
-        box_3.x = 96;
-        box_3.y = DISPLAY_HEIGHT - 7;
-        box_3.text = "-";
-        widget_textbox(display, &box_3);
+        glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
     }
     else
     {
-        if (naveg_ui_status())
-        {
-            textbox_t message;
-            message.color = GLCD_BLACK;
-            message.mode = TEXT_SINGLE_LINE;
-            message.font = Terminal7x8;
-            message.top_margin = 0;
-            message.bottom_margin = 0;
-            message.left_margin = 0;
-            message.right_margin = 0;
-            message.height = 0;
-            message.width = 0;
-            message.text = "To access banks here please disconnect from the graphical interface";
-            message.align = ALIGN_CENTER_MIDDLE;
-            widget_textbox(display, &message);
-        }
+        //todo launch quick overlay
     }
 }
 
 void screen_system_menu(menu_item_t *item)
 {
-    static menu_item_t *last_item = NULL;
-
     glcd_t *display;
     display = hardware_glcds(0);
 
@@ -1148,37 +957,13 @@ void screen_system_menu(menu_item_t *item)
 
     //print the 3 buttons
     //draw the first box, back
-    textbox_t box_1 = {};
-    box_1.color = GLCD_BLACK;
-    box_1.mode = TEXT_SINGLE_LINE;
-    box_1.font = Terminal3x5;
-    box_1.align = ALIGN_NONE_NONE;
-    box_1.x = 18;
-    box_1.y = DISPLAY_HEIGHT - 7;
-    box_1.text = "ENTER>";
-    widget_textbox(display, &box_1);
+    glcd_text(display, 18, DISPLAY_HEIGHT - 7, "ENTER>", Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
-    textbox_t box_2 = {};
-    box_2.color = GLCD_BLACK;
-    box_2.mode = TEXT_SINGLE_LINE;
-    box_2.font = Terminal3x5;
-    box_2.align = ALIGN_NONE_NONE;
-    box_2.x = 56;
-    box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "EXIT";
-    widget_textbox(display, &box_2);
+    glcd_text(display, 56, DISPLAY_HEIGHT - 7, "EXIT", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    textbox_t box_3 = {};
-    box_3.color = GLCD_BLACK;
-    box_3.mode = TEXT_SINGLE_LINE;
-    box_3.font = Terminal3x5;
-    box_3.align = ALIGN_NONE_NONE;
-    box_3.x = 96;
-    box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "-";
-    widget_textbox(display, &box_3);
+    glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     // menu list
     listbox_t list;
@@ -1193,14 +978,6 @@ void screen_system_menu(menu_item_t *item)
     list.line_bottom_margin = 1;
     list.text_left_margin = 2;
 
-    // popup
-    popup_t popup;
-    popup.x = 0;
-    popup.y = 0;
-    popup.width = DISPLAY_WIDTH;
-    popup.height = DISPLAY_HEIGHT;
-    popup.font = Terminal3x5;
-
     switch (item->desc->type)
     {
         case MENU_ROOT:
@@ -1214,46 +991,15 @@ void screen_system_menu(menu_item_t *item)
                 widget_listbox_mdx(display, &list);
         break;
 
-        case MENU_CONFIRM:
-        case MENU_OK:
-            if (item->desc->type == MENU_OK)
-            {
-                popup.type = OK_ONLY;
-                popup.type = EMPTY_POPUP;
-            }
-            else
-                popup.type = YES_NO;
-            
-            popup.title = item->data.popup_header;
-            popup.content = item->data.popup_content;
-            popup.button_selected = item->data.hover;
-            widget_popup(display, &popup);
-            break;
-
-        case MENU_TOGGLE:
-                list.hover = last_item->data.hover;
-                list.selected = last_item->data.selected;
-                list.count = last_item->data.list_count;
-                list.list = last_item->data.list;
-                widget_listbox(display, &list);
-            break;
-
-        case MENU_NONE:
-            if (last_item)
-            {
-                list.hover = last_item->data.hover;
-                list.selected = last_item->data.selected;
-                list.count = last_item->data.list_count;
-                list.list = last_item->data.list;
-                widget_listbox(display, &list);
-            }
-            break;
-    
         case MENU_MAIN:
-        case MENU_LIST:
+        case MENU_TOGGLE:
         case MENU_BAR:
+        case MENU_NONE:
+        case MENU_OK:
+        case MENU_LIST:
+        case MENU_CONFIRM:
         case MENU_CONFIRM2:
-            break;
+        break;
     }
 }
 
@@ -1289,54 +1035,35 @@ void screen_menu_page(node_t *node)
 
     //print the 3 buttons
     //draw the first box, back
-    textbox_t box_1 = {};
-    box_1.color = GLCD_BLACK;
-    box_1.mode = TEXT_SINGLE_LINE;
-    box_1.font = Terminal3x5;
-    box_1.align = ALIGN_NONE_NONE;
-    box_1.x = 20;
-    box_1.y = DISPLAY_HEIGHT - 7;
-    box_1.text = "<BACK";
-    widget_textbox(display, &box_1);
+    glcd_text(display, 20, DISPLAY_HEIGHT - 7, "<BACK", Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
-    textbox_t box_2 = {};
-    box_2.color = GLCD_BLACK;
-    box_2.mode = TEXT_SINGLE_LINE;
-    box_2.font = Terminal3x5;
-    box_2.align = ALIGN_NONE_NONE;
-    box_2.y = DISPLAY_HEIGHT - 7;
+    uint8_t x;
+    char *text;
     if (node->prev)
     {
-        box_2.x = 56;
-        box_2.text = "PREV";
+        x = 56;
+        text = "PREV";
     }
     else
     {
-        box_2.x = 62;
-        box_2.text = "-";
+        x = 62;
+        text = "-";
     }
-    widget_textbox(display, &box_2);
+    glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    textbox_t box_3 = {};
-    box_3.color = GLCD_BLACK;
-    box_3.mode = TEXT_SINGLE_LINE;
-    box_3.font = Terminal3x5;
-    box_3.align = ALIGN_NONE_NONE;
-    box_3.y = DISPLAY_HEIGHT - 7;
-    
-    if (node->next)
+    if (node->next->next)
     {
-        box_3.text = "NEXT";
-        box_3.x = 90;
+        text = "NEXT";
+        x = 90;
     }
     else
     {
-        box_3.text = "-";
-        box_3.x = 96; 
+        text = "-";
+        x = 96; 
     }
-    widget_textbox(display, &box_3);
+    glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     node_t *child_nodes = node;
     child_nodes = child_nodes->first_child;
@@ -1429,23 +1156,18 @@ void screen_shift_overlay(int8_t prev_mode)
     print_menu_outlines();
 
     //draw the first box, menu/control mode 
-    textbox_t box_1 = {};
-    box_1.color = GLCD_BLACK;
-    box_1.mode = TEXT_SINGLE_LINE;
-    box_1.font = Terminal3x5;
-    box_1.align = ALIGN_NONE_NONE;
-    box_1.y = DISPLAY_HEIGHT - 7;
-    if (previous_mode == MODE_CONTROL)
+    uint8_t x = 22;
+    char *text;
+    if (previous_mode != MODE_TOOL_MENU)
     {
-        box_1.text = "MENU";
-        box_1.x = 22;
+        text = "MENU";
     }
     else
     { 
-        box_1.text = "CONTROL";
-        box_1.x = 16;
+        text = "EXIT";
     }
-    widget_textbox(display, &box_1);
+
+    glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
     glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);

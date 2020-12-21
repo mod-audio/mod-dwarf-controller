@@ -139,28 +139,28 @@ void set_footswitch_pages_led_state(void)
     switch (g_current_foot_control_page)
     {
         case 0:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_1, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_1, 1, 0, 0, 0);
         break;
         case 1:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_2, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_2, 1, 0, 0, 0);
         break;
         case 2:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_3, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_3, 1, 0, 0, 0);
         break;
         case 3:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_4, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_4, 1, 0, 0, 0);
         break;
         case 4:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_5, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_5, 1, 0, 0, 0);
         break;
         case 5:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_6, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_6, 1, 0, 0, 0);
         break;
         case 6:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_7, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_7, 1, 0, 0, 0);
         break;
         case 7:
-            ledz_set_state(hardware_leds(2), 0, FS_PAGE_COLOR_8, 1, 0, 0, 0);
+            ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_8, 1, 0, 0, 0);
         break;
     }
 }
@@ -185,6 +185,15 @@ void set_encoder_pages_led_state(void)
             ledz_set_state(hardware_leds(5), 5, ENCODER_PAGE_COLOR, 1, 0, 0, 0);
         break;
     } 
+}
+
+void restore_led_states(void)
+{
+    uint8_t i;
+    for (i = 0; i < 6; i++)
+    {
+        ledz_restore_state(hardware_leds(i), i);
+    }
 }
 
 // control assigned to display
@@ -217,7 +226,7 @@ static void encoder_control_add(control_t *control)
     {
         control->step = 0;
         uint8_t i;
-        control->scroll_dir = g_scroll_dir;
+        //control->scroll_dir = g_scroll_dir;
         for (i = 0; i < control->scale_points_count; i++)
         {
             if (control->value == control->scale_points[i]->value)
@@ -244,7 +253,6 @@ static void encoder_control_add(control_t *control)
         control->step =
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
     }
-
 
     if (naveg_get_current_mode() == MODE_CONTROL)
     {
@@ -533,7 +541,6 @@ static void foot_control_rm(uint8_t hw_id)
 
 static void parse_control_page(void *data, menu_item_t *item)
 {
-
     (void) item;
     char **list = data;
 
@@ -719,7 +726,7 @@ static void control_set(uint8_t id, control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
     {
-        now = hardware_timestamp();
+        now = actuator_get_click_time(hardware_actuators(FOOTSWITCH0 + (control->hw_id - ENCODERS_COUNT)));
         delta = now - g_tap_tempo[control->hw_id - ENCODERS_COUNT].time;
         g_tap_tempo[control->hw_id - ENCODERS_COUNT].time = now;
 
@@ -840,14 +847,15 @@ void CM_add_control(control_t *control, uint8_t protocol)
     // first tries remove the control
     CM_remove_control(control->hw_id);
 
+    if (protocol) control->scroll_dir = 2;
+    else control->scroll_dir = 0;
+
     if (control->hw_id < ENCODERS_COUNT)
     {
         encoder_control_add(control);
     }
     else
     {
-        if (protocol) control->scroll_dir = 2;
-        else control->scroll_dir = 0;
         foot_control_add(control);     
     }
 }
@@ -862,9 +870,6 @@ void CM_inc_control(uint8_t encoder)
     if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))
          && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
     {
-        //sets the direction
-        control->scroll_dir = g_scroll_dir = 0;
-
         // increments the step
         if (control->step < (control->steps - 3))
             control->step++;
@@ -918,7 +923,7 @@ void CM_toggle_control(uint8_t encoder)
     {
         control->value = control->maximum;
     }
-    else if (control->properties & FLAG_CONTROL_TOGGLED || FLAG_CONTROL_BYPASS)
+    else if ((control->properties & FLAG_CONTROL_TOGGLED) || (control->properties & FLAG_CONTROL_BYPASS))
     {
         control->value = !control->value;
     }
@@ -941,9 +946,6 @@ void CM_dec_control(uint8_t encoder)
     if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
         && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
     {
-        //sets the direction
-        control->scroll_dir = g_scroll_dir = 0;
-
         // decrements the step
         if (control->step > 2)
             control->step--;
@@ -1298,7 +1300,7 @@ void CM_load_next_page()
         }
 
         //page found
-        if (g_fs_page_available[j] == 1)
+        if (g_fs_page_available[j])
         {
             g_current_foot_control_page = j;
             pagefound = 1;
@@ -1337,6 +1339,7 @@ void CM_load_next_page()
 
     //update LED's
     set_footswitch_pages_led_state();
+    set_encoder_pages_led_state();
 
     //sum available pages for screen
     uint8_t pages_available = 0;
@@ -1345,6 +1348,8 @@ void CM_load_next_page()
         if (g_fs_page_available[j])
             pages_available++;
     }
+
+    g_current_encoder_page = 0;
 
     //update screen
     screen_page_index(g_current_foot_control_page, pages_available);
@@ -1382,7 +1387,7 @@ void CM_load_next_encoder_page(uint8_t button)
     set_encoder_pages_led_state();  
 }
 
-void CM_print_screen(void)
+void CM_set_screen(void)
 {
     screen_clear();
 
@@ -1409,6 +1414,33 @@ void CM_print_screen(void)
     set_footswitch_pages_led_state();
 
     set_encoder_pages_led_state();
+
+    restore_led_states();
+}
+
+void CM_print_screen(void)
+{
+    screen_clear();
+
+    screen_tittle(NULL, 0);
+
+    //sum available pages for screen
+    uint8_t j;
+    uint8_t pages_available = 0;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    //update screen
+    screen_page_index(g_current_foot_control_page, pages_available);
+
+    screen_encoder_container(g_current_encoder_page);
+
+    CM_draw_foots();
+
+    CM_draw_encoders();
 }
 
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
@@ -1428,4 +1460,22 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     g_fs_page_available[5] = page_toggles[5];
     g_fs_page_available[6] = page_toggles[6];
     g_fs_page_available[7] = page_toggles[7];
+
+    //sum available pages for screen
+    uint8_t pages_available = 0;
+    uint8_t j;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    if  (naveg_get_current_mode() == MODE_CONTROL)
+        screen_page_index(g_current_foot_control_page, pages_available);
+}
+
+void CM_reset_encoder_page(void)
+{
+    g_current_encoder_page = 0;
+    screen_encoder_container(g_current_encoder_page);
 }

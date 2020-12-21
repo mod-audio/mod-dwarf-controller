@@ -401,6 +401,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
     uint8_t i, font_height, max_lines, y_line;
     uint8_t first_line, focus, center_focus, focus_height;
     const char *line_txt;
+    char aux[DISPLAY_WIDTH/2];
 
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height-3, ~listbox->color);
 
@@ -429,6 +430,16 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
         if (i < listbox->count)
         {
             line_txt = listbox->list[first_line + i];
+
+            if ((first_line + i) == listbox->selected)
+            {
+                uint8_t j = 0;
+                aux[j++] = ' ';
+                aux[j++] = '>';
+                while (*line_txt && j < sizeof(aux)-1) aux[j++] = *line_txt++;
+                aux[j] = 0;
+                line_txt = aux;
+            }
 
             textbox_t banks_list = {};
             banks_list.color = GLCD_BLACK;
@@ -596,26 +607,59 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     if (listbox->hover > 0)
     {
         uint8_t line_length =  strlen(listbox->list[listbox->hover-1]);
-        if (line_length > 20)
-            line_length = 20;
+        if (line_length > 15)
+            line_length = 15;
 
-        glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 12, listbox->list[listbox->hover-1], listbox->font, listbox->color);
+        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        if (listbox->selected == listbox->hover-1)
+        {
+            glcd_text(display, item_x - 16, listbox->y + 12, "> ", listbox->font, listbox->color);
+            line_length =-4;
+        }
+
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+        strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+        item_str_bfr[line_length] = '\0';
+        
+        glcd_text(display, item_x, listbox->y + 12, item_str_bfr, listbox->font, listbox->color);
     }
 
     if (listbox->hover < (listbox->count - 1))
     {
         uint8_t line_length =  strlen(listbox->list[listbox->hover+1]);
-        if (line_length > 20)
-            line_length = 20;
+        if (line_length > 15)
+            line_length = 15;
 
-        glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 32, listbox->list[listbox->hover+1], listbox->font, listbox->color);
+        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        if (listbox->selected == listbox->hover+1)
+        {
+            glcd_text(display, item_x - 16, listbox->y + 32, "> ", listbox->font, listbox->color);
+            line_length =-4;
+        }
+
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+        strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+        item_str_bfr[line_length] = '\0';
+
+        glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
     }
 
     uint8_t line_length =  strlen(listbox->list[listbox->hover]);
-    if (line_length > 20)
-        line_length = 20;
+    if (line_length > 15)
+        line_length = 15;
 
-    glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2), listbox->y + 22, listbox->list[listbox->hover], listbox->font, listbox->color);
+    uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+    if (listbox->selected == listbox->hover)
+    {
+        glcd_text(display, item_x - 16, listbox->y + 22, "> ", listbox->font, listbox->color);
+        line_length =-4;
+    }
+
+    char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+    strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+    item_str_bfr[line_length] = '\0';
+
+    glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
 
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
 
@@ -878,22 +922,22 @@ void widget_bar_encoder(glcd_t *display, bar_t *bar)
     //draw the unit if needed
     if (bar->has_unit)
     {
-        textbox_t value;
-        value.color = GLCD_BLACK;
-        value.mode = TEXT_SINGLE_LINE;
-        value.font = Terminal3x5;
-        value.height = 0;
-        value.width = 0;
-        value.top_margin = 0;
-        value.bottom_margin = 0;
-        value.left_margin = 0;
-        value.right_margin = 0;
-        value.text = bar->unit;
-        value.align = ALIGN_NONE_NONE;
+        textbox_t value_box;
+        value_box.color = GLCD_BLACK;
+        value_box.mode = TEXT_SINGLE_LINE;
+        value_box.font = Terminal3x5;
+        value_box.height = 0;
+        value_box.width = 0;
+        value_box.top_margin = 0;
+        value_box.bottom_margin = 0;
+        value_box.left_margin = 0;
+        value_box.right_margin = 0;
+        value_box.text = bar->unit;
+        value_box.align = ALIGN_NONE_NONE;
         //allign to middle, (full width / 2) - (text width / 2)
-        value.x = (bar->x + (bar->width / 2) - 2*strlen(bar->unit)+1);
-        value.y = bar->y + 12 + bar->height + 1;
-        widget_textbox(display, &value);
+        value_box.x = (bar->x + (bar->width / 2) - 2*strlen(bar->unit)+1);
+        value_box.y = bar->y + 12 + bar->height + 1;
+        widget_textbox(display, &value_box);
     }
 
     float OldRange, NewRange, NewValue;
@@ -1285,8 +1329,8 @@ void icon_bank(glcd_t *display, uint8_t x, uint8_t y)
     // clears the icon area
     glcd_rect_fill(display, x, y, 9, 7, GLCD_WHITE);
     // draws the icon
-    glcd_rect(display, x, y, 4, 3, GLCD_BLACK);
-    glcd_rect(display, x, y + 3, 4, 3, GLCD_BLACK);
-    glcd_rect(display, x + 4, y, 4, 3, GLCD_BLACK);
-    glcd_rect(display, x + 4, y + 3, 4, 3, GLCD_BLACK);
+    glcd_rect(display, x, y, 4, 3, GLCD_WHITE);
+    glcd_rect(display, x, y + 4, 4, 3, GLCD_WHITE);
+    glcd_rect(display, x + 5, y, 4, 3, GLCD_WHITE);
+    glcd_rect(display, x + 5, y + 4, 4, 3, GLCD_WHITE);
 }

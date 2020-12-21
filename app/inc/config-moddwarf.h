@@ -5,9 +5,6 @@
 #include <stdint.h>
 #include "device.h"
 
-//DEVELOPMENT DEFINES REMOVE LATER!!!!!
-//#define BOARD_REV_0_1
-
 ////////////////////////////////////////////////////////////////
 ////// SETTINGS RELATED TO HARDWARE
 
@@ -91,7 +88,7 @@
 #define LED4_PINS           {0, 10, 0, 11, 2, 13}
 #define LED5_PINS           {1, 25, 1, 26, 1, 27}
 //mod button
-#define LED6_PINS           {4, 31, 1, 1, 5, 4}    
+#define LED6_PINS           {4, 31, 1, 1, 5, 4}
 
 //// GLCDs configurations
 // GLCD driver, valid options: KS0108, UC1701, ST7565P
@@ -106,19 +103,10 @@
 #define GLCD0_RW_WR_PIN     25
 #define GLCD0_E_RD_PORT     3
 #define GLCD0_E_RD_PIN      26
-
-#ifdef BOARD_REV_0_1
-    #define GLCD0_CS_PORT       4
-    #define GLCD0_CS_PIN        13
-    #define GLCD0_RST_PORT      4
-    #define GLCD0_RST_PIN       14
-#else
-    #define GLCD0_CS_PORT       4
-    #define GLCD0_CS_PIN        14
-    #define GLCD0_RST_PORT      4
-    #define GLCD0_RST_PIN       13
-#endif
-
+#define GLCD0_CS_PORT       4
+#define GLCD0_CS_PIN        14
+#define GLCD0_RST_PORT      4
+#define GLCD0_RST_PIN       13
 #define GLCD0_DATA_PORT     3
 #define GLCD0_DATA_PIN1     0
 #define GLCD0_DATA_PIN2     1
@@ -218,9 +206,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 //// Screen definitions
 // defines the default rotary text
-#define SCREEN_ROTARY_DEFAULT_NAME      "KNOB #"
+#define SCREEN_ROTARY_DEFAULT_NAME      "KNOB "
 // defines the default foot text
-#define SCREEN_FOOT_DEFAULT_NAME        "FOOT #"
+#define SCREEN_FOOT_DEFAULT_NAME        "FOOT "
 
 //// System menu configuration
 // includes the system menu callbacks
@@ -337,7 +325,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define MENU_LINE_CHARS     31
 
-//// Button functions leds colors, these reflect color ID's which are stored in eeprom. 
+//// Button functions leds colors, these reflect color ID's which are stored in eeprom.
 #define TOGGLED_COLOR             0
 #define TRIGGER_COLOR             1
 #define TRIGGER_PRESSED_COLOR     2
@@ -347,12 +335,12 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define BYPASS_COLOR              6
 #define SNAPSHOT_COLOR            7
 #define SNAPSHOT_LOAD_COLOR       8
-#define LED_LIST_COLOR_1          9   
-#define LED_LIST_COLOR_2          10  
-#define LED_LIST_COLOR_3          11  
-#define LED_LIST_COLOR_4          12  
-#define LED_LIST_COLOR_5          13  
-#define LED_LIST_COLOR_6          14  
+#define LED_LIST_COLOR_1          9
+#define LED_LIST_COLOR_2          10
+#define LED_LIST_COLOR_3          11
+#define LED_LIST_COLOR_4          12
+#define LED_LIST_COLOR_5          13
+#define LED_LIST_COLOR_6          14
 #define LED_LIST_COLOR_7          15
 #define FS_PAGE_COLOR_1           16
 #define FS_PAGE_COLOR_2           17
@@ -364,7 +352,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define FS_PAGE_COLOR_8           23
 #define FS_PB_MENU_COLOR          24
 #define FS_SS_MENU_COLOR          25
-#define ENCODER_PAGE_COLOR        26 
+#define ENCODER_PAGE_COLOR        26
 #define MAX_COLOR_ID              27
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
@@ -377,11 +365,11 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_SNAPSHOT_COLOR            {100,100,100}
 #define DEFAULT_SNAPSHOT_LOAD_COLOR       {0,100,100}
 #define DEFAULT_LED_LIST_COLOR_1          {100,100,100}
-#define DEFAULT_LED_LIST_COLOR_2          {100,0,0} 
-#define DEFAULT_LED_LIST_COLOR_3          {100,100,0} 
-#define DEFAULT_LED_LIST_COLOR_4          {0,100,100}  
-#define DEFAULT_LED_LIST_COLOR_5          {0,100,0}  
-#define DEFAULT_LED_LIST_COLOR_6          {100,0,100}  
+#define DEFAULT_LED_LIST_COLOR_2          {100,0,0}
+#define DEFAULT_LED_LIST_COLOR_3          {100,100,0}
+#define DEFAULT_LED_LIST_COLOR_4          {0,100,100}
+#define DEFAULT_LED_LIST_COLOR_5          {0,100,0}
+#define DEFAULT_LED_LIST_COLOR_6          {100,0,100}
 #define DEFAULT_LED_LIST_COLOR_7          {100,0,100}
 #define DEFAULT_FS_PAGE_COLOR_1           {100,0,0}
 #define DEFAULT_FS_PAGE_COLOR_2           {100,100,0}
@@ -450,7 +438,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_SL_INPUT                   0
 #define DEFAULT_SL_OUTPUT                  0
 
-//memory used for LED value's 
+//memory used for LED value's
 #define LED_COLOR_EEMPROM_PAGE             2
 #define LED_COLOR_ADRESS_START             0
 
@@ -461,7 +449,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             1L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                1
+#define FORCE_WRITE_EEPROM                0
 
 #define LED_INTERUPT_TIME     10
 

@@ -71,11 +71,12 @@ static uint8_t dialog_active = 0;
 
 // only enabled after "boot" command received
 bool g_should_wait_for_webgui = false;
+bool g_device_booted = false;
 
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
 
-static uint8_t g_device_mode, g_prev_device_mode;
+static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 
 uint8_t g_initialized = 0;
 uint8_t g_lock_release = 0;
@@ -127,6 +128,8 @@ void naveg_init(void)
     g_update_data = NULL;
 
     g_device_mode = MODE_CONTROL;
+    g_prev_device_mode = MODE_CONTROL;
+    g_prev_shift_device_mode = MODE_CONTROL;
 
     g_initialized = 1;
 
@@ -135,6 +138,15 @@ void naveg_init(void)
     // first xSemaphoreTake pass even if semaphore has not been given
     // http://sourceforge.net/p/freertos/discussion/382005/thread/04bfabb9
     xSemaphoreTake(g_dialog_sem, 0);
+}
+
+void naveg_turn_off_leds(void)
+{
+    uint8_t i; 
+    for (i = 0; i < LEDS_COUNT; i++)
+    {
+        set_ledz_trigger_by_color_id(hardware_leds(i), WHITE, 0, 0, 0, 0);
+    }
 }
 
 void naveg_ui_connection(uint8_t status)
@@ -162,10 +174,11 @@ void naveg_ui_connection(uint8_t status)
         case MODE_NAVIGATION:
             //enter control mode
             g_device_mode = MODE_CONTROL;
-            CM_print_screen();
+            CM_set_screen();
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //no action needed
         break;
 
@@ -173,27 +186,6 @@ void naveg_ui_connection(uint8_t status)
             //not defined yet
         break;
     }
-
-    /*
-    if ((tool_mode_status(DISPLAY_TOOL_NAVIG)) || tool_mode_status(DISPLAY_TOOL_SYSTEM))
-    {
-        naveg_toggle_tool(DISPLAY_TOOL_SYSTEM, 0);
-        node_t *node = g_current_main_menu;
-
-        //sets the pedalboard items back to original
-        for (node = node->first_child; node; node = node->next)
-        {
-            // gets the menu item
-            menu_item_t *item = node->data;
-
-            if ((item->desc->id == PEDALBOARD_ID) || (item->desc->id == BANKS_ID))
-            {
-                item->desc->type = ((item->desc->id == PEDALBOARD_ID) ? MENU_LIST : MENU_NONE);
-                g_current_item = item;
-            }
-        }
-    }*/
-
 }
 
 uint8_t naveg_ui_status(void)
@@ -218,7 +210,8 @@ void naveg_enc_enter(uint8_t encoder)
             if (encoder == 0) NM_enter();
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             TM_encoder_click(encoder);
         break;
 
@@ -256,7 +249,8 @@ void naveg_enc_down(uint8_t encoder)
             }
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //pass for tuner/menu/bypass controls
             TM_down(encoder);
         break;
@@ -306,7 +300,8 @@ void naveg_enc_up(uint8_t encoder)
             }
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //pass for tuner/menu/bypass controls
             TM_up(encoder);
         break;
@@ -374,7 +369,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //todo trigger tool changes (bypass, taptempo)
         break;
 
@@ -395,28 +391,35 @@ void naveg_foot_double_press(uint8_t foot)
                 //enter navigation mode
                 if (g_ui_connected) return;
 
+                g_prev_device_mode = MODE_CONTROL;
                 g_device_mode = MODE_NAVIGATION;
                 NM_print_screen();
             break;
 
-            case MODE_NAVIGATION:
+            case MODE_NAVIGATION:;
                 //enter control mode
                 g_device_mode = MODE_CONTROL;
-                CM_print_screen();
+                g_prev_device_mode = MODE_NAVIGATION;
+                CM_set_screen();
             break;
 
-            case MODE_TOOL:
+            case MODE_TOOL_FOOT:
+                if (g_ui_connected) return;
+
+                TM_turn_off_tuner();
+                g_prev_device_mode = MODE_TOOL_FOOT;
                 //we enter the prev mode
-                if (g_prev_device_mode == MODE_NAVIGATION)
-                {
-                    g_device_mode = MODE_NAVIGATION;
-                    NM_print_screen();
-                }
-                else
-                {
-                    g_device_mode = MODE_CONTROL;
-                    CM_print_screen();
-                }
+                g_device_mode = MODE_NAVIGATION;
+                NM_print_screen();
+            break;
+
+            case MODE_TOOL_MENU:
+                if (g_ui_connected) return;
+
+                g_prev_device_mode = MODE_TOOL_MENU;
+                //we enter the prev mode
+                g_device_mode = MODE_NAVIGATION;
+                NM_print_screen();
             break;
 
             case MODE_BUILDER:
@@ -433,20 +436,32 @@ void naveg_foot_double_press(uint8_t foot)
     //tool mode
     else if (foot == 2)
     {
-        if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION))
+        if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION)|| (g_device_mode == MODE_TOOL_MENU))
         {
             g_prev_device_mode = g_device_mode;
-            g_device_mode = MODE_TOOL;
+            g_device_mode = MODE_TOOL_FOOT;
             TM_launch_tool(TOOL_TUNER);
         }
-        else if (g_device_mode == MODE_TOOL)
+        else if (g_device_mode == MODE_TOOL_FOOT)
         {
-            g_device_mode = g_prev_device_mode;
-
-            if (g_device_mode == MODE_CONTROL)
-                CM_print_screen();
+            TM_turn_off_tuner();
+            if (g_prev_device_mode == MODE_CONTROL)
+            {
+                g_device_mode = MODE_CONTROL;
+                CM_set_screen();
+            }
+            else if (g_prev_device_mode == MODE_TOOL_MENU)
+            {
+                g_device_mode = MODE_TOOL_MENU;
+                TM_launch_tool(TOOL_MENU);
+            }
             else 
+            {
+                if (g_ui_connected) return;
+                g_device_mode = MODE_NAVIGATION;
                 NM_print_screen();
+            }
+            g_prev_device_mode = MODE_TOOL_FOOT;
         }
     }
 
@@ -471,7 +486,8 @@ void naveg_button_pressed(uint8_t button)
             NM_button_pressed(button);
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //pass for tool controls
             TM_enter(button);
         break;
@@ -485,15 +501,40 @@ void naveg_button_pressed(uint8_t button)
             {
                 //enter menu
                 case 0:
-                    if (g_prev_device_mode == MODE_CONTROL)
+                    if (g_prev_shift_device_mode != MODE_TOOL_MENU)
                     {
-                        g_device_mode = MODE_TOOL;
+                        g_device_mode = MODE_TOOL_MENU;
                         TM_launch_tool(TOOL_MENU);
                     }
                     else 
                     {
-                        g_device_mode = MODE_CONTROL;
-                        CM_print_screen();
+                        //exit the shift menu, return to opperational mode
+                        switch(g_prev_shift_device_mode)
+                        {
+                            case MODE_CONTROL:
+                                g_device_mode = MODE_CONTROL;
+                                CM_set_screen();
+                            break;
+
+                            case MODE_NAVIGATION:
+                                g_device_mode = MODE_NAVIGATION;
+                                NM_print_screen();
+                            break;
+
+                            case MODE_TOOL_FOOT:
+                                g_device_mode = MODE_TOOL_FOOT;
+                                TM_launch_tool(TOOL_TUNER);
+                            break;
+
+                            case MODE_TOOL_MENU:
+                                g_device_mode = MODE_TOOL_MENU;
+                                TM_launch_tool(TOOL_MENU);
+                            break;
+
+                            case MODE_BUILDER:
+                                //not defined yet
+                            break;
+                        }
                     }
                 break;
 
@@ -503,6 +544,10 @@ void naveg_button_pressed(uint8_t button)
 
                 //send save pb command
                 case 2:
+                    ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
+                    ui_comm_webgui_wait_response();
+
+                    //also give quick overlay
                 break;
             }
         break;
@@ -524,7 +569,8 @@ void naveg_button_released(uint8_t button)
             //not used
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_FOOT:
+        case MODE_TOOL_MENU:
             //not used
         break;
 
@@ -539,7 +585,11 @@ void naveg_shift_pressed()
 {
     //enter shift mode
     //save to return
-    g_prev_device_mode = g_device_mode;
+    g_prev_shift_device_mode = g_device_mode;
+
+    //turn of tuner if applicable
+    if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
+        TM_turn_off_tuner();
 
     //toggle shift
     g_device_mode = MODE_SHIFT;
@@ -550,7 +600,7 @@ void naveg_shift_pressed()
     //system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
     //system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_NONE);
 
-    screen_shift_overlay(g_prev_device_mode);
+    screen_shift_overlay(g_prev_shift_device_mode);
 }
 
 void naveg_shift_releaed()
@@ -560,11 +610,11 @@ void naveg_shift_releaed()
         return;
 
     //exit the shift menu, return to opperational mode
-    switch(g_prev_device_mode)
+    switch(g_prev_shift_device_mode)
     {
         case MODE_CONTROL:
             g_device_mode = MODE_CONTROL;
-            CM_print_screen();
+            CM_set_screen();
         break;
 
         case MODE_NAVIGATION:
@@ -572,9 +622,14 @@ void naveg_shift_releaed()
             NM_print_screen();
         break;
 
-        case MODE_TOOL:
-            g_device_mode = MODE_TOOL;
-            TM_print_tool();
+        case MODE_TOOL_FOOT:
+            g_device_mode = MODE_TOOL_FOOT;
+            TM_launch_tool(TOOL_TUNER);
+        break;
+
+        case MODE_TOOL_MENU:
+            g_device_mode = MODE_TOOL_MENU;
+            TM_launch_tool(TOOL_MENU);
         break;
 
         case MODE_BUILDER:
@@ -657,14 +712,15 @@ void naveg_trigger_mode_change(uint8_t mode)
     switch(g_device_mode)
     {
         case MODE_CONTROL:
-            CM_print_screen();
+            CM_set_screen();
         break;
 
         case MODE_NAVIGATION:
             NM_print_screen();
         break;
 
-        case MODE_TOOL:
+        case MODE_TOOL_MENU:
+        case MODE_TOOL_FOOT:
             TM_print_tool();
         break;
 

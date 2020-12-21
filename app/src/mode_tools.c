@@ -206,6 +206,8 @@ static void menu_enter(uint8_t encoder)
         portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
         xSemaphoreGiveFromISR(g_dialog_sem, &xHigherPriorityTaskWoken);
     }
+
+    TM_print_tool();
 }
 
 static void menu_up(void)
@@ -414,11 +416,11 @@ void TM_enter(uint8_t button)
 {
     if ((!g_initialized)&&(g_update_cb)) return;
 
-    if (tool_is_on(DISPLAY_TOOL_TUNER))
+    if (tool_is_on(TOOL_TUNER))
     {
         
     }
-    else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
+    else if (tool_is_on(TOOL_MENU))
     {
         //first encoder, check if we need to change menu or item
         if (button == 0)
@@ -470,12 +472,15 @@ void TM_enter(uint8_t button)
                 item_child = child_nodes->data;
             }
 
+            g_current_item->data.hover--;
+            g_current_item->data.selected--;
+
             TM_print_tool();
         }
         else if (button == 2)
         {
             //twice next, as there is the update we can not enter like this
-            if (!g_current_menu->next->next)
+            if (!g_current_menu->next->next || (g_current_item->desc->id == ROOT_ID))
                 return;
 
             node_t *node = g_current_menu->next;
@@ -499,6 +504,9 @@ void TM_enter(uint8_t button)
                 item_child = child_nodes->data;
             }
 
+            g_current_item->data.hover++;
+            g_current_item->data.selected++;
+
             TM_print_tool();
         }
     }
@@ -508,7 +516,7 @@ void TM_up(uint8_t encoder)
 {
     if (!g_initialized) return;
         
-    if (tool_is_on(DISPLAY_TOOL_TUNER))
+    if (tool_is_on(TOOL_TUNER))
     {
         /*
             //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
@@ -519,7 +527,7 @@ void TM_up(uint8_t encoder)
             menu_enter(encoder);
         */
     }
-    else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
+    else if (tool_is_on(TOOL_MENU))
     {
         //first encoder, check if we need to change menu or item
         if (encoder == 0)
@@ -544,7 +552,7 @@ void TM_down(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (tool_is_on(DISPLAY_TOOL_TUNER))
+    if (tool_is_on(TOOL_TUNER))
     {
         /*
             //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
@@ -555,7 +563,7 @@ void TM_down(uint8_t encoder)
             menu_enter(encoder);
         */
     }
-    else if (tool_is_on(DISPLAY_TOOL_SYSTEM))
+    else if (tool_is_on(TOOL_MENU))
     {
         //first encoder, check if we need to change menu or item
         if (encoder == 0)
@@ -595,57 +603,25 @@ void TM_reset_menu(void)
     reset_menu_hover(g_menu);
 }
 
-void TM_settings_refresh(void)
-{
-    //screen_system_menu(g_current_item);
-}
-
-void TM_menu_refresh(void)
-{
-    /*
-    node_t *node = g_current_menu;
-
-    //updates all items in a menu
-    for (node = node->first_child; node; node = node->next)
-    {
-        // gets the menu item
-        menu_item_t *item = node->data;
-
-        // calls the action callback
-        if ((item->desc->action_cb)) item->desc->action_cb(item, MENU_EV_NONE);
-    }
-    TM_settings_refresh();*/
-}
-
 void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
 {
-    /*
     //set value in system.c
     system_update_menu_value(item_ID, value);
-
-    //are we inside the menu? if so we need to update
-    if (tool_is_on(DISPLAY_TOOL_SYSTEM))
-    {
-            if (!tool_is_on(DISPLAY_TOOL_TUNER) && !tool_is_on(DISPLAY_TOOL_NAVIG))
-            {
-                TM_menu_refresh();
-            }
-    }*/
-
-    //when we are not in the menu, did we change the master volume link?
-        //TODO update the master volume link widget
 }
 
-void TM_launch_tool(uint8_t tool)
+void TM_launch_tool(int8_t tool)
 {
     screen_clear();
+
+    if (tool == -1)
+        TM_launch_tool(g_current_tool);   
 
     switch (tool)
     {
         case TOOL_MENU:
             g_current_tool = TOOL_MENU;
             TM_reset_menu();
-            tool_on(DISPLAY_TOOL_SYSTEM);
+            tool_on(TOOL_MENU);
             menu_enter(0);
         break;
 
@@ -664,8 +640,8 @@ void TM_launch_tool(uint8_t tool)
                 g_protocol_busy = false;
                 system_lock_comm_serial(g_protocol_busy);
 
-                //first screen
-                screen_toggle_tuner(0.0, "?", 0, 0, 1);
+                //also take care of LED's
+                TM_print_tool();
         break;
 
         case TOOL_SYNC:
@@ -678,22 +654,36 @@ void TM_launch_tool(uint8_t tool)
 
 void TM_print_tool(void)
 {
+    naveg_turn_off_leds();
+
     switch (g_current_tool)
     {
+        //MDW_TODO set proper LED colours
         case TOOL_MENU:
             if (g_current_item->desc->type == MENU_MAIN)
             {
                 //print the 3 items on screen
                 screen_menu_page(g_current_menu);
+
+                set_ledz_trigger_by_color_id(hardware_leds(3), TOGGLED_COLOR, 1, 0, 0, 0);
+                if (g_current_menu->prev)
+                    set_ledz_trigger_by_color_id(hardware_leds(4), WHITE, 1, 0, 0, 0);
+                if (g_current_menu->next->next)
+                    set_ledz_trigger_by_color_id(hardware_leds(5), WHITE, 1, 0, 0, 0);
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
                 //print the menu
                 screen_system_menu(g_current_item);
+
+                set_ledz_trigger_by_color_id(hardware_leds(3), WHITE, 1, 0, 0, 0);
+                set_ledz_trigger_by_color_id(hardware_leds(4), TOGGLED_COLOR, 1, 0, 0, 0);
             }
         break;
 
         case TOOL_TUNER:
+                 //first screen
+                screen_toggle_tuner(0.0, "?", 0, 0, 1);
         break;
 
         case TOOL_SYNC:
@@ -734,4 +724,26 @@ menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
     }
 
     return NULL;                
+}
+
+void TM_turn_off_tuner(void)
+{
+    if (!tool_is_on(DISPLAY_TOOL_TUNER))
+        return;
+
+    //lock actuators
+    g_protocol_busy = true;
+    system_lock_comm_serial(g_protocol_busy);
+
+    ui_comm_webgui_send(CMD_TUNER_OFF, strlen(CMD_TUNER_OFF));
+
+    g_protocol_busy = false;
+    system_lock_comm_serial(g_protocol_busy);
+
+    tool_off(DISPLAY_TOOL_TUNER);
+}
+
+uint8_t TM_check_tool_status(void)
+{
+    return g_current_tool;
 }

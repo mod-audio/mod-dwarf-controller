@@ -282,7 +282,7 @@ void write_led_defaults()
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;
 
-    for (i=0; i<(MAX_COLOR_ID); i++)
+    for (i=0; i < MAX_COLOR_ID; i++)
     {   
         //second eeprom page
         if (eeprom_index > 20)
@@ -356,8 +356,6 @@ void check_eeprom_defaults(uint16_t current_version)
     //update the version 
     uint16_t write_buffer_version = EEPROM_CURRENT_VERSION;
     EEPROM_Write(0, EEPROM_VERSION_ADRESS, &write_buffer_version, MODE_16_BIT, 1);
-
-    return;
 }
 
 /*
@@ -460,11 +458,11 @@ void hardware_setup(void)
 
         // actuators pins configuration
         actuator_set_pins(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH_PINS[i]);
-    
+        actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_DOUBLE_TIME, BUTTON_DOUBLE_PRESS_DEBOUNCE);
+        
         //set links for double press
         if (i > 0)
         {
-            actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_DOUBLE_TIME, BUTTON_DOUBLE_PRESS_DEBOUNCE);
             actuator_set_link(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH0);
         }
     }
@@ -487,13 +485,21 @@ void hardware_setup(void)
     EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &display_contrast, MODE_8_BIT, 1);
     st7565p_set_contrast(hardware_glcds(0), display_contrast);
 
+    //set the display brightness
+    uint8_t display_brightness = 0;
+    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &display_brightness, MODE_8_BIT, 1);
+    hardware_glcd_brightness(display_brightness);
+
+    //MDW_TODO REMOVE ME, WIHTOUT THIS ACTUATORS LOCK UP
+    write_led_defaults();
+
     //set led colors
     uint8_t led_color_value[3] = {};
     uint8_t eeprom_index, eeprom_page;
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;
-    
-    for (i=0; i<(MAX_COLOR_ID); i++)
+
+    for (i=0; i < MAX_COLOR_ID; i++)
     {
         //second eeprom page
         if (eeprom_index > 20)
@@ -509,6 +515,7 @@ void hardware_setup(void)
             EEPROM_Read(eeprom_page, (LED_COLOR_ADRESS_START + (eeprom_index*3) + j), &read_buffer, MODE_8_BIT, 1);
             led_color_value[j] = read_buffer;
         }
+
         ledz_set_color(i, led_color_value);
     
         eeprom_index++;
