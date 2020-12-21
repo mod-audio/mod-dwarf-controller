@@ -36,9 +36,10 @@
 
 enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 
-#define PAGE_DIR_INIT 0
-#define PAGE_DIR_DOWN 1
-#define PAGE_DIR_UP 2
+
+#define PAGE_DIR_DOWN 0
+#define PAGE_DIR_UP 1
+#define PAGE_DIR_INIT 2
 
 #define PB_MODE 0
 #define SS_MODE 1
@@ -185,7 +186,6 @@ static void request_banks_list(uint8_t dir)
     system_lock_comm_serial(g_protocol_busy);
 
     g_banks->hover = g_current_bank;
-    g_banks->selected = g_current_bank;
 }
 
 //requested from the bp_up / bp_down functions when we reach the end of a page
@@ -273,7 +273,7 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
     // inserts one space
     buffer[i++] = ' ';
 
-    if ((dir == 2) && (g_current_bank != g_banks->hover))
+    if ((dir == 2) && (g_current_bank != g_banks->selected))
     {
         // insert the current hover on buffer
         i += int_to_str(0, &buffer[i], sizeof(buffer) - i, 0);
@@ -559,6 +559,7 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
     // sets the bank index
     uint16_t bank_id = atoi(bank_uid);
     g_current_bank = bank_id;
+
     if (g_banks)
     {
         g_banks->selected = bank_id;
@@ -592,11 +593,11 @@ void NM_enter(void)
 
     if (g_current_list == BANKS_LIST)
     {
+        g_current_bank = g_banks->hover;
+        
         //make sure that we request the right page if we have a selected pedalboard
-        if (g_current_bank == g_banks->hover)
+        if (g_current_bank == g_banks->selected)
             g_pedalboards->hover = g_current_pedalboard;
-        else
-            g_pedalboards->hover = 0;
 
         //index is relevent in our array so - page_min
         request_pedalboards(PAGE_DIR_INIT, atoi(g_banks->uids[g_banks->hover - g_banks->page_min]));
@@ -607,8 +608,17 @@ void NM_enter(void)
         title = g_banks->names[g_banks->hover - g_banks->page_min];
         g_bp_first = 1;
 
-        //we always enter
-        g_current_bank = g_banks->hover;
+        //check if we need to display the selected item or out of bounds
+        if (g_current_bank == g_banks->selected)
+        {
+            g_pedalboards->selected = g_current_pedalboard;
+            g_pedalboards->hover = g_current_pedalboard;
+        }
+        else 
+        {
+            g_pedalboards->selected = g_pedalboards->menu_max + 1;
+            g_pedalboards->hover = 0;
+        }
     }
     else if (g_current_list == PEDALBOARD_LIST)
     {
@@ -627,12 +637,16 @@ void NM_enter(void)
 
         // sets the variables to update the screen
         title = g_banks->names[g_banks->hover - g_banks->page_min];
+
+        g_pedalboards->selected = g_pedalboards->hover;
+        g_current_pedalboard = g_pedalboards->hover;
     }
     else if (g_current_list == SNAPSHOT_LIST)
     {
         send_load_snapshot(g_snapshots->uids[g_snapshots->hover - g_snapshots->page_min -1]);
 
         g_current_snapshot = g_snapshots->hover;
+        g_snapshots->selected = g_snapshots->hover;
 
         // sets the variables to update the screen
         title = g_pedalboards->names[g_current_pedalboard];
@@ -640,13 +654,10 @@ void NM_enter(void)
     else
         return;
 
-    g_pedalboards->selected = g_current_pedalboard;
-    g_pedalboards->hover = g_current_pedalboard;
-
     if (g_current_list == PEDALBOARD_LIST)
         screen_pbss_list(title, g_pedalboards, PB_MODE);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, g_pedalboards, SS_MODE);
+        screen_pbss_list(title, g_snapshots, SS_MODE);
     else
         screen_bank_list(g_banks);
 }

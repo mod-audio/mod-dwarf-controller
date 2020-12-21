@@ -606,15 +606,20 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     //draw the list
     if (listbox->hover > 0)
     {
-        uint8_t line_length =  strlen(listbox->list[listbox->hover-1]);
+        uint8_t line_length = strlen(listbox->list[listbox->hover-1]);
         if (line_length > 15)
             line_length = 15;
 
         uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         if (listbox->selected == listbox->hover-1)
         {
-            glcd_text(display, item_x - 16, listbox->y + 12, "> ", listbox->font, listbox->color);
-            line_length =-4;
+            if (line_length > 12)
+            {
+                item_x+=(line_length - 13) * 8;
+                line_length-=(line_length - 13);
+            }
+            else
+                glcd_text(display, item_x-16, listbox->y + 12, "> ", listbox->font, listbox->color);
         }
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
@@ -635,8 +640,13 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         if (listbox->selected == listbox->hover+1)
         {
-            glcd_text(display, item_x - 16, listbox->y + 32, "> ", listbox->font, listbox->color);
-            line_length =-4;
+            if (line_length > 12)
+            {
+                item_x+=(line_length - 13) * 8;
+                line_length-=(line_length - 13);
+            }
+            else
+                glcd_text(display, item_x-16, listbox->y + 32, "> ", listbox->font, listbox->color);
         }
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
@@ -655,8 +665,14 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
     if (listbox->selected == listbox->hover)
     {
-        glcd_text(display, item_x - 16, listbox->y + 22, "> ", listbox->font, listbox->color);
-        line_length =-4;
+        if (line_length > 12)
+        {
+            glcd_text(display, item_x, listbox->y + 22, "> ", listbox->font, listbox->color);
+            item_x+=(line_length - 13) * 8;
+            line_length-=(line_length - 13);
+        }
+        else
+            glcd_text(display, item_x-16, listbox->y + 22, "> ", listbox->font, listbox->color);
     }
 
     char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
