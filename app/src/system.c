@@ -94,6 +94,7 @@ uint8_t g_MIDI_clk_send = 0;
 uint8_t g_MIDI_clk_src = 0;
 uint8_t g_play_status = 0;
 uint8_t g_tuner_mute = 0;
+uint8_t g_tuner_input = 0;
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;
 int8_t g_actuator_hide = -1;
@@ -1211,20 +1212,60 @@ void system_save_pro_cb(void *arg, int event)
 */
 
 //Callbacks below are not part of the menu
-void system_tuner_mute_cb (void *arg, int event)
+void system_tuner_mute_cb(void *arg, int event)
 {
-    menu_item_t *item = arg;
+    (void) arg;
 
     if (event == MENU_EV_ENTER)
     {
         if (g_tuner_mute == 0) g_tuner_mute= 1;
         else g_tuner_mute = 0;
+
         set_menu_item_value(MENU_ID_TUNER_MUTE, g_tuner_mute);
     }
-    char str_bfr[15] = {};
-    strcpy(str_bfr,"MUTE ");
-    //strcat(str_bfr,(g_tuner_mute ? option_enabled : option_disabled));
-    item->data.unit_text = str_bfr;
+
+    screen_footer(0, "MUTE", g_tuner_mute <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+
+    if (g_tuner_mute) ledz_on(hardware_leds(0), RED);
+    else ledz_off(hardware_leds(0), RED);
+}
+
+void system_tuner_input_cb(void *arg, int event)
+{
+    (void) arg;
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_tuner_input == 0) g_tuner_input = 1;
+        else g_tuner_input = 0;
+
+        ui_comm_webgui_set_response_cb(NULL, NULL);
+
+        char buffer[40];
+        memset(buffer, 0, 20);
+        uint8_t i;
+
+        i = copy_command(buffer, CMD_TUNER_INPUT); 
+
+        //insert the input
+        i += int_to_str(g_tuner_input + 1, &buffer[i], sizeof(buffer) - i, 0);
+
+        g_protocol_busy = true;
+        system_lock_comm_serial(g_protocol_busy);
+
+        // sends the data to GUI
+        ui_comm_webgui_send(buffer, i);
+
+        // waits the pedalboards list be received
+        ui_comm_webgui_wait_response();
+
+        g_protocol_busy = false;
+        system_lock_comm_serial(g_protocol_busy);
+    }
+
+    screen_footer(1, "INPUT", g_tuner_input? "2":"1", FLAG_CONTROL_ENUMERATION);
+
+    ledz_on(hardware_leds(1), WHITE);
 }
 
 void system_play_cb (void *arg, int event)
@@ -1243,7 +1284,7 @@ void system_play_cb (void *arg, int event)
     item->data.unit_text = str_bfr;
 }
 
-void system_tempo_cb (void *arg, int event)
+void system_tempo_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 

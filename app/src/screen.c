@@ -1080,7 +1080,7 @@ void screen_menu_page(node_t *node)
     }
 }
 
-void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute, uint8_t input)
+void screen_toggle_tuner(float frequency, char *note, int8_t cents)
 {
     screen_clear();
 
@@ -1103,8 +1103,8 @@ void screen_toggle_tuner(float frequency, char *note, int8_t cents, uint8_t mute
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 
     //draw foots
-    screen_footer(0, "MUTE", mute <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
-    screen_footer(1, "INPUT", input==1? "1":"2", FLAG_CONTROL_ENUMERATION);
+    system_tuner_input_cb(NULL, MENU_EV_NONE);
+    system_tuner_mute_cb(NULL, MENU_EV_NONE);
     screen_page_index(0, 1);
 
     //draw tuner
