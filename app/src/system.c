@@ -878,7 +878,9 @@ void system_hide_actuator_cb(void *arg, int event)
         g_actuator_hide = read_buffer;
 
         //write to screen.c
-        //screen_set_hide_non_assigned_actuators(g_actuator_hide);
+        screen_set_hide_non_assigned_actuators(g_actuator_hide);
+
+        if (!item) return;
     }
 
     if (event == MENU_EV_ENTER)
@@ -891,7 +893,7 @@ void system_hide_actuator_cb(void *arg, int event)
         EEPROM_Write(0, HIDE_ACTUATOR_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
         //write to screen.c
-        //screen_set_hide_non_assigned_actuators(g_actuator_hide);
+        screen_set_hide_non_assigned_actuators(g_actuator_hide);
     }
     else if (event == MENU_EV_UP)
     {
@@ -902,7 +904,7 @@ void system_hide_actuator_cb(void *arg, int event)
         EEPROM_Write(0, HIDE_ACTUATOR_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
         //write to screen.c
-        //screen_set_hide_non_assigned_actuators(g_actuator_hide);
+        screen_set_hide_non_assigned_actuators(g_actuator_hide);
     }
     else if (event == MENU_EV_DOWN)
     {
@@ -913,7 +915,7 @@ void system_hide_actuator_cb(void *arg, int event)
         EEPROM_Write(0, HIDE_ACTUATOR_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
         //write to screen.c
-        //screen_set_hide_non_assigned_actuators(g_actuator_hide);
+        screen_set_hide_non_assigned_actuators(g_actuator_hide);
     }
 
     item->data.unit_text = g_actuator_hide ? "HIDE" : "SHOW";

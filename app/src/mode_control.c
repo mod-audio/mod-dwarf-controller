@@ -813,7 +813,7 @@ static void control_set(uint8_t id, control_t *control)
 
 void CM_init(void)
 {
-      uint32_t i;
+    uint32_t i;
 
     for (i = 0; i < ENCODERS_COUNT; i++)
     {
@@ -829,6 +829,8 @@ void CM_init(void)
         // initialize the tap tempo
         g_tap_tempo[i].state = TT_INIT;
     }
+
+    system_hide_actuator_cb(NULL, MENU_EV_NONE);
 }
 
 void CM_remove_control(uint8_t hw_id)
