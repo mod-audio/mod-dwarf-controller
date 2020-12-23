@@ -230,6 +230,13 @@ static void encoder_control_add(control_t *control)
 
     if (naveg_get_current_mode() == MODE_CONTROL)
     {
+        //if screen overlay active, update that
+        if (hardware_get_overlay_counter() || !control->scroll_dir)
+        {
+            CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
+            return;
+        }
+
         // update the control screen
         screen_encoder(control, control->hw_id);
     }
@@ -441,8 +448,18 @@ static void foot_control_add(control_t *control)
         }
         control->steps = control->scale_points_count;
 
-        // updates the footer
-        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[i]->label, control->properties);
+        if (naveg_get_current_mode() == MODE_CONTROL)
+        {
+            //if screen overlay active, update that
+            if (hardware_get_overlay_counter() || !control->scroll_dir)
+            {
+                CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
+                return;
+            }
+
+            // updates the footer
+            screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[i]->label, control->properties);
+        }
     }
 }
 
@@ -570,7 +587,7 @@ static void control_set(uint8_t id, control_t *control)
             if (!(control->properties & FLAG_CONTROL_REVERSE))
             {
                 // increments the step
-                if (control->step < (control->steps - 1))
+                if (control->step < (control->steps - 3))
                 {
                     control->step++;
                     control->scale_point_index++;
@@ -609,7 +626,7 @@ static void control_set(uint8_t id, control_t *control)
             else 
             {
                 // decrements the step
-                if (control->step > 0)
+                if (control->step > 2)
                 {
                     control->step--;
                     control->scale_point_index--;

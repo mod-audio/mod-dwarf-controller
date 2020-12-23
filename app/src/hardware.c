@@ -781,6 +781,11 @@ void hardware_force_overlay_off(void)
     g_overlay_counter = 0;
 }
 
+uint32_t hardware_get_overlay_counter(void)
+{
+    return g_overlay_counter;
+}
+
 void TIMER0_IRQHandler(void)
 {
     static int count = 1, state;

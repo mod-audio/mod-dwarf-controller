@@ -701,10 +701,10 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
 
     uint8_t char_cnt_name = strlen(listbox->name);
-    if (char_cnt_name > 19)
+    if (char_cnt_name > 15)
     {
         //limit string
-        char_cnt_name = 19;
+        char_cnt_name = 15;
     }
     char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
     strncpy(title_str_bfr, listbox->name, char_cnt_name);
@@ -992,10 +992,11 @@ void widget_bar(glcd_t *display, menu_bar_t *bar)
     NewMin = 1;
     NewMax = bar->width - 2;
 
+    //(x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     OldRange = bar->max - bar->min;
     NewRange = NewMax - NewMin;
 
-    NewValue = (((bar->value) * NewRange) / OldRange) + NewMin;
+    NewValue = (((bar->value - bar->min) * NewRange) / OldRange) + NewMin;
     bar_possistion = ROUND(NewValue);
 
     //draw the square

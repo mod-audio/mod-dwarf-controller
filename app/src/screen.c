@@ -1208,13 +1208,18 @@ void screen_control_overlay(control_t *control)
         static char *labels_list[10];
 
         uint8_t q;
-        for (q = 0; ((q < control->scale_points_count) || (q < 10)); q++)
+        for (q = 0; (q < control->scale_points_count); q++)
         {
             labels_list[q] = control->scale_points[q]->label;
         }
 
         //trigger list overlay widget
         listbox_t list;
+        list.name = control->label;
+        list.hover = control->step;
+        list.selected = control->step;
+        list.count = control->scale_points_count;
+        list.list = labels_list;
         list.x = 0;
         list.y = 11;
         list.width = DISPLAY_WIDTH;
@@ -1225,11 +1230,6 @@ void screen_control_overlay(control_t *control)
         list.line_top_margin = 1;
         list.line_bottom_margin = 1;
         list.text_left_margin = 0;
-        list.name = control->label;
-        list.hover = control->step;
-        list.selected = control->step;
-        list.count = control->scale_points_count;
-        list.list = labels_list;
         widget_listbox_overlay(display, &list);
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)

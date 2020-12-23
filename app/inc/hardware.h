@@ -95,6 +95,8 @@ void hardware_coreboard_power(uint8_t state);
 void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb));
 //force stop timer
 void hardware_force_overlay_off(void);
+//get overlay counter time
+uint32_t hardware_get_overlay_counter(void);
 
 
 /*
