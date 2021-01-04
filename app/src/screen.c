@@ -1284,3 +1284,25 @@ void screen_control_overlay(control_t *control)
         widget_foot_overlay(display, &overlay);
     }
 }
+
+void screen_msg_overlay(char *message)
+{
+    glcd_t *display;
+    display = hardware_glcds(0);
+
+    // clear screen
+    glcd_clear(display, GLCD_WHITE);
+
+    glcd_text(display, (DISPLAY_WIDTH / 2) - 18, 1, "ATTENTION", Terminal3x5, GLCD_BLACK);
+
+    //drraw the title area
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
+
+    //draw the outlinbes
+    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 8, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH - 1, 7, DISPLAY_HEIGHT - 8, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 1, DISPLAY_WIDTH, GLCD_BLACK);
+
+    //draw the message
+    glcd_text(display, (DISPLAY_WIDTH / 2) - (strlen(message) * 3), 20, message, Terminal5x7, GLCD_BLACK);
+}

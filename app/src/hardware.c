@@ -770,10 +770,10 @@ void hardware_coreboard_power(uint8_t state)
 
 void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb))
 {
+    g_overlay_callback = timeout_cb;
+
     //overlay counter is per 10ms, not in ms, so devided by 10
     g_overlay_counter = (overlay_time_in_ms / 10);
-
-    g_overlay_callback = timeout_cb;
 }
 
 void hardware_force_overlay_off(void)
@@ -847,7 +847,10 @@ void TIMER2_IRQHandler(void)
 
             if (g_overlay_counter == 0)
             {
-                g_overlay_callback();
+                if (g_overlay_callback)
+                {
+                    g_overlay_callback();
+                }
             }
         }
     }

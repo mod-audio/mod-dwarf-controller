@@ -342,6 +342,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             //footswitch used for pages
             if (foot == 2)
             {
+                hardware_set_overlay_timeout(0, NULL);
+
                 if (pressed)
                     CM_load_next_page();
             }
@@ -357,6 +359,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (!pressed)
                 return;
             
+            hardware_set_overlay_timeout(0, NULL);
+
             if (foot == 2)
             {
                 //change pb <-> ss
@@ -371,6 +375,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         case MODE_TOOL_FOOT:
             if (!pressed) return;
 
+            hardware_set_overlay_timeout(0, NULL);
+            
             if (foot < 2)
             {
                 TM_foot_change(foot);
@@ -393,6 +399,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
+    hardware_set_overlay_timeout(0, NULL);
+
     //navigation mode
     if (foot == 1)
     {
@@ -483,6 +491,8 @@ void naveg_foot_double_press(uint8_t foot)
 //used fot the 3 encoder buttons
 void naveg_button_pressed(uint8_t button)
 {
+    hardware_set_overlay_timeout(0, NULL);
+
     if (!g_initialized) return;
 
     switch(g_device_mode)
@@ -559,6 +569,7 @@ void naveg_button_pressed(uint8_t button)
                     ui_comm_webgui_wait_response();
 
                     //also give quick overlay
+                    give_attention_popup(PEDALBOARD_SAVED_TXT, naveg_print_shift_screen);
                 break;
             }
         break;
@@ -594,6 +605,8 @@ void naveg_button_released(uint8_t button)
 //used for the shift button
 void naveg_shift_pressed()
 {
+    hardware_set_overlay_timeout(0, NULL);
+
     //enter shift mode
     //save to return
     g_prev_shift_device_mode = g_device_mode;
@@ -616,6 +629,8 @@ void naveg_shift_pressed()
 
 void naveg_shift_releaed()
 {
+    hardware_set_overlay_timeout(0, NULL);
+
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
         return;
@@ -739,4 +754,9 @@ void naveg_trigger_mode_change(uint8_t mode)
             //not defined yet
         break;
     }
+}
+
+void naveg_print_shift_screen(void)
+{
+    screen_shift_overlay(g_prev_shift_device_mode);
 }

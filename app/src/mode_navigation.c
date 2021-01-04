@@ -1018,6 +1018,9 @@ void NM_button_pressed(uint8_t button)
             //save PB
             ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
             ui_comm_webgui_wait_response();
+
+            //also give quick overlay
+            give_attention_popup(PEDALBOARD_SAVED_TXT, NM_print_screen);
         break;
 
         case 2:

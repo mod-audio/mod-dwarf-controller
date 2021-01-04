@@ -82,6 +82,9 @@ uint8_t g_scroll_dir = 1;
 static uint8_t g_current_foot_control_page = 0;
 static uint8_t g_current_encoder_page = 0;
 static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static int8_t g_current_overlay_actuator = -1;
+
+int8_t g_overlay_actuator_lock = 0;
 
 /*
 ************************************************************************************************************************
@@ -231,14 +234,15 @@ static void encoder_control_add(control_t *control)
     if (naveg_get_current_mode() == MODE_CONTROL)
     {
         //if screen overlay active, update that
-        if (hardware_get_overlay_counter() || !control->scroll_dir)
+        if ((hardware_get_overlay_counter() || !control->scroll_dir) && (g_current_overlay_actuator == control->hw_id))
         {
             CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
             return;
         }
 
         // update the control screen
-        screen_encoder(control, control->hw_id);
+        if (g_current_overlay_actuator == -1)
+            screen_encoder(control, control->hw_id);
     }
 }
 
@@ -489,8 +493,14 @@ static void foot_control_rm(uint8_t hw_id)
             {
                 // turn off the led
                 ledz_set_state(hardware_leds(i), i, MAX_COLOR_ID, 0, 0, 0, 0);
-
-                screen_footer(i, NULL, NULL, 0);
+                
+                if (g_current_overlay_actuator != g_foots[i]->hw_id)
+                    screen_footer(i, NULL, NULL, 0);
+                else
+                {
+                    hardware_set_overlay_timeout(0, CM_print_screen);
+                    CM_print_screen();
+                }
             }
         }
     }
@@ -563,7 +573,7 @@ static void control_set(uint8_t id, control_t *control)
         }
         //footswitch (need to check for pages here)
         else if ((ENCODERS_COUNT <= control->hw_id) && ( control->hw_id < MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT))
-        {
+        {            
             uint8_t trigger_led_change = 0;
             // updates the led
             //check if its assigned to a trigger and if the button is released
@@ -669,6 +679,12 @@ static void control_set(uint8_t id, control_t *control)
     {
         if (control->hw_id < ENCODERS_COUNT)
         {
+            if (g_current_overlay_actuator != -1)
+            {
+                hardware_set_overlay_timeout(0, NULL);
+                CM_print_screen();
+            }
+
             // update the screen
             screen_encoder(control, control->hw_id);
         }
@@ -726,6 +742,12 @@ static void control_set(uint8_t id, control_t *control)
     {
         if (control->hw_id < ENCODERS_COUNT)
         {
+            if (g_current_overlay_actuator != -1)
+            {
+                hardware_set_overlay_timeout(0, NULL);
+                CM_print_screen();
+            }
+
             // update the screen
             screen_encoder(control, control->hw_id);
         }
@@ -826,21 +848,34 @@ void CM_inc_control(uint8_t encoder)
     //no control
     if (!control) return;
 
-    if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))
-         && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
+    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))
     {
-        // increments the step
-        if (control->step < (control->steps - 3))
-            control->step++;
-        //we are at the end of our list ask for more data
-        else
-        {
-            //request new data, a new control we be assigned after
-            request_control_page(control, 1);
+        //prepare display overlay
+        CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
 
-            //since a new control is assigned we can return
-            return;
-        }       
+        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)
+        {
+            // increments the step
+            if (control->step < (control->steps - 3))
+                control->step++;
+            //we are at the end of our list ask for more data
+            else
+            {
+                //request new data, a new control we be assigned after
+                request_control_page(control, 1);
+
+                //since a new control is assigned we can return
+                return;
+            }       
+        }
+        else 
+        {
+            // increments the step
+            if (control->step < (control->steps - 1))
+                control->step++;
+            else
+                return; 
+        }
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED)
     {
@@ -871,30 +906,6 @@ void CM_inc_control(uint8_t encoder)
     control_set(encoder, control);
 }
 
-void CM_toggle_control(uint8_t encoder)
-{
-    control_t *control = g_controls[encoder];
-
-    //no control
-    if (!control) return;
-
-    if (control->properties & FLAG_CONTROL_TRIGGER)
-    {
-        control->value = control->maximum;
-    }
-    else if ((control->properties & FLAG_CONTROL_TOGGLED) || (control->properties & FLAG_CONTROL_BYPASS))
-    {
-        control->value = !control->value;
-    }
-    else
-    {
-        return;
-    }
-
-    // applies the control value
-    control_set(encoder, control);
-}
-
 void CM_dec_control(uint8_t encoder)
 {
     control_t *control = g_controls[encoder];
@@ -902,20 +913,33 @@ void CM_dec_control(uint8_t encoder)
     //no control, return
     if (!control) return;
     
-    if  ((control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
-        && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED))
+    if  (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
     {
-        // decrements the step
-        if (control->step > 2)
-            control->step--;
-        //we are at the end of our list ask for more data
-        else
-        {
-            //request new data, a new control we be assigned after
-            request_control_page(control, 0);
+        //prepare display overlay
+        CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
 
-            //since a new control is assigned we can return
-            return;
+        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)
+        {
+            // decrements the step
+            if (control->step > 2)
+                control->step--;
+            //we are at the end of our list ask for more data
+            else
+            {
+                //request new data, a new control we be assigned after
+                request_control_page(control, 0);
+
+                //since a new control is assigned we can return
+                return;
+            }
+        }
+        else 
+        {
+            // decrements the step
+            if (control->step > 0)
+                control->step--;
+            else
+                return;
         }
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED)
@@ -942,6 +966,30 @@ void CM_dec_control(uint8_t encoder)
     }
     // converts the step to absolute value
     step_to_value(control);
+
+    // applies the control value
+    control_set(encoder, control);
+}
+
+void CM_toggle_control(uint8_t encoder)
+{
+    control_t *control = g_controls[encoder];
+
+    //no control
+    if (!control) return;
+
+    if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        control->value = control->maximum;
+    }
+    else if ((control->properties & FLAG_CONTROL_TOGGLED) || (control->properties & FLAG_CONTROL_BYPASS))
+    {
+        control->value = !control->value;
+    }
+    else
+    {
+        return;
+    }
 
     // applies the control value
     control_set(encoder, control);
@@ -1014,6 +1062,8 @@ void CM_set_control(uint8_t hw_id, float value)
         control->step =
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
 
+        if ((naveg_get_current_mode() != MODE_CONTROL) || g_actuator_display_lock)
+            return;
 
         //encoder
         if (hw_id < ENCODERS_COUNT)
@@ -1379,6 +1429,9 @@ void CM_set_screen(void)
 
 void CM_print_screen(void)
 {
+    //we are sure we are not in overlay anymore
+    g_current_overlay_actuator = -1;
+
     screen_clear();
 
     screen_tittle(NULL, 0);
@@ -1404,6 +1457,8 @@ void CM_print_screen(void)
 
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
 {
+    g_current_overlay_actuator = control->hw_id;
+
     screen_control_overlay(control);
 
     hardware_set_overlay_timeout(overlay_time, CM_print_screen);

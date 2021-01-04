@@ -422,7 +422,13 @@ void cb_control_set(proto_t *proto)
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
+    if (hardware_get_overlay_counter())
+        g_actuator_display_lock = 1;
+
     CM_set_control(atoi(proto->list[1]), atof(proto->list[2]));
+
+    g_actuator_display_lock = 0;
+
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
     g_protocol_busy = false;

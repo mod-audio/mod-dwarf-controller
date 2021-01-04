@@ -12,6 +12,8 @@
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "cli.h"
+#include "screen.h"
+#include "hardware.h"
 
 /*
 ************************************************************************************************************************
@@ -817,4 +819,12 @@ uint16_t str_to_hex(const char *str, uint8_t *array, uint16_t array_size)
     }
 
     return count;
+}
+
+
+void give_attention_popup(char *message, void (*timeout_cb))
+{
+    screen_msg_overlay(message);
+
+    hardware_set_overlay_timeout(MSG_TIMEOUT, timeout_cb);
 }
