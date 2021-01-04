@@ -725,25 +725,31 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     //draw the list
     if (listbox->selected > 0)
     {
-        uint8_t line_length =  strlen(listbox->list[listbox->selected-1]);
+        uint8_t line_length = strlen(listbox->list[listbox->selected-1]);
         if (line_length > 20)
             line_length = 20;
+
+        listbox->list[listbox->selected-1][line_length] = 0;
 
         glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 6) / 2), listbox->y + 12, listbox->list[listbox->selected-1], listbox->font, listbox->color);
     }
 
     if (listbox->selected < (listbox->count - 1))
     {
-        uint8_t line_length =  strlen(listbox->list[listbox->selected+1]);
+        uint8_t line_length = strlen(listbox->list[listbox->selected+1]);
         if (line_length > 20)
             line_length = 20;
+
+        listbox->list[listbox->selected+1][line_length] = 0;
 
         glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 6) / 2), listbox->y + 30, listbox->list[listbox->selected+1], listbox->font, listbox->color);
     }
 
-    uint8_t line_length =  strlen(listbox->list[listbox->selected]);
+    uint8_t line_length = strlen(listbox->list[listbox->selected]);
     if (line_length > 20)
         line_length = 20;
+
+    listbox->list[listbox->selected][line_length] = 0;
 
     glcd_text(display, (DISPLAY_WIDTH / 2) - ((line_length * 6) / 2), listbox->y + 21, listbox->list[listbox->selected], listbox->font, listbox->color);
 
