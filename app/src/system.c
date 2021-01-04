@@ -1236,7 +1236,7 @@ void system_tuner_input_cb(void *arg, int event)
         system_lock_comm_serial(g_protocol_busy);
     }
 
-    screen_footer(1, "INPUT", g_tuner_input? "2":"1", FLAG_CONTROL_ENUMERATION);
+    screen_footer(1, "INPUT", g_tuner_input? "1":"2", FLAG_CONTROL_ENUMERATION);
 
     ledz_on(hardware_leds(1), WHITE);
 }
