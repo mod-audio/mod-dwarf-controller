@@ -134,7 +134,7 @@ static void step_to_value(control_t *control)
 void set_footswitch_pages_led_state(void)
 {
     //first turn all off
-    ledz_set_state(hardware_leds(2), 0, WHITE, 0, 0, 0, 0);
+    ledz_set_state(hardware_leds(2), 2, WHITE, 0, 0, 0, 0);
 
     ledz_set_state(hardware_leds(2), 2, FS_PAGE_COLOR_1 + g_current_foot_control_page, 1, 0, 0, 0);
 }
