@@ -328,6 +328,9 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
 
     i = copy_command((char *)buffer, CMD_PEDALBOARD_LOAD);
 
+    g_snapshots->selected = -1;
+    g_snapshots->hover = 0;
+
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
 
@@ -649,7 +652,7 @@ void NM_enter(void)
         g_snapshots->selected = g_snapshots->hover;
 
         // sets the variables to update the screen
-        title = g_pedalboards->names[g_current_pedalboard];
+        title = g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
     }
     else
         return;
@@ -778,7 +781,7 @@ void NM_up(void)
             {
                 g_snapshots->hover--;
                 bp_list = g_snapshots;
-                title = g_pedalboards->names[g_current_pedalboard];
+                title = g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
             }
         }
     }
@@ -903,7 +906,7 @@ void NM_down(void)
             {
                 g_snapshots->hover++;
                 bp_list = g_snapshots;
-                title = g_pedalboards->names[g_current_pedalboard];
+                title = g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
             }
         }
     }
@@ -986,7 +989,7 @@ void NM_print_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
         break;
     }
 
@@ -1010,7 +1013,7 @@ void NM_print_prev_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
         break;
     }
 }
