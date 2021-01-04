@@ -454,7 +454,6 @@ static void foot_control_add(control_t *control)
             if (hardware_get_overlay_counter() || !control->scroll_dir)
             {
                 CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
-                return;
             }
 
             // updates the footer
