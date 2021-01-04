@@ -44,6 +44,8 @@ enum {BANKS_LIST, PEDALBOARD_LIST};
 ************************************************************************************************************************
 */
 
+#define MAP(x, Omin, Omax, Nmin, Nmax)      ( x - Omin ) * (Nmax -  Nmin)  / (Omax - Omin) + Nmin;
+
 /*
 ************************************************************************************************************************
 *           LOCAL GLOBAL VARIABLES
@@ -581,6 +583,7 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         glcd_text(display, foot_x + (26 - (strlen(text) * 3)), foot_y + 2, text, Terminal5x7, GLCD_BLACK);
         return;
     }
+
     //if we are in toggle, trigger or byoass mode we dont have a value
     else if ((property & FLAG_CONTROL_TOGGLED) || (property & FLAG_CONTROL_BYPASS) || (property & FLAG_CONTROL_TRIGGER) || (property & FLAG_CONTROL_MOMENTARY))
     {
@@ -598,9 +601,10 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         glcd_text(display, foot_x + (26 - (strlen(title_str_bfr) * 3)), foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
     
         if (value[1] == 'N')
-        {
             glcd_rect_invert(display, foot_x + 1, foot_y + 1, 49, 9);
-        }
+
+        if ((property & FLAG_CONTROL_BYPASS) && (property & FLAG_CONTROL_MOMENTARY))
+            glcd_rect_invert(display, foot_x + 1, foot_y + 1, 49, 9);
 
         FREE(title_str_bfr);
     }
@@ -785,8 +789,16 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
     // draws the list
     if (list)
     {
+        char str_bfr[18];
         uint8_t char_cnt = strlen(title);
-        glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, title, Terminal5x7, GLCD_BLACK);
+        if (char_cnt > 17)
+            char_cnt = 17;
+
+        memset(str_bfr, 0, (char_cnt+1)*sizeof(char));
+        strncpy(str_bfr, title, char_cnt);
+        str_bfr[char_cnt] = 0;
+
+        glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, str_bfr, Terminal5x7, GLCD_BLACK);
         //snapshot
         if (!pb_ss_toggle)
             icon_bank(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 12, 1);
@@ -1138,6 +1150,7 @@ void screen_shift_overlay(int8_t prev_mode)
     
     //unit
     memset(str_bfr, 0, (6)*sizeof(char));
+    float value_bfr = MAP(bar_1.value, bar_1.min, bar_1.max, 0, 100); 
     int_to_str(bar_1.value, str_bfr, 8, 0);
     strcat(str_bfr, "%");
     str_bfr[6] = 0;
@@ -1161,7 +1174,8 @@ void screen_shift_overlay(int8_t prev_mode)
     
     //unit
     memset(str_bfr, 0, (6)*sizeof(char));
-    int_to_str(bar_2.value, str_bfr, 8, 0);
+    value_bfr = MAP(bar_2.value, bar_2.min, bar_2.max, 0, 100); 
+    int_to_str(value_bfr, str_bfr, 8, 0);
     strcat(str_bfr, "%");
     str_bfr[6] = 0;
     char_cnt_name = strlen(str_bfr);
@@ -1177,14 +1191,15 @@ void screen_shift_overlay(int8_t prev_mode)
     bar_3.color = GLCD_BLACK;
     bar_3.width = 35;
     bar_3.height = 7;
-    bar_3.min = 0;
-    bar_3.max = 98;
+    bar_3.min = -60;
+    bar_3.max = 0;
     bar_3.value = system_get_gain_value(OUTP_1_GAIN_ID);
     widget_bar(display, &bar_3);
     
     //unit
     memset(str_bfr, 0, (6)*sizeof(char));
-    int_to_str(bar_3.value, str_bfr, 8, 0);
+    value_bfr = MAP(bar_3.value, bar_3.min, bar_3.max, 0, 100); 
+    int_to_str(value_bfr, str_bfr, 8, 0);
     strcat(str_bfr, "%");
     str_bfr[6] = 0;
     char_cnt_name = strlen(str_bfr);
@@ -1304,5 +1319,17 @@ void screen_msg_overlay(char *message)
     glcd_hline(display, 0, DISPLAY_HEIGHT - 1, DISPLAY_WIDTH, GLCD_BLACK);
 
     //draw the message
-    glcd_text(display, (DISPLAY_WIDTH / 2) - (strlen(message) * 3), 20, message, Terminal5x7, GLCD_BLACK);
+    textbox_t text_box;
+    text_box.color = GLCD_BLACK;
+    text_box.mode = TEXT_MULTI_LINES;
+    text_box.font = Terminal5x7;
+    text_box.top_margin = 10;
+    text_box.bottom_margin = 2;
+    text_box.left_margin = 1;
+    text_box.right_margin = 2;
+    text_box.height = 53;
+    text_box.width = 126;
+    text_box.text = message;
+    text_box.align = ALIGN_CENTER_TOP;
+    widget_textbox(display, &text_box);
 }

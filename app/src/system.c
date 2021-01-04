@@ -77,11 +77,6 @@ const char *versions_names[] = {
 */
 
 static uint8_t g_comm_protocol_bussy = 0;
-float g_in_1_volume;
-float g_in_2_volume;
-float g_out_1_volume;
-float g_out_2_volume;
-float g_hp_volume;
 uint8_t g_bypass[4] = {};
 uint8_t g_current_profile = 1;
 int8_t g_sl_out = -1;
@@ -117,6 +112,20 @@ int8_t g_actuator_hide = -1;
 *           LOCAL FUNCTIONS
 ************************************************************************************************************************
 */
+
+
+static void update_gain_item_value(uint8_t menu_id, float value)
+{
+    menu_item_t *item = TM_get_menu_item_by_ID(menu_id);
+    item->data.value = value;
+
+    static char str_bfr[8] = {};
+    float value_bfr = 0;
+    value_bfr = MAP(item->data.value, item->data.min, item->data.max, 0, 100); 
+    int_to_str(value_bfr, str_bfr, 8, 0);
+    strcat(str_bfr, "%");
+    item->data.unit_text = str_bfr;
+}
 
 static void update_status(char *item_to_update, const char *response)
 {
@@ -267,29 +276,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
 
 float system_get_gain_value(uint8_t item_ID)
 {
-    switch(item_ID)
-    {
-        case INP_1_GAIN_ID: 
-            return g_in_1_volume;
-        break;
-        case INP_2_GAIN_ID: 
-            return g_in_2_volume;
-        break;
-        case OUTP_1_GAIN_ID: 
-            return g_out_1_volume;
-        break;
-        case OUTP_2_GAIN_ID: 
-            return g_in_2_volume;
-        break;
-        case HEADPHONE_VOLUME_ID: 
-            return g_hp_volume;
-
-        break;
-        default:
-            return 0;
-        break;
-        
-    }
+    return TM_get_menu_item_by_ID(item_ID)->data.value;
 }
 
 void system_bluetooth_cb(void *arg, int event)
@@ -437,7 +424,6 @@ void system_inp_1_volume_cb(void *arg, int event)
     menu_item_t *item = arg;
 
     static const char *response = NULL;
-    cli_command(NULL, CLI_DISCARD_RESPONSE);
     char value[8] = {};
     static uint32_t last_message_time = 0; 
     uint32_t message_time = hardware_timestamp();
@@ -451,7 +437,6 @@ void system_inp_1_volume_cb(void *arg, int event)
         item->data.min = 0.0;
         item->data.max = 98.0;
         item->data.step = 1.0;
-
         item->data.value = atoi(str);
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
@@ -470,14 +455,12 @@ void system_inp_1_volume_cb(void *arg, int event)
             {
                 cli_command("mod-amixer in 0 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_in_1_volume = item->data.value;
-                g_in_2_volume = item->data.value;
+                update_gain_item_value(INP_2_GAIN_ID, item->data.value);
             }
             else if (item->desc->id == INP_1_GAIN_ID)
             {
                 cli_command("mod-amixer in 1 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_in_1_volume = item->data.value;
             }
             
             last_message_time = message_time;
@@ -505,7 +488,6 @@ void system_inp_2_volume_cb(void *arg, int event)
     menu_item_t *item = arg;
 
     static const char *response = NULL;
-    cli_command(NULL, CLI_DISCARD_RESPONSE);
     char value[8] = {};
     static uint32_t last_message_time = 0; 
     uint32_t message_time = hardware_timestamp();
@@ -537,14 +519,12 @@ void system_inp_2_volume_cb(void *arg, int event)
             {
                 cli_command("mod-amixer in 0 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_in_1_volume = item->data.value;
-                g_in_2_volume = item->data.value;
+                update_gain_item_value(INP_1_GAIN_ID, item->data.value);
             }
             else if (item->desc->id == INP_2_GAIN_ID)
             {
                 cli_command("mod-amixer in 2 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_in_2_volume = item->data.value;
             }
             last_message_time = message_time;
         }
@@ -571,7 +551,6 @@ void system_outp_1_volume_cb(void *arg, int event)
     menu_item_t *item = arg;
 
     static const char *response = NULL;
-    cli_command(NULL, CLI_DISCARD_RESPONSE);
     char value[8] = {};
     static uint32_t last_message_time = 0; 
     uint32_t message_time = hardware_timestamp();
@@ -603,14 +582,12 @@ void system_outp_1_volume_cb(void *arg, int event)
             {
                 cli_command("mod-amixer out 0 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_out_1_volume = item->data.value;
-                g_out_2_volume = item->data.value;
+                update_gain_item_value(OUTP_2_GAIN_ID, item->data.value);
             }
             else if (item->desc->id == OUTP_1_GAIN_ID)
             {
                 cli_command("mod-amixer out 1 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_out_1_volume = item->data.value;
             }
             
             last_message_time = message_time;
@@ -638,7 +615,6 @@ void system_outp_2_volume_cb(void *arg, int event)
     menu_item_t *item = arg;
 
     static const char *response = NULL;
-    cli_command(NULL, CLI_DISCARD_RESPONSE);
     char value[8] = {};
     static uint32_t last_message_time = 0; 
     uint32_t message_time = hardware_timestamp();
@@ -670,14 +646,12 @@ void system_outp_2_volume_cb(void *arg, int event)
             {
                 cli_command("mod-amixer out 0 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_out_1_volume = item->data.value;
-                g_out_2_volume = item->data.value;
+                update_gain_item_value(OUTP_1_GAIN_ID, item->data.value);
             }
             else if (item->desc->id == OUTP_2_GAIN_ID)
             {
                 cli_command("mod-amixer out 2 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
-                g_out_2_volume = item->data.value;
             }
             
             last_message_time = message_time;
@@ -705,7 +679,6 @@ void system_hp_volume_cb(void *arg, int event)
     menu_item_t *item = arg;
 
     static const char *response = NULL;
-    cli_command(NULL, CLI_DISCARD_RESPONSE);
     char value[8] = {};
     static uint32_t last_message_time = 0; 
     uint32_t message_time = hardware_timestamp();
@@ -735,7 +708,6 @@ void system_hp_volume_cb(void *arg, int event)
 
             cli_command("mod-amixer hp xvol ", CLI_CACHE_ONLY);
             cli_command(value, CLI_DISCARD_RESPONSE);
-            g_hp_volume = item->data.value;
             last_message_time = message_time;
         }
     }
@@ -948,13 +920,11 @@ void system_sl_in_cb (void *arg, int event)
 
     //if we toggled to 1, we need to change gain 2 to  gain 1
     char value_bfr[8] = {};
-    if (g_sl_in == 1)
+    if ((g_sl_in == 1) && (event != MENU_EV_NONE))
     {
-        float_to_str(g_in_1_volume, value_bfr, 8, 1);
+        float_to_str(system_get_gain_value(INP_1_GAIN_ID), value_bfr, 8, 1);
         cli_command("mod-amixer in 0 xvol ", CLI_CACHE_ONLY);
         cli_command(value_bfr, CLI_DISCARD_RESPONSE);
-        //keep everything in sync
-        g_in_2_volume = g_in_1_volume;
 
         system_save_gains_cb(NULL, MENU_EV_ENTER);
     }
@@ -968,7 +938,10 @@ void system_sl_in_cb (void *arg, int event)
     item->data.value = g_sl_in;
 
     if (event != MENU_EV_NONE)
+    {
+        update_gain_item_value(INP_2_GAIN_ID, system_get_gain_value(INP_1_GAIN_ID));
         TM_print_tool();
+    }
 }
 
 void system_sl_out_cb (void *arg, int event)
@@ -997,13 +970,11 @@ void system_sl_out_cb (void *arg, int event)
 
     //also set the gains to the same value
     char value_bfr[8] = {};
-    if (g_sl_out == 1)
+    if ((g_sl_out == 1) && (event != MENU_EV_NONE))
     {
-        float_to_str(g_out_1_volume, value_bfr, 8, 1);
+        float_to_str(system_get_gain_value(OUTP_1_GAIN_ID), value_bfr, 8, 1);
         cli_command("mod-amixer out 0 xvol ", CLI_CACHE_ONLY);
         cli_command(value_bfr, CLI_DISCARD_RESPONSE);
-        //keep everything in sync
-        g_out_2_volume = g_out_1_volume;
 
         system_save_gains_cb(NULL, MENU_EV_ENTER);
     }
@@ -1017,7 +988,10 @@ void system_sl_out_cb (void *arg, int event)
     item->data.value = g_sl_out;
 
     if (event != MENU_EV_NONE)
+    {
+        update_gain_item_value(OUTP_2_GAIN_ID, system_get_gain_value(OUTP_1_GAIN_ID));
         TM_print_tool();
+    }
 }
 
 void system_midi_src_cb (void *arg, int event)
@@ -1063,12 +1037,12 @@ void system_midi_send_cb (void *arg, int event)
     else if (event == MENU_EV_UP)
     {
         if (g_MIDI_clk_send < 1) g_MIDI_clk_send++;
-        set_menu_item_value(MENU_ID_MIDI_CLK_SOURCE, g_MIDI_clk_send);
+        set_menu_item_value(MENU_ID_MIDI_CLK_SEND, g_MIDI_clk_send);
     }
     else if (event == MENU_EV_DOWN)
     {
         if (g_MIDI_clk_send > 0) g_MIDI_clk_send--;
-        set_menu_item_value(MENU_ID_MIDI_CLK_SOURCE, g_MIDI_clk_send);
+        set_menu_item_value(MENU_ID_MIDI_CLK_SEND, g_MIDI_clk_send);
     }
 
     item->data.value = g_MIDI_clk_send;

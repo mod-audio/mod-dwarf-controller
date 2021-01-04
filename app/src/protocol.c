@@ -503,6 +503,9 @@ void cb_boot(proto_t *proto)
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
+    //system is live, we can ask gains
+    cli_command(NULL, CLI_DISCARD_RESPONSE);
+
     g_device_booted = true; 
 
     //after boot we are ready to print the control vieuw

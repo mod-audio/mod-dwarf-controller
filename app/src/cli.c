@@ -191,7 +191,7 @@ static void serial_cb(serial_t *serial)
             }
         }
     }
-    else if (g_cli.waiting_response || g_cli.status == LOGGED_ON_RESTORE)
+    else if (g_cli.waiting_response || g_cli.status == LOGGED_ON_RESTORE || g_cli.status == LOGGED_ON_MASKROM)
     {
         process_response(serial);
     }
@@ -312,6 +312,18 @@ void cli_process(void)
                     // boot restore
                     cli_command("run boot_restore", CLI_RETRIEVE_RESPONSE);
                 }
+
+                if (g_cli.status == LOGGED_ON_MASKROM)
+                {
+                    // stop auto boot
+                    cli_command(NULL, CLI_RETRIEVE_RESPONSE);
+
+                    // boot maskrom
+                    cli_command("run boot_maskrom", CLI_RETRIEVE_RESPONSE);
+
+                    write_msg("maskrom mode active");
+                }
+
                 break;
 
             case LOGIN:
@@ -333,7 +345,7 @@ void cli_process(void)
     }
 
     // restore mode
-    else if (g_cli.status == LOGGED_ON_RESTORE)
+    else if (g_cli.status == LOGGED_ON_RESTORE || g_cli.status == LOGGED_ON_MASKROM)
     {
         char *msg = &g_cli.received[4];
         if (strncmp(g_cli.received, "hmi:", 4) == 0)

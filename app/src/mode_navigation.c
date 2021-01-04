@@ -993,6 +993,28 @@ void NM_print_screen(void)
     set_footswitch_leds();
 }
 
+void NM_print_prev_screen(void)
+{
+    switch(g_current_list)
+    {
+        case BANKS_LIST:
+            screen_bank_list(g_banks);
+        break;
+
+        case PEDALBOARD_LIST:
+            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
+        break;
+
+        case SNAPSHOT_LIST:
+            if (!g_snapshots_loaded) //no snapshots available TODO popup
+                return;
+
+            //display them
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
+        break;
+    }
+}
+
 void NM_button_pressed(uint8_t button)
 {
     switch(button)
@@ -1015,12 +1037,16 @@ void NM_button_pressed(uint8_t button)
         break;
 
         case 1:
-            //save PB
-            ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
-            ui_comm_webgui_wait_response();
+            if (g_current_list == PEDALBOARD_LIST)
+            {
+                //save PB
+                ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
+                ui_comm_webgui_wait_response();
 
-            //also give quick overlay
-            give_attention_popup(PEDALBOARD_SAVED_TXT, NM_print_screen);
+                //also give quick overlay
+                give_attention_popup(PEDALBOARD_SAVED_TXT, NM_print_prev_screen);
+                return;
+            }
         break;
 
         case 2:
@@ -1050,11 +1076,15 @@ void NM_toggle_pb_ss(void)
     {
         request_snapshots(PAGE_DIR_INIT);
 
-        if (!g_snapshots_loaded) //no snapshots available TODO popup
+        if (!g_snapshots_loaded) //no snapshots available
+        {
+            g_current_list = PEDALBOARD_LIST;
+            give_attention_popup("No snapshots available for current pedalboard", NM_print_prev_screen);
             return;
+        }
 
         //display them
-        screen_pbss_list(g_pedalboards->names[g_current_pedalboard], g_snapshots, SS_MODE);
+        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
 
         g_current_list = SNAPSHOT_LIST;
     }

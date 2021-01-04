@@ -672,12 +672,12 @@ menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
     node_t *child_nodes;
     menu_item_t *item_child;
 
-    while(node->next)
+    while(node)
     {   
         if (node->first_child)
         {
             child_nodes = node->first_child;
-            while(child_nodes->next)
+            while(child_nodes)
             {
                 item_child = child_nodes->data;
 

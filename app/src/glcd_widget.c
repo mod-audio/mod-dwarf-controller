@@ -140,7 +140,7 @@ void widget_textbox(glcd_t *display, textbox_t *textbox)
             break;
 
         case ALIGN_CENTER_TOP:
-            textbox->x = (DISPLAY_WIDTH / 2) - (text_width / 2);
+            textbox->x = ((DISPLAY_WIDTH / 2) - (text_width / 2)) + textbox->left_margin;
             textbox->y = textbox->top_margin;
             break;
 

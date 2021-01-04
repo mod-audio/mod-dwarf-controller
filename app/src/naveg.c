@@ -260,14 +260,14 @@ void naveg_enc_down(uint8_t encoder)
             switch (encoder)
             {
                 case 0:
-                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_DOWN);
+                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_UP);
                 break;
                 case 1:
-                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_DOWN);
+                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_UP);
                 break;
                 case 2:
-                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_DOWN);
-                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_DOWN);
+                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_UP);
+                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_UP);
                 break;
             }
         break;
@@ -311,14 +311,14 @@ void naveg_enc_up(uint8_t encoder)
             switch (encoder)
             {
                 case 0:
-                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_UP);
+                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_DOWN);
                 break;
                 case 1:
-                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_UP);
+                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_DOWN);
                 break;
                 case 2:
-                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_UP);
-                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_UP);
+                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_DOWN);
+                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_DOWN);
                 break;
             }
         break;
@@ -376,7 +376,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (!pressed) return;
 
             hardware_set_overlay_timeout(0, NULL);
-            
+
             if (foot < 2)
             {
                 TM_foot_change(foot);
@@ -408,7 +408,11 @@ void naveg_foot_double_press(uint8_t foot)
         {
             case MODE_CONTROL:
                 //enter navigation mode
-                if (g_ui_connected) return;
+                if (g_ui_connected)
+                {
+                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", CM_print_screen);
+                    return;
+                }
 
                 g_prev_device_mode = MODE_CONTROL;
                 g_device_mode = MODE_NAVIGATION;
@@ -423,7 +427,11 @@ void naveg_foot_double_press(uint8_t foot)
             break;
 
             case MODE_TOOL_FOOT:
-                if (g_ui_connected) return;
+                if (g_ui_connected)
+                {
+                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", TM_print_tool);
+                    return;
+                }
 
                 TM_turn_off_tuner();
                 g_prev_device_mode = MODE_TOOL_FOOT;
@@ -433,7 +441,11 @@ void naveg_foot_double_press(uint8_t foot)
             break;
 
             case MODE_TOOL_MENU:
-                if (g_ui_connected) return;
+                if (g_ui_connected)
+                {
+                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", TM_print_tool);
+                    return;
+                }
 
                 g_prev_device_mode = MODE_TOOL_MENU;
                 //we enter the prev mode
@@ -615,14 +627,18 @@ void naveg_shift_pressed()
     if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
         TM_turn_off_tuner();
 
+    static uint8_t first_shift = 1;
+
+    if (first_shift)
+    {
+        system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
+        system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
+        system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
+        first_shift = 0;
+    }
+
     //toggle shift
     g_device_mode = MODE_SHIFT;
-
-    //make sure all values are up to date
-    //system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
-    //system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
-    //system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
-    //system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_NONE);
 
     screen_shift_overlay(g_prev_shift_device_mode);
 }
