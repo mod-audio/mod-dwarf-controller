@@ -13,6 +13,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "mode_navigation.h"
+#include "mode_control.h"
 #include "config.h"
 #include "hardware.h"
 #include "serial.h"

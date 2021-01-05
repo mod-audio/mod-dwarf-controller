@@ -202,8 +202,7 @@ void protocol_parse(msg_t *msg)
     // Protocol error
     else
     {
-        //SEND_TO_SENDER(msg->sender_id, g_error_messages[-index-1], strlen(g_error_messages[-index-1]));
-        SEND_TO_SENDER(msg->sender_id, msg->data, strlen(msg->data));
+        SEND_TO_SENDER(msg->sender_id, g_error_messages[-index-1], strlen(g_error_messages[-index-1]));
     }
 
     FREE(proto.list);
