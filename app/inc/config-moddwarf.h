@@ -356,31 +356,31 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define MAX_COLOR_ID              27
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
-#define DEFAULT_TRIGGER_COLOR             {100,100,100}
+#define DEFAULT_TRIGGER_COLOR             {80,80,80}
 #define DEFAULT_TRIGGER_PRESSED_COLOR     {100,0,0}
-#define DEFAULT_TAP_TEMPO_COLOR           {100,100,100}
-#define DEFAULT_ENUMERATED_COLOR          {100,100,100}
+#define DEFAULT_TAP_TEMPO_COLOR           {80,80,80}
+#define DEFAULT_ENUMERATED_COLOR          {80,80,80}
 #define DEFAULT_ENUMERATED_PRESSED_COLOR  {100,0,0}
 #define DEFAULT_BYPASS_COLOR              {100,0,0}
-#define DEFAULT_SNAPSHOT_COLOR            {100,100,100}
-#define DEFAULT_SNAPSHOT_LOAD_COLOR       {0,100,100}
-#define DEFAULT_LED_LIST_COLOR_1          {100,100,100}
+#define DEFAULT_SNAPSHOT_COLOR            {80,80,80}
+#define DEFAULT_SNAPSHOT_LOAD_COLOR       {0,80,80}
+#define DEFAULT_LED_LIST_COLOR_1          {80,80,80}
 #define DEFAULT_LED_LIST_COLOR_2          {100,0,0}
-#define DEFAULT_LED_LIST_COLOR_3          {100,100,0}
-#define DEFAULT_LED_LIST_COLOR_4          {0,100,100}
-#define DEFAULT_LED_LIST_COLOR_5          {0,100,0}
+#define DEFAULT_LED_LIST_COLOR_3          {80,80,0}
+#define DEFAULT_LED_LIST_COLOR_4          {0,80,80}
+#define DEFAULT_LED_LIST_COLOR_5          {0,80,0}
 #define DEFAULT_LED_LIST_COLOR_6          {100,0,100}
 #define DEFAULT_LED_LIST_COLOR_7          {100,0,100}
 #define DEFAULT_FS_PAGE_COLOR_1           {100,0,0}
-#define DEFAULT_FS_PAGE_COLOR_2           {100,100,0}
-#define DEFAULT_FS_PAGE_COLOR_3           {0,100,100}
+#define DEFAULT_FS_PAGE_COLOR_2           {80,80,0}
+#define DEFAULT_FS_PAGE_COLOR_3           {0,80,80}
 #define DEFAULT_FS_PAGE_COLOR_4           {53,22,61}
 #define DEFAULT_FS_PAGE_COLOR_5           {90,40,10}
 #define DEFAULT_FS_PAGE_COLOR_6           {0,100,0}
 #define DEFAULT_FS_PAGE_COLOR_7           {100,0,100}
 #define DEFAULT_FS_PAGE_COLOR_8           {0,0,100}
 #define DEFAULT_FS_PB_MENU                {53,22,61}
-#define DEFAULT_FS_SS_MENU                {0,100,100}
+#define DEFAULT_FS_SS_MENU                {0,80,80}
 #define DEFAULT_ENCODER_PAGE_COLOR        {100,0,0}
 
 //alternate LED colors for lists
