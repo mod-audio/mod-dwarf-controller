@@ -607,82 +607,77 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     if (listbox->hover > 0)
     {
         uint8_t line_length = strlen(listbox->list[listbox->hover-1]);
+
+        if (listbox->selected == listbox->hover-1)
+            line_length+=2;
+
         if (line_length > 15)
             line_length = 15;
 
-        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+
         if (listbox->selected == listbox->hover-1)
         {
-            if (line_length > 12)
-            {
-                item_x+=(line_length - 13) * 8;
-                line_length-=(line_length - 13);
-            }
-            else
-                glcd_text(display, item_x-16, listbox->y + 12, "> ", listbox->font, listbox->color);
+            strncpy(item_str_bfr, "> ", 4);
+            strncat(item_str_bfr, listbox->list[listbox->hover-1], line_length - 2);
         }
+        else
+            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
 
-        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
-        strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         item_str_bfr[line_length] = '\0';
-        
         glcd_text(display, item_x, listbox->y + 12, item_str_bfr, listbox->font, listbox->color);
-    
         FREE(item_str_bfr);
     }
 
     if (listbox->hover < (listbox->count - 1))
     {
-        uint8_t line_length =  strlen(listbox->list[listbox->hover+1]);
+        uint8_t line_length = strlen(listbox->list[listbox->hover+1]);
+        
+        if (listbox->selected == listbox->hover+1)
+            line_length+=2;
+
         if (line_length > 15)
             line_length = 15;
 
-        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+
         if (listbox->selected == listbox->hover+1)
         {
-            if (line_length > 12)
-            {
-                item_x+=(line_length - 13) * 8;
-                line_length-=(line_length - 13);
-            }
-            else
-                glcd_text(display, item_x-16, listbox->y + 32, "> ", listbox->font, listbox->color);
+            strncpy(item_str_bfr, "> ", 4);
+            strncat(item_str_bfr, listbox->list[listbox->hover+1], line_length - 2);
         }
+        else
+            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
 
-        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
-        strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         item_str_bfr[line_length] = '\0';
-
         glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
-    
         FREE(item_str_bfr);
     }
 
     uint8_t line_length = strlen(listbox->list[listbox->hover]);
+
+    if (listbox->selected == listbox->hover)
+        line_length+=2;
+
     if (line_length > 15)
         line_length = 15;
 
-    uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+    char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+        
     if (listbox->selected == listbox->hover)
     {
-        if (line_length > 12)
-        {
-            glcd_text(display, item_x, listbox->y + 22, "> ", listbox->font, listbox->color);
-            item_x+=(line_length - 13) * 8;
-            line_length-=(line_length - 13);
-        }
-        else
-            glcd_text(display, item_x-16, listbox->y + 22, "> ", listbox->font, listbox->color);
+        strncpy(item_str_bfr, "> ", 4);
+        strncat(item_str_bfr, listbox->list[listbox->hover], line_length - 2);
     }
+    else
+        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
 
-    char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
-    strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+    uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
     item_str_bfr[line_length] = '\0';
-
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
-
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
-
     FREE(title_str_bfr);
     FREE(item_str_bfr);
 }
