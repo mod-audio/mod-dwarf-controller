@@ -328,8 +328,11 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
 
     i = copy_command((char *)buffer, CMD_PEDALBOARD_LOAD);
 
-    g_snapshots->selected = -1;
-    g_snapshots->hover = 0;
+    if (g_snapshots)
+    {
+        g_snapshots->selected = 0;
+        g_snapshots->hover = 0;
+    }
 
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
