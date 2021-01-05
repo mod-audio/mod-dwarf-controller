@@ -13,6 +13,7 @@
 #include "hardware.h"
 #include "images.h"
 #include "protocol.h"
+#include "mode_tools.h"
 #include <string.h>
 
 /*
@@ -1133,8 +1134,7 @@ void screen_shift_overlay(int8_t prev_mode)
     glcd_text(display, 8, 15, "INPUT-1", Terminal3x5, GLCD_BLACK);
     glcd_text(display, 14, 21, "GAIN", Terminal3x5, GLCD_BLACK);
 
-    char str_bfr[7];
-    uint8_t char_cnt_name = 0;
+    menu_item_t *shift_item = TM_get_menu_item_by_ID(INP_1_GAIN_ID);
 
     //print the bar
     menu_bar_t bar_1 = {};
@@ -1145,20 +1145,15 @@ void screen_shift_overlay(int8_t prev_mode)
     bar_1.height = 7;
     bar_1.min = 0;
     bar_1.max = 98;
-    bar_1.value = system_get_gain_value(INP_1_GAIN_ID);
+    bar_1.value = shift_item->data.value;
     widget_bar(display, &bar_1);
-    
-    //unit
-    memset(str_bfr, 0, (6)*sizeof(char));
-    float value_bfr = MAP(bar_1.value, bar_1.min, bar_1.max, 0, 100); 
-    int_to_str(bar_1.value, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    str_bfr[6] = 0;
-    char_cnt_name = strlen(str_bfr);
-    glcd_text(display, 22 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+    glcd_text(display, 22 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
 
     glcd_text(display, 51, 15, "INPUT-2", Terminal3x5, GLCD_BLACK);
     glcd_text(display, 57, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+
+    shift_item = TM_get_menu_item_by_ID(INP_2_GAIN_ID);
 
     //print the bar
     menu_bar_t bar_2 = {};
@@ -1169,20 +1164,15 @@ void screen_shift_overlay(int8_t prev_mode)
     bar_2.height = 7;
     bar_2.min = 0;
     bar_2.max = 98;
-    bar_2.value = system_get_gain_value(INP_2_GAIN_ID);
+    bar_2.value = shift_item->data.value;
     widget_bar(display, &bar_2);
-    
-    //unit
-    memset(str_bfr, 0, (6)*sizeof(char));
-    value_bfr = MAP(bar_2.value, bar_2.min, bar_2.max, 0, 100); 
-    int_to_str(value_bfr, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    str_bfr[6] = 0;
-    char_cnt_name = strlen(str_bfr);
-    glcd_text(display, 65 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+    glcd_text(display, 65 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
 
     glcd_text(display, 95, 15, "OUTPUT", Terminal3x5, GLCD_BLACK);
     glcd_text(display, 99, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+
+    shift_item = TM_get_menu_item_by_ID(OUTP_1_GAIN_ID);
 
     //print the bar
     menu_bar_t bar_3 = {};
@@ -1193,17 +1183,10 @@ void screen_shift_overlay(int8_t prev_mode)
     bar_3.height = 7;
     bar_3.min = -60;
     bar_3.max = 0;
-    bar_3.value = system_get_gain_value(OUTP_1_GAIN_ID);
+    bar_3.value = shift_item->data.value;
     widget_bar(display, &bar_3);
-    
-    //unit
-    memset(str_bfr, 0, (6)*sizeof(char));
-    value_bfr = MAP(bar_3.value, bar_3.min, bar_3.max, 0, 100); 
-    int_to_str(value_bfr, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
-    str_bfr[6] = 0;
-    char_cnt_name = strlen(str_bfr);
-    glcd_text(display, 107 - char_cnt_name*2, 45, str_bfr, Terminal3x5, GLCD_BLACK);
+
+    glcd_text(display, 107 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
 }
 
 void screen_control_overlay(control_t *control)
