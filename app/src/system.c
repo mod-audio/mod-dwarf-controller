@@ -476,9 +476,7 @@ void system_inp_1_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL_MENU)
-            TM_print_tool();
-        else if (naveg_get_current_mode() == MODE_SHIFT)
+        if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     }   
 }
@@ -539,9 +537,7 @@ void system_inp_2_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL_MENU)
-            TM_print_tool();
-        else if (naveg_get_current_mode() == MODE_SHIFT)
+        if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     }   
 }
@@ -603,9 +599,7 @@ void system_outp_1_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL_MENU)
-            TM_print_tool();
-        else if (naveg_get_current_mode() == MODE_SHIFT)
+        if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     } 
 }
@@ -667,9 +661,7 @@ void system_outp_2_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL_MENU)
-            TM_print_tool();
-        else if (naveg_get_current_mode() == MODE_SHIFT)
+        if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     } 
 }
@@ -721,9 +713,7 @@ void system_hp_volume_cb(void *arg, int event)
 
     if (event != MENU_EV_NONE)
     {
-        if (naveg_get_current_mode() == MODE_TOOL_MENU)
-            TM_print_tool();
-        else if (naveg_get_current_mode() == MODE_SHIFT)
+        if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     } 
 }
@@ -778,9 +768,6 @@ void system_display_brightness_cb(void *arg, int event)
 
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
-    if (event != MENU_EV_NONE)
-        TM_print_tool();
 }
 
 void system_display_contrast_cb(void *arg, int event)
@@ -829,9 +816,6 @@ void system_display_contrast_cb(void *arg, int event)
 
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
-    if (event != MENU_EV_NONE)
-        TM_print_tool();
 }
 
 void system_hide_actuator_cb(void *arg, int event)
@@ -889,9 +873,6 @@ void system_hide_actuator_cb(void *arg, int event)
 
     item->data.unit_text = g_actuator_hide ? "HIDE" : "SHOW";
     item->data.value = g_actuator_hide;
-    
-    if (event != MENU_EV_NONE)
-        TM_print_tool();
 }
 
 void system_sl_in_cb (void *arg, int event)
@@ -940,7 +921,6 @@ void system_sl_in_cb (void *arg, int event)
     if (event != MENU_EV_NONE)
     {
         update_gain_item_value(INP_2_GAIN_ID, system_get_gain_value(INP_1_GAIN_ID));
-        TM_print_tool();
     }
 }
 
@@ -990,7 +970,6 @@ void system_sl_out_cb (void *arg, int event)
     if (event != MENU_EV_NONE)
     {
         update_gain_item_value(OUTP_2_GAIN_ID, system_get_gain_value(OUTP_1_GAIN_ID));
-        TM_print_tool();
     }
 }
 
@@ -1020,8 +999,8 @@ void system_midi_src_cb (void *arg, int event)
     else if (g_MIDI_clk_src == 1) item->data.unit_text = "MIDI";
     else if (g_MIDI_clk_src == 2) item->data.unit_text ="ABLETON LINK";
     
-    if (event != MENU_EV_NONE)
-        TM_print_tool();
+    //if (event != MENU_EV_NONE)
+    //    TM_refresh_menu_screen();
 }
 
 void system_midi_send_cb (void *arg, int event)

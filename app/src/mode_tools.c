@@ -250,7 +250,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 
-    TM_print_tool();
+    screen_menu_page(g_current_menu);
 }
 
 static void create_menu_tree(node_t *parent, const menu_desc_t *desc)

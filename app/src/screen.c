@@ -119,7 +119,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     char second_line[10] = {};
 
     uint8_t q, p = 0, line = 0;
-    for (q = 0; q < 20; q++)
+    for (q = 0; q < 21; q++)
     {
         if (item_child->desc->name[q] != 0)
         {
