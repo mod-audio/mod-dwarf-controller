@@ -433,11 +433,12 @@ void naveg_foot_double_press(uint8_t foot)
                     return;
                 }
 
-                TM_turn_off_tuner();
                 g_prev_device_mode = MODE_TOOL_FOOT;
                 //we enter the prev mode
                 g_device_mode = MODE_NAVIGATION;
                 NM_print_screen();
+
+                TM_turn_off_tuner();
             break;
 
             case MODE_TOOL_MENU:

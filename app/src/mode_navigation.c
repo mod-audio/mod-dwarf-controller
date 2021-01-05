@@ -980,8 +980,8 @@ void NM_print_screen(void)
         break;
 
         case PEDALBOARD_LIST:
-            request_banks_list(2);
-            request_pedalboards(2, g_current_bank);
+            request_banks_list(PAGE_DIR_INIT);
+            request_pedalboards(PAGE_DIR_INIT, g_current_bank);
             screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
         break;
 
