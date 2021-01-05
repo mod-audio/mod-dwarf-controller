@@ -370,6 +370,8 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
+
+    CM_reset_encoder_page();
 }
 
 //called from the request functions and the naveg_initail_state

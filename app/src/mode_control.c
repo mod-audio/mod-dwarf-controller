@@ -1349,22 +1349,9 @@ void CM_load_next_page()
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
 
-    //update LED's
-    set_footswitch_pages_led_state();
-    CM_reset_encoder_page();
-
-    //sum available pages for screen
-    uint8_t pages_available = 0;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
     g_current_encoder_page = 0;
 
-    //update screen
-    screen_page_index(g_current_foot_control_page, pages_available);
+    CM_set_screen();
 }
 
 void CM_load_next_encoder_page(uint8_t button)
@@ -1490,8 +1477,12 @@ void CM_set_pages_available(uint8_t page_toggles[8])
 void CM_reset_encoder_page(void)
 {
     g_current_encoder_page = 0;
-    screen_encoder_container(g_current_encoder_page);
 
-    //update LED's
-    set_encoder_pages_led_state();  
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        screen_encoder_container(g_current_encoder_page);
+
+        //update LED's
+        set_encoder_pages_led_state();  
+    }
 }
