@@ -1353,6 +1353,7 @@ void CM_load_next_page()
     screen_page_index(g_current_foot_control_page, foot_pages_available());
 
     screen_encoder_container(g_current_encoder_page);
+    CM_draw_encoders();
 
     CM_set_leds();
 
