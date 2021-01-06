@@ -430,7 +430,7 @@ void system_inp_1_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = cli_command("mod-amixer in 1 xvol ", CLI_RETRIEVE_RESPONSE);
+        response = cli_command("mod-amixer in 2 xvol ", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
@@ -459,7 +459,7 @@ void system_inp_1_volume_cb(void *arg, int event)
             }
             else if (item->desc->id == INP_1_GAIN_ID)
             {
-                cli_command("mod-amixer in 1 xvol ", CLI_CACHE_ONLY);
+                cli_command("mod-amixer in 2 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
             }
             
@@ -492,7 +492,7 @@ void system_inp_2_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = cli_command("mod-amixer in 2 xvol ", CLI_RETRIEVE_RESPONSE);
+        response = cli_command("mod-amixer in 1 xvol ", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
@@ -521,7 +521,7 @@ void system_inp_2_volume_cb(void *arg, int event)
             }
             else if (item->desc->id == INP_2_GAIN_ID)
             {
-                cli_command("mod-amixer in 2 xvol ", CLI_CACHE_ONLY);
+                cli_command("mod-amixer in 1 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
             }
             last_message_time = message_time;
@@ -553,7 +553,7 @@ void system_outp_1_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response =  cli_command("mod-amixer out 1 xvol ", CLI_RETRIEVE_RESPONSE);
+        response =  cli_command("mod-amixer out 2 xvol ", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
@@ -582,7 +582,7 @@ void system_outp_1_volume_cb(void *arg, int event)
             }
             else if (item->desc->id == OUTP_1_GAIN_ID)
             {
-                cli_command("mod-amixer out 1 xvol ", CLI_CACHE_ONLY);
+                cli_command("mod-amixer out 2 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
             }
             
@@ -615,7 +615,7 @@ void system_outp_2_volume_cb(void *arg, int event)
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = cli_command("mod-amixer out 2 xvol ", CLI_RETRIEVE_RESPONSE);
+        response = cli_command("mod-amixer out 1 xvol ", CLI_RETRIEVE_RESPONSE);
         char str[LINE_BUFFER_SIZE+1];
         strcpy(str, response);
 
@@ -644,7 +644,7 @@ void system_outp_2_volume_cb(void *arg, int event)
             }
             else if (item->desc->id == OUTP_2_GAIN_ID)
             {
-                cli_command("mod-amixer out 2 xvol ", CLI_CACHE_ONLY);
+                cli_command("mod-amixer out 1 xvol ", CLI_CACHE_ONLY);
                 cli_command(value, CLI_DISCARD_RESPONSE);
             }
             
