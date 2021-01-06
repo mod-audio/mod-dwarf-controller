@@ -348,10 +348,12 @@ void screen_encoder(control_t *control, uint8_t encoder)
     // list type control
     if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
     {
-        static char *labels_list[10];
+        uint8_t scalepoint_count_local = control->scale_points_count > 64 ? 64 : control->scale_points_count;
+
+        char **labels_list = MALLOC(sizeof(char*) * scalepoint_count_local);
 
         uint8_t i;
-        for (i = 0; i < control->scale_points_count; i++)
+        for (i = 0; i < scalepoint_count_local; i++)
         {
             labels_list[i] = control->scale_points[i]->label;
         }
@@ -365,13 +367,15 @@ void screen_encoder(control_t *control, uint8_t encoder)
         list.font = Terminal3x5;
         list.font_highlight = Terminal5x7;
         list.selected = control->step;
-        list.count = control->scale_points_count;
+        list.count = scalepoint_count_local;
         list.list = labels_list;
         list.line_space = 1;
         list.line_top_margin = 1;
         list.line_bottom_margin = 1;
         list.text_left_margin = 1;
         widget_list_value(display, &list);
+
+        FREE(labels_list);
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
@@ -654,8 +658,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
 void screen_tittle(const void *data, uint8_t update)
 {
-    return;
-
     static char* pedalboard_name = NULL;
     static uint8_t char_cnt = 0;
     glcd_t *display = hardware_glcds(0);
@@ -688,8 +690,6 @@ void screen_tittle(const void *data, uint8_t update)
             char_cnt++;
         }
         pedalboard_name[19] = 0;
-
-        char_cnt = strlen(pedalboard_name);
     }
 
     //we dont display inside a menu
