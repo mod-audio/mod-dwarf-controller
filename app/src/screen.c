@@ -441,6 +441,10 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
 void screen_page_index(uint8_t current, uint8_t available)
 {
+    //precent widget from tripin
+    if (current > available)
+        current = available;
+
     char str_current[4];
     char str_available[4];
     int_to_str((current+1), str_current, sizeof(str_current), 1);
