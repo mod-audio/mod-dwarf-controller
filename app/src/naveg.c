@@ -79,7 +79,7 @@ static void *g_update_data;
 static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 
 uint8_t g_initialized = 0;
-uint8_t g_lock_release = 0;
+uint8_t g_lock_release[FOOTSWITCHES_COUNT] = {};
 
 /*
 ************************************************************************************************************************
@@ -336,6 +336,12 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
 
+    if (g_lock_release[foot] && !pressed)
+    {
+        g_lock_release[foot] = 0;
+        return;
+    }
+
     switch(g_device_mode)
     {
         case MODE_CONTROL:
@@ -400,6 +406,12 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 void naveg_foot_double_press(uint8_t foot)
 {
     hardware_set_overlay_timeout(0, NULL);
+
+    //lock foots when double press, we dont want a release action here
+    g_lock_release[foot] = 1;
+    //we always use foot 0 for double press, a bit dirty I know
+    //TODO make pretty
+    g_lock_release[0] = 1;
 
     //navigation mode
     if (foot == 1)

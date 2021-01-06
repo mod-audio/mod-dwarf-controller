@@ -1416,6 +1416,8 @@ void CM_load_next_encoder_page(uint8_t button)
 
     //update LED's
     set_encoder_pages_led_state();
+
+    CM_print_screen();  
 }
 
 void CM_set_state(void)
