@@ -610,8 +610,17 @@ static void control_set(uint8_t id, control_t *control)
             if (!(control->properties & FLAG_CONTROL_REVERSE))
             {
                 // increments the step
-                if (control->step < (control->steps - 3))
+                if (control->step < (control->steps - 1))
                 {
+                    if ((control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) && (control->step < (control->steps - 1)))
+                    {
+                        //request new data, a new control we be assigned after
+                        request_control_page(control, 1);
+
+                        //since a new control is assigned we can return
+                        return;
+                    }
+
                     control->step++;
                     control->scale_point_index++;
                 }
@@ -1406,7 +1415,7 @@ void CM_load_next_encoder_page(uint8_t button)
     }
 
     //update LED's
-    set_encoder_pages_led_state();  
+    set_encoder_pages_led_state();
 }
 
 void CM_set_state(void)
