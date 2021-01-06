@@ -1081,7 +1081,8 @@ void screen_update_tuner(float frequency, char *note, int8_t cents)
     g_tuner.cents = cents;
 
     //draw tuner
-    widget_tuner(hardware_glcds(0), &g_tuner);
+    if (naveg_get_current_mode() == MODE_TOOL_FOOT)
+        widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
 void screen_image(uint8_t display, const uint8_t *image)
