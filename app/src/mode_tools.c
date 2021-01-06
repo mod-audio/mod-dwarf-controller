@@ -262,6 +262,7 @@ static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
     {
         if (desc->id == g_menu_desc[i].parent_id)
         {
+            //menu does not change, so no need to free these
             item = (menu_item_t *) MALLOC(sizeof(menu_item_t));
             item->data.hover = 0;
             item->data.selected = 0xFF;

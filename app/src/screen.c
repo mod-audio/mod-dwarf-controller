@@ -208,7 +208,8 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 char first_val_line[10] = {};
                 char second_val_line[10] = {};
 
-                uint8_t q, p = 0, val_line = 0;
+                p = 0;
+                uint8_t val_line = 0;
                 
                 for (q = 0; q < 20; q++)
                 {
@@ -653,12 +654,15 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
 void screen_tittle(const void *data, uint8_t update)
 {
+    return;
+
     static char* pedalboard_name = NULL;
     static uint8_t char_cnt = 0;
     glcd_t *display = hardware_glcds(0);
 
     if (pedalboard_name == NULL)
     {
+        //should only run once, no need to clear
         pedalboard_name = (char *) MALLOC(20 * sizeof(char));
         strcpy(pedalboard_name, "DEFAULT");
         char_cnt = 7;

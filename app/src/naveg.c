@@ -174,7 +174,7 @@ void naveg_ui_connection(uint8_t status)
         case MODE_NAVIGATION:
             //enter control mode
             g_device_mode = MODE_CONTROL;
-            CM_set_screen();
+            CM_set_state();
         break;
 
         case MODE_TOOL_FOOT:
@@ -423,7 +423,7 @@ void naveg_foot_double_press(uint8_t foot)
                 //enter control mode
                 g_device_mode = MODE_CONTROL;
                 g_prev_device_mode = MODE_NAVIGATION;
-                CM_set_screen();
+                CM_set_state();
             break;
 
             case MODE_TOOL_FOOT:
@@ -480,7 +480,7 @@ void naveg_foot_double_press(uint8_t foot)
             if (g_prev_device_mode == MODE_CONTROL)
             {
                 g_device_mode = MODE_CONTROL;
-                CM_set_screen();
+                CM_set_state();
             }
             else if (g_prev_device_mode == MODE_TOOL_MENU)
             {
@@ -547,7 +547,7 @@ void naveg_button_pressed(uint8_t button)
                         {
                             case MODE_CONTROL:
                                 g_device_mode = MODE_CONTROL;
-                                CM_set_screen();
+                                CM_set_state();
                             break;
 
                             case MODE_NAVIGATION:
@@ -562,7 +562,7 @@ void naveg_button_pressed(uint8_t button)
 
                             case MODE_TOOL_MENU:
                                 g_device_mode = MODE_CONTROL;
-                                CM_set_screen();
+                                CM_set_state();
                             break;
 
                             case MODE_BUILDER:
@@ -657,7 +657,7 @@ void naveg_shift_releaed()
     {
         case MODE_CONTROL:
             g_device_mode = MODE_CONTROL;
-            CM_set_screen();
+            CM_set_state();
         break;
 
         case MODE_NAVIGATION:
@@ -755,7 +755,7 @@ void naveg_trigger_mode_change(uint8_t mode)
     switch(g_device_mode)
     {
         case MODE_CONTROL:
-            CM_set_screen();
+            CM_set_state();
         break;
 
         case MODE_NAVIGATION:

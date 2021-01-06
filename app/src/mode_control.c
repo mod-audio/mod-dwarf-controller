@@ -173,6 +173,20 @@ void restore_led_states(void)
     }
 }
 
+uint8_t foot_pages_available(void)
+{
+    //sum available pages
+    uint8_t j;
+    uint8_t pages_available = 0;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    return pages_available;
+}
+
 // control assigned to display
 static void encoder_control_add(control_t *control)
 {
@@ -1333,6 +1347,15 @@ void CM_load_next_page()
         CM_remove_control(q);
     }
 
+    g_current_encoder_page = 0;
+
+    //update screen
+    screen_page_index(g_current_foot_control_page, foot_pages_available());
+
+    screen_encoder_container(g_current_encoder_page);
+
+    CM_set_leds();
+
     //clear actuator queue
     reset_queue();
 
@@ -1348,10 +1371,6 @@ void CM_load_next_page()
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
-
-    g_current_encoder_page = 0;
-
-    CM_set_screen();
 }
 
 void CM_load_next_encoder_page(uint8_t button)
@@ -1389,30 +1408,15 @@ void CM_load_next_encoder_page(uint8_t button)
     set_encoder_pages_led_state();  
 }
 
-void CM_set_screen(void)
+void CM_set_state(void)
 {
-    screen_clear();
+    CM_print_screen();
 
-    screen_tittle(NULL, 0);
+    CM_set_leds();
+}
 
-    //sum available pages for screen
-    uint8_t j;
-    uint8_t pages_available = 0;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
-    //update screen
-    screen_page_index(g_current_foot_control_page, pages_available);
-
-    screen_encoder_container(g_current_encoder_page);
-
-    CM_draw_foots();
-
-    CM_draw_encoders();
-
+void CM_set_leds(void)
+{
     set_footswitch_pages_led_state();
 
     set_encoder_pages_led_state();
@@ -1429,17 +1433,8 @@ void CM_print_screen(void)
 
     screen_tittle(NULL, 0);
 
-    //sum available pages for screen
-    uint8_t j;
-    uint8_t pages_available = 0;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
     //update screen
-    screen_page_index(g_current_foot_control_page, pages_available);
+    screen_page_index(g_current_foot_control_page, foot_pages_available());
 
     screen_encoder_container(g_current_encoder_page);
 
@@ -1461,17 +1456,8 @@ void CM_set_pages_available(uint8_t page_toggles[8])
 {
     memcpy(g_fs_page_available, page_toggles, sizeof(g_fs_page_available));
 
-    //sum available pages for screen
-    uint8_t pages_available = 0;
-    uint8_t j;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
     if  (naveg_get_current_mode() == MODE_CONTROL)
-        screen_page_index(g_current_foot_control_page, pages_available);
+        screen_page_index(g_current_foot_control_page, foot_pages_available());
 }
 
 void CM_reset_encoder_page(void)

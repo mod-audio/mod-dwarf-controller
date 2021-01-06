@@ -25,8 +25,8 @@
 
 // check in hardware_setup() what is the function of each timer
 #define TIMER0_PRIORITY     3
-#define TIMER1_PRIORITY     2
-#define TIMER2_PRIORITY     1
+#define TIMER1_PRIORITY     4
+#define TIMER2_PRIORITY     5
 
 /*
 ************************************************************************************************************************
@@ -845,12 +845,9 @@ void TIMER2_IRQHandler(void)
         {
             g_overlay_counter--;
 
-            if (g_overlay_counter == 0)
+            if ((g_overlay_counter == 0) && (g_overlay_callback))
             {
-                if (g_overlay_callback)
-                {
-                    g_overlay_callback();
-                }
+                g_overlay_callback();
             }
         }
     }

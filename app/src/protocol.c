@@ -124,7 +124,11 @@ void protocol_parse(msg_t *msg)
 
     // TODO: check invalid argumets (wildcards)
 
-    if (proto.list_count == 0) return;
+    if (proto.list_count == 0) 
+    {
+        FREE(proto.list);
+        return;
+    }
 
     unsigned int match, variable_arguments = 0;
 
@@ -202,7 +206,8 @@ void protocol_parse(msg_t *msg)
     // Protocol error
     else
     {
-        SEND_TO_SENDER(msg->sender_id, g_error_messages[-index-1], strlen(g_error_messages[-index-1]));
+        //SEND_TO_SENDER(msg->sender_id, g_error_messages[-index-1], strlen(g_error_messages[-index-1]));
+        SEND_TO_SENDER(msg->sender_id, msg->data, strlen(msg->data));
     }
 
     FREE(proto.list);
@@ -508,7 +513,7 @@ void cb_boot(proto_t *proto)
     g_device_booted = true; 
 
     //after boot we are ready to print the control vieuw
-    CM_set_screen();
+    CM_set_state();
 }
 
 void cb_menu_item_changed(proto_t *proto)

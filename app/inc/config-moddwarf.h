@@ -26,7 +26,7 @@
 // SERIAL0 (web-ui)
 #define SERIAL0
 #define SERIAL0_BAUD_RATE       1500000
-#define SERIAL0_PRIORITY        5
+#define SERIAL0_PRIORITY        1
 #define SERIAL0_RX_PORT         0
 #define SERIAL0_RX_PIN          3
 #define SERIAL0_RX_FUNC         1
@@ -40,7 +40,7 @@
 // SERIAL1 (cli)
 #define SERIAL1
 #define SERIAL1_BAUD_RATE       115200
-#define SERIAL1_PRIORITY        4
+#define SERIAL1_PRIORITY        3
 #define SERIAL1_RX_PORT         0
 #define SERIAL1_RX_PIN          16
 #define SERIAL1_RX_FUNC         1
@@ -54,7 +54,7 @@
 // SERIAL2 (system callbacks)
 /*#define SERIAL2
 #define SERIAL2_BAUD_RATE       1500000
-#define SERIAL2_PRIORITY        1
+#define SERIAL2_PRIORITY        2
 #define SERIAL2_RX_PORT         2
 #define SERIAL2_RX_PIN          8
 #define SERIAL2_RX_FUNC         1
@@ -179,7 +179,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define SYSTEM_SERIAL               2
 
 // define how many bytes will be allocated to rx/tx buffers
-#define SYSTEM_COMM_RX_BUFF_SIZE    4096
+#define SYSTEM_COMM_RX_BUFF_SIZE    1024
 #define SYSTEM_COMM_TX_BUFF_SIZE    512
 
 //// Tools configuration
