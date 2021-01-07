@@ -694,6 +694,7 @@ void screen_tittle(const void *data, uint8_t update)
             char_cnt++;
         }
         pedalboard_name[19] = 0;
+        char_cnt = strlen(pedalboard_name);
     }
 
     //we dont display inside a menu
