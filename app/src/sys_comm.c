@@ -49,11 +49,11 @@
 ************************************************************************************************************************
 */
 
-//static  void (*g_system_response_cb)(void *data, menu_item_t *item) = NULL;
-//static  menu_item_t *g_current_item;
-//static volatile uint8_t  g_system_blocked;
-//static volatile xSemaphoreHandle g_system_sem = NULL;
-//static  ringbuff_t *g_system_rx_rb;
+static  void (*g_system_response_cb)(void *data, menu_item_t *item) = NULL;
+static  menu_item_t *g_current_item;
+static volatile uint8_t  g_system_blocked;
+static volatile xSemaphoreHandle g_system_sem = NULL;
+static  ringbuff_t *g_system_rx_rb;
 
 
 /*
@@ -75,7 +75,7 @@
 *           LOCAL FUNCTIONS
 ************************************************************************************************************************
 */
-/*
+
 static void system_rx_cb(serial_t *serial)
 {
     uint8_t buffer[SERIAL_MAX_RX_BUFF_SIZE] = {};
@@ -98,28 +98,28 @@ static void system_rx_cb(serial_t *serial)
         }
     }
 }
-*/
+
 
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
 ************************************************************************************************************************
 */
-/*
+
 void sys_comm_init(void)
 {
     g_system_sem = xSemaphoreCreateCounting(SYSTEM_MAX_SEM_COUNT, 0);
     g_system_rx_rb = ringbuff_create(SYSTEM_COMM_RX_BUFF_SIZE);
 
-    serial_set_callback(SYSTEM_SERIAL, webgui_rx_cb);
+    serial_set_callback(SYSTEM_SERIAL, system_rx_cb);
 }
 
-void sys_comm_webgui_send(const char *data, uint32_t data_size)
+void sys_comm__send(const char *data, uint32_t data_size)
 {
     serial_send(SYSTEM_SERIAL, (const uint8_t*)data, data_size+1);
 }
 
-ringbuff_t* sys_comm_webgui_read(void)
+ringbuff_t* sys_comm__read(void)
 {
     if (xSemaphoreTake(g_system_sem, portMAX_DELAY) == pdTRUE)
     {
@@ -129,13 +129,13 @@ ringbuff_t* sys_comm_webgui_read(void)
     return NULL;
 }
 
-void sys_comm_webgui_set_response_cb(void (*resp_cb)(void *data, menu_item_t *item), menu_item_t *item)
+void sys_comm_set_response_cb(void (*resp_cb)(void *data, menu_item_t *item), menu_item_t *item)
 {
     g_current_item = item;
     g_system_response_cb = resp_cb;
 }
 
-void sys_comm_webgui_response_cb(void *data)
+void sys_comm_response_cb(void *data)
 {
     if (g_system_response_cb)
     {
@@ -146,14 +146,14 @@ void sys_comm_webgui_response_cb(void *data)
     g_system_blocked = 0;
 }
 
-void sys_comm_webgui_wait_response(void)
+void sys_comm_wait_response(void)
 {
     g_system_blocked = 1;
     while (g_system_blocked);
 }
 
 //clear the ringbuffer
-void sys_comm_webgui_clear(void)
+void sys_comm_clear(void)
 {
     ringbuff_flush(g_system_rx_rb);
-}*/
+}

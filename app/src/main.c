@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "cli.h"
 #include "ui_comm.h"
+#include "sys_comm.h"
 #include "images.h"
 #include "uc1701.h"
 #include "mode_navigation.h"
@@ -85,7 +86,7 @@ static void actuators_cb(void *actuator);
 
 // tasks
 static void webgui_procotol_task(void *pvParameters);
-//static void system_procotol_task(void *pvParameters);
+static void system_procotol_task(void *pvParameters);
 static void displays_task(void *pvParameters);
 static void actuators_task(void *pvParameters);
 static void cli_task(void *pvParameters);
@@ -218,8 +219,6 @@ static void webgui_procotol_task(void *pvParameters)
     }
 }
 
-//MDW TODO, USE THIS LINE FOR SYSTEM COMMANDS AND NOT CLI
-/*
 static void system_procotol_task(void *pvParameters)
 {
     UNUSED_PARAM(pvParameters);
@@ -232,7 +231,7 @@ static void system_procotol_task(void *pvParameters)
         g_protocol_busy = false;
         system_lock_comm_serial(g_protocol_busy);
         // blocks until receive a new message
-        ringbuff_t *rb = sys_comm_webgui_read();
+        ringbuff_t *rb = sys_comm_read();
         msg_size = ringbuff_read_until(rb, g_msg_buffer, SYSTEM_COMM_RX_BUFF_SIZE, 0);
         // parses the message
         if (msg_size > 0)
@@ -247,7 +246,7 @@ static void system_procotol_task(void *pvParameters)
             protocol_parse(&msg);
         }
     }
-}*/
+}
 
 static void displays_task(void *pvParameters)
 {
@@ -410,14 +409,14 @@ static void setup_task(void *pvParameters)
     ui_comm_init();
 
     // initialize the system communication resources
-    //sys_comm_init();
+    sys_comm_init();
 
     // create the queues
     g_actuators_queue = xQueueCreate(ACTUATORS_QUEUE_SIZE, sizeof(uint8_t *));
 
     // create the tasks
     xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 4, NULL);
-    //xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 2, NULL);
+    xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 2, NULL);
     xTaskCreate(actuators_task, TASK_NAME("act"), 256, NULL, 3, NULL);
     xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 4, NULL);
     xTaskCreate(displays_task, TASK_NAME("disp"), 128, NULL, 1, NULL);
