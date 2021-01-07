@@ -312,19 +312,20 @@ void cb_say(proto_t *proto)
     protocol_response(proto->list[1], proto);
 }
 
-//MDW TODO FIX ME
 void cb_led(proto_t *proto)
 {
-    //color_t color;
-    //led_t *led = hardware_leds(atoi(proto->list[1]));
-    //color.r = atoi(proto->list[2]);
-    //color.g = atoi(proto->list[3]);
-    //color.b = atoi(proto->list[4]);
-    //led_set_color(led, color);
+    ledz_t *led = hardware_leds(atoi(proto->list[1]));
+
+    uint8_t value[3] = {atoi(proto->list[2]), atoi(proto->list[3]), atoi(proto->list[4])}; 
+    ledz_set_color(MAX_COLOR_ID,value);
 
     if (proto->list_count == 7)
     {
-        //led_blink(led, atoi(proto->list[5]), atoi(proto->list[6]));
+        ledz_set_state(led, atoi(proto->list[1]), MAX_COLOR_ID, 1, 0, 0, 0);
+    }
+    else
+    {
+        ledz_set_state(led, atoi(proto->list[1]), MAX_COLOR_ID, 2, atoi(proto->list[5]), atoi(proto->list[6]), LED_BLINK_INFINIT);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
