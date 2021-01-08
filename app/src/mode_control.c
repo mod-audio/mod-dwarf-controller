@@ -153,7 +153,15 @@ void set_encoder_pages_led_state(void)
         led->led_state.color = ENCODER_PAGE_COLOR;
 
         if (i == g_current_encoder_page)
+        {
             ledz_set_state(led, LED_ON);
+        }
+        else
+        {
+            led->led_state.brightness = 0.25;
+            ledz_set_state(led, LED_DIMMED);
+        }
+
     } 
 }
 

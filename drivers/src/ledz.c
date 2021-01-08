@@ -593,6 +593,11 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state)
                 ledz_brightness(led, ledz_color, led_colors[led->led_state.color][i]);
                 ledz_fade_up_down(led, ledz_color, led->led_state.fade_rate, led_colors[led->led_state.color][i] / led->led_state.fade_ratio, led_colors[led->led_state.color][i]);
             break;
+
+            case LED_DIMMED:
+                ledz_on(led, ledz_color);
+                ledz_brightness(led, ledz_color ,led_colors[led->led_state.color][i] * led->led_state.brightness);
+            break;
         }
     }
 }

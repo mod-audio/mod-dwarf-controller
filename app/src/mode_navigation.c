@@ -108,9 +108,7 @@ void set_footswitch_leds(void)
         ledz_off(hardware_leds(i), WHITE);
     }
 
-    ledz_t *led = hardware_leds(3);
-    led->led_state.color = TOGGLED_COLOR;
-    set_ledz_trigger_by_color_id(led, LED_ON);
+    ledz_t *led;
 
     switch(g_current_list)
     {

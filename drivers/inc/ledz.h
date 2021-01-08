@@ -85,6 +85,7 @@ extern "C"
 #define LED_OFF 			0
 #define LED_BLINK 			2
 #define LED_FADE 			3
+#define LED_DIMMED			4
 
 /*
 ****************************************************************************************************
@@ -120,6 +121,7 @@ typedef struct LED_STATE_T {
     int16_t time_on, time_off, fade_rate;
     int8_t amount_of_blinks;
     int16_t fade_ratio;
+    float brightness;
 } led_state_t;
 
 /**
