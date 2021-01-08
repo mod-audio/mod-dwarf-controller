@@ -575,6 +575,21 @@ void cb_pedalboard_name(proto_t *proto)
 
     screen_tittle(&proto->list[1], 1);
 
+    //stop the loading leds from fading
+    //this is done here as its one of the last messages from MOD-UI
+    if (naveg_get_current_mode() == MODE_NAVIGATION)
+    {
+        ledz_t *led;
+        led_state_t led_state;
+        led_state.color = FS_PB_MENU_COLOR;
+        led_state.fade_ratio = 0;
+        led_state.fade_rate = 0;
+        led = hardware_leds(0);
+        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+        led = hardware_leds(1);
+        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    }
+
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
     g_protocol_busy = false;

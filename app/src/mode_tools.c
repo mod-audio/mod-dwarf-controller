@@ -641,22 +641,22 @@ void TM_print_tool(void)
             {
                 //print the 3 items on screen
                 screen_menu_page(g_current_menu);
-
+                led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
-                led->led_state.color = TOGGLED_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON);
+                led_state.color = TOGGLED_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
                 if (g_current_menu->prev)
                 {
                     led = hardware_leds(4);
-                    led->led_state.color = WHITE;
-                    set_ledz_trigger_by_color_id(led, LED_ON);
+                    led_state.color = WHITE;
+                    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
                 }
                 if (g_current_menu->next->next)
                 {
                     led = hardware_leds(5);
-                    led->led_state.color = WHITE;
-                    set_ledz_trigger_by_color_id(led, LED_ON);
+                    led_state.color = WHITE;
+                    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
                 }
             }
             else if (g_current_item->desc->type == MENU_ROOT)
@@ -664,12 +664,13 @@ void TM_print_tool(void)
                 //print the menu
                 screen_system_menu(g_current_item);
 
+                led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
-                led->led_state.color = WHITE;
-                set_ledz_trigger_by_color_id(led, LED_ON);
+                led_state.color = WHITE;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
                 led = hardware_leds(4);
-                led->led_state.color = TOGGLED_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON);
+                led_state.color = TOGGLED_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             }
         break;
 

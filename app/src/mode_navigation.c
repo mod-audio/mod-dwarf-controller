@@ -109,37 +109,38 @@ void set_footswitch_leds(void)
     }
 
     ledz_t *led;
+    led_state_t led_state;
 
     switch(g_current_list)
     {
         case BANKS_LIST:
             led = hardware_leds(2);
-            led->led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
         case PEDALBOARD_LIST:
             led = hardware_leds(2);
-            led->led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(0);
-            led->led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(1);
-            led->led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
         case SNAPSHOT_LIST:
             led = hardware_leds(2);
             led->led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(0);
             led->led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(1);
             led->led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
     }
 }
@@ -342,6 +343,19 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     uint16_t i;
     char buffer[40];
     memset(buffer, 0, sizeof buffer);
+
+    //set the LED's to fade mode if appicable
+    if (g_current_list == PEDALBOARD_LIST)
+    {
+        ledz_t *led = hardware_leds(0);
+        led_state_t led_state;
+        led_state.color = FS_PB_MENU_COLOR;
+        led_state.fade_ratio = 5;
+        led_state.fade_rate = 5;
+        set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
+        led = hardware_leds(1);
+        set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
+    }
 
     i = copy_command((char *)buffer, CMD_PEDALBOARD_LOAD);
 

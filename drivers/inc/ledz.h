@@ -120,8 +120,7 @@ typedef struct LED_STATE_T {
     uint8_t state;
     int16_t time_on, time_off, fade_rate;
     int8_t amount_of_blinks;
-    int16_t fade_ratio;
-    float brightness;
+    float brightness, fade_ratio;
 } led_state_t;
 
 /**
@@ -148,6 +147,7 @@ typedef struct LEDZ_T {
     unsigned int pwm, brightness_value;
     unsigned int fade_in, fade_out;
     unsigned int fade_min, fade_max, fade_counter;
+    float fade_rate;
 #endif
 
     struct LEDZ_T *next;
@@ -348,7 +348,7 @@ void ledz_restore_state(ledz_t* led);
 /**
  * @}
  */
-void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state);
+void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_state);
 
 /**
  * @}
