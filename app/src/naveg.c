@@ -438,7 +438,7 @@ void naveg_foot_double_press(uint8_t foot)
                 //enter navigation mode
                 if (g_ui_connected)
                 {
-                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", CM_print_screen);
+                    give_attention_popup("Please disconnect   the Web-ui to enter navigation mode", CM_print_screen);
                     return;
                 }
 
@@ -459,7 +459,7 @@ void naveg_foot_double_press(uint8_t foot)
             case MODE_TOOL_FOOT:
                 if (g_ui_connected)
                 {
-                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", TM_print_tool);
+                    give_attention_popup("Please disconnect   the Web-ui to enter navigation mode", TM_print_tool);
                     return;
                 }
 
@@ -474,7 +474,7 @@ void naveg_foot_double_press(uint8_t foot)
             case MODE_TOOL_MENU:
                 if (g_ui_connected)
                 {
-                    give_attention_popup("Please disconnect the Web-ui to enter navigation mode", TM_print_tool);
+                    give_attention_popup("Please disconnect   the Web-ui to enter navigation mode", TM_print_tool);
                     return;
                 }
 
