@@ -456,8 +456,8 @@ static void foot_control_add(control_t *control)
         }
         else
         {
-            led->led_state.color = ENUMERATED_PRESSED_COLOR;
-            ledz_set_state(led, LED_ON);
+            led->led_state.brightness = 0.25;
+            ledz_set_state(led, LED_DIMMED);
         }
 
         // locates the current value
@@ -614,8 +614,8 @@ static void control_set(uint8_t id, control_t *control)
             }
             else
             {
-                led->led_state.color = ENUMERATED_PRESSED_COLOR;
-                ledz_set_state(led, LED_ON);
+                led->led_state.brightness = 0.25;
+                ledz_set_state(led, LED_DIMMED);
             }
 
             if (!(control->properties & FLAG_CONTROL_REVERSE))
@@ -1155,8 +1155,8 @@ void CM_set_control(uint8_t hw_id, float value)
                 }
                 else
                 {
-                    led->led_state.color = TRIGGER_PRESSED_COLOR;
-                    ledz_set_state(led, LED_ON);
+                    led->led_state.brightness = 0.25;
+                    ledz_set_state(led, LED_DIMMED);
                 }
 
                 // updates the footer (a getto fix here, the screen.c file did not regognize the NULL pointer so it did not allign the text properly, TODO fix this)
