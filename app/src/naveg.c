@@ -72,6 +72,7 @@ static uint8_t dialog_active = 0;
 // only enabled after "boot" command received
 bool g_should_wait_for_webgui = false;
 bool g_device_booted = false;
+uint8_t g_encoders_pressed[ENCODERS_COUNT] = {};
 
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
@@ -200,6 +201,8 @@ void naveg_enc_enter(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
+    g_encoders_pressed[encoder] = 1;
+
     switch(g_device_mode)
     {
         case MODE_CONTROL:
@@ -221,10 +224,19 @@ void naveg_enc_enter(uint8_t encoder)
     }
 }
 
+void naveg_enc_released(uint8_t encoder)
+{
+    if (!g_initialized) return;
+
+    // checks the foot id
+    if (encoder >= ENCODERS_COUNT) return;
+
+    g_encoders_pressed[encoder] = 0;
+}
+
 void naveg_enc_hold(uint8_t encoder)
 {
-    (void) encoder;
-    //action not used in MVP
+    g_encoders_pressed[encoder] = 1;
 }
 
 void naveg_enc_down(uint8_t encoder)

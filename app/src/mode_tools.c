@@ -247,6 +247,12 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
 
     menu_item_t *item = node->data;
 
+    if ( (item->desc->id == INP_1_GAIN_ID) || (item->desc->id == INP_2_GAIN_ID) || (item->desc->id == OUTP_1_GAIN_ID) || (item->desc->id == OUTP_2_GAIN_ID) || (item->desc->id == HEADPHONE_VOLUME_ID))
+    {
+        if (g_encoders_pressed[encoder])
+            item->data.step = 10;
+    }
+
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 

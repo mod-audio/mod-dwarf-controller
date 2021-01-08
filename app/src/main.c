@@ -312,6 +312,10 @@ static void actuators_task(void *pvParameters)
                 {
                     naveg_enc_enter(id);
                 }
+                if (BUTTON_RELEASED(status))
+                {
+                    naveg_enc_released(id);
+                }
                 if (BUTTON_HOLD(status))
                 {
                     naveg_enc_hold(id);

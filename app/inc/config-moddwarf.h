@@ -186,9 +186,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 // navigation update time, this is only useful in tool mode
 #define NAVEG_UPDATE_TIME   1500
 
-// time in milliseconds to enter in tool mode (hold rotary encoder button)
-#define TOOL_MODE_TIME      500
-
 // the amount of pulses from the encoder that is equal to one up/down movement in a menu
 #define SCROL_SENSITIVITY   0
 

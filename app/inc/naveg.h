@@ -61,6 +61,8 @@ bool g_protocol_busy;
 bool g_ui_communication_started;
 bool g_device_booted; 
 
+uint8_t g_encoders_pressed[ENCODERS_COUNT];
+
 uint8_t g_initialized;
 /*
 ************************************************************************************************************************
@@ -81,6 +83,7 @@ void naveg_turn_off_leds(void);
 void naveg_ui_connection(uint8_t status);
 uint8_t naveg_ui_status(void);
 void naveg_enc_enter(uint8_t encoder);
+void naveg_enc_released(uint8_t encoder);
 void naveg_enc_hold(uint8_t encoder);
 void naveg_enc_down(uint8_t encoder);
 void naveg_enc_up(uint8_t encoder);

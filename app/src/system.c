@@ -21,6 +21,7 @@
 #include "mode_tools.h"
 #include <string.h>
 #include <stdlib.h>
+#include "naveg.h"
 
 /*
 ************************************************************************************************************************
@@ -464,6 +465,7 @@ void system_inp_1_volume_cb(void *arg, int event)
             }
             
             last_message_time = message_time;
+            item->data.step = 1.0;
         }
     }
 
@@ -525,6 +527,7 @@ void system_inp_2_volume_cb(void *arg, int event)
                 cli_command(value, CLI_DISCARD_RESPONSE);
             }
             last_message_time = message_time;
+            item->data.step = 1.0;
         }
     }
 
@@ -587,6 +590,7 @@ void system_outp_1_volume_cb(void *arg, int event)
             }
             
             last_message_time = message_time;
+            item->data.step = 1.0;
         }
     }
 
@@ -649,6 +653,7 @@ void system_outp_2_volume_cb(void *arg, int event)
             }
             
             last_message_time = message_time;
+            item->data.step = 1.0;
         }
     }
 
@@ -701,6 +706,7 @@ void system_hp_volume_cb(void *arg, int event)
             cli_command("mod-amixer hp xvol ", CLI_CACHE_ONLY);
             cli_command(value, CLI_DISCARD_RESPONSE);
             last_message_time = message_time;
+            item->data.step = 1.0;
         }
     }
 

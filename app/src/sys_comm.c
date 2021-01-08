@@ -114,12 +114,12 @@ void sys_comm_init(void)
     serial_set_callback(SYSTEM_SERIAL, system_rx_cb);
 }
 
-void sys_comm__send(const char *data, uint32_t data_size)
+void sys_comm_send(const char *data, uint32_t data_size)
 {
     serial_send(SYSTEM_SERIAL, (const uint8_t*)data, data_size+1);
 }
 
-ringbuff_t* sys_comm__read(void)
+ringbuff_t* sys_comm_read(void)
 {
     if (xSemaphoreTake(g_system_sem, portMAX_DELAY) == pdTRUE)
     {

@@ -918,7 +918,15 @@ void CM_inc_control(uint8_t encoder)
     {
         // increments the step
         if (control->step < (control->steps - 1))
-            control->step++;
+        {
+            if (g_encoders_pressed[encoder])
+                control->step+=10;
+            else
+                control->step++;
+        
+            if (control->step > (control->steps - 1))
+                control->step = (control->steps - 1);
+        }
         else
             return;
     }
@@ -983,7 +991,15 @@ void CM_dec_control(uint8_t encoder)
     {
         // decrements the step
         if (control->step > 0)
-            control->step--;
+        {
+            if (g_encoders_pressed[encoder])
+                control->step-=10;
+            else
+                control->step--;
+
+            if (control->step < 0)
+                control->step = 0;
+        }
         else
             return;
     }
