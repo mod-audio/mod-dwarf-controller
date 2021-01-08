@@ -664,7 +664,7 @@ void actuators_clock(void)
                     else
                         SET_FLAG(encoder->status, EV_ENCODER_TURNED_ACW);
 
-                    event(encoder, EV_ENCODER_TURNED | EV_ENCODER_TURNED_CW | EV_ENCODER_TURNED_ACW);
+                    event(encoder, EV_ENCODER_TURNED | EV_ENCODER_TURNED_CW | EV_ENCODER_TURNED_ACW | EV_BUTTON_HELD);
 
                     encoder->counter = 0;
                 }
