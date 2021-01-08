@@ -646,18 +646,23 @@ void TM_print_tool(void)
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
-                if (g_current_menu->prev)
-                {
-                    led = hardware_leds(4);
-                    led_state.color = WHITE;
-                    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-                }
-                if (g_current_menu->next->next)
-                {
-                    led = hardware_leds(5);
-                    led_state.color = WHITE;
-                    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-                }
+                led = hardware_leds(4);
+                led_state.color = WHITE;
+                if (!g_current_menu->prev)
+                    led_state.brightness = 0.25;
+                else
+                    led_state.brightness = 1;
+                    
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
+
+                led = hardware_leds(5);
+                led_state.color = WHITE;
+                if (!g_current_menu->next->next)
+                    led_state.brightness = 0.25;
+                else
+                    led_state.brightness = 1;
+
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
