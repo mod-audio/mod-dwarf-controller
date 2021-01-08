@@ -448,8 +448,6 @@ void hardware_setup(void)
         actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, 130);
     }
 
-    //MDW_TODO check switch properties (hold timeout, double press)
-
     //init foots
     for (i = 0; i < FOOTSWITCHES_COUNT; i++)
     {  
@@ -489,9 +487,6 @@ void hardware_setup(void)
     uint8_t display_brightness = 0;
     EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &display_brightness, MODE_8_BIT, 1);
     hardware_glcd_brightness(display_brightness);
-
-    //MDW_TODO REMOVE ME, WIHTOUT THIS ACTUATORS LOCK UP
-    write_led_defaults();
 
     //set led colors
     uint8_t led_color_value[3] = {};
