@@ -108,22 +108,40 @@ void set_footswitch_leds(void)
         ledz_off(hardware_leds(i), WHITE);
     }
 
+    ledz_t *led = hardware_leds(3);
+    led->led_state.color = TOGGLED_COLOR;
+    set_ledz_trigger_by_color_id(led, LED_ON);
+
     switch(g_current_list)
     {
         case BANKS_LIST:
-            set_ledz_trigger_by_color_id(hardware_leds(2),FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            led = hardware_leds(2);
+            led->led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
         break;
 
         case PEDALBOARD_LIST:
-            set_ledz_trigger_by_color_id(hardware_leds(2), FS_SS_MENU_COLOR, 1, 0, 0, 0);
-            set_ledz_trigger_by_color_id(hardware_leds(0), FS_PB_MENU_COLOR, 1, 0, 0, 0);
-            set_ledz_trigger_by_color_id(hardware_leds(1), FS_PB_MENU_COLOR, 1, 0, 0, 0);
+            led = hardware_leds(2);
+            led->led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
+            led = hardware_leds(0);
+            led->led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
+            led = hardware_leds(1);
+            led->led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
         break;
 
         case SNAPSHOT_LIST:
-            set_ledz_trigger_by_color_id(hardware_leds(2), FS_PB_MENU_COLOR, 1, 0, 0, 0);
-            set_ledz_trigger_by_color_id(hardware_leds(0), FS_SS_MENU_COLOR, 1, 0, 0, 0);
-            set_ledz_trigger_by_color_id(hardware_leds(1), FS_SS_MENU_COLOR, 1, 0, 0, 0);
+            led = hardware_leds(2);
+            led->led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
+            led = hardware_leds(0);
+            led->led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
+            led = hardware_leds(1);
+            led->led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON);
         break;
     }
 }

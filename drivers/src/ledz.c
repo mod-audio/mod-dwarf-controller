@@ -87,38 +87,6 @@ const unsigned char cie1931[101] = {
 ****************************************************************************************************
 */
 
-struct LEDZ_T {
-    ledz_color_t color;
-    const int *pins;
-
-    struct {
-        unsigned int state : 1;
-        unsigned int blink : 1;
-        unsigned int blink_state : 1;
-        unsigned int brightness : 1;
-    };
-
-    uint16_t time_on, time_off, time;
-
-    int8_t amount_of_blinks;
-
-#ifdef LEDZ_BRIGHTNESS_SUPPORT
-    unsigned int pwm, brightness_value;
-    unsigned int fade_in, fade_out;
-    unsigned int fade_min, fade_max, fade_counter;
-#endif
-
-    ledz_t *next;
-};
-
-typedef struct LED_STATE_T {
-    ledz_t *led;
-    uint8_t color;
-    uint8_t state;
-    int16_t time_on, time_off;
-    int8_t amount_of_blinks;
-} led_state_t;
-
 /*
 ****************************************************************************************************
 *       INTERNAL GLOBAL VARIABLES
@@ -127,7 +95,6 @@ typedef struct LED_STATE_T {
 
 static ledz_t g_leds[LEDZ_MAX_INSTANCES];
 static unsigned int g_leds_available = LEDZ_MAX_INSTANCES;
-static led_state_t g_led_state[LEDZ_MAX_INSTANCES] = {};
 static uint8_t led_colors[MAX_COLOR_ID + 1][3];
 static float g_ledz_brightness = 1;
 /*
@@ -211,7 +178,7 @@ void ledz_set_color(uint8_t item, uint8_t value[3])
     led_colors[item][2] = value[2];
 }
 
-void ledz_set_brightness(uint8_t brightness)
+void ledz_set_global_brightness(uint8_t brightness)
 {
     float brightness_calc = 1;
     switch (brightness)
@@ -426,6 +393,27 @@ void ledz_fade_out(ledz_t* led, ledz_color_t color, unsigned int rate, unsigned 
         }
     }
 }
+
+void ledz_fade_up_down(ledz_t* led, ledz_color_t color, unsigned int rate, unsigned int min, unsigned int max)
+{
+    int i;
+    for (i = 0; led; led = led->next, i++)
+    {
+        if (led->color & color)
+        {
+            led->fade_out = rate;
+            led->fade_min = min;
+            led->fade_max = max;
+
+            if (!led->brightness)
+            {
+                led->pwm = 0;
+                led->brightness_value = 0;
+                led->brightness = 1;
+            }
+        }
+    }
+}
 #endif
 
 void ledz_tick(void)
@@ -490,7 +478,7 @@ void ledz_tick(void)
                 //stop blinking
                 else
                 {
-                    ledz_set_state(led, i, led->color, 1, 0, 0, 0);
+                    ledz_set_state(led, LED_ON);
                 }
 
                 // toggle blink state
@@ -564,49 +552,47 @@ void ledz_tick(void)
     }
 }
 
-void ledz_set_state(ledz_t* led, uint8_t led_id, ledz_color_t color, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks)
+void ledz_set_state(ledz_t* led, uint8_t state)
 {
-    set_ledz_trigger_by_color_id(led, color, state, time_on, time_off, amount_of_blinks);
-
-    //store the LED state
-    g_led_state[led_id].led = led;
-    g_led_state[led_id].color = color;
-    g_led_state[led_id].state = state;
-    g_led_state[led_id].time_on = time_on;
-    g_led_state[led_id].time_off = time_off;
-    g_led_state[led_id].amount_of_blinks = amount_of_blinks;
+    led->led_state.state = state;
+    set_ledz_trigger_by_color_id(led, state);
 }
 
-void ledz_restore_state(ledz_t* led, uint8_t led_id)
+void ledz_restore_state(ledz_t* led)
 {
-    set_ledz_trigger_by_color_id(led, g_led_state[led_id].color, g_led_state[led_id].state, g_led_state[led_id].time_on, g_led_state[led_id].time_off, g_led_state[led_id].amount_of_blinks);
+    set_ledz_trigger_by_color_id(led, led->led_state.state);
 }
 
-void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t color_id, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks)
+void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state)
 {
     uint8_t i = 0;
     for (i = 0; i < 3; i++)
     {
         ledz_color_t ledz_color = get_color_by_id(i);
 
-        //on
-        if (state == 1)
+        switch(state)
         {
-            ledz_on(led, ledz_color);
-            ledz_brightness(led, ledz_color, led_colors[color_id][i]);
-        }
-        //off
-        else if (state == 0)
-        {
-            ledz_off(led, ledz_color);
-            ledz_brightness(led, ledz_color, 0);
-        }
-        //blink
-        else
-        {
-            ledz_on(led, ledz_color);
-            ledz_blink(led, ledz_color, time_on, time_off, amount_of_blinks);
-            ledz_brightness(led, ledz_color, led_colors[color_id][i]);
+            case LED_ON:
+                ledz_on(led, ledz_color);
+                ledz_brightness(led, ledz_color ,led_colors[led->led_state.color][i]);
+            break;
+
+            case LED_OFF:
+                ledz_off(led, ledz_color);
+                ledz_brightness(led, ledz_color, 0);
+            break;
+
+            case LED_BLINK:
+                ledz_on(led, ledz_color);
+                ledz_blink(led, ledz_color, led->led_state.time_on, led->led_state.time_off, led->led_state.amount_of_blinks);
+                ledz_brightness(led, ledz_color, led_colors[led->led_state.color][i]);
+            break;
+
+            case LED_FADE:
+                ledz_on(led, ledz_color);
+                ledz_brightness(led, ledz_color, led_colors[led->led_state.color][i]);
+                ledz_fade_up_down(led, ledz_color, led->led_state.fade_rate, led_colors[led->led_state.color][i] / led->led_state.fade_ratio, led_colors[led->led_state.color][i]);
+            break;
         }
     }
 }

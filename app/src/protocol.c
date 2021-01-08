@@ -321,11 +321,16 @@ void cb_led(proto_t *proto)
 
     if (proto->list_count == 7)
     {
-        ledz_set_state(led, atoi(proto->list[1]), MAX_COLOR_ID, 1, 0, 0, 0);
+        led->led_state.color = MAX_COLOR_ID;
+        ledz_set_state(led, LED_ON);
     }
     else
     {
-        ledz_set_state(led, atoi(proto->list[1]), MAX_COLOR_ID, 2, atoi(proto->list[5]), atoi(proto->list[6]), LED_BLINK_INFINIT);
+        led->led_state.color = MAX_COLOR_ID;
+        led->led_state.time_on = atoi(proto->list[5]);
+        led->led_state.time_off = atoi(proto->list[6]);
+        led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+        ledz_set_state(led, LED_BLINK);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);

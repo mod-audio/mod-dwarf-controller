@@ -642,19 +642,34 @@ void TM_print_tool(void)
                 //print the 3 items on screen
                 screen_menu_page(g_current_menu);
 
-                set_ledz_trigger_by_color_id(hardware_leds(3), TOGGLED_COLOR, 1, 0, 0, 0);
+                ledz_t *led = hardware_leds(3);
+                led->led_state.color = TOGGLED_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON);
+
                 if (g_current_menu->prev)
-                    set_ledz_trigger_by_color_id(hardware_leds(4), WHITE, 1, 0, 0, 0);
+                {
+                    led = hardware_leds(4);
+                    led->led_state.color = WHITE;
+                    set_ledz_trigger_by_color_id(led, LED_ON);
+                }
                 if (g_current_menu->next->next)
-                    set_ledz_trigger_by_color_id(hardware_leds(5), WHITE, 1, 0, 0, 0);
+                {
+                    led = hardware_leds(5);
+                    led->led_state.color = WHITE;
+                    set_ledz_trigger_by_color_id(led, LED_ON);
+                }
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
                 //print the menu
                 screen_system_menu(g_current_item);
 
-                set_ledz_trigger_by_color_id(hardware_leds(3), WHITE, 1, 0, 0, 0);
-                set_ledz_trigger_by_color_id(hardware_leds(4), TOGGLED_COLOR, 1, 0, 0, 0);
+                ledz_t *led = hardware_leds(3);
+                led->led_state.color = WHITE;
+                set_ledz_trigger_by_color_id(led, LED_ON);
+                led = hardware_leds(4);
+                led->led_state.color = TOGGLED_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON);
             }
         break;
 

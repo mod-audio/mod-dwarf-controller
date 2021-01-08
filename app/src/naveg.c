@@ -143,10 +143,13 @@ void naveg_init(void)
 
 void naveg_turn_off_leds(void)
 {
-    uint8_t i; 
+    uint8_t i;
+    ledz_t *led; 
     for (i = 0; i < LEDS_COUNT; i++)
     {
-        set_ledz_trigger_by_color_id(hardware_leds(i), WHITE, 0, 0, 0, 0);
+        led = hardware_leds(i);
+        led->led_state.color = WHITE;
+        set_ledz_trigger_by_color_id(led, LED_OFF);
     }
 }
 

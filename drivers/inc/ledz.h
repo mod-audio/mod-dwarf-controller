@@ -80,18 +80,17 @@ extern "C"
 //always blink value
 #define LED_BLINK_INFINIT		-1
 
+//defines for LED state
+#define LED_ON 				1
+#define LED_OFF 			0
+#define LED_BLINK 			2
+#define LED_FADE 			3
 
 /*
 ****************************************************************************************************
 *       DATA TYPES
 ****************************************************************************************************
 */
-
-/**
- * @struct ledz_t
- * An opaque structure representing a led object
- */
-typedef struct LEDZ_T ledz_t;
 
 /**
  * @struct ledz_type_t
@@ -114,6 +113,43 @@ typedef enum ledz_color_t {
     LEDZ_ORANGE = 0x80,
     LEDZ_ALL_COLORS = 0xFF,
 } ledz_color_t;
+
+typedef struct LED_STATE_T {
+    uint8_t color;
+    uint8_t state;
+    int16_t time_on, time_off, fade_rate;
+    int8_t amount_of_blinks;
+    int16_t fade_ratio;
+} led_state_t;
+
+/**
+ * @struct ledz_t
+ * An opaque structure representing a led object
+ */
+typedef struct LEDZ_T {
+    ledz_color_t color;
+    const int *pins;
+    led_state_t led_state;
+
+    struct {
+        unsigned int state : 1;
+        unsigned int blink : 1;
+        unsigned int blink_state : 1;
+        unsigned int brightness : 1;
+    };
+
+    uint16_t time_on, time_off, time;
+
+    int8_t amount_of_blinks;
+
+#ifdef LEDZ_BRIGHTNESS_SUPPORT
+    unsigned int pwm, brightness_value;
+    unsigned int fade_in, fade_out;
+    unsigned int fade_min, fade_max, fade_counter;
+#endif
+
+    struct LEDZ_T *next;
+} ledz_t;
 
 /*
 ****************************************************************************************************
@@ -268,6 +304,8 @@ void ledz_fade_in(ledz_t* led, ledz_color_t color, unsigned int rate, unsigned i
  */
 void ledz_fade_out(ledz_t* led, ledz_color_t color, unsigned int rate, unsigned int min);
 
+void ledz_fade_up_down(ledz_t* led, ledz_color_t color, unsigned int rate, unsigned int min, unsigned int max);
+
 /**
  * The tick function
  *
@@ -292,7 +330,7 @@ void ledz_tick(void);
  * @param[in] time_off the time in milliseconds which the LED will be off
  * @param[in] the amount of blinks the led should preform, pass -1 for infinate amount. 
  */
-void ledz_set_state(ledz_t* led, uint8_t led_id, ledz_color_t color, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks);
+void ledz_set_state(ledz_t* led, uint8_t state);
 
 /**
  * toggle previous LED state
@@ -303,17 +341,17 @@ void ledz_set_state(ledz_t* led, uint8_t led_id, ledz_color_t color, uint8_t sta
  *
  * @param[in] led ledz object pointer
  */
-void ledz_restore_state(ledz_t* led, uint8_t led_id);
+void ledz_restore_state(ledz_t* led);
 
 /**
  * @}
  */
-void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t color_id, uint8_t state, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks);
+void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state);
 
 /**
  * @}
  */
-void ledz_set_brightness(uint8_t brightness);
+void ledz_set_global_brightness(uint8_t brightness);
 /*
 ****************************************************************************************************
 *       CONFIGURATION ERRORS
