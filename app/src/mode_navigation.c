@@ -1118,7 +1118,7 @@ void NM_toggle_pb_ss(void)
         if (!g_snapshots_loaded) //no snapshots available
         {
             g_current_list = PEDALBOARD_LIST;
-            give_attention_popup("No snapshots available for current pedalboard", NM_print_prev_screen);
+            give_attention_popup("No snapshots        available for       current pedalboard", NM_print_prev_screen);
             return;
         }
 

@@ -278,7 +278,7 @@ static void encoder_control_rm(uint8_t hw_id)
     {
         data_free_control(control);
         g_controls[hw_id] = NULL;
-        if (naveg_get_current_mode() == MODE_CONTROL)
+        if ((naveg_get_current_mode() == MODE_CONTROL) && (g_overlay_actuator_lock == -1))
             screen_encoder(NULL, hw_id);
     }
 }
