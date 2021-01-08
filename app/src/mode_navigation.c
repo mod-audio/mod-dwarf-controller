@@ -767,7 +767,7 @@ void NM_up(void)
                 //we still have items in our list
                 g_snapshots->hover--;
                 bp_list = g_snapshots;
-                title = g_pedalboards->names[g_current_pedalboard];
+                title = g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
             }
         }
         else
@@ -892,7 +892,7 @@ void NM_down(void)
                 //we still have items in our list
                 g_snapshots->hover++;
                 bp_list = g_snapshots;
-                title = g_pedalboards->names[g_current_pedalboard];
+                title = g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
             }
         }
         else 
