@@ -56,12 +56,12 @@
 #define SERIAL2_BAUD_RATE       1500000
 #define SERIAL2_PRIORITY        2
 #define SERIAL2_RX_PORT         2
-#define SERIAL2_RX_PIN          8
-#define SERIAL2_RX_FUNC         1
+#define SERIAL2_RX_PIN          9
+#define SERIAL2_RX_FUNC         2
 #define SERIAL2_RX_BUFF_SIZE    32
 #define SERIAL2_TX_PORT         2
-#define SERIAL2_TX_PIN          9
-#define SERIAL2_TX_FUNC         1
+#define SERIAL2_TX_PIN          8
+#define SERIAL2_TX_FUNC         2
 #define SERIAL2_TX_BUFF_SIZE    32
 #define SERIAL2_HAS_OE          0
 

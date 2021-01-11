@@ -298,7 +298,6 @@ static void actuators_task(void *pvParameters)
             cli_restore(RESTORE_CHECK_BOOT);
 
         // checks if actuator has successfully taken
-        //MDW TODO MAKE LOGIN MANDITORY AGAIN
         if (xStatus == pdPASS && cli_restore(RESTORE_STATUS) == LOGGED_ON_SYSTEM && g_device_booted)
         {
             type = actuator_info[0];
