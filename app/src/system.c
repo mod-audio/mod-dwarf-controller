@@ -1197,7 +1197,7 @@ void system_save_pro_cb(void *arg, int event)
     else if (event == MENU_EV_NONE)
     {
         //display current profile number
-        item->data.value = g_current_profile;
+        item->data.value = 1;
         item->data.min = 1;
         item->data.max = 4;
         item->data.step = 1;
