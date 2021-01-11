@@ -354,6 +354,7 @@ static void actuators_task(void *pvParameters)
                 {
                     if (BUTTON_PRESSED(status))
                     {
+                        sys_comm_send(CMD_PING, strlen(CMD_PING));
                         naveg_button_pressed(id-3);
                     }
 
