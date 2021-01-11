@@ -942,6 +942,7 @@ void screen_system_menu(menu_item_t *item)
     list.line_bottom_margin = 1;
     list.text_left_margin = 2;
 
+    popup_t popup = {};
     switch (item->desc->type)
     {
         case MENU_ROOT:
@@ -955,13 +956,25 @@ void screen_system_menu(menu_item_t *item)
                 widget_listbox_mdx(display, &list);
         break;
 
+        case MENU_CONFIRM:
+            // popup
+            popup.width = DISPLAY_WIDTH;
+            popup.height = DISPLAY_HEIGHT;
+            popup.font = Terminal3x5;
+            popup.type = OK_CANCEL;
+            popup.title = item->data.popup_header;
+            popup.content = item->data.popup_content;
+            popup.button_selected = item->data.hover;
+            widget_popup(display, &popup);
+            return;
+        break;
+
         case MENU_MAIN:
         case MENU_TOGGLE:
         case MENU_BAR:
         case MENU_NONE:
         case MENU_OK:
         case MENU_LIST:
-        case MENU_CONFIRM:
         case MENU_CONFIRM2:
         break;
     }
@@ -1001,7 +1014,6 @@ void screen_menu_page(node_t *node)
     //draw the first box, back
     glcd_text(display, 20, DISPLAY_HEIGHT - 7, "<BACK", Terminal3x5, GLCD_BLACK);
 
-    //draw the second box, TODO Builder MODE
     uint8_t x;
     char *text;
     if (node->prev)
@@ -1035,7 +1047,29 @@ void screen_menu_page(node_t *node)
     uint8_t i;
     for (i = 0; i < 3; i++)
     {
-        print_tripple_menu_items(child_nodes->data, i);
+        menu_item_t *item_child = child_nodes->data;
+
+        if (item_child->data.popup_active == 1)
+        {
+            // popup
+            popup_t popup = {};
+            popup.width = DISPLAY_WIDTH;
+            popup.height = DISPLAY_HEIGHT;
+            popup.font = Terminal3x5;
+
+            if (item_child->desc->parent_id == USER_PROFILE_ID)
+                popup.type = YES_NO;
+            else
+                popup.type = OK_CANCEL;
+
+            popup.title = item_child->data.popup_header;
+            popup.content = item_child->data.popup_content;
+            popup.button_selected = item_child->data.hover;
+            widget_popup(display, &popup);
+            return;
+        }
+
+        print_tripple_menu_items(item_child, i);
 
         if (!child_nodes->next)
             return;
@@ -1110,7 +1144,7 @@ void screen_shift_overlay(int8_t prev_mode)
     title.mode = TEXT_SINGLE_LINE;
     title.font = Terminal3x5;
     title.top_margin = 1;
-    title.text = "SHIFT";
+    title.text = "MENU";
     title.align = ALIGN_CENTER_TOP;
     widget_textbox(display, &title);
 
@@ -1121,15 +1155,17 @@ void screen_shift_overlay(int8_t prev_mode)
     print_menu_outlines();
 
     //draw the first box, menu/control mode 
-    uint8_t x = 22;
+    uint8_t x;
     char *text;
     if (previous_mode != MODE_TOOL_MENU)
     {
-        text = "MENU";
+        text = "SETTNGS";
+        x = 16;
     }
     else
     { 
         text = "EXIT";
+        x = 22;
     }
 
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);

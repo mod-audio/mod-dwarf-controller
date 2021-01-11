@@ -60,6 +60,7 @@ bool g_should_wait_for_webgui;
 bool g_protocol_busy;
 bool g_ui_communication_started;
 bool g_device_booted; 
+bool g_popup_active;
 
 uint8_t g_encoders_pressed[ENCODERS_COUNT];
 

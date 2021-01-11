@@ -302,23 +302,21 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"MIDI",                            MENU_MAIN,      MIDI_ID,                ROOT_ID,            NULL                       , 0},  \
     {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
     {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
+    {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                       , 0},  \
+    {"CURRENT PROFILE",                 MENU_LIST,      USER_PROFILE_ID+1,      USER_PROFILE_ID,    system_load_pro_cb         , 0},  \
+    {"SAVE PROFILE AS",                 MENU_LIST,      USER_PROFILE_ID+2,      USER_PROFILE_ID,    system_save_pro_cb         , 0},  \
     {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb          , 0},  \
-    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb          , 0},  \
+    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb, 0},  \
+    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb    , 0},  \
-    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID     ,            system_upgrade_cb          , 0},  \
+    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb          , 0},  \
 
-//POPUP DEFINES
-//PROFILE POPUP TXT
-#define PROFILE_POPUP_LOAD_TXT    "The device is about to load a\nnew profile. Continue?"
-#define PROFILE_POPUP_RELOAD_TXT  "Reload active user profile?\nThis will discard any unsaved\nchanges."
-#define EXP_CV_POPUP_TXT          "The device is about to switch\ninput modes. To avoid damage,\ndisconnect all devices from\nthe CV/EXP port. Continue?"
-#define HP_CV_POPUP_TXT           "The device is about to switch\noutput modes. To avoid damage,\ndisconnect all devices from\nthe CV/HP port. Continue?"
 // popups text content, format : {menu_id, header_content, text_content}
-
 #define POPUP_CONTENT   \
+    {USER_PROFILE_ID+1, "LOAD USER PROFILE", "load user profile "}, \
+    {USER_PROFILE_ID+2, "SAVE USER PROFILE", "save current settings as user profile "}, \
     {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
-    {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nthe leftmost button and press\nyes. "}, \
+    {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and press yes. "}, \
 
 #define MENU_LINE_CHARS     31
 

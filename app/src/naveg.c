@@ -72,6 +72,7 @@ static uint8_t dialog_active = 0;
 // only enabled after "boot" command received
 bool g_should_wait_for_webgui = false;
 bool g_device_booted = false;
+bool g_popup_active = false;
 uint8_t g_encoders_pressed[ENCODERS_COUNT] = {};
 
 static void (*g_update_cb)(void *data, int event);
@@ -347,7 +348,7 @@ void naveg_enc_up(uint8_t encoder)
 
 void naveg_foot_change(uint8_t foot, uint8_t pressed)
 {
-    if (!g_initialized) return;
+    if (!g_initialized || g_popup_active) return;
 
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
@@ -421,6 +422,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
+    if (g_popup_active) return;
+
     hardware_set_overlay_timeout(0, NULL);
 
     //lock foots when double press, we dont want a release action here
@@ -536,7 +539,7 @@ void naveg_button_pressed(uint8_t button)
 {
     hardware_set_overlay_timeout(0, NULL);
 
-    if (!g_initialized) return;
+    if (!g_initialized || g_popup_active) return;
 
     switch(g_device_mode)
     {
@@ -622,7 +625,7 @@ void naveg_button_pressed(uint8_t button)
 void naveg_button_released(uint8_t button)
 {
     (void) button;
-    if (!g_initialized) return;
+    if (!g_initialized || g_popup_active) return;
 
     switch(g_device_mode)
     {
@@ -648,6 +651,8 @@ void naveg_button_released(uint8_t button)
 //used for the shift button
 void naveg_shift_pressed()
 {
+    if (g_popup_active) return;
+
     hardware_set_overlay_timeout(0, NULL);
 
     //enter shift mode
@@ -676,6 +681,8 @@ void naveg_shift_pressed()
 
 void naveg_shift_releaed()
 {
+    if (g_popup_active) return;
+
     hardware_set_overlay_timeout(0, NULL);
 
     //already entered some other mode

@@ -141,6 +141,33 @@ static void update_status(char *item_to_update, const char *response)
     }
 }
 
+void set_item_value(char *command, uint16_t value)
+{
+    if (g_comm_protocol_bussy) return;
+
+    uint8_t i;
+    char buffer[50];
+
+    i = copy_command((char *)buffer, command);
+
+    // copy the value
+    char str_buf[8];
+    int_to_str(value, str_buf, 4, 0);
+    const char *p = str_buf;
+    while (*p)
+    {
+        buffer[i++] = *p;
+        p++;
+    }
+    buffer[i] = 0;
+
+    // sets the response callback
+    ui_comm_webgui_set_response_cb(NULL, NULL);
+
+    // sends the data to GUI
+    ui_comm_webgui_send(buffer, i);
+}
+
 static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 {
     if (g_comm_protocol_bussy) return;
@@ -396,28 +423,33 @@ void system_tag_cb(void *arg, int event)
 
 void system_upgrade_cb(void *arg, int event)
 {
-    (void) arg;
+    menu_item_t *item = arg;
     if (event == MENU_EV_ENTER)
     {
-        //menu_item_t *item = arg;
-        //button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH0);
+        button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH2);
 
-        // check if YES option was chosen
-        //if (item->data.hover == 0)
-        //{
-            //uint8_t status = actuator_get_status(foot);
+        // check if OK option was chosen
+        if (item->data.hover == 0)
+        {
+            uint8_t status = actuator_get_status(foot);
 
-            //// check if footswitch is pressed down
-            //if (BUTTON_PRESSED(status))
-            //{
+            // check if footswitch is pressed down
+            if (BUTTON_PRESSED(status))
+            {
                 //clear all screens
                 screen_clear();
 
                 // start restore
                 cli_restore(RESTORE_INIT);
-            //}
-        //}
+
+                item->data.value = 1;
+
+                return;
+            }
+        }
     }
+
+    item->data.value = 0;
 }
 
 void system_inp_1_volume_cb(void *arg, int event)
@@ -1105,38 +1137,45 @@ void system_pb_prog_change_cb(void *arg, int event)
     item->data.unit_text = str_bfr;
 }
 
-/*
 //USER PROFILE X (loading)
 void system_load_pro_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
     //if clicked and YES was selected from the pop-up
-    if (event == MENU_EV_ENTER && item->data.hover == 0)
+    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
     {
         //current profile is the ID (A=1, B=2, C=3, D=4)
-        g_current_profile = item->desc->id - item->desc->parent_id;
-        item->data.value = 1;
-
+        g_current_profile = item->data.value;
         set_item_value(CMD_PROFILE_LOAD, g_current_profile);
     }
 
+    if (item->data.popup_active)
+        return;
+
+    if ((event == MENU_EV_UP) && (item->data.value < item->data.max))
+        item->data.value++;
+    else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
+        item->data.value--;
     else if (event == MENU_EV_NONE)
     {
-        if ((item->desc->id - item->desc->parent_id) == g_current_profile)
-        {
-            add_chars_to_menu_name(item, option_enabled);
-            item->data.value = 1;
-        }
-        //we dont want a [ ] behind every profile, so clear the name to just show the txt
-        else
-        { 
-            strcpy(item->name, item->desc->name);
-            item->data.value = 0;
-        }
+        //display current profile number
+        item->data.value = g_current_profile;
+        item->data.min = 1;
+        item->data.max = 4;
+        item->data.step = 1;
+        item->data.list_count = 2;
+        item->data.hover = 1;
     }
 
-    //we do not need tu update anything, a profile_update command will be run that handles that. 
+    //display the current profile
+    switch ((int)item->data.value)
+    {
+        case 1: item->data.unit_text = "[A]"; break;
+        case 2: item->data.unit_text = "[B]"; break;
+        case 3: item->data.unit_text = "[C]"; break;
+        case 4: item->data.unit_text = "[D]"; break;
+    }
 }
 
 //OVERWRITE CURRENT PROFILE
@@ -1145,29 +1184,37 @@ void system_save_pro_cb(void *arg, int event)
    menu_item_t *item = arg;
 
     //if clicked and YES was selected from the pop-up
-    if (event == MENU_EV_ENTER && item->data.hover == 0)
-    {
-        set_item_value(CMD_PROFILE_STORE, g_current_profile);
-        //since the current profile value cant change because of a menu enter here we do not need to update the name.
-    }
+    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+        set_item_value(CMD_PROFILE_STORE, item->data.value);
 
-    //if we are just entering the menu just add the current value to the menu item
+    if (item->data.popup_active)
+        return;
+
+    if ((event == MENU_EV_UP) && (item->data.value < item->data.max))
+        item->data.value++;
+    else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
+        item->data.value--;
     else if (event == MENU_EV_NONE)
     {
-        char *profile_char = NULL;
-        switch (g_current_profile)
-        {
-            case 1: profile_char = "[A]"; break;
-            case 2: profile_char = "[B]"; break;
-            case 3: profile_char = "[C]"; break;
-            case 4: profile_char = "[D]"; break;
-        }
-        add_chars_to_menu_name(item, profile_char);
+        //display current profile number
+        item->data.value = g_current_profile;
+        item->data.min = 1;
+        item->data.max = 4;
+        item->data.step = 1;
+        item->data.list_count = 2;
+        item->data.hover = 1;
     }
 
-    //we do not need to update, there is nothing that changes
+    //display the current profile
+    switch ((int)item->data.value)
+    {
+        case 1: item->data.unit_text = "[A]"; break;
+        case 2: item->data.unit_text = "[B]"; break;
+        case 3: item->data.unit_text = "[C]"; break;
+        case 4: item->data.unit_text = "[D]"; break;
+    }
 }
-*/
+
 
 //Callbacks below are not part of the menu
 void system_tuner_mute_cb(void *arg, int event)

@@ -82,6 +82,7 @@ typedef struct MENU_DATA_T {
     char **list;
     uint8_t list_count;
     uint8_t selected, hover;
+    uint8_t popup_active;
     char *popup_header;
     const char *popup_content;
 

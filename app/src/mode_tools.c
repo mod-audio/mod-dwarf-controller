@@ -50,11 +50,11 @@ static menu_desc_t g_menu_desc[] = {
     SYSTEM_MENU
     {NULL, 0, -1, -1, NULL, 0}
 };
-/*
+
 static const menu_popup_t g_menu_popups[] = {
     POPUP_CONTENT
     {-1, NULL, NULL}
-};*/
+};
 
 /*
 ************************************************************************************************************************
@@ -196,8 +196,31 @@ static void menu_enter(uint8_t encoder)
     }
     else if (item->desc->type == MENU_CONFIRM)
     {
-            if (item->desc->action_cb)
-                item->desc->action_cb(item, MENU_EV_ENTER);
+        i = 0;
+        while (g_menu_popups[i].popup_content)
+        {
+            if (item->desc->id == g_menu_popups[i].menu_id)
+            {
+                item->data.list_count = 2;
+                item->data.hover = 1;
+                item->data.popup_content = g_menu_popups[i].popup_content;
+                item->data.popup_header = g_menu_popups[i].popup_header;
+                if (item->data.popup_active)
+                {
+                    item->data.popup_active = 0;
+                    g_popup_active = 0;
+                }
+                else
+                {
+                    item->data.popup_active = 1;
+                    g_popup_active = 1;
+                }
+            }
+            i++;
+        }
+
+        if (item->desc->action_cb)
+            item->desc->action_cb(item, MENU_EV_ENTER);
     }
 
     if (item->desc->type == MENU_CONFIRM2)
@@ -234,18 +257,23 @@ static void menu_down(void)
 static void menu_change_value(uint8_t encoder, uint8_t action)
 {
     uint8_t i;
-    node_t *node = g_current_menu->first_child;
-
-    //locate the to be changed item
-    for (i = 0; i < encoder; i++)
+    menu_item_t *item;
+    if (g_current_item->desc->type == MENU_MAIN)
     {
-        if (!node->next)
-            return;
+        node_t *node = g_current_menu->first_child;
 
-        node = node->next;
+        //locate the to be changed item
+        for (i = 0; i < encoder; i++)
+        {
+            if (!node->next)
+                return;
+
+            node = node->next;
+        }
+        item = node->data;
     }
-
-    menu_item_t *item = node->data;
+    else
+        item = g_current_item;
 
     if ( (item->desc->id == INP_1_GAIN_ID) || (item->desc->id == INP_2_GAIN_ID) || (item->desc->id == OUTP_1_GAIN_ID) || (item->desc->id == OUTP_2_GAIN_ID) || (item->desc->id == HEADPHONE_VOLUME_ID))
     {
@@ -253,10 +281,73 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
             item->data.step = 10;
     }
 
+    if (action == MENU_EV_ENTER)
+    {
+        i = 0;
+        while (g_menu_popups[i].popup_content)
+        {
+            if (item->desc->id == g_menu_popups[i].menu_id)
+            {
+                if (item->desc->parent_id == USER_PROFILE_ID)
+                {
+                    static char buffer[50];
+                    memset(buffer, 0, sizeof buffer);
+
+                    strcpy(buffer, g_menu_popups[i].popup_content);
+                    strcat(buffer, item->data.unit_text);
+                    strcat(buffer, "?");
+                    item->data.popup_content = buffer;
+                }
+                else
+                    item->data.popup_content = g_menu_popups[i].popup_content;
+
+                item->data.popup_header = g_menu_popups[i].popup_header;
+                if (item->data.popup_active)
+                {
+                    item->data.popup_active = 0;
+                    g_popup_active = 0;
+
+                    if (item->desc->id == UPDATE_ID)
+                    {
+                        if (item->desc->action_cb)
+                            item->desc->action_cb(item, action);
+
+                        if (item->data.value == 1)
+                            return;
+
+                        //go back to main menu
+                        g_current_item = g_current_menu->data;
+
+                        TM_print_tool();
+                    }
+                }
+                else
+                {
+                    item->data.popup_active = 1;
+                    g_popup_active = 1;
+                }
+            }
+            i++;
+        }
+    }
+    else if ((action == MENU_EV_UP) && (item->data.popup_active == 1))
+    {
+        if (item->data.hover < (item->data.list_count - 1))
+            item->data.hover++;
+    }
+    else if ((action == MENU_EV_DOWN) && (item->data.popup_active == 1))
+    {
+        if (item->data.hover > 0)
+           item->data.hover--;
+    }
+
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 
-    screen_menu_page(g_current_menu);
+    if (/*(item->desc->parent_id == ROOT_ID) && */(item->desc->id != UPDATE_ID))
+        screen_menu_page(g_current_menu);
+    else
+        screen_system_menu(g_current_item);
 }
 
 static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
@@ -273,6 +364,7 @@ static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
             item->data.hover = 0;
             item->data.selected = 0xFF;
             item->data.list_count = 0;
+            item->data.popup_active = 0;
             item->data.list = (char **) MALLOC(g_max_items_list * sizeof(char *));
             item->desc = &g_menu_desc[i];
             item->name = MALLOC(MAX_CHARS_MENU_NAME);
@@ -676,6 +768,11 @@ void TM_print_tool(void)
                 led = hardware_leds(4);
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
+            else
+            {
+                //print the menu
+                screen_system_menu(g_current_item);
             }
         break;
 
