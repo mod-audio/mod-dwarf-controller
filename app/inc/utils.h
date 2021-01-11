@@ -79,6 +79,8 @@ char* strarr_join(char** const str_array);
 
 // converts integer to string and returns the string length
 uint32_t int_to_str(int32_t num, char *string, uint32_t string_size, uint8_t zero_leading);
+// converts integer to string in hex format and returns the string length
+uint32_t int_to_hex_str(int32_t num, char *string);
 // converts float to string  and returns the string length
 uint32_t float_to_str(float num, char *string, uint32_t string_size, uint8_t precision);
 

@@ -65,7 +65,7 @@ void sys_comm_init(void);
 
 //// webgui communication functions
 // sends a message to webgui
-void sys_comm_send(const char *data, uint32_t data_size);
+void sys_comm_send(const char *command, const char *arguments);
 // read a message from webgui
 ringbuff_t* sys_comm_read(void);
 // sets a function callback to webgui response

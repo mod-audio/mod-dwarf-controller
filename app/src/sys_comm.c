@@ -114,9 +114,33 @@ void sys_comm_init(void)
     serial_set_callback(SYSTEM_SERIAL, system_rx_cb);
 }
 
-void sys_comm_send(const char *data, uint32_t data_size)
+void sys_comm_send(const char *command, const char *arguments)
 {
-    serial_send(SYSTEM_SERIAL, (const uint8_t*)data, data_size+1);
+    char buffer[20];
+    memset(buffer, 0, sizeof buffer);
+
+    //copy command
+    uint8_t i = copy_command(buffer, command); 
+
+    if (arguments)
+    {
+        buffer[i++] = ' ';
+
+        //add size as hex number
+        char str_bfr[8] = {};
+        i += int_to_hex_str(strlen(arguments), str_bfr);
+        strcat(buffer, str_bfr);
+
+        buffer[i++] = ' ';
+
+        //add arguments
+        strcat(buffer, arguments);
+    }
+
+    //calc total size
+    uint32_t data_size = strlen(buffer);
+
+    serial_send(SYSTEM_SERIAL, (const uint8_t*)buffer, data_size+1);
 }
 
 ringbuff_t* sys_comm_read(void)

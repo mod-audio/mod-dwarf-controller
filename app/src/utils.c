@@ -282,6 +282,26 @@ uint32_t int_to_str(int32_t num, char *string, uint32_t string_size, uint8_t zer
     return str_len;
 }
 
+uint32_t int_to_hex_str(int32_t num, char *string)
+{
+    int i = 12;
+    int j = 0;
+
+    do{
+        string[i] = "0123456789ABCDEF"[num % 16];
+        i--;
+        num = num/16;
+    }while( num > 0);
+
+    while( ++i < 13){
+       string[j++] = string[i];
+    }
+
+    string[j] = 0;
+
+    return j;
+}
+
 uint32_t float_to_str(float num, char *string, uint32_t string_size, uint8_t precision)
 {
     double intp, fracp;
