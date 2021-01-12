@@ -195,7 +195,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
 
                 str_bfr[char_cnt_name] = 0;
-                glcd_text(display, (item_x + 18 - char_cnt_name*2), item_y+30, str_bfr, Terminal3x5, GLCD_BLACK);
+                glcd_text(display, (item_x + 19 - char_cnt_name*2), item_y+30, str_bfr, Terminal3x5, GLCD_BLACK);
             }
         break;
 
@@ -239,17 +239,18 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 second_val_line[p] = 0;
                 if (p != 0)
                 {
-                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+24, first_val_line, Terminal3x5, GLCD_BLACK);
-                    glcd_text(display, (item_x + 18 - 2*strlen(second_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+24, first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(second_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
                 }
                 else
                 {
-                    glcd_text(display, (item_x + 18 - 2*strlen(first_val_line)), item_y+26, first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+26, first_val_line, Terminal3x5, GLCD_BLACK);
                 }
             }
         break;
 
         //others, dont use
+        //TODO check if remove? comes from MDX codebase
         case MENU_MAIN:
         case MENU_ROOT:
         case MENU_CONFIRM2:

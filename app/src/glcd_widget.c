@@ -1032,7 +1032,7 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
     //trigger
     if (toggle->value >= 2)
     {
-        label.x = toggle->x + (toggle->width / 2) - 7;
+        label.x = toggle->x + (toggle->width / 2) - 9;
         label.text = "TRIG";
         widget_textbox(display, &label);
 
@@ -1046,7 +1046,7 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
     //toggle
     else if (toggle->value == 1)
     {
-        label.x = toggle->x + (toggle->width / 2) - 3;
+        label.x = toggle->x + (toggle->width / 2) - 4;
         label.text = "ON";
         widget_textbox(display, &label);
 
@@ -1055,7 +1055,7 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
     }
     else 
     {
-        label.x = toggle->x + (toggle->width / 2) - 5;
+        label.x = toggle->x + (toggle->width / 2) - 6;
         label.text = "OFF";
         widget_textbox(display, &label);
 

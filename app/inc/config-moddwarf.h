@@ -450,7 +450,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0
 
-#define LED_INTERUPT_TIME     10
+#define LED_INTERUPT_TIME                 10
 
 //volume message timeout in a multiple of 500us
 #define VOL_MESSAGE_TIMEOUT         200
