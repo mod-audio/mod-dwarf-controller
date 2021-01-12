@@ -303,7 +303,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
     {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"CURRENT PROFILE",                 MENU_LIST,      USER_PROFILE_ID+1,      USER_PROFILE_ID,    system_load_pro_cb         , 0},  \
+    {"LOAD PROFILE",                    MENU_LIST,      USER_PROFILE_ID+1,      USER_PROFILE_ID,    system_load_pro_cb         , 0},  \
     {"SAVE PROFILE AS",                 MENU_LIST,      USER_PROFILE_ID+2,      USER_PROFILE_ID,    system_save_pro_cb         , 0},  \
     {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb, 0},  \
