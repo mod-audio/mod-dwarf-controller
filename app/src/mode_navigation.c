@@ -133,13 +133,13 @@ void set_footswitch_leds(void)
 
         case SNAPSHOT_LIST:
             led = hardware_leds(2);
-            led->led_state.color = FS_PB_MENU_COLOR;
+            led_state.color = FS_PB_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(0);
-            led->led_state.color = FS_SS_MENU_COLOR;
+            led_state.color = FS_SS_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(1);
-            led->led_state.color = FS_SS_MENU_COLOR;
+            led_state.color = FS_SS_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
     }

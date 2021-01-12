@@ -316,7 +316,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {USER_PROFILE_ID+1, "LOAD USER PROFILE", "load user profile "}, \
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "save current settings as user profile "}, \
     {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
-    {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and press yes. "}, \
+    {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
 #define MENU_LINE_CHARS     31
 
