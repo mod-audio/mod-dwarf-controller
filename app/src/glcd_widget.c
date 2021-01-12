@@ -1250,7 +1250,7 @@ void widget_popup(glcd_t *display, popup_t *popup)
             button_w = get_text_width(button_text, popup->font) + 8;
             button_h = popup->font[FONT_HEIGHT]+2;
             button_x = popup->x + (popup->width / 2) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h;
+            button_y = popup->y + popup->height - button_h - 1;
             glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
 
             if (popup->button_selected == 0)
@@ -1263,7 +1263,7 @@ void widget_popup(glcd_t *display, popup_t *popup)
             button_w = get_text_width(button_text, popup->font) + 8;
             button_h = popup->font[FONT_HEIGHT]+2;
             button_x = popup->x + (popup->width / 4) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h;
+            button_y = popup->y + popup->height - button_h - 1;
             glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
 
             if (popup->button_selected == 0)
@@ -1273,7 +1273,7 @@ void widget_popup(glcd_t *display, popup_t *popup)
             button_w = get_text_width(button_text, popup->font) + 8;
             button_h = popup->font[FONT_HEIGHT]+2;
             button_x = popup->x + popup->width - (popup->width / 4) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h;
+            button_y = popup->y + popup->height - button_h - 1;
             glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
 
             if (popup->button_selected == 1)
