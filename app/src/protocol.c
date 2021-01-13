@@ -579,15 +579,7 @@ void cb_pedalboard_name(proto_t *proto)
     //this is done here as its one of the last messages from MOD-UI
     if (naveg_get_current_mode() == MODE_NAVIGATION)
     {
-        ledz_t *led;
-        led_state_t led_state;
-        led_state.color = FS_PB_MENU_COLOR;
-        led_state.fade_ratio = 0;
-        led_state.fade_rate = 0;
-        led = hardware_leds(0);
-        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-        led = hardware_leds(1);
-        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+        NM_set_leds();
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);

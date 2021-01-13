@@ -259,6 +259,8 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
         case MENU_OK:
         case MENU_NONE:
         case MENU_CONFIRM:
+        case MENU_TOOL:
+        case MENU_FOOT:
         break;
     }
 }
@@ -976,6 +978,8 @@ void screen_system_menu(menu_item_t *item)
         case MENU_OK:
         case MENU_LIST:
         case MENU_CONFIRM2:
+        case MENU_TOOL:
+        case MENU_FOOT:
         break;
     }
 }

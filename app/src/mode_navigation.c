@@ -100,51 +100,6 @@ static uint8_t g_current_list = PEDALBOARD_LIST;
 ************************************************************************************************************************
 */
 
-void set_footswitch_leds(void)
-{
-    uint8_t i;
-    for (i = 0; i < 6; i++)
-    {
-        ledz_off(hardware_leds(i), WHITE);
-    }
-
-    ledz_t *led;
-    led_state_t led_state;
-
-    switch(g_current_list)
-    {
-        case BANKS_LIST:
-            led = hardware_leds(2);
-            led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-        break;
-
-        case PEDALBOARD_LIST:
-            led = hardware_leds(2);
-            led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(0);
-            led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(1);
-            led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-        break;
-
-        case SNAPSHOT_LIST:
-            led = hardware_leds(2);
-            led_state.color = FS_PB_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(0);
-            led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(1);
-            led_state.color = FS_SS_MENU_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-        break;
-    }
-}
-
 static void parse_banks_list(void *data, menu_item_t *item)
 {
     (void) item;
@@ -368,7 +323,7 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
 
-    // inserts one spacesend_load_pedalb
+    // inserts one spacesend_load_pedalboard
     buffer[i++] = ' ';
 
     const char *p = pedalboard_uid;
@@ -502,6 +457,11 @@ static void send_load_snapshot(const char *snapshot_uid)
     memset(buffer, 0, sizeof buffer);
 
     i = copy_command((char *)buffer, CMD_SNAPSHOTS_LOAD);
+
+    if (g_current_list == SNAPSHOT_LIST)
+    {
+        NM_set_leds();
+    }
 
     const char *p = snapshot_uid;
     // copy the snapshot uid
@@ -701,12 +661,12 @@ void NM_enter(void)
         screen_bank_list(g_banks);
 }
 
-void NM_up(void)
+uint8_t NM_up(void)
 {
     bp_list_t *bp_list = 0;
     const char *title = 0;
 
-    if (!g_banks) return;
+    if (!g_banks) return 0;
 
     if (g_current_list == BANKS_LIST)
     {
@@ -714,7 +674,7 @@ void NM_up(void)
         if(g_banks->page_min == 0) 
         {
             //check if we are not already at the end
-            if (g_banks->hover == 0) return;
+            if (g_banks->hover == 0) return 0;
             else 
             {
                 //we still have banks in our list
@@ -753,7 +713,7 @@ void NM_up(void)
         if(g_pedalboards->page_min == 0) 
         {
             //check if we are not already at the end
-            if (g_pedalboards->hover == 0) return;
+            if (g_pedalboards->hover == 0) return 0;
             else 
             {
                 //go down till the end
@@ -790,7 +750,7 @@ void NM_up(void)
         if(g_snapshots->page_min == 0) 
         {
             //check if we are not already at the end
-            if (g_snapshots->hover == 0) return;
+            if (g_snapshots->hover == 0) return 0;
             else 
             {
                 //go down till the end
@@ -821,7 +781,7 @@ void NM_up(void)
             }
         }
     }
-    else return;
+    else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
         screen_pbss_list(title, bp_list, PB_MODE);
@@ -829,14 +789,16 @@ void NM_up(void)
         screen_pbss_list(title, bp_list, SS_MODE);
     else 
         screen_bank_list(bp_list);
+
+    return 1;
 }
 
-void NM_down(void)
+uint8_t NM_down(void)
 {
     bp_list_t *bp_list = 0;
     const char *title = 0;
 
-    if (!g_banks) return;
+    if (!g_banks) return 0;
 
     if (g_current_list == BANKS_LIST)
     {
@@ -844,7 +806,7 @@ void NM_down(void)
         if(g_banks->page_max == g_banks->menu_max) 
         {
             //check if we are not already at the end
-            if (g_banks->hover >= g_banks->menu_max -1) return;
+            if (g_banks->hover >= g_banks->menu_max -1) return 0;
             else 
             {
                 //we still have banks in our list
@@ -879,8 +841,8 @@ void NM_down(void)
         //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
         if(g_pedalboards->page_max == g_pedalboards->menu_max) 
         {
-            //check if we are not already at the end, we dont need so substract by one, since the "> back to banks" item is added on parsing
-            if (g_pedalboards->hover == g_pedalboards->menu_max - 1) return;
+            //check if we are not already at the end
+            if (g_pedalboards->hover == g_pedalboards->menu_max - 1) return 0;
             else 
             {
                 //we still have items in our list
@@ -915,8 +877,8 @@ void NM_down(void)
         //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
         if(g_snapshots->page_max == g_snapshots->menu_max)
         {
-            //check if we are not already at the end, we dont need so substract by one, since the "> back to banks" item is added on parsing
-            if (g_snapshots->hover == g_snapshots->menu_max - 1) return;
+            //check if we are not already at the end
+            if (g_snapshots->hover == g_snapshots->menu_max - 1) return 0;
             else 
             {
                 //we still have items in our list
@@ -946,7 +908,7 @@ void NM_down(void)
             }
         }
     }
-    else return;
+    else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
         screen_pbss_list(title, bp_list, PB_MODE);
@@ -954,6 +916,8 @@ void NM_down(void)
         screen_pbss_list(title, bp_list, SS_MODE);
     else 
         screen_bank_list(bp_list);
+
+    return 1;
 }
 
 void NM_set_banks(bp_list_t *bp_list)
@@ -1029,7 +993,7 @@ void NM_print_screen(void)
         break;
     }
 
-    set_footswitch_leds();
+    NM_set_leds();
 }
 
 void NM_print_prev_screen(void)
@@ -1050,6 +1014,69 @@ void NM_print_prev_screen(void)
 
             //display them
             screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
+        break;
+    }
+}
+
+void NM_set_leds(void)
+{
+    uint8_t i;
+    for (i = 0; i < 6; i++)
+    {
+        ledz_off(hardware_leds(i), WHITE);
+    }
+
+    ledz_t *led;
+    led_state_t led_state;
+    led_state.fade_ratio = 0;
+    led_state.fade_rate = 0;
+
+    switch(g_current_list)
+    {
+        case BANKS_LIST:
+            led = hardware_leds(2);
+            led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+        break;
+
+        case PEDALBOARD_LIST:
+            led = hardware_leds(2);
+            led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            if (g_pedalboards->hover > 0)
+            {
+                led = hardware_leds(0);
+                led_state.color = FS_PB_MENU_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
+
+            if (g_pedalboards->hover < g_pedalboards->menu_max - 1)
+            {
+                led = hardware_leds(1);
+                led_state.color = FS_PB_MENU_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
+        break;
+
+        case SNAPSHOT_LIST:
+            led = hardware_leds(2);
+            led_state.color = FS_PB_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            if (g_snapshots->hover > 0)
+            {
+                led = hardware_leds(0);
+                led_state.color = FS_SS_MENU_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
+
+            if (g_snapshots->hover < g_snapshots->menu_max - 1)
+            {
+                led = hardware_leds(1);
+                led_state.color = FS_SS_MENU_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
         break;
     }
 }
@@ -1099,14 +1126,14 @@ void NM_change_pbss(uint8_t next_prev)
 {
     if (next_prev)
     {
-        NM_down();
+        if (NM_down())
+            NM_enter();
     }
     else
     {
-        NM_up();
+        if (NM_up())
+            NM_enter();
     }
-
-    NM_enter();
 }
 
 void NM_toggle_pb_ss(void)
@@ -1118,7 +1145,7 @@ void NM_toggle_pb_ss(void)
         if (!g_snapshots_loaded) //no snapshots available
         {
             g_current_list = PEDALBOARD_LIST;
-            give_attention_popup("No snapshots        available for       current pedalboard", NM_print_prev_screen);
+            give_attention_popup("No snapshots\navailable for\ncurrent pedalboard", NM_print_prev_screen);
             return;
         }
 
@@ -1134,5 +1161,5 @@ void NM_toggle_pb_ss(void)
         g_current_list = PEDALBOARD_LIST;
     }
 
-    set_footswitch_leds();
+    NM_set_leds();
 }
