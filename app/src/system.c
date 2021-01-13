@@ -1358,7 +1358,7 @@ void system_bpb_cb (void *arg, int event)
         item->data.step = 1;
     }
     //scrolling up/down
-    else if ((event == MENU_EV_UP) && (g_MIDI_clk_src == 0))
+    else if (event == MENU_EV_UP)
     {
         if (item->data.value < item->data.max) item->data.value++;
         g_beats_per_bar = item->data.value;
@@ -1366,7 +1366,7 @@ void system_bpb_cb (void *arg, int event)
         //let mod-ui know
         set_menu_item_value(MENU_ID_BEATS_PER_BAR, g_beats_per_bar);
     }
-    else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src == 0))
+    else if (event == MENU_EV_DOWN)
     {
         if (item->data.value > item->data.min) item->data.value--;
         g_beats_per_bar = item->data.value;
