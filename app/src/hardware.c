@@ -364,8 +364,6 @@ void check_eeprom_defaults(uint16_t current_version)
 ************************************************************************************************************************
 */
 
-//MWD_TODO EMBED EEPROM MEMORY MENAGER
-
 void hardware_setup(void)
 {
     // set system core clock

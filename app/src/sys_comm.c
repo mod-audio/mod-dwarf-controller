@@ -127,7 +127,8 @@ void sys_comm_send(const char *command, const char *arguments)
         buffer[i++] = ' ';
 
         //add size as hex number
-        char str_bfr[8] = {};
+        char str_bfr[9] = {};
+        i+=2;
         i += int_to_hex_str(strlen(arguments), str_bfr);
         strcat(buffer, str_bfr);
 

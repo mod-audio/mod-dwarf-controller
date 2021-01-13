@@ -72,6 +72,7 @@ void screen_tool(uint8_t tool, uint8_t display_id);
 void screen_bank_list(bp_list_t *list);
 void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle);
 void screen_system_menu(menu_item_t *item);
+void screen_tool_control_page(node_t *node);
 void screen_toggle_tuner(float frequency, char *note, int8_t cents);
 void screen_image(uint8_t display, const uint8_t *image);
 void screen_shift_overlay(int8_t prev_mode);
@@ -79,7 +80,7 @@ void screen_menu_page(node_t *node);
 void screen_control_overlay(control_t *control);
 void screen_msg_overlay(char *message);
 void screen_update_tuner(float frequency, char *note, int8_t cents);
-void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob);
+void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode);
 
 /*
 ************************************************************************************************************************

@@ -86,7 +86,7 @@ static uint8_t g_max_items_list;
 static void (*g_update_cb)(void *data, int event);
 static void *g_update_data;
 static uint8_t g_current_tool;
-
+static uint8_t g_first_foot_tool = TOOL_TUNER;
 
 static xSemaphoreHandle g_dialog_sem;
 static uint8_t dialog_active = 0;
@@ -124,6 +124,53 @@ static void tool_off(uint8_t tool)
 static int tool_is_on(uint8_t tool)
 {
     return g_tool[tool].state;
+}
+
+void set_tool_pages_led_state(void)
+{
+    ledz_t *led = hardware_leds(2);
+    led_state_t page_state;
+
+    page_state.color = FS_PAGE_COLOR_1 + g_current_tool - TOOL_FOOT-1;
+    set_ledz_trigger_by_color_id(led, LED_ON, page_state);
+}
+
+node_t *get_menu_node_by_ID(uint8_t menu_id)
+{
+    node_t *node = g_menu->first_child->first_child;
+
+    //make sure we have all menu value's updated
+    node_t *child_nodes;
+    menu_item_t *item_child;
+
+    while(node)
+    {
+        item_child = node->data;
+        if (item_child->desc->id == menu_id)
+        {
+            return node;
+        }
+
+        if (node->first_child)
+        {
+            child_nodes = node->first_child;
+            while(child_nodes)
+            {
+                item_child = child_nodes->data;
+
+                if (item_child->desc->id == menu_id)
+                {
+                    return child_nodes;
+                }
+
+                child_nodes = child_nodes->next;
+            }
+        }
+
+        node = node->next;
+    }
+
+    return NULL;
 }
 
 static void menu_enter(uint8_t encoder)
@@ -248,7 +295,7 @@ static void menu_down(void)
 {
     menu_item_t *item = g_current_item;
 
-    if (item->data.hover < (item->data.list_count - 1))
+    if (item->data.hover < MENU_VISIBLE_LIST_CUT-1)
         item->data.hover++;
 
     screen_system_menu(item);
@@ -373,7 +420,7 @@ static void create_menu_tree(node_t *parent, const menu_desc_t *desc)
             node_t *node;
             node = node_child(parent, item);
 
-            if (item->desc->type == MENU_ROOT || item->desc->type == MENU_MAIN)
+            if (item->desc->type == MENU_ROOT || item->desc->type == MENU_MAIN || item->desc->type == MENU_TOOL)
                 create_menu_tree(node, &g_menu_desc[i]);
         }
     }
@@ -540,8 +587,9 @@ void TM_enter(uint8_t button)
         }
         else if (button == 2)
         {
+            menu_item_t *next_menu = g_current_menu->next->data;
             //twice next, as there is the update we can not enter like this
-            if (!g_current_menu->next->next || (g_current_item->desc->id == ROOT_ID))
+            if ((next_menu->desc->id == UPDATE_ID) || (g_current_item->desc->id == ROOT_ID))
                 return;
 
             node_t *node = g_current_menu->next;
@@ -589,6 +637,15 @@ void TM_up(uint8_t encoder)
             menu_enter(encoder);
         */
     }
+    else if (tool_is_on(TOOL_SYNC))
+    {
+        if (encoder == 0)
+            system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_DOWN);
+        else if (encoder == 1)
+            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
+
+        TM_print_tool();
+    }
     else if (tool_is_on(TOOL_MENU))
     {
         //first encoder, check if we need to change menu or item
@@ -625,6 +682,20 @@ void TM_down(uint8_t encoder)
             menu_enter(encoder);
         */
     }
+    else if (tool_is_on(TOOL_SYNC))
+    {
+        if (encoder == 0)
+        {
+            menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
+            system_tempo_cb(tempo_item, MENU_EV_UP);
+            system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
+            system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
+        }
+        else if (encoder == 1)
+            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
+
+        TM_print_tool();
+    }
     else if (tool_is_on(TOOL_MENU))
     {
         //first encoder, check if we need to change menu or item
@@ -650,16 +721,34 @@ void TM_foot_change(uint8_t foot)
 {
     if ((!g_initialized)&&(g_update_cb)) return;
 
-    if (tool_is_on(DISPLAY_TOOL_TUNER))
+    if (tool_is_on(TOOL_TUNER))
     {
         if (foot == 0)
         {
-            system_tuner_mute_cb(NULL, MENU_EV_ENTER);
+            system_tuner_mute_cb(TM_get_menu_item_by_ID(TUNER_MUTE_ID), MENU_EV_ENTER);
         }
         else if (foot == 1)
         {
-            system_tuner_input_cb(NULL, MENU_EV_ENTER);
+            system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
         }
+
+        TM_print_tool();
+    }
+    else if (tool_is_on(TOOL_SYNC))
+    {
+        if (foot == 0)
+        {
+            system_play_cb(TM_get_menu_item_by_ID(PLAY_ID), MENU_EV_ENTER);
+        }
+        else if (foot == 1)
+        {
+            menu_item_t *tempo_item = TM_get_menu_item_by_ID(TAP_ID);
+            system_taptempo_cb(tempo_item, MENU_EV_ENTER);
+            system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
+            system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_NONE);
+        }
+
+        TM_print_tool();
     }
 }
 
@@ -678,12 +767,25 @@ void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
     system_update_menu_value(item_ID, value);
 }
 
+void TM_tool_up(void)
+{
+    if (g_current_tool < TOOL_FOOT + FOOT_TOOL_AMOUNT)
+        g_current_tool++;
+    else
+        g_current_tool = TOOL_FOOT+1;
+
+    TM_launch_tool(g_current_tool);
+}
+
 void TM_launch_tool(int8_t tool)
 {
     screen_clear();
 
     if (tool == -1)
         TM_launch_tool(g_current_tool);   
+
+    if (tool == TOOL_FOOT)
+        tool = g_first_foot_tool;
 
     switch (tool)
     {
@@ -709,11 +811,26 @@ void TM_launch_tool(int8_t tool)
                 g_protocol_busy = false;
                 system_lock_comm_serial(g_protocol_busy);
 
+                system_tuner_mute_cb(TM_get_menu_item_by_ID(TUNER_MUTE_ID), MENU_EV_NONE);
+                system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_NONE);
+
                 //also take care of LED's
                 TM_print_tool();
         break;
 
         case TOOL_SYNC:
+            g_current_tool = TOOL_SYNC;
+            TM_turn_off_tuner();
+            tool_off(TOOL_BYPASS);
+            tool_on(TOOL_SYNC);
+
+            system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_NONE);
+            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_NONE);
+            system_play_cb(TM_get_menu_item_by_ID(PLAY_ID), MENU_EV_NONE);
+            system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
+
+            //also take care of LED's
+            TM_print_tool();
         break;
 
         case TOOL_BYPASS:
@@ -749,7 +866,8 @@ void TM_print_tool(void)
 
                 led = hardware_leds(5);
                 led_state.color = WHITE;
-                if (!g_current_menu->next->next)
+                menu_item_t *next_menu = g_current_menu->next->data;
+                if (next_menu->desc->id == UPDATE_ID)
                     led_state.brightness = 0.25;
                 else
                     led_state.brightness = 1;
@@ -777,11 +895,62 @@ void TM_print_tool(void)
         break;
 
         case TOOL_TUNER:
-                 //first screen
-                screen_toggle_tuner(0.0, "?", 0);
+            //first screen
+            screen_toggle_tuner(0.0, "?", 0);
+
+            //draw foots
+            menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_INPUT_ID);
+            screen_footer(1, tuner_item->desc->name, tuner_item->data.value ? "2":"1", FLAG_CONTROL_ENUMERATION);
+            ledz_on(hardware_leds(1), WHITE);
+
+            tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
+            screen_footer(0, tuner_item->desc->name, tuner_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            if (tuner_item->data.value) ledz_on(hardware_leds(0), RED);
+            else ledz_off(hardware_leds(0), RED);
+
+            //draw the index
+            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+
+            set_tool_pages_led_state();
         break;
 
         case TOOL_SYNC:
+            screen_tool_control_page(get_menu_node_by_ID(TEMPO_ID));
+
+            //draw the foots
+            menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
+            screen_footer(0, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            if (sync_item->data.value) ledz_on(hardware_leds(0), GREEN);
+            else ledz_off(hardware_leds(0), GREEN);
+
+            sync_item = TM_get_menu_item_by_ID(TAP_ID);
+            screen_footer(1, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+
+            // convert the time unit
+            uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
+
+            led_state_t tap_state;
+            tap_state.color = TAP_TEMPO_COLOR;
+            tap_state.amount_of_blinks = LED_BLINK_INFINIT;
+
+            // setup the led blink
+            if (time_ms > TAP_TEMPO_TIME_ON)
+            {
+                tap_state.time_on = TAP_TEMPO_TIME_ON;
+                tap_state.time_off = time_ms - TAP_TEMPO_TIME_ON;
+            }
+            else
+            {
+                tap_state.time_on = time_ms / 2;
+                tap_state.time_off = time_ms / 2;
+            }
+
+            set_ledz_trigger_by_color_id(hardware_leds(1), LED_BLINK, tap_state);
+
+            //draw the index
+            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+
+            set_tool_pages_led_state();
         break;
 
         case TOOL_BYPASS:
@@ -791,41 +960,11 @@ void TM_print_tool(void)
 
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
 {
-    node_t *node = g_menu->first_child->first_child;
-
-    //make sure we have all menu value's updated 
-    node_t *child_nodes;
-    menu_item_t *item_child;
-
-    while(node)
-    {   
-        if (node->first_child)
-        {
-            child_nodes = node->first_child;
-            while(child_nodes)
-            {
-                item_child = child_nodes->data;
-
-                if (item_child->desc->id == menu_id)
-                {
-                    return item_child;
-                }
-
-                child_nodes = child_nodes->next;
-            }
-        }
-
-        node = node->next;
-    }
-
-    return NULL;                
+    return get_menu_node_by_ID(menu_id)->data;
 }
 
 void TM_turn_off_tuner(void)
 {
-    if (!tool_is_on(DISPLAY_TOOL_TUNER))
-        return;
-
     //lock actuators
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
@@ -835,7 +974,9 @@ void TM_turn_off_tuner(void)
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
 
-    tool_off(DISPLAY_TOOL_TUNER);
+    //turn off all tools
+    tool_off(TOOL_TUNER);
+    tool_off(TOOL_SYNC);
 }
 
 uint8_t TM_check_tool_status(void)

@@ -228,6 +228,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define VERSIONS_ID     (14 * 10)
 #define DEVICE_ID       (15 * 10)
 #define UPDATE_ID       (16 * 10)
+#define TEMPO_ID        (17 * 10)
+#define TUNER_ID        (18 * 10)
 
 #define INP_STEREO_LINK         AUDIO_INP_ID+1
 #define INP_1_GAIN_ID           AUDIO_INP_ID+2
@@ -245,12 +247,23 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define MIDI_PB_PC_CHANNEL_ID   MIDI_ID+1
 #define MIDI_SS_PC_CHANNEL_ID   MIDI_ID+2
 
+#define LOAD_USER_PROF_ID       USER_PROFILE_ID+1
+#define SAVE_USER_PROF_ID       USER_PROFILE_ID+2
+
 #define DISPLAY_BRIGHTNESS_ID   DEVICE_SET_1_ID+1
 #define DISPLAY_CONTRAST_ID     DEVICE_SET_1_ID+2
 #define UNASSIGNED_ACTUATRS_ID  DEVICE_SET_1_ID+3
 #define DEFAULT_TOOL_ID         DEVICE_SET_2_ID+1
 #define KNOB_LIST_ID            DEVICE_SET_2_ID+2
 #define CONTROL_HEADER_ID       DEVICE_SET_2_ID+3
+
+#define BPM_ID                  TEMPO_ID+1
+#define BPB_ID                  TEMPO_ID+2
+#define PLAY_ID                 TEMPO_ID+3
+#define TAP_ID                  TEMPO_ID+4
+
+#define TUNER_MUTE_ID           TUNER_ID+1
+#define TUNER_INPUT_ID          TUNER_ID+2
 
 #define DIALOG_ID           230
 
@@ -285,31 +298,39 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 */
 #define SYSTEM_MENU     \
-    {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                       , 0},  \
-    {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                       , 0},  \
-    {"INPUT STEREOLINK",                MENU_TOGGLE,    INP_STEREO_LINK,        AUDIO_INP_ID,       system_sl_in_cb            , 0},  \
-    {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_inp_1_volume_cb     , 0},  \
-    {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_inp_2_volume_cb     , 0},  \
-    {"AUDIO OUTPUTS",                   MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                       , 0},  \
-    {"OUTPUT STEREOLINK",               MENU_TOGGLE,    OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_sl_out_cb           , 0},  \
-    {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb    , 0},  \
-    {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb    , 0},  \
-    {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                       , 0},  \
-    {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_hp_volume_cb        , 0},  \
-    {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb         , 0},  \
-    {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb        , 0},  \
-    {"MIDI",                            MENU_MAIN,      MIDI_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb   , 0},  \
-    {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb   , 0},  \
-    {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"LOAD PROFILE",                    MENU_LIST,      USER_PROFILE_ID+1,      USER_PROFILE_ID,    system_load_pro_cb         , 0},  \
-    {"SAVE PROFILE AS",                 MENU_LIST,      USER_PROFILE_ID+2,      USER_PROFILE_ID,    system_save_pro_cb         , 0},  \
-    {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                       , 0},  \
+    {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                        , 0},  \
+    {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                        , 0},  \
+    {"INPUT STEREOLINK",                MENU_TOGGLE,    INP_STEREO_LINK,        AUDIO_INP_ID,       system_sl_in_cb             , 0},  \
+    {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_inp_1_volume_cb      , 0},  \
+    {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_inp_2_volume_cb      , 0},  \
+    {"AUDIO OUTPUTS",                   MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                        , 0},  \
+    {"OUTPUT STEREOLINK",               MENU_TOGGLE,    OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_sl_out_cb            , 0},  \
+    {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb     , 0},  \
+    {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb     , 0},  \
+    {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                        , 0},  \
+    {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_hp_volume_cb         , 0},  \
+    {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                        , 0},  \
+    {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb          , 0},  \
+    {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb         , 0},  \
+    {"MIDI",                            MENU_MAIN,      MIDI_ID,                ROOT_ID,            NULL                        , 0},  \
+    {"PEDALBOARD PC-CHANNEL",           MENU_LIST,      MIDI_PB_PC_CHANNEL_ID,  MIDI_ID,            system_pb_prog_change_cb    , 0},  \
+    {"SNAPSHOT PC-CHANNEL",             MENU_LIST,      MIDI_SS_PC_CHANNEL_ID,  MIDI_ID,            system_ss_prog_change_cb    , 0},  \
+    {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
+    {"LOAD PROFILE",                    MENU_LIST,      LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
+    {"SAVE PROFILE AS",                 MENU_LIST,      SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
+    {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                        , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb, 0},  \
-    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb , 0},  \
-    {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb    , 0},  \
-    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb          , 0},  \
+    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb  , 0},  \
+    {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb     , 0},  \
+    {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
+    {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,           system_play_cb              , 0},  \
+    {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_play_cb              , 0},  \
+    {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_play_cb              , 0},  \
+    {"TOOL - TEMPO",                    MENU_TOOL,      TEMPO_ID,               ROOT_ID,            NULL                        , 0},  \
+    {"BEATS PER MINUTE",                MENU_BAR,       BPM_ID,                 TEMPO_ID,           system_tempo_cb             , 0},  \
+    {"BEATS PER BAR",                   MENU_LIST,      BPB_ID,                 TEMPO_ID,           system_bpb_cb               , 0},  \
+    {"PLAY",                            MENU_FOOT,      PLAY_ID,                TEMPO_ID,           system_play_cb              , 0},  \
+    {"TAP",                             MENU_FOOT,      TAP_ID,                 TEMPO_ID,           system_taptempo_cb          , 0},  \
 
 // popups text content, format : {menu_id, header_content, text_content}
 #define POPUP_CONTENT   \
@@ -318,6 +339,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
     {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
+#define MENU_VISIBLE_LIST_CUT   8
 #define MENU_LINE_CHARS     31
 
 //// Button functions leds colors, these reflect color ID's which are stored in eeprom.

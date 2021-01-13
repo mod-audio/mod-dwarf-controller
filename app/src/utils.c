@@ -282,24 +282,33 @@ uint32_t int_to_str(int32_t num, char *string, uint32_t string_size, uint8_t zer
     return str_len;
 }
 
+static int num_hex_digits(unsigned n)
+{
+    if (!n) return 1;
+
+    int ret = 0;
+    for (; n; n >>= 4) {
+        ++ret;
+    }
+    return ret;
+}
+
 uint32_t int_to_hex_str(int32_t num, char *string)
 {
-    int i = 12;
-    int j = 0;
+    const char hex_lookup[] = "0123456789abcdef";
+    
+    int len = num_hex_digits(num);
 
-    do{
-        string[i] = "0123456789ABCDEF"[num % 16];
-        i--;
-        num = num/16;
-    }while( num > 0);
+    if (len & 1) {
+        *string++ = '0';
+    }
+    string[len] = '\0';
 
-    while( ++i < 13){
-       string[j++] = string[i];
+    for (--len; len >= 0; num >>= 4, --len) {
+        string[len] = hex_lookup[num & 0xf];
     }
 
-    string[j] = 0;
-
-    return j;
+    return 0;
 }
 
 uint32_t float_to_str(float num, char *string, uint32_t string_size, uint8_t precision)

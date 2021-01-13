@@ -23,7 +23,7 @@
 *           DO NOT CHANGE THESE DEFINES
 ************************************************************************************************************************
 */
-typedef enum {MENU_ROOT, MENU_MAIN, MENU_TOGGLE, MENU_LIST, MENU_BAR, MENU_NONE, MENU_OK, MENU_CONFIRM, MENU_CONFIRM2} menu_types_t;
+typedef enum {MENU_ROOT, MENU_MAIN, MENU_TOGGLE, MENU_LIST, MENU_BAR, MENU_NONE, MENU_OK, MENU_CONFIRM, MENU_CONFIRM2, MENU_TOOL, MENU_FOOT} menu_types_t;
 
 enum {MENU_EV_ENTER, MENU_EV_UP, MENU_EV_DOWN, MENU_EV_NONE};
 

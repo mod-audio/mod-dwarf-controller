@@ -88,13 +88,14 @@ void print_menu_outlines(void)
     glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
 }
 
-void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
+void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode)
 {
     glcd_t *display = hardware_glcds(0);
 
     //fist decide posistion
     uint8_t item_x;
     uint8_t item_y = 15;
+
     switch(knob)
     {
         case 0:
@@ -160,10 +161,11 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
     switch(item_child->desc->type)
     {
         case MENU_TOGGLE:
-            glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+            if (tool_mode)
+                glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
             toggle_t menu_toggle = {};
             menu_toggle.x = item_x;
-            menu_toggle.y = item_y+23;
+            menu_toggle.y = item_y+23 - (tool_mode?15:0);
             menu_toggle.color = GLCD_BLACK;
             menu_toggle.width = 35;
             menu_toggle.height = 11;
@@ -175,7 +177,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
             //print the bar
             menu_bar_t bar = {};
             bar.x = item_x;
-            bar.y = item_y + 12;
+            bar.y = item_y + 12 - (tool_mode?5:0);
             bar.color = GLCD_BLACK;
             bar.width = 35;
             bar.height = 7;
@@ -187,15 +189,15 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
             if (item_child->data.unit_text)
             {
                 char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 5)
+                if (char_cnt_name > 7)
                 {
-                    char_cnt_name = 5;
+                    char_cnt_name = 7;
                 }
                 memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
                 strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
 
                 str_bfr[char_cnt_name] = 0;
-                glcd_text(display, (item_x + 19 - char_cnt_name*2), item_y+30, str_bfr, Terminal3x5, GLCD_BLACK);
+                glcd_text(display, (item_x + 19 - char_cnt_name*2), item_y+(tool_mode?22:30), str_bfr, Terminal3x5, GLCD_BLACK);
             }
         break;
 
@@ -239,12 +241,12 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob)
                 second_val_line[p] = 0;
                 if (p != 0)
                 {
-                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+24, first_val_line, Terminal3x5, GLCD_BLACK);
-                    glcd_text(display, (item_x + 17 - 2*strlen(second_val_line)), item_y+31, second_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+24 - (tool_mode?4:0), first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(second_val_line)), item_y+31 - (tool_mode?4:0), second_val_line, Terminal3x5, GLCD_BLACK);
                 }
                 else
                 {
-                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+26, first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+26 - (tool_mode?4:0), first_val_line, Terminal3x5, GLCD_BLACK);
                 }
             }
         break;
@@ -949,12 +951,9 @@ void screen_system_menu(menu_item_t *item)
         case MENU_ROOT:
             list.hover = item->data.hover;
             list.selected = item->data.selected;
-            list.count = item->data.list_count;
+            list.count = MENU_VISIBLE_LIST_CUT;
             list.list = item->data.list;
-            if (item->desc->id == MENU_ROOT)
-                widget_menu_listbox(display, &list);
-            else 
-                widget_listbox_mdx(display, &list);
+            widget_menu_listbox(display, &list);
         break;
 
         case MENU_CONFIRM:
@@ -1042,8 +1041,7 @@ void screen_menu_page(node_t *node)
     }
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
-    node_t *child_nodes = node;
-    child_nodes = child_nodes->first_child;
+    node_t *child_nodes = node->first_child;
     
     uint8_t i;
     for (i = 0; i < 3; i++)
@@ -1070,12 +1068,66 @@ void screen_menu_page(node_t *node)
             return;
         }
 
-        print_tripple_menu_items(item_child, i);
+        print_tripple_menu_items(item_child, i, 0);
 
         if (!child_nodes->next)
             return;
         else
             child_nodes = child_nodes->next; 
+    }
+}
+
+void screen_tool_control_page(node_t *node)
+{
+    //clear screen first
+    screen_clear();
+
+    //something off
+    if (!node)
+        return;
+
+    glcd_t *display = hardware_glcds(0);
+
+    //draw the outlines
+    glcd_vline(display, 0, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH - 1, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 51, DISPLAY_WIDTH , GLCD_BLACK);
+    glcd_hline(display, 0,  45, DISPLAY_WIDTH, GLCD_BLACK);
+
+    //root node (name is title)
+    menu_item_t *item = node->data;
+
+    //draw the title
+    textbox_t title = {};
+    title.color = GLCD_BLACK;
+    title.mode = TEXT_SINGLE_LINE;
+    title.font = Terminal5x7;
+    title.top_margin = 1;
+    title.text = item->name;
+    title.align = ALIGN_CENTER_TOP;
+    widget_textbox(display, &title);
+
+    //invert the top bar
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
+
+    //draw the 3 menu items if applicable
+    node_t *child_nodes = node->first_child;
+    uint8_t i;
+    for (i = 0; i < 3; i++)
+    {
+        menu_item_t *item_child = child_nodes->data;
+
+        //reached footer section
+        if (item_child->desc->type == MENU_FOOT)
+            break;
+
+        print_tripple_menu_items(item_child, i, 1);
+
+        //check end of items
+        if (!child_nodes->next)
+            break;
+        else
+            child_nodes = child_nodes->next;
     }
 }
 
@@ -1100,11 +1152,6 @@ void screen_toggle_tuner(float frequency, char *note, int8_t cents)
 
     //invert the top bar
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
-
-    //draw foots
-    system_tuner_input_cb(NULL, MENU_EV_NONE);
-    system_tuner_mute_cb(NULL, MENU_EV_NONE);
-    screen_page_index(0, 1);
 
     //draw tuner
     widget_tuner(display, &g_tuner);

@@ -38,6 +38,7 @@ enum {UI_DISCONNECTED, UI_CONNECTED};
 ************************************************************************************************************************
 */
 
+#define FOOT_TOOL_AMOUNT		2
 
 /*
 ************************************************************************************************************************
@@ -49,7 +50,7 @@ enum {UI_DISCONNECTED, UI_CONNECTED};
 enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT};
 
 //different tool modes
-enum{TOOL_MENU, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
+enum{TOOL_MENU, TOOL_FOOT, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
 
 /*
 ************************************************************************************************************************

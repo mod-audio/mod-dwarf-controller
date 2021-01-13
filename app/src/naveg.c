@@ -406,7 +406,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             }
             else if (foot == 2)
             {
-                //TODO change to other tools
+                TM_tool_up();
             }
         break;
 
@@ -590,7 +590,7 @@ void naveg_button_pressed(uint8_t button)
 
                             case MODE_TOOL_FOOT:
                                 g_device_mode = MODE_TOOL_FOOT;
-                                TM_launch_tool(TOOL_TUNER);
+                                TM_launch_tool(-1);
                             break;
 
                             case MODE_TOOL_MENU:
@@ -704,7 +704,7 @@ void naveg_shift_releaed()
 
         case MODE_TOOL_FOOT:
             g_device_mode = MODE_TOOL_FOOT;
-            TM_launch_tool(TOOL_TUNER);
+            TM_launch_tool(-1);
         break;
 
         case MODE_TOOL_MENU:

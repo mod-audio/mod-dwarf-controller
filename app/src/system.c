@@ -5,6 +5,10 @@
 ************************************************************************************************************************
 */
 
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
 #include "system.h"
 #include "config.h"
 #include "data.h"
@@ -19,8 +23,6 @@
 #include "mod-protocol.h"
 #include "ui_comm.h"
 #include "mode_tools.h"
-#include <string.h>
-#include <stdlib.h>
 #include "naveg.h"
 
 /*
@@ -94,6 +96,12 @@ uint8_t g_tuner_input = 0;
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;
 int8_t g_actuator_hide = -1;
+
+struct TAP_TEMPO_T {
+    uint32_t time, max;
+    uint8_t state;
+} g_tool_tap_tempo;
+
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -1216,33 +1224,40 @@ void system_save_pro_cb(void *arg, int event)
 }
 
 
-//Callbacks below are not part of the menu
+//Callbacks below are not part of the device menu
 void system_tuner_mute_cb(void *arg, int event)
 {
-    (void) arg;
+    menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
+    if (event == MENU_EV_NONE)
     {
-        if (g_tuner_mute == 0) g_tuner_mute= 1;
-        else g_tuner_mute = 0;
+        item->data.value = g_tuner_mute;
+    }
+    else if (event == MENU_EV_ENTER)
+    {
+        if (item->data.value == 0) item->data.value = 1;
+        else item->data.value = 0;
+
+        g_tuner_mute = item->data.value;
 
         set_menu_item_value(MENU_ID_TUNER_MUTE, g_tuner_mute);
     }
-
-    screen_footer(0, "MUTE", g_tuner_mute <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
-
-    if (g_tuner_mute) ledz_on(hardware_leds(0), RED);
-    else ledz_off(hardware_leds(0), RED);
 }
 
 void system_tuner_input_cb(void *arg, int event)
 {
-    (void) arg;
+    menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
+    if (event == MENU_EV_NONE)
     {
-        if (g_tuner_input == 0) g_tuner_input = 1;
-        else g_tuner_input = 0;
+        item->data.value = g_tuner_mute;
+    }
+    else if (event == MENU_EV_ENTER)
+    {
+        if (item->data.value == 0) item->data.value = 1;
+        else item->data.value = 0;
+
+        g_tuner_input = item->data.value;
 
         ui_comm_webgui_set_response_cb(NULL, NULL);
 
@@ -1267,63 +1282,57 @@ void system_tuner_input_cb(void *arg, int event)
         g_protocol_busy = false;
         system_lock_comm_serial(g_protocol_busy);
     }
-
-    screen_footer(1, "INPUT", g_tuner_input? "2":"1", FLAG_CONTROL_ENUMERATION);
-
-    ledz_on(hardware_leds(1), WHITE);
 }
 
 void system_play_cb (void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
+    if (event == MENU_EV_NONE)
     {
-        if (g_play_status == 0) g_play_status = 1;
-        else g_play_status = 0;
+        item->data.value = g_play_status;
+    }
+    else if (event == MENU_EV_ENTER)
+    {
+        if (item->data.value == 0) item->data.value = 1;
+        else item->data.value = 0;
+
+        g_play_status = item->data.value;
+
         set_menu_item_value(MENU_ID_PLAY_STATUS, g_play_status);
     }
-    char str_bfr[15] = {};
-    strcpy(str_bfr,"PLAY ");
-    //strcat(str_bfr,(g_play_status ? option_enabled : option_disabled));
-    item->data.unit_text = str_bfr;
 }
 
-void system_tempo_cb(void *arg, int event)
+void system_tempo_cb (void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
+    if ((event == MENU_EV_NONE) || (event == MENU_EV_ENTER))
     {
-        //we can only change tempo when its generated internaly 
-        if (g_MIDI_clk_src != 1) set_menu_item_value(MENU_ID_TEMPO, item->data.value);
-    }
-    else if (event == MENU_EV_NONE)
-    {
-        //set the item value to the bpm since mod-ui is master
-        item->data.value =  g_beats_per_minute;
+        item->data.value = g_beats_per_minute;
         item->data.min = 20;
         item->data.max = 280;
         item->data.step = 1;
     }
     //scrolling up/down
-    else 
+    else if ((event == MENU_EV_UP) && (g_MIDI_clk_src == 0))
     {
-        //we can only change tempo when its generated internaly 
-        if (g_MIDI_clk_src != 1)
-        {
-            //HMI changes the item, resync
-            g_beats_per_minute = item->data.value;
-            //let mod-ui know
-            set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
-        }
-        else 
-        {
-            item->data.value = g_beats_per_minute;
-        }
+        if (item->data.value < item->data.max) item->data.value++;
+        g_beats_per_minute = item->data.value;
+
+        //let mod-ui know
+        set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
+    }
+    else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src == 0))
+    {
+        if (item->data.value > item->data.min) item->data.value--;
+        g_beats_per_minute = item->data.value;
+
+        //let mod-ui know
+        set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
     }
 
-    char str_bfr[8] = {};
+    static char str_bfr[12] = {};
     int_to_str(g_beats_per_minute, str_bfr, 4, 0);
     strcat(str_bfr, " BPM");
     item->data.unit_text = str_bfr;
@@ -1333,32 +1342,99 @@ void system_bpb_cb (void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
+    if ((event == MENU_EV_NONE) && (event == MENU_EV_ENTER))
     {
-        set_menu_item_value(MENU_ID_BEATS_PER_BAR, item->data.value);
-    }
-    else if (event == MENU_EV_NONE)
-    {
-        //set the item value to the bpb since mod-ui is master
-        item->data.value =  g_beats_per_bar;
+        item->data.value = g_beats_per_bar;
         item->data.min = 1;
         item->data.max = 16;
         item->data.step = 1;
     }
     //scrolling up/down
-    else 
+    else if ((event == MENU_EV_UP) && (g_MIDI_clk_src == 0))
     {
-        //HMI changes the item, resync
+        if (item->data.value < item->data.max) item->data.value++;
         g_beats_per_bar = item->data.value;
+
+        //let mod-ui know
+        set_menu_item_value(MENU_ID_BEATS_PER_BAR, g_beats_per_bar);
+    }
+    else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src == 0))
+    {
+        if (item->data.value > item->data.min) item->data.value--;
+        g_beats_per_bar = item->data.value;
+
         //let mod-ui know
         set_menu_item_value(MENU_ID_BEATS_PER_BAR, g_beats_per_bar);
     }
 
     //add the items to the 
-    char str_bfr[8] = {};
+    static char str_bfr[8] = {};
     int_to_str(g_beats_per_bar, str_bfr, 4, 0);
     strcat(str_bfr, "/4");
     item->data.unit_text = str_bfr;
+}
+
+void system_taptempo_cb (void *arg, int event)
+{
+    menu_item_t *item = arg;
+    uint32_t now, delta;
+
+    if (event == MENU_EV_NONE)
+    {
+        item->data.value = g_beats_per_minute;
+        item->data.min = 20;
+        item->data.max = 280;
+        item->data.step = 1;
+
+        // calculates the maximum tap tempo value
+        uint32_t max = (uint32_t)(convert_to_ms("bpm", item->data.min) + 0.5);
+
+        //makes sure we enforce a proper timeout
+        if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
+            max = TAP_TEMPO_DEFAULT_TIMEOUT;
+
+        g_tool_tap_tempo.max = max;
+    }
+    else if (event == MENU_EV_ENTER)
+    {
+        now = actuator_get_click_time(hardware_actuators(FOOTSWITCH1));
+        delta = now - g_tool_tap_tempo.time;
+        g_tool_tap_tempo.time = now;
+
+        // checks if delta almost suits maximum allowed value
+        if ((delta > g_tool_tap_tempo.max) &&
+            ((delta - TAP_TEMPO_MAXVAL_OVERFLOW) < g_tool_tap_tempo.max))
+        {
+            // sets delta to maxvalue if just slightly over, instead of doing nothing
+            delta = g_tool_tap_tempo.max;
+        }
+
+        // checks the tap tempo timeout
+        if (delta <= g_tool_tap_tempo.max)
+        {
+            //get current value of tap tempo in ms
+            float currentTapVal = convert_to_ms("bpm", g_beats_per_minute);
+            //check if it should be added to running average
+            if (fabs(currentTapVal - delta) < TAP_TEMPO_TAP_HYSTERESIS)
+            {
+                // converts and update the tap tempo value
+                item->data.value = (2*(item->data.value) + convert_from_ms("bpm", delta)) / 3;
+            }
+            else
+            {
+                // converts and update the tap tempo value
+                item->data.value = convert_from_ms("bpm", delta);
+            }
+            // checks the values bounds
+            if (item->data.value > item->data.max) item->data.value = item->data.max;
+            if (item->data.value < item->data.min) item->data.value = item->data.min;
+
+            // updates the foot
+            g_beats_per_minute = item->data.value;
+        }
+
+        set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
+    }
 }
 
 /*

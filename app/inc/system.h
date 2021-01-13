@@ -94,6 +94,7 @@ void system_hp_bypass_cb (void *arg, int event);
 void system_tuner_mute_cb(void *arg, int event);
 void system_tuner_input_cb(void *arg, int event);
 void system_play_cb (void *arg, int event);
+void system_taptempo_cb (void *arg, int event);
 void system_quick_bypass_cb (void *arg, int event);
 void system_midi_src_cb (void *arg, int event);
 void system_midi_send_cb (void *arg, int event);
