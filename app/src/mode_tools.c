@@ -902,7 +902,7 @@ void TM_print_tool(void)
             screen_footer(0, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
 
             sync_item = TM_get_menu_item_by_ID(TAP_ID);
-            screen_footer(1, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            screen_footer(1, sync_item->desc->name, sync_item->data.unit_text, FLAG_CONTROL_ENUMERATION);
 
             //draw the index
             screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
@@ -910,7 +910,7 @@ void TM_print_tool(void)
 
         case TOOL_BYPASS:
         break;
-    }   
+    }
 }
 
 void TM_set_leds(void)
@@ -981,7 +981,7 @@ void TM_set_leds(void)
 
         case TOOL_BYPASS:
         break;
-    }     
+    }
 }
 
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)

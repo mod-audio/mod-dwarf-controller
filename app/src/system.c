@@ -1443,6 +1443,10 @@ void system_taptempo_cb (void *arg, int event)
 
         set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
     }
+    
+    static char str_bfr[12] = {};
+    int_to_str(g_beats_per_minute, str_bfr, 4, 0);
+    item->data.unit_text = str_bfr;
 }
 
 /*
