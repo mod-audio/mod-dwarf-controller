@@ -116,9 +116,13 @@ static void tool_on(uint8_t tool)
     g_tool[tool].state = TOOL_ON;
 }
 
-static void tool_off(uint8_t tool)
+static void tools_off(void)
 {
-    g_tool[tool].state = TOOL_OFF;
+    uint8_t i = 0;
+    for (i = 0; i < MAX_TOOLS; i++)
+    {
+        g_tool[i].state = TOOL_OFF;
+    }
 }
 
 static int tool_is_on(uint8_t tool)
@@ -133,6 +137,32 @@ void set_tool_pages_led_state(void)
 
     page_state.color = FS_PAGE_COLOR_1 + g_current_tool - TOOL_FOOT-1;
     set_ledz_trigger_by_color_id(led, LED_ON, page_state);
+}
+
+void update_tap_tempo_led(void)
+{
+    menu_item_t *sync_item = TM_get_menu_item_by_ID(TAP_ID);
+
+    // convert the time unit
+    uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
+
+    led_state_t tap_state;
+    tap_state.color = TAP_TEMPO_COLOR;
+    tap_state.amount_of_blinks = LED_BLINK_INFINIT;
+
+    // setup the led blink
+    if (time_ms > TAP_TEMPO_TIME_ON)
+    {
+        tap_state.time_on = TAP_TEMPO_TIME_ON;
+        tap_state.time_off = time_ms - TAP_TEMPO_TIME_ON;
+    }
+    else
+    {
+        tap_state.time_on = time_ms / 2;
+        tap_state.time_off = time_ms / 2;
+    }
+
+    set_ledz_trigger_by_color_id(hardware_leds(1), LED_BLINK, tap_state);
 }
 
 node_t *get_menu_node_by_ID(uint8_t menu_id)
@@ -278,6 +308,7 @@ static void menu_enter(uint8_t encoder)
     }
 
     TM_print_tool();
+    TM_set_leds();
 }
 
 static void menu_up(void)
@@ -366,6 +397,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         g_current_item = g_current_menu->data;
 
                         TM_print_tool();
+                        TM_set_leds();
                     }
                 }
                 else
@@ -544,6 +576,7 @@ void TM_enter(uint8_t button)
                 g_current_item = g_current_menu->data;
 
                 TM_print_tool();
+                TM_set_leds();
             }
         }
         //for other buttons next / prev parrent node
@@ -584,6 +617,7 @@ void TM_enter(uint8_t button)
             sync_item->data.hover--;
 
             TM_print_tool();
+            TM_set_leds();
         }
         else if (button == 2)
         {
@@ -618,6 +652,7 @@ void TM_enter(uint8_t button)
             sync_item->data.hover++;
 
             TM_print_tool();
+            TM_set_leds();
         }
     }
 }
@@ -626,21 +661,23 @@ void TM_up(uint8_t encoder)
 {
     if (!g_initialized) return;
         
-    if (tool_is_on(TOOL_TUNER))
-    {
-        /*
-            //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
-            tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
-            g_current_menu = g_current_main_menu;
-            g_current_item = g_current_main_item;
-            menu_up(encoder);
-            menu_enter(encoder);
-        */
-    }
-    else if (tool_is_on(TOOL_SYNC))
+    if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
-            system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_DOWN);
+        {
+            menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
+
+            if (g_encoders_pressed[encoder])
+                tempo_item->data.step = 10;
+            else
+                tempo_item->data.step = 1;
+
+            system_tempo_cb(tempo_item, MENU_EV_DOWN);
+            system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
+            system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
+
+            update_tap_tempo_led();
+        }
         else if (encoder == 1)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
 
@@ -671,18 +708,7 @@ void TM_down(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (tool_is_on(TOOL_TUNER))
-    {
-        /*
-            //naveg_toggle_tool((tool_is_on(DISPLAY_TOOL_TUNER) ? DISPLAY_TOOL_TUNER : DISPLAY_TOOL_NAVIG), encoder);
-            tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, 1);
-            g_current_menu = g_current_main_menu;
-            g_current_item = g_current_main_item;
-            menu_down(encoder);
-            menu_enter(encoder);
-        */
-    }
-    else if (tool_is_on(TOOL_SYNC))
+    if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
         {
@@ -690,6 +716,8 @@ void TM_down(uint8_t encoder)
             system_tempo_cb(tempo_item, MENU_EV_UP);
             system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
             system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
+
+            update_tap_tempo_led();
         }
         else if (encoder == 1)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
@@ -733,6 +761,7 @@ void TM_foot_change(uint8_t foot)
         }
 
         TM_print_tool();
+        TM_set_leds();
     }
     else if (tool_is_on(TOOL_SYNC))
     {
@@ -749,6 +778,7 @@ void TM_foot_change(uint8_t foot)
         }
 
         TM_print_tool();
+        TM_set_leds();
     }
 }
 
@@ -759,12 +789,6 @@ void TM_reset_menu(void)
     g_current_menu = g_menu;
     g_current_item = g_menu->first_child->data;
     reset_menu_hover(g_menu);
-}
-
-void TM_menu_item_changed_cb(uint8_t item_ID, uint16_t value)
-{
-    //set value in system.c
-    system_update_menu_value(item_ID, value);
 }
 
 void TM_tool_up(void)
@@ -798,8 +822,7 @@ void TM_launch_tool(int8_t tool)
 
         case TOOL_TUNER:
                 g_current_tool = TOOL_TUNER;
-                tool_off(TOOL_SYNC);
-                tool_off(TOOL_BYPASS);
+                tools_off();
                 tool_on(TOOL_TUNER);
 
                 //lock actuators
@@ -814,14 +837,14 @@ void TM_launch_tool(int8_t tool)
                 system_tuner_mute_cb(TM_get_menu_item_by_ID(TUNER_MUTE_ID), MENU_EV_NONE);
                 system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_NONE);
 
-                //also take care of LED's
                 TM_print_tool();
+                TM_set_leds();
         break;
 
         case TOOL_SYNC:
             g_current_tool = TOOL_SYNC;
             TM_turn_off_tuner();
-            tool_off(TOOL_BYPASS);
+            tools_off();
             tool_on(TOOL_SYNC);
 
             system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_NONE);
@@ -829,8 +852,8 @@ void TM_launch_tool(int8_t tool)
             system_play_cb(TM_get_menu_item_by_ID(PLAY_ID), MENU_EV_NONE);
             system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
 
-            //also take care of LED's
             TM_print_tool();
+            TM_set_leds();
         break;
 
         case TOOL_BYPASS:
@@ -840,8 +863,6 @@ void TM_launch_tool(int8_t tool)
 
 void TM_print_tool(void)
 {
-    naveg_turn_off_leds();
-
     switch (g_current_tool)
     {
         //MDW_TODO set proper LED colours
@@ -850,6 +871,57 @@ void TM_print_tool(void)
             {
                 //print the 3 items on screen
                 screen_menu_page(g_current_menu);
+            }
+            else
+            {
+                //print the menu
+                screen_system_menu(g_current_item);
+            }
+        break;
+
+        case TOOL_TUNER:
+            //first screen
+            screen_toggle_tuner(0.0, "?", 0);
+
+            //draw foots
+            menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_INPUT_ID);
+            screen_footer(1, tuner_item->desc->name, tuner_item->data.value ? "2":"1", FLAG_CONTROL_ENUMERATION);
+
+            tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
+            screen_footer(0, tuner_item->desc->name, tuner_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+
+            //draw the index
+            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+        break;
+
+        case TOOL_SYNC:
+            screen_tool_control_page(get_menu_node_by_ID(TEMPO_ID));
+
+            //draw the foots
+            menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
+            screen_footer(0, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+
+            sync_item = TM_get_menu_item_by_ID(TAP_ID);
+            screen_footer(1, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+
+            //draw the index
+            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+        break;
+
+        case TOOL_BYPASS:
+        break;
+    }   
+}
+
+void TM_set_leds(void)
+{
+    naveg_turn_off_leds();
+
+    switch (g_current_tool)
+    {
+        case TOOL_MENU:
+            if (g_current_item->desc->type == MENU_MAIN)
+            {
                 led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
                 led_state.color = TOGGLED_COLOR;
@@ -876,9 +948,6 @@ void TM_print_tool(void)
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
-                //print the menu
-                screen_system_menu(g_current_item);
-
                 led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
                 led_state.color = WHITE;
@@ -887,75 +956,32 @@ void TM_print_tool(void)
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             }
-            else
-            {
-                //print the menu
-                screen_system_menu(g_current_item);
-            }
         break;
 
         case TOOL_TUNER:
-            //first screen
-            screen_toggle_tuner(0.0, "?", 0);
-
-            //draw foots
-            menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_INPUT_ID);
-            screen_footer(1, tuner_item->desc->name, tuner_item->data.value ? "2":"1", FLAG_CONTROL_ENUMERATION);
             ledz_on(hardware_leds(1), WHITE);
 
-            tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
-            screen_footer(0, tuner_item->desc->name, tuner_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
             if (tuner_item->data.value) ledz_on(hardware_leds(0), RED);
             else ledz_off(hardware_leds(0), RED);
-
-            //draw the index
-            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
 
             set_tool_pages_led_state();
         break;
 
-        case TOOL_SYNC:
-            screen_tool_control_page(get_menu_node_by_ID(TEMPO_ID));
-
+        case TOOL_SYNC:;
             //draw the foots
             menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
-            screen_footer(0, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
             if (sync_item->data.value) ledz_on(hardware_leds(0), GREEN);
             else ledz_off(hardware_leds(0), GREEN);
 
-            sync_item = TM_get_menu_item_by_ID(TAP_ID);
-            screen_footer(1, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
-
-            // convert the time unit
-            uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
-
-            led_state_t tap_state;
-            tap_state.color = TAP_TEMPO_COLOR;
-            tap_state.amount_of_blinks = LED_BLINK_INFINIT;
-
-            // setup the led blink
-            if (time_ms > TAP_TEMPO_TIME_ON)
-            {
-                tap_state.time_on = TAP_TEMPO_TIME_ON;
-                tap_state.time_off = time_ms - TAP_TEMPO_TIME_ON;
-            }
-            else
-            {
-                tap_state.time_on = time_ms / 2;
-                tap_state.time_off = time_ms / 2;
-            }
-
-            set_ledz_trigger_by_color_id(hardware_leds(1), LED_BLINK, tap_state);
-
-            //draw the index
-            screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+            update_tap_tempo_led();
 
             set_tool_pages_led_state();
         break;
 
         case TOOL_BYPASS:
         break;
-    }   
+    }     
 }
 
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
@@ -975,8 +1001,7 @@ void TM_turn_off_tuner(void)
     system_lock_comm_serial(g_protocol_busy);
 
     //turn off all tools
-    tool_off(TOOL_TUNER);
-    tool_off(TOOL_SYNC);
+    tools_off();
 }
 
 uint8_t TM_check_tool_status(void)

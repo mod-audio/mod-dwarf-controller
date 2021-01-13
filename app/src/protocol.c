@@ -527,14 +527,14 @@ void cb_menu_item_changed(proto_t *proto)
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
-    TM_menu_item_changed_cb(atoi(proto->list[1]), atoi(proto->list[2]));
+    system_update_menu_value(atoi(proto->list[1]), atoi(proto->list[2]));
     
     uint8_t i;
     for (i = 3; i < ((MENU_ID_TOP+1) * 2); i+=2)
     {
         if (atoi(proto->list[i]) != 0)
         {
-            TM_menu_item_changed_cb(atoi(proto->list[i]), atoi(proto->list[i+1]));
+            system_update_menu_value(atoi(proto->list[i]), atoi(proto->list[i+1]));
         }
         else break;
     }

@@ -323,7 +323,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb  , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb     , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
-    {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,           system_play_cb              , 0},  \
+    {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            system_play_cb              , 0},  \
     {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_play_cb              , 0},  \
     {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_play_cb              , 0},  \
     {"TOOL - TEMPO",                    MENU_TOOL,      TEMPO_ID,               ROOT_ID,            NULL                        , 0},  \

@@ -1317,7 +1317,11 @@ void system_tempo_cb (void *arg, int event)
     //scrolling up/down
     else if ((event == MENU_EV_UP) && (g_MIDI_clk_src == 0))
     {
-        if (item->data.value < item->data.max) item->data.value++;
+        item->data.value += item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+
         g_beats_per_minute = item->data.value;
 
         //let mod-ui know
@@ -1325,7 +1329,11 @@ void system_tempo_cb (void *arg, int event)
     }
     else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src == 0))
     {
-        if (item->data.value > item->data.min) item->data.value--;
+        item->data.value -= item->data.step;
+
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
         g_beats_per_minute = item->data.value;
 
         //let mod-ui know
@@ -1342,7 +1350,7 @@ void system_bpb_cb (void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if ((event == MENU_EV_NONE) && (event == MENU_EV_ENTER))
+    if ((event == MENU_EV_NONE) || (event == MENU_EV_ENTER))
     {
         item->data.value = g_beats_per_bar;
         item->data.min = 1;
