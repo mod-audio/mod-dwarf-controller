@@ -1016,10 +1016,10 @@ void CM_dec_control(uint8_t encoder)
             return;
     }
     // converts the step to absolute value
-    //step_to_value(control);
+    step_to_value(control);
 
     // applies the control value
-    //control_set(encoder, control);
+    control_set(encoder, control);
 }
 
 void CM_toggle_control(uint8_t encoder)
