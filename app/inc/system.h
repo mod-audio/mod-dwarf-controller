@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include "data.h"
 #include <stdbool.h>
+#include "config.h"
 
 /*
 ************************************************************************************************************************
@@ -32,13 +33,11 @@
 ************************************************************************************************************************
 */
 
-
 /*
 ************************************************************************************************************************
 *           DATA TYPES
 ************************************************************************************************************************
 */
-
 
 /*
 ************************************************************************************************************************
@@ -46,13 +45,11 @@
 ************************************************************************************************************************
 */
 
-
 /*
 ************************************************************************************************************************
 *           MACRO'S
 ************************************************************************************************************************
 */
-
 
 /*
 ************************************************************************************************************************
@@ -61,6 +58,7 @@
 */
 
 // system menu callbacks
+uint8_t system_get_shift_item(uint8_t index);
 void system_recall_stereo_link_settings(void);
 void system_lock_comm_serial(bool busy);
 void system_update_menu_value(uint8_t item_ID, uint16_t value);
@@ -91,6 +89,10 @@ void system_display_contrast_cb(void *arg, int event);
 void system_sl_in_cb (void *arg, int event);
 void system_sl_out_cb (void *arg, int event);
 void system_hp_bypass_cb (void *arg, int event);
+void system_shift_item_cb(void *arg, int event);
+void system_default_tool_cb(void *arg, int event);
+void system_list_mode_cb(void *arg, int event);
+void system_control_header_cb(void *arg, int event);
 void system_tuner_mute_cb(void *arg, int event);
 void system_tuner_input_cb(void *arg, int event);
 void system_play_cb (void *arg, int event);

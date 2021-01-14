@@ -566,14 +566,13 @@ void cb_pedalboard_clear(proto_t *proto)
     system_lock_comm_serial(g_protocol_busy);
 }
 
-//MDW_TODO CHECK IF NEEDED TO BE PRINTED, OR SAVE
 void cb_pedalboard_name(proto_t *proto)
 {
     //lock actuators
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
-    screen_tittle(&proto->list[1], 1);
+    screen_tittle(&proto->list[1], 1, 0);
 
     //stop the loading leds from fading
     //this is done here as its one of the last messages from MOD-UI
@@ -593,6 +592,8 @@ void cb_snapshot_name(proto_t *proto)
     //lock actuators
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
+
+    screen_tittle(&proto->list[1], 1, 1);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 

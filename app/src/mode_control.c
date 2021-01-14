@@ -844,6 +844,7 @@ void CM_init(void)
     }
 
     system_hide_actuator_cb(NULL, MENU_EV_NONE);
+    system_control_header_cb(NULL, MENU_EV_NONE);
 }
 
 void CM_remove_control(uint8_t hw_id)
@@ -1015,10 +1016,10 @@ void CM_dec_control(uint8_t encoder)
             return;
     }
     // converts the step to absolute value
-    step_to_value(control);
+    //step_to_value(control);
 
     // applies the control value
-    control_set(encoder, control);
+    //control_set(encoder, control);
 }
 
 void CM_toggle_control(uint8_t encoder)
@@ -1495,7 +1496,7 @@ void CM_print_screen(void)
 
     screen_clear();
 
-    screen_tittle(NULL, 0);
+    screen_tittle(NULL, 0, -1);
 
     //update screen
     screen_page_index(g_current_foot_control_page, foot_pages_available());

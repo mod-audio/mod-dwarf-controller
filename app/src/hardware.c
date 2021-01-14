@@ -320,6 +320,16 @@ void write_o_settings_defaults()
     EEPROM_Write(0, SL_OUTPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }
 
+void write_shift_defaults()
+{
+    uint8_t write_buffer = DEFAULT_SHIFT_1_ITEM;
+    EEPROM_Write(0, SHIFT_ITEM_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    write_buffer = DEFAULT_SHIFT_2_ITEM;
+    EEPROM_Write(0, SHIFT_ITEM_ADRESS + 1, &write_buffer, MODE_8_BIT, 1);
+    write_buffer = DEFAULT_SHIFT_3_ITEM;
+    EEPROM_Write(0, SHIFT_ITEM_ADRESS + 2, &write_buffer, MODE_8_BIT, 1);
+}
+
 void check_eeprom_defaults(uint16_t current_version)
 {
     //if not force update, and not downgrading, check defaults
@@ -333,10 +343,16 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
+            //selectable shift items got introduced
+            case 1:
+                write_shift_defaults();
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
                 write_led_defaults();
+                write_shift_defaults();
             break;
         }
     }
@@ -351,6 +367,7 @@ void check_eeprom_defaults(uint16_t current_version)
         //write all settings
         write_o_settings_defaults();
         write_led_defaults();
+        write_shift_defaults();
     }
 
     //update the version 

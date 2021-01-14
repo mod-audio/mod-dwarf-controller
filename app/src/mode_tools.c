@@ -505,11 +505,18 @@ void TM_init(void)
     // sets current menu
     g_current_menu = g_menu;
     g_current_item = g_menu->first_child->data;
+
+    system_default_tool_cb(NULL, MENU_EV_NONE);
 }
 
 void TM_trigger_tool(uint8_t tool, uint8_t status)
 {
     g_tool[tool].state = status;
+}
+
+void TM_set_first_foot_tool(uint8_t tool)
+{
+    g_first_foot_tool = TOOL_FOOT + tool;
 }
 
 uint8_t TM_status(void)

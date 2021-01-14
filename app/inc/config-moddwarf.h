@@ -230,6 +230,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define UPDATE_ID       (16 * 10)
 #define TEMPO_ID        (17 * 10)
 #define TUNER_ID        (18 * 10)
+#define SHIFT_ITEMS_ID  (19 * 10)
 
 #define INP_STEREO_LINK         AUDIO_INP_ID+1
 #define INP_1_GAIN_ID           AUDIO_INP_ID+2
@@ -265,6 +266,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define TUNER_MUTE_ID           TUNER_ID+1
 #define TUNER_INPUT_ID          TUNER_ID+2
 
+#define SHIFT_ITEM_1_ID         SHIFT_ITEMS_ID+1
+#define SHIFT_ITEM_2_ID         SHIFT_ITEMS_ID+2
+#define SHIFT_ITEM_3_ID         SHIFT_ITEMS_ID+3
+
 #define DIALOG_ID           230
 
 //MDW_TODO THESE MENU ITEMS ARE NOT YET IN USE
@@ -272,10 +277,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
     {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
 
-    {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                       , 0},  \
-    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    NULL                       , 0},  \
-    {"KNOB LIST",                       MENU_TOGGLE,    KNOB_LIST_ID,           DEVICE_SET_2_ID,    NULL                       , 0},  \
-    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    NULL                       , 0},  \
+    {"LIST MODE",                       MENU_LIST,      KNOB_LIST_ID,           DEVICE_SET_2_ID,    system_list_mode_cb         , 0},  \
 
     {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
     {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \
@@ -318,10 +320,17 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
     {"LOAD PROFILE",                    MENU_LIST,      LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
     {"SAVE PROFILE AS",                 MENU_LIST,      SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
-    {"DEVICE SETTINGS",                 MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                        , 0},  \
+    {"DEVICE SETTINGS (1/2)",           MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                        , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb, 0},  \
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb  , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb     , 0},  \
+    {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                        , 0},  \
+    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    system_default_tool_cb      , 0},  \
+    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    system_control_header_cb    , 0},  \
+    {"QUICK ITEMS",                     MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
+    {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
+    {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
+    {"ITEM 3",                          MENU_LIST,      SHIFT_ITEM_3_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
     {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            system_play_cb              , 0},  \
     {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_play_cb              , 0},  \
@@ -339,7 +348,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
     {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
-#define MENU_VISIBLE_LIST_CUT   8
+#define MENU_VISIBLE_LIST_CUT   10
 #define MENU_LINE_CHARS     31
 
 //// Button functions leds colors, these reflect color ID's which are stored in eeprom.
@@ -451,6 +460,11 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DISPLAY_CONTRAST_ADRESS            2
 #define SL_INPUT_ADRESS                    3
 #define SL_OUTPUT_ADRESS                   4
+//takes 3 bytes for 3 items
+#define SHIFT_ITEM_ADRESS                  5
+#define DEFAULT_TOOL_ADRESS                8
+#define LIST_MODE_ADRESS                   9
+#define CONTROL_HEADER_ADRESS              10
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
@@ -458,6 +472,12 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_LED_BRIGHTNESS             2
 #define DEFAULT_SL_INPUT                   0
 #define DEFAULT_SL_OUTPUT                  0
+#define DEFAULT_SHIFT_1_ITEM               1
+#define DEFAULT_SHIFT_2_ITEM               2
+#define DEFAULT_SHIFT_3_ITEM               4
+#define DEFAULT_DEFAULT_TOOL               0
+#define DEFAULT_LIST_MODE                  0
+#define DEFAULT_CONTROL_HEADER             0
 
 //memory used for LED value's
 #define LED_COLOR_EEMPROM_PAGE             2
@@ -467,7 +487,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_VERSION_ADRESS              62
 
 //for version control, when increasing they ALWAYS need to be bigger then the previous value
-#define EEPROM_CURRENT_VERSION             1L
+#define EEPROM_CURRENT_VERSION             2L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0

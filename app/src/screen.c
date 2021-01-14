@@ -55,6 +55,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST};
 
 static tuner_t g_tuner = {0, NULL, 0, 1};
 static bool g_hide_non_assigned_actuators = 0;
+static bool g_control_mode_header = 0;
 
 /*
 ************************************************************************************************************************
@@ -148,18 +149,19 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
     //check if we have 2 lines
     if (second_line[0] != 0)
     {
-        glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y, first_line, Terminal3x5, GLCD_BLACK);
-        glcd_text(display, (item_x + 18 - 2*strlen(second_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
+        glcd_text(display, (item_x + 17 - 2*strlen(first_line)), item_y, first_line, Terminal3x5, GLCD_BLACK);
+        glcd_text(display, (item_x + 17 - 2*strlen(second_line)), item_y + 6, second_line, Terminal3x5, GLCD_BLACK);      
     }
     else
     {
-        glcd_text(display, (item_x + 18 - 2*strlen(first_line)), item_y+3, first_line, Terminal3x5, GLCD_BLACK);
+        glcd_text(display, (item_x + 17 - 2*strlen(first_line)), item_y+3, first_line, Terminal3x5, GLCD_BLACK);
     }
 
     char str_bfr[6];
     uint8_t char_cnt_name = 0;
     switch(item_child->desc->type)
     {
+        case MENU_FOOT:
         case MENU_TOGGLE:
             if (tool_mode)
                 glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
@@ -213,7 +215,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 p = 0;
                 uint8_t val_line = 0;
                 
-                for (q = 0; q < 20; q++)
+                for (q = 0; q < 21; q++)
                 {
                     if(item_child->data.unit_text[q] != 0)
                     {
@@ -260,7 +262,6 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
         case MENU_NONE:
         case MENU_CONFIRM:
         case MENU_TOOL:
-        case MENU_FOOT:
         break;
     }
 }
@@ -279,6 +280,11 @@ void screen_clear(void)
 void screen_set_hide_non_assigned_actuators(uint8_t hide)
 {
     g_hide_non_assigned_actuators = hide;
+}
+
+void screen_set_control_mode_header(uint8_t toggle)
+{
+    g_control_mode_header = toggle;
 }
 
 void screen_encoder(control_t *control, uint8_t encoder)
@@ -665,18 +671,31 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     
 }
 
-void screen_tittle(const void *data, uint8_t update)
+void screen_tittle(const void *data, uint8_t update, int8_t pb_ss)
 {
     static char* pedalboard_name = NULL;
-    static uint8_t char_cnt = 0;
+    static char* snapshot_name = NULL;
+    static uint8_t char_cnt_pb = 0;
+    static uint8_t char_cnt_ss = 0;
     glcd_t *display = hardware_glcds(0);
+
+    if (pb_ss == -1)
+        pb_ss = g_control_mode_header;
 
     if (pedalboard_name == NULL)
     {
         //should only run once, no need to clear
         pedalboard_name = (char *) MALLOC(20 * sizeof(char));
         strcpy(pedalboard_name, "DEFAULT");
-        char_cnt = 7;
+        char_cnt_pb = 7;
+    }
+
+    if (snapshot_name == NULL)
+    {
+        //should only run once, no need to clear
+        snapshot_name = (char *) MALLOC(20 * sizeof(char));
+        strcpy(snapshot_name, "DEFAULT");
+        char_cnt_ss = 7;
     }
 
     if (update)
@@ -685,32 +704,41 @@ void screen_tittle(const void *data, uint8_t update)
 
         // get first list name, copy it to our string buffer
         const char *name_string = *name_list;
-        strncpy(pedalboard_name, name_string, 19);
-        pedalboard_name[19] = 0; // strncpy might not have final null byte
+        strncpy((pb_ss?snapshot_name:pedalboard_name), name_string, 19);
+        (pb_ss?snapshot_name:pedalboard_name)[19] = 0; // strncpy might not have final null byte
 
         // go to next name in list
         name_string = *(++name_list);
 
-        while (name_string && ((strlen(pedalboard_name) + strlen(name_string) + 1) < 19))
+        while (name_string && ((strlen((pb_ss?snapshot_name:pedalboard_name)) + strlen(name_string) + 1) < 19))
         {
-            strcat(pedalboard_name, " ");
-            strcat(pedalboard_name, name_string);
+            strcat((pb_ss?snapshot_name:pedalboard_name), " ");
+            strcat((pb_ss?snapshot_name:pedalboard_name), name_string);
             name_string = *(++name_list);
-            char_cnt++;
+            (pb_ss?char_cnt_ss++:char_cnt_pb++);
         }
-        pedalboard_name[19] = 0;
-        char_cnt = strlen(pedalboard_name);
+        (pb_ss?snapshot_name:pedalboard_name)[19] = 0;
+        if (pb_ss)
+            char_cnt_ss = strlen((pb_ss?snapshot_name:pedalboard_name));
+        else
+            char_cnt_pb = strlen((pb_ss?snapshot_name:pedalboard_name));
     }
 
     //we dont display inside a menu
     if (naveg_get_current_mode() != MODE_CONTROL) return;
 
+    //we dont display a not selected mode
+    if (g_control_mode_header != pb_ss) return;
+
     // clear the name area
     glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
 
-    glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, pedalboard_name, Terminal5x7, GLCD_BLACK);
+    glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7), 1, (pb_ss?snapshot_name:pedalboard_name), Terminal5x7, GLCD_BLACK);
 
-    icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7) - 11, 1);
+    if (pb_ss)
+        icon_snapshot(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7) - 11, 1);
+    else
+        icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7) - 11, 1);
 
     //invert the top bar
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
@@ -1228,63 +1256,18 @@ void screen_shift_overlay(int8_t prev_mode)
     //draw the third box, save PB
     glcd_text(display, 84, DISPLAY_HEIGHT - 7, "SAVE PB", Terminal3x5, GLCD_BLACK);
 
-    //print the 3 quick controls, hardcoded for now
-    glcd_text(display, 8, 15, "INPUT-1", Terminal3x5, GLCD_BLACK);
-    glcd_text(display, 14, 21, "GAIN", Terminal3x5, GLCD_BLACK);
+    //print the 3 quick controls
+    uint8_t i;
+    uint8_t read_buffer = 0;
+    for (i = 0; i < 3; i++)
+    {
+        //do system callbacks
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS+i, &read_buffer, MODE_8_BIT, 1);
+            
+        menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
 
-    menu_item_t *shift_item = TM_get_menu_item_by_ID(INP_1_GAIN_ID);
-
-    //print the bar
-    menu_bar_t bar_1 = {};
-    bar_1.x = 4;
-    bar_1.y = 27;
-    bar_1.color = GLCD_BLACK;
-    bar_1.width = 35;
-    bar_1.height = 7;
-    bar_1.min = 0;
-    bar_1.max = 98;
-    bar_1.value = shift_item->data.value;
-    widget_bar(display, &bar_1);
-
-    glcd_text(display, 22 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
-
-    glcd_text(display, 51, 15, "INPUT-2", Terminal3x5, GLCD_BLACK);
-    glcd_text(display, 57, 21, "GAIN", Terminal3x5, GLCD_BLACK);
-
-    shift_item = TM_get_menu_item_by_ID(INP_2_GAIN_ID);
-
-    //print the bar
-    menu_bar_t bar_2 = {};
-    bar_2.x = 47;
-    bar_2.y = 27;
-    bar_2.color = GLCD_BLACK;
-    bar_2.width = 35;
-    bar_2.height = 7;
-    bar_2.min = 0;
-    bar_2.max = 98;
-    bar_2.value = shift_item->data.value;
-    widget_bar(display, &bar_2);
-
-    glcd_text(display, 65 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
-
-    glcd_text(display, 95, 15, "OUTPUT", Terminal3x5, GLCD_BLACK);
-    glcd_text(display, 99, 21, "GAIN", Terminal3x5, GLCD_BLACK);
-
-    shift_item = TM_get_menu_item_by_ID(OUTP_1_GAIN_ID);
-
-    //print the bar
-    menu_bar_t bar_3 = {};
-    bar_3.x = 89;
-    bar_3.y = 27;
-    bar_3.color = GLCD_BLACK;
-    bar_3.width = 35;
-    bar_3.height = 7;
-    bar_3.min = -60;
-    bar_3.max = 0;
-    bar_3.value = shift_item->data.value;
-    widget_bar(display, &bar_3);
-
-    glcd_text(display, 107 - (strlen(shift_item->data.unit_text))*2, 45, shift_item->data.unit_text, Terminal3x5, GLCD_BLACK);
+        print_tripple_menu_items(item, i, 0);
+    }
 }
 
 void screen_control_overlay(control_t *control)

@@ -272,21 +272,35 @@ void naveg_enc_down(uint8_t encoder)
             TM_down(encoder);
         break;
 
-        case MODE_SHIFT:
-            //do system callbacks, hardcodec for now
+        case MODE_SHIFT:;
+            //do system callbacks
+            uint8_t read_buffer = 0;
             switch (encoder)
             {
                 case 0:
-                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_UP);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS, &read_buffer, MODE_8_BIT, 1);
                 break;
                 case 1:
-                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_UP);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS+1, &read_buffer, MODE_8_BIT, 1);
                 break;
                 case 2:
-                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_UP);
-                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_UP);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS+2, &read_buffer, MODE_8_BIT, 1);
                 break;
             }
+            
+            menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
+
+            if (item->desc->type == MENU_BAR)
+            {
+                if (g_encoders_pressed[encoder])
+                    item->data.step = 10;
+                else
+                    item->data.step = 1;
+            }
+
+            item->desc->action_cb(item, MENU_EV_UP);
+
+            screen_shift_overlay(-1);
         break;
 
         case MODE_BUILDER:
@@ -323,21 +337,35 @@ void naveg_enc_up(uint8_t encoder)
             TM_up(encoder);
         break;
 
-        case MODE_SHIFT:
-            //do system callbacks, hardcodec for nwo
+        case MODE_SHIFT:;
+            //do system callbacks
+            uint8_t read_buffer = 0;
             switch (encoder)
             {
                 case 0:
-                    system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_DOWN);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS, &read_buffer, MODE_8_BIT, 1);
                 break;
                 case 1:
-                    system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_DOWN);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS+1, &read_buffer, MODE_8_BIT, 1);
                 break;
                 case 2:
-                    system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_DOWN);
-                    system_outp_2_volume_cb(TM_get_menu_item_by_ID(OUTP_2_GAIN_ID), MENU_EV_DOWN);
+                    EEPROM_Read(0, SHIFT_ITEM_ADRESS+2, &read_buffer, MODE_8_BIT, 1);
                 break;
             }
+            
+            menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
+
+            if (item->desc->type == MENU_BAR)
+            {
+                if (g_encoders_pressed[encoder])
+                    item->data.step = 10;
+                else
+                    item->data.step = 1;
+            }
+
+            item->desc->action_cb(item, MENU_EV_DOWN);
+
+            screen_shift_overlay(-1);
         break;
 
         case MODE_BUILDER:
@@ -505,7 +533,7 @@ void naveg_foot_double_press(uint8_t foot)
         {
             g_prev_device_mode = g_device_mode;
             g_device_mode = MODE_TOOL_FOOT;
-            TM_launch_tool(TOOL_TUNER);
+            TM_launch_tool(TOOL_FOOT);
         }
         else if (g_device_mode == MODE_TOOL_FOOT)
         {
@@ -663,14 +691,15 @@ void naveg_shift_pressed()
     if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
         TM_turn_off_tuner();
 
-    static uint8_t first_shift = 1;
-
-    if (first_shift)
+    uint8_t i;
+    uint8_t read_buffer = 0;
+    for (i = 0; i < 3; i++)
     {
-        system_inp_1_volume_cb(TM_get_menu_item_by_ID(INP_1_GAIN_ID), MENU_EV_NONE);
-        system_inp_2_volume_cb(TM_get_menu_item_by_ID(INP_2_GAIN_ID), MENU_EV_NONE);
-        system_outp_1_volume_cb(TM_get_menu_item_by_ID(OUTP_1_GAIN_ID), MENU_EV_NONE);
-        first_shift = 0;
+        //do system callbacks
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS+i, &read_buffer, MODE_8_BIT, 1);
+            
+        menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
+        item->desc->action_cb(item, MENU_EV_NONE);
     }
 
     //toggle shift

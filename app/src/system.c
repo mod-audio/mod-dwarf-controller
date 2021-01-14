@@ -31,6 +31,7 @@
 ************************************************************************************************************************
 */
 
+#define SHIFT_MENU_ITEMS_COUNT      15
 
 /*
 ************************************************************************************************************************
@@ -54,6 +55,10 @@ const char *versions_names[] = {
     "controller",
     NULL
 };
+
+static const uint8_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
+                                                                CLOCK_SOURCE_ID, SEND_CLOCK_ID, MIDI_PB_PC_CHANNEL_ID, MIDI_SS_PC_CHANNEL_ID, DISPLAY_BRIGHTNESS_ID, \
+                                                                DISPLAY_CONTRAST_ID, UNASSIGNED_ACTUATRS_ID, BPM_ID, BPB_ID};
 
 /*
 ************************************************************************************************************************
@@ -96,6 +101,10 @@ uint8_t g_tuner_input = 0;
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;
 int8_t g_actuator_hide = -1;
+int8_t g_shift_item[3] = {-1, -1, -1};
+int8_t g_default_tool = -1;
+int8_t g_list_mode = -1;
+int8_t g_control_header = -1;
 
 struct TAP_TEMPO_T {
     uint32_t time, max;
@@ -209,6 +218,12 @@ static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 *           GLOBAL FUNCTIONS
 ************************************************************************************************************************
 */
+
+uint8_t system_get_shift_item(uint8_t index)
+{
+    return SHIFT_ITEM_IDS[index];
+}
+
 void system_recall_stereo_link_settings(void)
 {
     //read EEPROM
@@ -1044,9 +1059,6 @@ void system_midi_src_cb (void *arg, int event)
     if (g_MIDI_clk_src == 0) item->data.unit_text ="INTERNAL";
     else if (g_MIDI_clk_src == 1) item->data.unit_text = "MIDI";
     else if (g_MIDI_clk_src == 2) item->data.unit_text ="ABLETON LINK";
-    
-    //if (event != MENU_EV_NONE)
-    //    TM_refresh_menu_screen();
 }
 
 void system_midi_send_cb (void *arg, int event)
@@ -1223,6 +1235,198 @@ void system_save_pro_cb(void *arg, int event)
     }
 }
 
+void system_shift_item_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &read_buffer, MODE_8_BIT, 1);
+
+        g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = read_buffer;
+    }
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
+        else g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
+    }
+    else if (event == MENU_EV_UP)
+    {
+        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
+        else return;
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] > 0) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]--;
+        else return;
+    }
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+        item->data.min = 0;
+        item->data.max = SHIFT_MENU_ITEMS_COUNT-1;
+        item->data.step = 1;
+    }
+
+    //also write to EEPROM
+    uint8_t write_buffer = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+    EEPROM_Write(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &write_buffer, MODE_8_BIT, 1);
+
+    item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+
+    //add item to text
+    item->data.unit_text = TM_get_menu_item_by_ID(SHIFT_ITEM_IDS[(int)item->data.value])->name;
+}
+
+void system_default_tool_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_default_tool == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, DEFAULT_TOOL_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_default_tool = read_buffer;
+
+        TM_set_first_foot_tool(g_default_tool+1);
+
+        if (!item) return;
+    }
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_default_tool < FOOT_TOOL_AMOUNT-1) g_default_tool++;
+        else g_default_tool = 0;
+    }
+    else if (event == MENU_EV_UP)
+    {
+        if (g_default_tool < FOOT_TOOL_AMOUNT-1)
+            g_default_tool += item->data.step;
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (g_default_tool > 0)
+            g_default_tool -= item->data.step;
+    }
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_default_tool;
+        item->data.min = 0;
+        item->data.max = FOOT_TOOL_AMOUNT;
+        item->data.step = 1;
+    }
+
+    TM_set_first_foot_tool(g_default_tool+1);
+
+    //also write to EEPROM
+    uint8_t write_buffer = g_default_tool;
+    EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    item->data.value = g_default_tool;
+    
+    switch ((int)item->data.value)
+    {
+        case 0: item->data.unit_text = "TUNER"; break;
+        case 1: item->data.unit_text = "TEMPO"; break;
+        //case 3: item->data.unit_text = "[C]"; break;
+        //case 4: item->data.unit_text = "[D]"; break;
+    }
+}
+
+void system_list_mode_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_list_mode == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, LIST_MODE_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_list_mode = read_buffer;
+    }
+
+    if (event == MENU_EV_ENTER)
+        g_list_mode = !g_list_mode;
+    else if (event == MENU_EV_UP)
+        g_list_mode = 1;
+    else if (event == MENU_EV_DOWN)
+        g_list_mode = 0;
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_list_mode;
+        item->data.min = 0;
+        item->data.max = 1;
+        item->data.step = 1;
+    }
+
+    //hardware_glcd_brightness(g_display_brightness); 
+
+    //also write to EEPROM
+    uint8_t write_buffer = g_list_mode;
+    EEPROM_Write(0, LIST_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    item->data.value = g_list_mode;
+
+    if (g_list_mode)
+        item->data.unit_text = "Click to load";
+    else
+        item->data.unit_text = "load on select";
+}
+
+void system_control_header_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_control_header == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, CONTROL_HEADER_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_control_header = read_buffer;
+
+        screen_set_control_mode_header(g_control_header); 
+
+        if (!item) return;
+    }
+
+    if (event == MENU_EV_ENTER)
+        g_control_header = !g_control_header;
+    else if (event == MENU_EV_UP)
+        g_control_header = 1;
+    else if (event == MENU_EV_DOWN)
+        g_control_header = 0;
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_control_header;
+        item->data.min = 0;
+        item->data.max = 1;
+        item->data.step = 1;
+    }
+
+    screen_set_control_mode_header(g_control_header); 
+
+    //also write to EEPROM
+    uint8_t write_buffer = g_control_header;
+    EEPROM_Write(0, CONTROL_HEADER_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    item->data.value = g_control_header;
+    
+    if (g_control_header)
+        item->data.unit_text = "Snapshot name";
+    else
+        item->data.unit_text = "Pedalboard name";
+}
 
 //Callbacks below are not part of the device menu
 void system_tuner_mute_cb(void *arg, int event)
