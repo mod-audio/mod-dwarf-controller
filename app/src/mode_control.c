@@ -1374,7 +1374,7 @@ void CM_load_next_page()
     uint8_t pagefound = 0;
     uint8_t j = g_current_foot_control_page;
     char buffer[30];
-    
+
     while (!pagefound)
     {
         j++;
@@ -1416,13 +1416,7 @@ void CM_load_next_page()
 
     g_current_encoder_page = 0;
 
-    //update screen
-    screen_page_index(g_current_foot_control_page, foot_pages_available());
-
-    screen_encoder_container(g_current_encoder_page);
-    CM_draw_encoders();
-
-    CM_set_leds();
+    CM_set_state();
 
     //clear actuator queue
     reset_queue();
