@@ -82,6 +82,7 @@ void screen_control_overlay(control_t *control);
 void screen_msg_overlay(char *message);
 void screen_update_tuner(float frequency, char *note, int8_t cents);
 void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode);
+void screen_text_box(uint8_t display, uint8_t x, uint8_t y, const char *text);
 
 /*
 ************************************************************************************************************************

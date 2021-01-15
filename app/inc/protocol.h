@@ -104,6 +104,7 @@ void cb_tuner(proto_t *proto);
 void cb_resp(proto_t *proto);
 void cb_restore(proto_t *proto);
 void cb_boot(proto_t *proto);
+void cb_set_selftest_control_skip(proto_t *proto);
 void cb_menu_item_changed(proto_t *proto);
 void cb_pedalboard_clear(proto_t *proto);
 void cb_pedalboard_name(proto_t *proto);

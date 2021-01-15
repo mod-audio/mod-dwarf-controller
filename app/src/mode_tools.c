@@ -88,9 +88,6 @@ static void *g_update_data;
 static uint8_t g_current_tool;
 static uint8_t g_first_foot_tool = TOOL_TUNER;
 
-static xSemaphoreHandle g_dialog_sem;
-static uint8_t dialog_active = 0;
-
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -300,13 +297,6 @@ static void menu_enter(uint8_t encoder)
             item->desc->action_cb(item, MENU_EV_ENTER);
     }
 
-    if (item->desc->type == MENU_CONFIRM2)
-    {
-        dialog_active = 0;
-        portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-        xSemaphoreGiveFromISR(g_dialog_sem, &xHigherPriorityTaskWoken);
-    }
-
     TM_print_tool();
     TM_set_leds();
 }
@@ -408,6 +398,13 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
             }
             i++;
         }
+
+    if (item->desc->type == MENU_CONFIRM2)
+    {
+        naveg_release_dialog_semaphore();
+        return;
+    }
+
     }
     else if ((action == MENU_EV_UP) && (item->data.popup_active == 1))
     {
@@ -423,7 +420,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 
-    if (/*(item->desc->parent_id == ROOT_ID) && */(item->desc->id != UPDATE_ID))
+    if ((item->desc->parent_id == ROOT_ID) && (item->desc->id != UPDATE_ID))
         screen_menu_page(g_current_menu);
     else
         screen_system_menu(g_current_item);
@@ -796,6 +793,18 @@ void TM_reset_menu(void)
     g_current_menu = g_menu;
     g_current_item = g_menu->first_child->data;
     reset_menu_hover(g_menu);
+}
+
+void TM_set_dummy_menu_item(node_t *dummy_menu)
+{
+    tools_off();
+    tool_on(TOOL_MENU);
+    g_current_tool = TOOL_MENU;
+
+    g_current_menu = dummy_menu;
+    g_current_item = dummy_menu->data;
+
+    TM_print_tool();
 }
 
 void TM_tool_up(void)

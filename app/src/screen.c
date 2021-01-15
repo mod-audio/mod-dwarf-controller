@@ -999,13 +999,25 @@ void screen_system_menu(menu_item_t *item)
             return;
         break;
 
+        case MENU_CONFIRM2:
+            // popup
+            popup.width = DISPLAY_WIDTH;
+            popup.height = DISPLAY_HEIGHT;
+            popup.font = Terminal3x5;
+            popup.type = YES_NO;
+            popup.title = item->data.popup_header;
+            popup.content = item->data.popup_content;
+            popup.button_selected = item->data.hover;
+            widget_popup(display, &popup);
+            return;
+        break;
+
         case MENU_MAIN:
         case MENU_TOGGLE:
         case MENU_BAR:
         case MENU_NONE:
         case MENU_OK:
         case MENU_LIST:
-        case MENU_CONFIRM2:
         case MENU_TOOL:
         case MENU_FOOT:
         break;
@@ -1396,4 +1408,25 @@ void screen_msg_overlay(char *message)
     text_box.text = message;
     text_box.align = ALIGN_CENTER_TOP;
     widget_textbox(display, &text_box);
+}
+
+void screen_text_box(uint8_t display, uint8_t x, uint8_t y, const char *text)
+{
+    glcd_t *hardware_display = hardware_glcds(display);
+
+    textbox_t text_box;
+    text_box.color = GLCD_BLACK;
+    text_box.mode = TEXT_MULTI_LINES;
+    text_box.font = Terminal3x5;
+    text_box.top_margin = 1;
+    text_box.bottom_margin = 0;
+    text_box.left_margin = 1;
+    text_box.right_margin = 0;
+    text_box.height = 63;
+    text_box.width = 127;
+    text_box.text = text;
+    text_box.align = ALIGN_NONE_NONE;
+    text_box.y = y;
+    text_box.x = x;
+    widget_textbox(hardware_display, &text_box);
 }

@@ -76,6 +76,7 @@ void ui_comm_webgui_response_cb(void *data);
 void ui_comm_webgui_wait_response(void);
 // clear the data in the buffer
 void ui_comm_webgui_clear(void);
+void ui_comm_webgui_clear_tx_buffer(void);
 
 /*
 ************************************************************************************************************************

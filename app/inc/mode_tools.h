@@ -68,6 +68,7 @@ void TM_up(uint8_t encoder);
 void TM_down(uint8_t encoder);
 void TM_foot_change(uint8_t foot);
 void TM_reset_menu(void);
+void TM_set_dummy_menu_item(node_t *dummy_menu);
 void TM_settings_refresh(void);
 void TM_menu_refresh(void);
 void TM_update_gain(uint8_t display_id, uint8_t update_id, float value, float min, float max, uint8_t dir);

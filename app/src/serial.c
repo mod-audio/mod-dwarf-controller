@@ -451,6 +451,13 @@ void serial_set_callback(uint8_t uart_id, void (*receive_cb)(serial_t *serial))
     }
 }
 
+void serial_flush_tx_buffer(uint8_t uart_id)
+{
+    serial_t *serial = g_serial_instances[uart_id];
+
+    ringbuff_flush(serial->tx_buffer);
+}
+
 void UART0_IRQHandler(void)
 {
     uart_handler(g_serial_instances[0]);

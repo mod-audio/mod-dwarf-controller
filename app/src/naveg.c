@@ -67,7 +67,7 @@ void reset_queue(void);
 
 static uint8_t g_ui_connected;
 static xSemaphoreHandle g_dialog_sem;
-static uint8_t dialog_active = 0;
+static uint8_t g_dialog_active = 0;
 
 // only enabled after "boot" command received
 bool g_should_wait_for_webgui = false;
@@ -82,6 +82,10 @@ static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 
 uint8_t g_initialized = 0;
 uint8_t g_lock_release[FOOTSWITCHES_COUNT] = {};
+
+// only disabled after "boot" command received
+bool g_self_test_mode = true;
+bool g_self_test_cancel_button = false;
 
 /*
 ************************************************************************************************************************
@@ -226,6 +230,35 @@ void naveg_enc_enter(uint8_t encoder)
         case MODE_BUILDER:
             //not defined yet
         break;
+
+        case MODE_SELFTEST:
+            if (g_dialog_active)
+            {
+                TM_encoder_click(0);
+            }
+            else
+            {
+                char buffer[30];
+                uint8_t i;
+
+                i = copy_command(buffer, CMD_SELFTEST_ENCODER_CLICKED);
+
+                // insert the hw_id on buffer
+                i += int_to_str(encoder, &buffer[i], sizeof(buffer) - i, 0);
+
+                ui_comm_webgui_clear_tx_buffer();
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                // send the data to GUI
+                ui_comm_webgui_send(buffer, i);
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+            }
+        break;
     }
 }
 
@@ -242,6 +275,9 @@ void naveg_enc_released(uint8_t encoder)
 void naveg_enc_hold(uint8_t encoder)
 {
     g_encoders_pressed[encoder] = 1;
+
+    if (g_self_test_mode)
+        naveg_enc_enter(encoder);
 }
 
 void naveg_enc_down(uint8_t encoder)
@@ -305,6 +341,35 @@ void naveg_enc_down(uint8_t encoder)
 
         case MODE_BUILDER:
             //not defined yet
+        break;
+
+        case MODE_SELFTEST:
+            if (g_dialog_active)
+            {
+                TM_down(0);
+            }
+            else
+            {
+                char buffer[30];
+                uint8_t i;
+
+                i = copy_command(buffer, CMD_SELFTEST_ENCODER_RIGHT);
+
+                // insert the hw_id on buffer
+                i += int_to_str(encoder, &buffer[i], sizeof(buffer) - i, 0);
+
+                ui_comm_webgui_clear_tx_buffer();
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                // send the data to GUI
+                ui_comm_webgui_send(buffer, i);
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+            }
         break;
     }
 }
@@ -370,6 +435,35 @@ void naveg_enc_up(uint8_t encoder)
 
         case MODE_BUILDER:
             //not defined yet
+        break;
+
+        case MODE_SELFTEST:
+            if (g_dialog_active)
+            {
+                TM_up(0);
+            }
+            else
+            {
+                char buffer[30];
+                uint8_t i;
+
+                i = copy_command(buffer, CMD_SELFTEST_ENCODER_LEFT);
+
+                // insert the hw_id on buffer
+                i += int_to_str(encoder, &buffer[i], sizeof(buffer) - i, 0);
+
+                ui_comm_webgui_clear_tx_buffer();
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                // send the data to GUI
+                ui_comm_webgui_send(buffer, i);
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+            }
         break;
     }
 }
@@ -445,12 +539,37 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         case MODE_BUILDER:
             //not defined yet
         break;
+
+        case MODE_SELFTEST:
+            //if in selftest mode, we just send if we are working or not
+            if (!g_dialog_active && pressed)
+            {
+                char buffer[30];
+                uint8_t i;
+                i = copy_command(buffer, CMD_SELFTEST_BUTTON_CLICKED);
+
+                // insert the hw_id on buffer
+                i += int_to_str(foot, &buffer[i], sizeof(buffer) - i, 0);
+
+                ui_comm_webgui_clear_tx_buffer();
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                // send the data to GUI
+                ui_comm_webgui_send(buffer, i);
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+            }
+        break;
     }
 }
 
 void naveg_foot_double_press(uint8_t foot)
 {
-    if (g_popup_active) return;
+    if ((g_popup_active) || (g_device_mode == MODE_SELFTEST)) return;
 
     hardware_set_overlay_timeout(0, NULL);
 
@@ -522,6 +641,10 @@ void naveg_foot_double_press(uint8_t foot)
             case MODE_SHIFT:
                 //block action
                 return;
+            break;
+
+            case MODE_SELFTEST:
+                //not used
             break;
         } 
     }
@@ -647,6 +770,33 @@ void naveg_button_pressed(uint8_t button)
                 break;
             }
         break;
+
+        case MODE_SELFTEST:
+            //if in selftest mode, we just send if we are working or not
+            if (!g_dialog_active)
+            {
+                char buffer[30];
+                uint8_t i;
+                i = copy_command(buffer, CMD_SELFTEST_BUTTON_CLICKED);
+
+                // insert the hw_id on buffer
+                i += int_to_str(button + FOOTSWITCHES_COUNT, &buffer[i], sizeof(buffer) - i, 0);
+
+                ui_comm_webgui_clear_tx_buffer();
+
+                //lock actuators
+                g_protocol_busy = true;
+                system_lock_comm_serial(g_protocol_busy);
+
+                // send the data to GUI
+                ui_comm_webgui_send(buffer, i);
+
+                g_protocol_busy = false;
+                system_lock_comm_serial(g_protocol_busy);
+
+                return;
+            }
+        break;
     }
 }
 
@@ -673,12 +823,52 @@ void naveg_button_released(uint8_t button)
         case MODE_BUILDER:
             //not used
         break;
+
+        case MODE_SELFTEST:
+            //not used
+        break;
     }
 }
 
 //used for the shift button
 void naveg_shift_pressed()
 {
+    if (g_device_mode == MODE_SELFTEST)
+    {
+        if (g_dialog_active)
+            return;
+        
+        char buffer[30];
+        uint8_t i;
+
+        //skip control action
+        if (g_self_test_cancel_button)
+        {
+            i = copy_command(buffer, CMD_SELFTEST_SKIP_CONTROL);
+        }
+        else 
+        {
+            i = copy_command(buffer, CMD_SELFTEST_BUTTON_CLICKED);
+
+            // insert the hw_id on buffer
+            i += int_to_str(6, &buffer[i], sizeof(buffer) - i, 0);
+        }
+
+        ui_comm_webgui_clear_tx_buffer();
+
+        //lock actuators
+        g_protocol_busy = true;
+        system_lock_comm_serial(g_protocol_busy);
+
+        // send the data to GUI
+        ui_comm_webgui_send(buffer, i);
+
+        g_protocol_busy = false;
+        system_lock_comm_serial(g_protocol_busy);
+
+        return;
+    }
+
     if (g_popup_active) return;
 
     hardware_set_overlay_timeout(0, NULL);
@@ -744,12 +934,16 @@ void naveg_shift_releaed()
         case MODE_BUILDER:
             //not defined yet
         break;
+
+        case MODE_SELFTEST:
+            //not used
+        break;
     }
 }
 
 uint8_t naveg_dialog_status(void)
 {
-    return dialog_active;
+    return g_dialog_active;
 }
 
 uint8_t naveg_dialog(const char *msg)
@@ -767,39 +961,32 @@ uint8_t naveg_dialog(const char *msg)
         item->data.list = NULL;
         item->data.popup_content = msg;
         item->data.popup_header = "selftest";
+        item->data.popup_active = 1;
         item->desc = &desc;
         item->name = NULL;
         dummy_menu = node_create(item);
     }
 
-    //display_disable_all_tools(DISPLAY_LEFT);
-    //tool_on(DISPLAY_TOOL_SYSTEM, DISPLAY_LEFT);
-    //tool_on(DISPLAY_TOOL_SYSTEM_SUBMENU, DISPLAY_RIGHT);
+    menu_item_t *dummy_item = dummy_menu->data;
+    TM_set_dummy_menu_item(dummy_menu);
 
-    //g_current_menu = dummy_menu;
-    //g_current_item = dummy_menu->data;
+    g_device_booted = true;
+    g_device_mode = MODE_SELFTEST;
 
-    //screen_system_menu(g_current_item);
-
-    dialog_active = 1;
+    g_dialog_active = 1;
 
     if (xSemaphoreTake(g_dialog_sem, portMAX_DELAY) == pdTRUE)
     {
-        dialog_active = 0;
-        //display_disable_all_tools(DISPLAY_LEFT);
-        //display_disable_all_tools(DISPLAY_RIGHT);
+        g_dialog_active = 0;
+
+        TM_reset_menu();
 
         g_update_cb = NULL;
         g_update_data = NULL;
 
-        //g_current_main_menu = g_menu;
-        //g_current_main_item = g_menu->first_child->data;
-        //reset_menu_hover(g_menu);
-
         screen_clear();
 
-        //return g_current_item->data.hover;
-        return -1;
+        return dummy_item->data.hover;
     }
     //we can never get here, portMAX_DELAY means wait indefinatly I'm adding this to remove a compiler warning
     else
@@ -807,6 +994,12 @@ uint8_t naveg_dialog(const char *msg)
         //ERROR
         return -1; 
     }
+}
+
+void naveg_release_dialog_semaphore(void)
+{
+    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(g_dialog_sem, &xHigherPriorityTaskWoken); 
 }
 
 void naveg_trigger_mode_change(uint8_t mode)
@@ -835,6 +1028,10 @@ void naveg_trigger_mode_change(uint8_t mode)
 
         case MODE_BUILDER:
             //not defined yet
+        break;
+
+        case MODE_SELFTEST:
+            //not used
         break;
     }
 }

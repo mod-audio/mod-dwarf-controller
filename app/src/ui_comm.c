@@ -158,3 +158,9 @@ void ui_comm_webgui_clear(void)
 {
     ringbuff_flush(g_webgui_rx_rb);
 }
+
+//clear the ringbuffer
+void ui_comm_webgui_clear_tx_buffer(void)
+{
+    serial_flush_tx_buffer(WEBGUI_SERIAL);
+}

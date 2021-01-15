@@ -47,7 +47,7 @@ enum {UI_DISCONNECTED, UI_CONNECTED};
 */
 
 //device modes
-enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT};
+enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT, MODE_SELFTEST};
 
 //different tool modes
 enum{TOOL_MENU, TOOL_FOOT, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
@@ -66,6 +66,9 @@ bool g_popup_active;
 uint8_t g_encoders_pressed[ENCODERS_COUNT];
 
 uint8_t g_initialized;
+
+bool g_self_test_mode;
+bool g_self_test_cancel_button;
 /*
 ************************************************************************************************************************
 *           MACRO'S
@@ -97,6 +100,7 @@ void naveg_shift_pressed();
 void naveg_shift_releaed();
 uint8_t naveg_dialog_status(void);
 uint8_t naveg_dialog(const char *msg);
+void naveg_release_dialog_semaphore(void);
 void naveg_trigger_mode_change(uint8_t mode);
 void naveg_print_shift_screen(void);
 

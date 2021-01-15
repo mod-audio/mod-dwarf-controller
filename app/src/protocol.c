@@ -292,6 +292,7 @@ void protocol_init(void)
     protocol_add_command(CMD_PEDALBOARD_NAME_SET, cb_pedalboard_name);
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
+    protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
 }
 
 /*
@@ -345,7 +346,7 @@ void cb_glcd_text(proto_t *proto)
 
     if (glcd_id >= GLCD_COUNT) return;
 
-    glcd_text(hardware_glcds(glcd_id), x, y, proto->list[4], NULL, GLCD_BLACK);
+    screen_text_box(glcd_id, x, y, proto->list[4]);
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 
@@ -503,6 +504,9 @@ void cb_restore(proto_t *proto)
 //MDW TODO, see whats needed here
 void cb_boot(proto_t *proto)
 {
+    g_self_test_mode = false;
+    g_self_test_cancel_button = false;
+
     g_should_wait_for_webgui = true;
 
     //set the tuner mute state 
@@ -520,6 +524,21 @@ void cb_boot(proto_t *proto)
 
     //after boot we are ready to print the control vieuw
     CM_set_state();
+}
+
+void cb_set_selftest_control_skip(proto_t *proto)
+{
+    //lock actuators and clear tx buffer
+    g_protocol_busy = true;
+    system_lock_comm_serial(g_protocol_busy);
+    ui_comm_webgui_clear_tx_buffer();
+
+    g_self_test_cancel_button = true; 
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    g_protocol_busy = false;
+    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_menu_item_changed(proto_t *proto)

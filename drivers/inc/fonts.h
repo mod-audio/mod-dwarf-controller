@@ -12,7 +12,7 @@
 #define FONT_CHAR_COUNT         5
 #define FONT_WIDTH_TABLE        6
 #define FONT_INTERCHAR_SPACE    1
-#define FONT_DEFAULT            Terminal5x7
+#define FONT_DEFAULT            Terminal3x5
 
 // fonts macros
 #define FONT_IS_MONO_SPACED(font)   ((font)[FONT_LENGTH] == 0 && (font)[FONT_LENGTH+1] == 0)

@@ -96,6 +96,7 @@ uint32_t serial_send(uint8_t uart_id, const uint8_t *data, uint32_t data_size);
 uint32_t serial_read(uint8_t uart_id, uint8_t *data, uint32_t data_size);
 uint32_t serial_read_until(uint8_t uart_id, uint8_t *data, uint32_t data_size, uint8_t token);
 void serial_set_callback(uint8_t uart_id, void (*receive_cb)(serial_t *serial));
+void serial_flush_tx_buffer(uint8_t uart_id);
 
 // this function will be called automatically from UART interrupt in case of error
 // the user must create this function in your application code
