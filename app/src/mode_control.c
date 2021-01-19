@@ -1400,7 +1400,10 @@ void CM_load_next_page()
     }
 
     if (!pagefound)
+    {
+        CM_print_screen();
         return;
+    }
 
     hardware_set_overlay_timeout(0, NULL);
     g_current_overlay_actuator = -1;
