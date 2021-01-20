@@ -31,7 +31,7 @@
 ************************************************************************************************************************
 */
 
-#define SHIFT_MENU_ITEMS_COUNT      15
+#define SHIFT_MENU_ITEMS_COUNT      13
 
 /*
 ************************************************************************************************************************
@@ -221,7 +221,10 @@ static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 
 uint8_t system_get_shift_item(uint8_t index)
 {
-    return SHIFT_ITEM_IDS[index];
+    if (index < SHIFT_MENU_ITEMS_COUNT)
+        return SHIFT_ITEM_IDS[index];
+    else
+        return SHIFT_ITEM_IDS[0];
 }
 
 void system_recall_stereo_link_settings(void)
@@ -1245,7 +1248,10 @@ void system_shift_item_cb(void *arg, int event)
         uint8_t read_buffer = 0;
         EEPROM_Read(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &read_buffer, MODE_8_BIT, 1);
 
-        g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = read_buffer;
+        if (read_buffer < SHIFT_MENU_ITEMS_COUNT)
+            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = read_buffer;
+        else
+            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
     }
 
     if (event == MENU_EV_ENTER)

@@ -420,7 +420,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 
-    if ((item->desc->parent_id == ROOT_ID) && (item->desc->id != UPDATE_ID))
+    if ((item->desc->id != ROOT_ID) && (item->desc->id != UPDATE_ID) && (item->desc->id != DIALOG_ID))
         screen_menu_page(g_current_menu);
     else
         screen_system_menu(g_current_item);
