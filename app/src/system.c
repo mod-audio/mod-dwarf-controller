@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "mod-protocol.h"
 #include "ui_comm.h"
+#include "sys_comm.h"
 #include "mode_tools.h"
 #include "naveg.h"
 
@@ -213,6 +214,11 @@ static void set_menu_item_value(uint16_t menu_id, uint16_t value)
     ui_comm_webgui_send(buffer, i);
 }
 
+static void recieve_sys_value(void *data, menu_item_t *item)
+{
+    char **values = data;
+    item->data.value = atof(values[1]);
+}
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -249,14 +255,27 @@ uint8_t system_get_current_profile(void)
     return g_current_profile;
 }
 
-//I SHOULD NOT BE HERE
 void system_save_gains_cb(void *arg, int event)
 {
     UNUSED_PARAM(arg);
 
     if (event == MENU_EV_ENTER)
     {
-        cli_command("mod-amixer save", CLI_DISCARD_RESPONSE);
+        if (g_comm_protocol_bussy) return;
+
+        uint8_t i = 0;
+        char buffer[50];
+        memset(buffer, 0, sizeof buffer);
+
+        i = copy_command((char *)buffer, CMD_SYS_AMIXER_SAVE);
+
+        buffer[i++] = 0;
+
+        // sets the response callback
+        sys_comm_set_response_cb(NULL, NULL);
+
+        // sends the data to GUI
+        sys_comm_send(buffer, NULL);
     }
 }
 
@@ -482,49 +501,57 @@ void system_inp_1_volume_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    static const char *response = NULL;
-    char value[8] = {};
-    static uint32_t last_message_time = 0; 
-    uint32_t message_time = hardware_timestamp();
+    uint8_t i = 0;
+    char buffer[20];
+    memset(buffer, 0, sizeof buffer);
+    char val_buffer[20];
+    memset(val_buffer, 0, sizeof val_buffer);
+    uint8_t q=0;
+
+    i = copy_command((char *)buffer, CMD_SYS_GAIN);
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        response = cli_command("mod-amixer in 2 xvol ", CLI_RETRIEVE_RESPONSE);
-        char str[LINE_BUFFER_SIZE+1];
-        strcpy(str, response);
+        buffer[i++] = 0;
+
+        sys_comm_set_response_cb(recieve_sys_value, item);
+
+        // sends the data to GUI
+        copy_command(val_buffer, "0 2");
+
+        sys_comm_send(buffer, val_buffer);
+        sys_comm_wait_response();
 
         item->data.min = 0.0;
         item->data.max = 98.0;
         item->data.step = 1.0;
-        item->data.value = atoi(str);
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
+        if (event == MENU_EV_UP) item->data.value += item->data.step;
+        else item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max) item->data.value = item->data.max;
+        if (item->data.value < item->data.min) item->data.value = item->data.min;
+
+        sys_comm_set_response_cb(NULL, NULL);
+
+        if (g_sl_in)
         {
-            if (event == MENU_EV_UP) item->data.value += item->data.step;
-            else item->data.value -= item->data.step;
-
-            if (item->data.value > item->data.max) item->data.value = item->data.max;
-            if (item->data.value < item->data.min) item->data.value = item->data.min;
-
-            int_to_str(item->data.value, value, 8, 0);
-
-            if (g_sl_in)
-            {
-                cli_command("mod-amixer in 0 xvol ", CLI_CACHE_ONLY);
-                cli_command(value, CLI_DISCARD_RESPONSE);
-                update_gain_item_value(INP_2_GAIN_ID, item->data.value);
-            }
-            else if (item->desc->id == INP_1_GAIN_ID)
-            {
-                cli_command("mod-amixer in 2 xvol ", CLI_CACHE_ONLY);
-                cli_command(value, CLI_DISCARD_RESPONSE);
-            }
-            
-            last_message_time = message_time;
-            item->data.step = 1.0;
+            q = copy_command(val_buffer, "0 0 ");
+            update_gain_item_value(INP_2_GAIN_ID, item->data.value);
         }
+        else
+        {
+            q = copy_command(val_buffer, "0 2 ");
+        }
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, val_buffer, 8, 2);
+        val_buffer[q++] = 0;
+
+        sys_comm_send(buffer, val_buffer);
+        sys_comm_wait_response();
     }
 
     static char str_bfr[8] = {};
@@ -538,7 +565,10 @@ void system_inp_1_volume_cb(void *arg, int event)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }   
+    }
+
+    //reset step size
+    item->data.step = 1.0;
 }
 
 void system_inp_2_volume_cb(void *arg, int event)

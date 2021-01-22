@@ -6,13 +6,14 @@
 */
 
 #include <string.h>
-
-#include "ui_comm.h"
 #include "config.h"
 #include "serial.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
+
+#include "hardware.h"
+#include "ledz.h"
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -51,7 +52,6 @@
 
 static  void (*g_system_response_cb)(void *data, menu_item_t *item) = NULL;
 static  menu_item_t *g_current_item;
-static volatile uint8_t  g_system_blocked;
 static volatile xSemaphoreHandle g_system_sem = NULL;
 static  ringbuff_t *g_system_rx_rb;
 
@@ -124,7 +124,6 @@ void sys_comm_send(const char *command, const char *arguments)
 
     if (arguments)
     {
-        buffer[i++] = ' ';
 
         //add size as hex number
         char str_bfr[9] = {};
