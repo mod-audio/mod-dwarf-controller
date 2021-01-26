@@ -217,8 +217,12 @@ static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 static void recieve_sys_value(void *data, menu_item_t *item)
 {
     char **values = data;
-    item->data.value = atof(values[1]);
+
+    //protocol ok
+    if (atof(values[1]) == 0)
+        item->data.value = atof(values[2]);
 }
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -271,11 +275,10 @@ void system_save_gains_cb(void *arg, int event)
 
         buffer[i++] = 0;
 
-        // sets the response callback
-        sys_comm_set_response_cb(NULL, NULL);
-
         // sends the data to GUI
         sys_comm_send(buffer, NULL);
+
+        sys_comm_wait_response();
     }
 }
 
@@ -501,40 +504,33 @@ void system_inp_1_volume_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    uint8_t i = 0;
-    char buffer[20];
-    memset(buffer, 0, sizeof buffer);
     char val_buffer[20];
-    memset(val_buffer, 0, sizeof val_buffer);
-    uint8_t q=0;
-
-    i = copy_command((char *)buffer, CMD_SYS_GAIN);
+    uint8_t q;
 
     if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
     {
-        buffer[i++] = 0;
-
         sys_comm_set_response_cb(recieve_sys_value, item);
 
-        // sends the data to GUI
-        copy_command(val_buffer, "0 2");
+        q = copy_command(val_buffer, "0 2");
 
-        sys_comm_send(buffer, val_buffer);
+        sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0;
-        item->data.max = 98.0;
-        item->data.step = 1.0;
+        item->data.min = 0.0f;
+        item->data.max = 98.0f;
+        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        if (event == MENU_EV_UP) item->data.value += item->data.step;
-        else item->data.value -= item->data.step;
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
 
-        if (item->data.value > item->data.max) item->data.value = item->data.max;
-        if (item->data.value < item->data.min) item->data.value = item->data.min;
-
-        sys_comm_set_response_cb(NULL, NULL);
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
 
         if (g_sl_in)
         {
@@ -547,17 +543,18 @@ void system_inp_1_volume_cb(void *arg, int event)
         }
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, val_buffer, 8, 2);
-        val_buffer[q++] = 0;
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
 
-        sys_comm_send(buffer, val_buffer);
+        sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
+
+        item->data.step = 1.0f;
     }
 
-    static char str_bfr[8] = {};
-    float value_bfr = 0;
-    value_bfr = MAP(item->data.value, item->data.min, item->data.max, 0, 100); 
-    int_to_str(value_bfr, str_bfr, 8, 0);
+    static char str_bfr[10] = {};
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
+    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
 
@@ -566,9 +563,6 @@ void system_inp_1_volume_cb(void *arg, int event)
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
     }
-
-    //reset step size
-    item->data.step = 1.0;
 }
 
 void system_inp_2_volume_cb(void *arg, int event)
@@ -595,7 +589,6 @@ void system_inp_2_volume_cb(void *arg, int event)
     {
         if (message_time - last_message_time > VOL_MESSAGE_TIMEOUT)
         {
-            
             if (event == MENU_EV_UP) item->data.value += item->data.step;
             else item->data.value -= item->data.step;
             

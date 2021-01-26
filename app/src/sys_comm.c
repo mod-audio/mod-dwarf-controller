@@ -52,6 +52,7 @@
 
 static  void (*g_system_response_cb)(void *data, menu_item_t *item) = NULL;
 static  menu_item_t *g_current_item;
+static volatile uint8_t  g_system_blocked;
 static volatile xSemaphoreHandle g_system_sem = NULL;
 static  ringbuff_t *g_system_rx_rb;
 

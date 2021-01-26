@@ -193,7 +193,7 @@ void protocol_parse(msg_t *msg)
     {
         if (g_commands[index].callback)
         {
-            g_commands[index].callback( msg->sender_id, &proto);
+            g_commands[index].callback(msg->sender_id, &proto);
 
             if (proto.response)
             {
