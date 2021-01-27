@@ -908,6 +908,9 @@ void naveg_shift_releaed()
     if (g_device_mode != MODE_SHIFT)
         return;
 
+    //always a chance we changed gains, send save
+    system_save_gains_cb(NULL, MENU_EV_ENTER);
+
     //exit the shift menu, return to opperational mode
     switch(g_prev_shift_device_mode)
     {

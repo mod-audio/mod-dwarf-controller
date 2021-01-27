@@ -588,6 +588,9 @@ void TM_enter(uint8_t button)
         {
             if (g_current_item->desc->id == ROOT_ID)
             {
+                //there is  a chance we changed gains, send save
+                system_save_gains_cb(NULL, MENU_EV_ENTER);
+
                 naveg_trigger_mode_change(MODE_CONTROL);
                 return;
             }
