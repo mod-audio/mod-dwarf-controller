@@ -517,7 +517,6 @@ void actuators_clock(void)
                             if (encoder->hold_time_counter == 0)
                             {
                                 SET_FLAG(encoder->status, EV_BUTTON_HELD);
-                                SET_FLAG(encoder->control, CLICK_CANCEL_FLAG);
 
                                 event(button, EV_BUTTON_HELD);
                             }
