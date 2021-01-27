@@ -32,7 +32,7 @@
 ************************************************************************************************************************
 */
 
-#define SHIFT_MENU_ITEMS_COUNT      13
+#define SHIFT_MENU_ITEMS_COUNT      14
 
 /*
 ************************************************************************************************************************
@@ -58,8 +58,8 @@ const char *versions_names[] = {
 };
 
 static const uint8_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
-                                                                CLOCK_SOURCE_ID, SEND_CLOCK_ID, MIDI_PB_PC_CHANNEL_ID, MIDI_SS_PC_CHANNEL_ID, DISPLAY_BRIGHTNESS_ID, \
-                                                                BPM_ID, BPB_ID};
+                                                                HEADPHONE_VOLUME_ID, CLOCK_SOURCE_ID, SEND_CLOCK_ID, MIDI_PB_PC_CHANNEL_ID, MIDI_SS_PC_CHANNEL_ID,\
+                                                                DISPLAY_BRIGHTNESS_ID, BPM_ID, BPB_ID};
 
 /*
 ************************************************************************************************************************
