@@ -396,7 +396,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_LED_LIST_COLOR_4          {0,80,80}
 #define DEFAULT_LED_LIST_COLOR_5          {0,80,0}
 #define DEFAULT_LED_LIST_COLOR_6          {100,0,100}
-#define DEFAULT_LED_LIST_COLOR_7          {100,0,100}
+#define DEFAULT_LED_LIST_COLOR_7          {0,0,100}
 #define DEFAULT_FS_PAGE_COLOR_1           {100,0,0}
 #define DEFAULT_FS_PAGE_COLOR_2           {80,80,0}
 #define DEFAULT_FS_PAGE_COLOR_3           {0,80,80}
@@ -487,7 +487,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_VERSION_ADRESS              62
 
 //for version control, when increasing they ALWAYS need to be bigger then the previous value
-#define EEPROM_CURRENT_VERSION             2L
+#define EEPROM_CURRENT_VERSION             3L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0

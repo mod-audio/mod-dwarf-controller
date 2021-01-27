@@ -348,6 +348,11 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_shift_defaults();
             break;
 
+            //there was a typo and beta units where already out....
+            case 2:
+                write_led_defaults();
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
