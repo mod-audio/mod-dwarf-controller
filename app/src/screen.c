@@ -837,8 +837,8 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         if (char_cnt > 17)
             char_cnt = 17;
 
-        memset(str_bfr, 0, (char_cnt+1)*sizeof(char));
-        strncpy(str_bfr, title, char_cnt);
+        memset(str_bfr, 0, sizeof(str_bfr));
+        strncpy(str_bfr, title, sizeof(str_bfr)-1);
         str_bfr[char_cnt] = 0;
 
         glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*char_cnt) + 7), 1, str_bfr, Terminal5x7, GLCD_BLACK);
