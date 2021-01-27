@@ -336,8 +336,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_play_cb              , 0},  \
     {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_play_cb              , 0},  \
     {"TOOL - TEMPO",                    MENU_TOOL,      TEMPO_ID,               ROOT_ID,            NULL                        , 0},  \
-    {"BEATS PER MINUTE",                MENU_BAR,       BPM_ID,                 TEMPO_ID,           system_tempo_cb             , 0},  \
     {"BEATS PER BAR",                   MENU_LIST,      BPB_ID,                 TEMPO_ID,           system_bpb_cb               , 0},  \
+    {"BEATS PER MINUTE",                MENU_BAR,       BPM_ID,                 TEMPO_ID,           system_tempo_cb             , 0},  \
     {"PLAY",                            MENU_FOOT,      PLAY_ID,                TEMPO_ID,           system_play_cb              , 0},  \
     {"TAP",                             MENU_FOOT,      TAP_ID,                 TEMPO_ID,           system_taptempo_cb          , 0},  \
 
@@ -378,8 +378,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define FS_PAGE_COLOR_8           23
 #define FS_PB_MENU_COLOR          24
 #define FS_SS_MENU_COLOR          25
-#define ENCODER_PAGE_COLOR        26
-#define MAX_COLOR_ID              27
+#define MAX_COLOR_ID              26
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
 #define DEFAULT_TRIGGER_COLOR             {80,80,80}
@@ -407,7 +406,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_FS_PAGE_COLOR_8           {0,0,100}
 #define DEFAULT_FS_PB_MENU                {53,22,61}
 #define DEFAULT_FS_SS_MENU                {0,80,80}
-#define DEFAULT_ENCODER_PAGE_COLOR        {100,0,0}
 
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7

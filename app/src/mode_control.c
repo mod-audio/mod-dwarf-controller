@@ -150,7 +150,7 @@ void set_encoder_pages_led_state(void)
     for (i = 0; i < ENCODER_PAGES_COUNT; i++)
     {
         led = hardware_leds(i+ENCODER_PAGES_COUNT);
-        led->led_state.color = ENCODER_PAGE_COLOR;
+        led->led_state.color = FS_PAGE_COLOR_1 + g_current_foot_control_page;
 
         if (i == g_current_encoder_page)
         {
