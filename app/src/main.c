@@ -211,7 +211,7 @@ static void webgui_procotol_task(void *pvParameters)
             g_protocol_busy = true;
             system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
-            msg.sender_id = 0;
+            msg.sender_id = WEBGUI_SERIAL;
             msg.data = (char *) g_msg_buffer;
             msg.data_size = msg_size;
             protocol_parse(&msg);
@@ -240,7 +240,7 @@ static void system_procotol_task(void *pvParameters)
             g_protocol_busy = true;
             system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
-            msg.sender_id = 0;
+            msg.sender_id = SYSTEM_SERIAL;
             msg.data = (char *) g_msg_buffer;
             msg.data_size = msg_size;
             protocol_parse(&msg);
@@ -393,11 +393,15 @@ static void cli_task(void *pvParameters)
 {
     UNUSED_PARAM(pvParameters);
 
-    //hardware_coreboard_power(COREBOARD_INIT);
-
     while (1)
     {
         cli_process();
+
+        if ((uxTaskPriorityGet(NULL) > 2) && (cli_restore(RESTORE_STATUS) == LOGGED_ON_SYSTEM))
+        {
+            //change own priority
+            vTaskPrioritySet(NULL, 2);
+        }
     }
 }
 
@@ -422,8 +426,8 @@ static void setup_task(void *pvParameters)
     g_actuators_queue = xQueueCreate(ACTUATORS_QUEUE_SIZE, sizeof(uint8_t *));
 
     // create the tasks
-    xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 4, NULL);
-    xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 2, NULL);
+    xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 5, NULL);
+    xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 4, NULL);
     xTaskCreate(actuators_task, TASK_NAME("act"), 256, NULL, 3, NULL);
     xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 4, NULL);
     xTaskCreate(displays_task, TASK_NAME("disp"), 128, NULL, 1, NULL);
