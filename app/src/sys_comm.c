@@ -14,6 +14,9 @@
 
 #include "hardware.h"
 #include "ledz.h"
+
+#include "mod-protocol.h"
+
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -136,6 +139,10 @@ void sys_comm_send(const char *command, const char *arguments)
 
         //add arguments
         strcat(buffer, arguments);
+    }
+    else
+    {
+        buffer[_CMD_SYS_LENGTH] = '\0';
     }
 
     //calc total size
