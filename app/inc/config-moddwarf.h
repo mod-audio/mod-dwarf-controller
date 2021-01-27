@@ -257,6 +257,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_TOOL_ID         DEVICE_SET_2_ID+1
 #define KNOB_LIST_ID            DEVICE_SET_2_ID+2
 #define CONTROL_HEADER_ID       DEVICE_SET_2_ID+3
+#define USB_MODE_ID             DEVICE_SET_2_ID+4
 
 #define BPM_ID                  TEMPO_ID+1
 #define BPB_ID                  TEMPO_ID+2
@@ -327,6 +328,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                        , 0},  \
     {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    system_default_tool_cb      , 0},  \
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    system_control_header_cb    , 0},  \
+    {"USB-B MODE",                      MENU_LIST,      USB_MODE_ID,            DEVICE_SET_2_ID,    system_usb_mode_cb          , 0},  \
     {"QUICK ITEMS",                     MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
@@ -345,6 +347,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define POPUP_CONTENT   \
     {USER_PROFILE_ID+1, "LOAD USER PROFILE", "load user profile "}, \
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "save current settings as user profile "}, \
+    {USB_MODE_ID, "Change USB mode", "Changing USB modes requires a device reboot\n\nreboot now?"},  \
     {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
     {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 

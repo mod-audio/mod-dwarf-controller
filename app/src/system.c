@@ -106,6 +106,7 @@ int8_t g_shift_item[3] = {-1, -1, -1};
 int8_t g_default_tool = -1;
 int8_t g_list_mode = -1;
 int8_t g_control_header = -1;
+int8_t g_usb_mode = -1;
 
 struct TAP_TEMPO_T {
     uint32_t time, max;
@@ -1754,3 +1755,61 @@ void system_bypass_cb (void *arg, int event)
         TM_menu_refresh(DISPLAY_RIGHT);
     }
 }*/
+
+void system_usb_mode_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    //first time, fetch value
+    if (g_usb_mode == -1)
+    {
+        sys_comm_set_response_cb(recieve_sys_value, item);
+
+        sys_comm_send(CMD_SYS_USB_MODE, NULL);
+        sys_comm_wait_response();
+    }
+
+    //if clicked and YES was selected from the pop-up
+    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+    {
+        g_usb_mode = item->data.value;
+
+        //set the value
+        char str_buf[8];
+        int_to_str(item->data.value, str_buf, 4, 0);
+        str_buf[1] = 0;
+
+        //send value
+        sys_comm_send(CMD_SYS_USB_MODE, str_buf);
+        sys_comm_wait_response();
+
+        //tell the system to reboot
+        sys_comm_send(CMD_SYS_REBOOT, NULL);
+    }
+
+    if (item->data.popup_active)
+        return;
+
+    if ((event == MENU_EV_UP) && (item->data.value < item->data.max))
+        item->data.value++;
+    else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
+        item->data.value--;
+    else
+    {
+        //display current profile number
+        item->data.value = g_usb_mode;
+        item->data.min = 1;
+        item->data.max = 3;
+        item->data.step = 1;
+        item->data.list_count = 2;
+        item->data.hover = 1;
+    }
+
+    //display the current profile
+    switch ((int)item->data.value)
+    {
+        case 1: item->data.unit_text = "NETWORK (DEFAULT)"; break;
+        case 2: item->data.unit_text = "NET+MIDI"; break;
+        case 3: item->data.unit_text = "NET+MIDI (WINDOWS)"; break;
+    }
+}
