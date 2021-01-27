@@ -621,15 +621,15 @@ void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
     g_protocol_busy = true;
     system_lock_comm_serial(g_protocol_busy);
 
-    if (naveg_get_current_mode() == MODE_CONTROL)
-        CM_reset_encoder_page();
-
     //clear controls
     uint8_t i;
     for (i = 0; i < TOTAL_ACTUATORS; i++)
     {
         CM_remove_control(i);
     }
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+        CM_set_state();
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
