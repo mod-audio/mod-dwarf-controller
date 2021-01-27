@@ -1032,16 +1032,13 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
     //trigger
     if (toggle->value >= 2)
     {
-        label.x = toggle->x + (toggle->width / 2) - 9;
+        label.x = toggle->x + (toggle->width / 2) - 7;
         label.text = "TRIG";
         widget_textbox(display, &label);
 
         //draw trigger lines
         glcd_hline(display, toggle->x + 2, toggle->y + 8, 7, GLCD_BLACK);
         glcd_hline(display, toggle->x + 26, toggle->y + 8, 7, GLCD_BLACK);
-
-        if (toggle->value == 3)
-            glcd_rect_invert(display, toggle->x+1, toggle->y+1, toggle->width -2, toggle->height - 2);
     }
     //toggle
     else if (toggle->value == 1)

@@ -697,11 +697,25 @@ static void control_set(uint8_t id, control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
-        control->value = control->maximum;
-        // to update the footer and screen
-        foot_control_add(control);
+        if (control->hw_id < ENCODERS_COUNT)
+        {
+            if (g_current_overlay_actuator != -1)
+            {
+                hardware_set_overlay_timeout(0, NULL);
+                CM_print_screen();
+            }
 
-        if (!control->scroll_dir) return;
+            // update the screen
+            screen_encoder(control, control->hw_id);
+        }
+        else 
+        {
+            control->value = control->maximum;
+            // to update the footer and screen
+            foot_control_add(control);
+
+            if (!control->scroll_dir) return;
+        }
     }
     else if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
@@ -911,6 +925,10 @@ void CM_inc_control(uint8_t encoder)
             else
                 return; 
         }
+    }
+    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        control->value = control->maximum;
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED)
     {
