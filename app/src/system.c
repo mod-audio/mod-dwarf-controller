@@ -1798,8 +1798,8 @@ void system_usb_mode_cb(void *arg, int event)
     {
         //display current profile number
         item->data.value = g_usb_mode;
-        item->data.min = 1;
-        item->data.max = 3;
+        item->data.min = 0;
+        item->data.max = 2;
         item->data.step = 1;
         item->data.list_count = 2;
         item->data.hover = 1;
@@ -1808,8 +1808,8 @@ void system_usb_mode_cb(void *arg, int event)
     //display the current profile
     switch ((int)item->data.value)
     {
-        case 1: item->data.unit_text = "NETWORK (DEFAULT)"; break;
-        case 2: item->data.unit_text = "NET+MIDI"; break;
-        case 3: item->data.unit_text = "NET+MIDI (WINDOWS)"; break;
+        case 0: item->data.unit_text = "NETWORK (DEFAULT)"; break;
+        case 1: item->data.unit_text = "NET+MIDI"; break;
+        case 2: item->data.unit_text = "NET+MIDI (WINDOWS)"; break;
     }
 }
