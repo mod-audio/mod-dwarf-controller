@@ -1055,10 +1055,26 @@ void CM_toggle_control(uint8_t encoder)
     {
         control->value = !control->value;
     }
-    else
+    else if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
     {
+        //no overlay active, toggle
+        if (g_current_overlay_actuator == -1)
+        {
+            CM_print_control_overlay(g_controls[encoder], ENCODER_LIST_TIMEOUT);
+        }
+        //overlay already active, close
+        else
+        {
+            hardware_set_overlay_timeout(0, NULL);
+            g_current_overlay_actuator = -1;
+            CM_print_screen();
+        }
+
         return;
     }
+    else
+        return;
+
 
     // applies the control value
     control_set(encoder, control);
