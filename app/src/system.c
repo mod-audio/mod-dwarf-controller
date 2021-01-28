@@ -1767,6 +1767,13 @@ void system_usb_mode_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_USB_MODE, NULL);
         sys_comm_wait_response();
+
+        g_usb_mode = item->data.value;
+        item->data.min = 0;
+        item->data.max = 2;
+        item->data.step = 1;
+        item->data.list_count = 2;
+        item->data.hover = 1;
     }
 
     //if clicked and YES was selected from the pop-up
@@ -1794,16 +1801,6 @@ void system_usb_mode_cb(void *arg, int event)
         item->data.value++;
     else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
         item->data.value--;
-    else
-    {
-        //display current profile number
-        item->data.value = g_usb_mode;
-        item->data.min = 0;
-        item->data.max = 2;
-        item->data.step = 1;
-        item->data.list_count = 2;
-        item->data.hover = 1;
-    }
 
     //display the current profile
     switch ((int)item->data.value)
