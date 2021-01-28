@@ -299,6 +299,12 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         //global tempo
         case MENU_ID_TEMPO:
             g_beats_per_minute = value;
+            //check if we need to update leds/display
+            if (naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)
+            {
+                TM_print_tool();
+                TM_set_leds();
+            }
         break;
         //global tempo status
         case MENU_ID_BEATS_PER_BAR:
