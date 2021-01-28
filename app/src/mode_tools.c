@@ -674,6 +674,9 @@ void TM_up(uint8_t encoder)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
         if (encoder == 1)
         {
+            if (system_get_clock_source() == 1)
+                return;
+
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
 
             if (g_encoders_pressed[encoder])
@@ -723,7 +726,16 @@ void TM_down(uint8_t encoder)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
         else if (encoder == 1)
         {
+            if (system_get_clock_source() == 1)
+                return;
+
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
+
+            if (g_encoders_pressed[encoder])
+                tempo_item->data.step = 10;
+            else
+                tempo_item->data.step = 1;
+
             system_tempo_cb(tempo_item, MENU_EV_UP);
             system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
             system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
