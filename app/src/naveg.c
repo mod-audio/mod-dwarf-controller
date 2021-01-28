@@ -518,7 +518,13 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_TOOL_FOOT:
-            if (!pressed) return;
+            if (!pressed)
+            {
+                if ((foot == 1) && (TM_check_tool_status() == TOOL_TUNER))
+                    ledz_on(hardware_leds(1), WHITE);
+
+                return;
+            }
 
             hardware_set_overlay_timeout(0, NULL);
 

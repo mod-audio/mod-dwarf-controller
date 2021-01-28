@@ -62,6 +62,7 @@ void system_recall_stereo_link_settings(void);
 void system_lock_comm_serial(bool busy);
 void system_update_menu_value(uint8_t item_ID, uint16_t value);
 float system_get_gain_value(uint8_t item_ID);
+uint8_t system_get_clock_source(void);
 uint8_t system_get_current_profile(void);
 void system_true_bypass_cb(void *arg, int event);
 void system_pedalboard_cb(void *arg, int event);

@@ -255,6 +255,11 @@ void system_lock_comm_serial(bool busy)
     g_comm_protocol_bussy = busy;
 }
 
+uint8_t system_get_clock_source(void)
+{
+    return g_MIDI_clk_src;
+}
+
 uint8_t system_get_current_profile(void)
 {
     return g_current_profile;
@@ -1561,7 +1566,7 @@ void system_tempo_cb (void *arg, int event)
         item->data.step = 1;
     }
     //scrolling up/down
-    else if ((event == MENU_EV_UP) && (g_MIDI_clk_src == 0))
+    else if ((event == MENU_EV_UP) && (g_MIDI_clk_src != 1))
     {
         item->data.value += item->data.step;
 
@@ -1573,7 +1578,7 @@ void system_tempo_cb (void *arg, int event)
         //let mod-ui know
         set_menu_item_value(MENU_ID_TEMPO, g_beats_per_minute);
     }
-    else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src == 0))
+    else if ((event == MENU_EV_DOWN) && (g_MIDI_clk_src != 1))
     {
         item->data.value -= item->data.step;
 
@@ -1649,7 +1654,7 @@ void system_taptempo_cb (void *arg, int event)
 
         g_tool_tap_tempo.max = max;
     }
-    else if (event == MENU_EV_ENTER)
+    else if ((event == MENU_EV_ENTER) && (g_MIDI_clk_src != 1))
     {
         now = actuator_get_click_time(hardware_actuators(FOOTSWITCH1));
         delta = now - g_tool_tap_tempo.time;

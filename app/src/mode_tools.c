@@ -671,6 +671,8 @@ void TM_up(uint8_t encoder)
     if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
+            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
+        if (encoder == 1)
         {
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
 
@@ -685,8 +687,8 @@ void TM_up(uint8_t encoder)
 
             update_tap_tempo_led();
         }
-        else if (encoder == 1)
-            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
+        if (encoder == 2)
+            system_midi_src_cb(TM_get_menu_item_by_ID(CLOCK_SOURCE_ID_2), MENU_EV_DOWN);
 
         TM_print_tool();
     }
@@ -718,6 +720,8 @@ void TM_down(uint8_t encoder)
     if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
+            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
+        else if (encoder == 1)
         {
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
             system_tempo_cb(tempo_item, MENU_EV_UP);
@@ -726,8 +730,9 @@ void TM_down(uint8_t encoder)
 
             update_tap_tempo_led();
         }
-        else if (encoder == 1)
-            system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
+        else if (encoder == 2)
+            system_midi_src_cb(TM_get_menu_item_by_ID(CLOCK_SOURCE_ID_2), MENU_EV_UP);
+
 
         TM_print_tool();
     }
@@ -765,6 +770,10 @@ void TM_foot_change(uint8_t foot)
         else if (foot == 1)
         {
             system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
+            ledz_off(hardware_leds(1), WHITE);
+            ledz_on(hardware_leds(1), RED);
+            TM_print_tool();
+            return;
         }
 
         TM_print_tool();
@@ -868,6 +877,7 @@ void TM_launch_tool(int8_t tool)
 
             system_tempo_cb(TM_get_menu_item_by_ID(BPM_ID), MENU_EV_NONE);
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_NONE);
+            system_midi_src_cb(TM_get_menu_item_by_ID(CLOCK_SOURCE_ID_2), MENU_EV_NONE);
             system_play_cb(TM_get_menu_item_by_ID(PLAY_ID), MENU_EV_NONE);
             system_taptempo_cb(TM_get_menu_item_by_ID(TAP_ID), MENU_EV_NONE);
 
@@ -920,8 +930,15 @@ void TM_print_tool(void)
             menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
             screen_footer(0, sync_item->desc->name, sync_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
 
-            sync_item = TM_get_menu_item_by_ID(TAP_ID);
-            screen_footer(1, sync_item->desc->name, sync_item->data.unit_text, FLAG_CONTROL_ENUMERATION);
+            if (system_get_clock_source() == 1)
+            {
+                screen_footer(1, "SYNC", TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            }
+            else
+            {
+                sync_item = TM_get_menu_item_by_ID(TAP_ID);
+                screen_footer(1, sync_item->desc->name, sync_item->data.unit_text, FLAG_CONTROL_ENUMERATION);
+            }
 
             //draw the index
             screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);

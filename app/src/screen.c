@@ -204,7 +204,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
         break;
 
         case MENU_LIST:;
-            glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
+            glcd_vline(display, item_x+16, item_y+13, tool_mode?4:8, GLCD_BLACK_WHITE);
                 
             if (item_child->data.unit_text)
             {
@@ -243,12 +243,12 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 second_val_line[p] = 0;
                 if (p != 0)
                 {
-                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+24 - (tool_mode?4:0), first_val_line, Terminal3x5, GLCD_BLACK);
-                    glcd_text(display, (item_x + 17 - 2*strlen(second_val_line)), item_y+31 - (tool_mode?4:0), second_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+(tool_mode?17:24), first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(second_val_line)), item_y+(tool_mode?24:31), second_val_line, Terminal3x5, GLCD_BLACK);
                 }
                 else
                 {
-                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+26 - (tool_mode?4:0), first_val_line, Terminal3x5, GLCD_BLACK);
+                    glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+(tool_mode?19:26), first_val_line, Terminal3x5, GLCD_BLACK);
                 }
             }
         break;

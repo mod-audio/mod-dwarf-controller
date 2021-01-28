@@ -261,8 +261,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define BPM_ID                  TEMPO_ID+1
 #define BPB_ID                  TEMPO_ID+2
-#define PLAY_ID                 TEMPO_ID+3
-#define TAP_ID                  TEMPO_ID+4
+#define CLOCK_SOURCE_ID_2       TEMPO_ID+3
+#define PLAY_ID                 TEMPO_ID+4
+#define TAP_ID                  TEMPO_ID+5
 
 #define TUNER_MUTE_ID           TUNER_ID+1
 #define TUNER_INPUT_ID          TUNER_ID+2
@@ -334,12 +335,13 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 3",                          MENU_LIST,      SHIFT_ITEM_3_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
-    {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            system_play_cb              , 0},  \
-    {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_play_cb              , 0},  \
-    {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_play_cb              , 0},  \
+    {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            NULL                        , 0},  \
+    {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_tuner_mute_cb        , 0},  \
+    {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_tuner_input_cb       , 0},  \
     {"TOOL - TEMPO",                    MENU_TOOL,      TEMPO_ID,               ROOT_ID,            NULL                        , 0},  \
     {"BEATS PER BAR",                   MENU_LIST,      BPB_ID,                 TEMPO_ID,           system_bpb_cb               , 0},  \
     {"BEATS PER MINUTE",                MENU_BAR,       BPM_ID,                 TEMPO_ID,           system_tempo_cb             , 0},  \
+    {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID_2,      TEMPO_ID,           system_midi_src_cb          , 0},  \
     {"PLAY",                            MENU_FOOT,      PLAY_ID,                TEMPO_ID,           system_play_cb              , 0},  \
     {"TAP",                             MENU_FOOT,      TAP_ID,                 TEMPO_ID,           system_taptempo_cb          , 0},  \
 
@@ -352,7 +354,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
 #define MENU_VISIBLE_LIST_CUT   10
-#define MENU_LINE_CHARS     31
+#define MENU_LINE_CHARS     22
 
 //// Button functions leds colors, these reflect color ID's which are stored in eeprom.
 #define TOGGLED_COLOR             0
