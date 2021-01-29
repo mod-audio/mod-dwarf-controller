@@ -1217,6 +1217,7 @@ void system_load_pro_cb(void *arg, int event)
     {
         //current profile is the ID (A=1, B=2, C=3, D=4)
         g_current_profile = item->data.value;
+        item->data.selected = g_current_profile;
         set_item_value(CMD_PROFILE_LOAD, g_current_profile);
     }
 
@@ -1231,6 +1232,7 @@ void system_load_pro_cb(void *arg, int event)
     {
         //display current profile number
         item->data.value = g_current_profile;
+        item->data.selected = g_current_profile;
         item->data.min = 1;
         item->data.max = 4;
         item->data.step = 1;
@@ -1255,7 +1257,10 @@ void system_save_pro_cb(void *arg, int event)
 
     //if clicked and YES was selected from the pop-up
     if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+    {
+        item->data.selected = item->data.value;
         set_item_value(CMD_PROFILE_STORE, item->data.value);
+    }
 
     if (item->data.popup_active)
         return;
@@ -1268,6 +1273,7 @@ void system_save_pro_cb(void *arg, int event)
     {
         //display current profile number
         item->data.value = 1;
+        item->data.selected = 1;
         item->data.min = 1;
         item->data.max = 4;
         item->data.step = 1;
@@ -1780,6 +1786,7 @@ void system_usb_mode_cb(void *arg, int event)
         sys_comm_wait_response();
 
         g_usb_mode = item->data.value;
+        item->data.selected = g_usb_mode;
         item->data.min = 0;
         item->data.max = 2;
         item->data.step = 1;
@@ -1813,7 +1820,6 @@ void system_usb_mode_cb(void *arg, int event)
     else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
         item->data.value--;
 
-    //display the current profile
     switch ((int)item->data.value)
     {
         case 0: item->data.unit_text = "NETWORK (DEFAULT)"; break;

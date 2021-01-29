@@ -100,7 +100,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
     switch(knob)
     {
         case 0:
-            item_x = 4;
+            item_x = 5;
         break;
 
         case 1:
@@ -203,9 +203,9 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
             }
         break;
 
-        case MENU_LIST:;
-            glcd_vline(display, item_x+16, item_y+13, tool_mode?4:8, GLCD_BLACK_WHITE);
-                
+        case MENU_CLICK_LIST:
+        // fall through
+        case MENU_LIST:
             if (item_child->data.unit_text)
             {
                 //print the value
@@ -250,11 +250,27 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 {
                     glcd_text(display, (item_x + 17 - 2*strlen(first_val_line)), item_y+(tool_mode?19:26), first_val_line, Terminal3x5, GLCD_BLACK);
                 }
+
+                //display 'click msg'
+                if ((item_child->desc->type == MENU_CLICK_LIST) && ((int)item_child->data.value != item_child->data.selected))
+                {
+                    //text
+                    glcd_text(display, item_x + 7, item_y+16, "CLICK", Terminal3x5, GLCD_BLACK);
+
+                    //boxes
+                    glcd_rect(display, item_x + 5, item_y+14, 24, 9, GLCD_BLACK);
+                    glcd_rect(display, item_x-2, item_y+14, 37, 24, GLCD_BLACK);
+
+                    //incert area
+                    glcd_rect_invert(display, item_x-3, item_y+13, 39, 26);
+                }
+                else
+                    glcd_vline(display, item_x+16, item_y+13, tool_mode?4:10, GLCD_BLACK_WHITE);
             }
         break;
 
         //others, dont use
-        //TODO check if remove? comes from MDX codebase
+        //TODO check if remove? most come from MDX codebase
         case MENU_MAIN:
         case MENU_ROOT:
         case MENU_CONFIRM2:
@@ -1020,6 +1036,7 @@ void screen_system_menu(menu_item_t *item)
         case MENU_LIST:
         case MENU_TOOL:
         case MENU_FOOT:
+        case MENU_CLICK_LIST:
         break;
     }
 }
