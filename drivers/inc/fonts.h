@@ -419,7 +419,7 @@ static const uint8_t Terminal3x5[] = {
     0x09, 0x04, 0x12,                        // Code for char %
     0x0A, 0x15, 0x1A,                        // Code for char &
     0x03, 0x01, 0x00,                        // Code for char '
-    0x0E, 0x11, 0x00,                        // Code for char (
+    0x00, 0x0E, 0x11,                         // Code for char (
     0x11, 0x0E, 0x00,                        // Code for char )
     0x15, 0x0E, 0x15,                        // Code for char *
     0x04, 0x0E, 0x04,                        // Code for char +
