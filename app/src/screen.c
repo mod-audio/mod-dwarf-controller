@@ -1132,7 +1132,15 @@ void screen_menu_page(node_t *node)
         print_tripple_menu_items(item_child, i, 0);
 
         if (!child_nodes->next)
+        {
+            if (i <= 0)
+                glcd_text(display, 62, 26, "-", Terminal3x5, GLCD_BLACK);
+
+            if (i <= 1)
+                glcd_text(display, 105, 26, "-", Terminal3x5, GLCD_BLACK);
+
             return;
+        }
         else
             child_nodes = child_nodes->next; 
     }
