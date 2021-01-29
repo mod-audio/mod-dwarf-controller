@@ -797,7 +797,7 @@ void screen_bank_list(bp_list_t *list)
 
     //print the 3 buttons
     //draw the first box, back
-    glcd_text(display, 20, DISPLAY_HEIGHT - 7, "ENTER", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
     /*box_2.x = 56;
@@ -915,8 +915,8 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         }
         else
         {
-            x = 20;
-            text = "BANKS";
+            x = 16;
+            text = "< BANKS";
         }
         glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
@@ -970,7 +970,7 @@ void screen_system_menu(menu_item_t *item)
 
     //print the 3 buttons
     //draw the first box, back
-    glcd_text(display, 18, DISPLAY_HEIGHT - 7, "ENTER>", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
     glcd_text(display, 56, DISPLAY_HEIGHT - 7, "EXIT", Terminal3x5, GLCD_BLACK);
@@ -1073,7 +1073,7 @@ void screen_menu_page(node_t *node)
 
     //print the 3 buttons
     //draw the first box, back
-    glcd_text(display, 20, DISPLAY_HEIGHT - 7, "<BACK", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 18, DISPLAY_HEIGHT - 7, "< BACK", Terminal3x5, GLCD_BLACK);
 
     uint8_t x;
     char *text;

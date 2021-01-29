@@ -1037,11 +1037,20 @@ void NM_set_leds(void)
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(3);
+            led_state.color = TRIGGER_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
         case PEDALBOARD_LIST:
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(3);
+            led_state.color = FS_PAGE_COLOR_5;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(4);
+            led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             if (g_pedalboards->hover > 0)
