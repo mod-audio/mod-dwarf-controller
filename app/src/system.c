@@ -1815,6 +1815,9 @@ void system_usb_mode_cb(void *arg, int event)
     if (item->data.popup_active)
         return;
 
+    if (event == MENU_EV_NONE)
+        item->data.value = g_usb_mode;
+
     if ((event == MENU_EV_UP) && (item->data.value < item->data.max))
         item->data.value++;
     else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
