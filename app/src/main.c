@@ -162,7 +162,8 @@ static void actuators_cb(void *actuator)
 
     // queue actuator info
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    if (ACTUATOR_TYPE(actuator) == BUTTON)
+    //make sure button and encoder hold evens make it through when turning the encoder fast
+    if ((actuator_info[0] == BUTTON) || ((actuator_info[0] == ROTARY_ENCODER) && (BUTTON_HOLD(actuator_info[2]))))
     {
         xQueueSendToFrontFromISR(g_actuators_queue, &actuator_info, &xHigherPriorityTaskWoken);
     }

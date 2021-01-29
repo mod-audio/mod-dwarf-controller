@@ -517,8 +517,9 @@ void actuators_clock(void)
                             if (encoder->hold_time_counter == 0)
                             {
                                 SET_FLAG(encoder->status, EV_BUTTON_HELD);
+                                SET_FLAG(encoder->status, EV_BUTTON_PRESSED);
 
-                                event(button, EV_BUTTON_HELD);
+                                event(button, EV_BUTTON_HELD | EV_BUTTON_PRESSED);
                             }
                         }
                     }
