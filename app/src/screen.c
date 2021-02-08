@@ -1259,14 +1259,14 @@ void screen_shift_overlay(int8_t prev_mode)
     textbox_t title = {};
     title.color = GLCD_BLACK;
     title.mode = TEXT_SINGLE_LINE;
-    title.font = Terminal3x5;
+    title.font = Terminal5x7;
     title.top_margin = 1;
     title.text = "MENU";
     title.align = ALIGN_CENTER_TOP;
     widget_textbox(display, &title);
 
     //invert the title area
-    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 
     //draw the outlines
     print_menu_outlines();
