@@ -304,11 +304,11 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                        , 0},  \
     {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                        , 0},  \
-    {"INPUT STEREOLINK",                MENU_TOGGLE,    INP_STEREO_LINK,        AUDIO_INP_ID,       system_sl_in_cb             , 0},  \
+    {"INPUT 1+2 GAIN",                  MENU_BAR,       INP_STEREO_LINK,        AUDIO_INP_ID,       system_inp_0_volume_cb      , 0},  \
     {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_inp_1_volume_cb      , 0},  \
     {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_inp_2_volume_cb      , 0},  \
     {"AUDIO OUTPUTS",                   MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                        , 0},  \
-    {"OUTPUT STEREOLINK",               MENU_TOGGLE,    OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_sl_out_cb            , 0},  \
+    {"OUTPUT 1+2 GAIN",                 MENU_BAR,       OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_outp_0_volume_cb     , 0},  \
     {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb     , 0},  \
     {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb     , 0},  \
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                        , 0},  \
