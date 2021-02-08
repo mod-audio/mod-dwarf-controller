@@ -1090,7 +1090,8 @@ void screen_menu_page(node_t *node)
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    if (node->next->next)
+    menu_item_t *end_item = node->next->data;
+    if (end_item->desc->id != UPDATE_ID)
     {
         text = "NEXT";
         x = 90;
