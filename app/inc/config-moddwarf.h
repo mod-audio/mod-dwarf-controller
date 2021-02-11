@@ -274,33 +274,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define DIALOG_ID           230
 
-//MDW_TODO THESE MENU ITEMS ARE NOT YET IN USE
-/*
-    {"NOISE GATE",                      MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                       , 0},  \
-    {"COMPRESSOR",                      MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                       , 0},  \
-
-    {"LIST MODE",                       MENU_LIST,      KNOB_LIST_ID,           DEVICE_SET_2_ID,    system_list_mode_cb         , 0},  \
-
-    {"BLUETOOTH",                       MENU_ROOT,      BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb        , 1},  \
-    {"ENABLE DISCOVERY",                MENU_OK,        BLUETOOTH_ID+1,         BLUETOOTH_ID,       system_bluetooth_cb        , 0},  \
-    {"STATUS:",                         MENU_NONE,      BLUETOOTH_ID+2,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"NAME:",                           MENU_NONE,      BLUETOOTH_ID+3,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"ADDRESS:",                        MENU_NONE,      BLUETOOTH_ID+4,         BLUETOOTH_ID,       NULL                       , 0},  \
-    {"INFO",                            MENU_ROOT,      INFO_ID,                ROOT_ID,            NULL                       , 0},  \
-    {"SERVICES",                        MENU_ROOT,      SERVICES_ID,            INFO_ID,            system_services_cb         , 1},  \
-    {"JACK:",                           MENU_NONE,      SERVICES_ID+1,          SERVICES_ID,        NULL                       , 0},  \
-    {"SSHD:",                           MENU_NONE,      SERVICES_ID+2,          SERVICES_ID,        NULL                       , 0},  \
-    {"MOD-UI:",                         MENU_NONE,      SERVICES_ID+3,          SERVICES_ID,        NULL                       , 0},  \
-    {"DNSMASQ:",                        MENU_NONE,      SERVICES_ID+4,          SERVICES_ID,        NULL                       , 0},  \
-    {"VERSIONS",                        MENU_LIST,      VERSIONS_ID,            INFO_ID,            system_versions_cb         , 0},  \
-    {"VERSION:",                        MENU_NONE,      VERSIONS_ID+1,          VERSIONS_ID,        system_release_cb          , 0},  \
-    {"RESTORE:",                        MENU_NONE,      VERSIONS_ID+2,          VERSIONS_ID,        NULL                       , 0},  \
-    {"SYSTEM:",                         MENU_NONE,      VERSIONS_ID+3,          VERSIONS_ID,        NULL                       , 0},  \
-    {"CONTROLLER:",                     MENU_NONE,      VERSIONS_ID+4,          VERSIONS_ID,        NULL                       , 0},  \
-    {"DEVICE",                          MENU_LIST,      DEVICE_ID,              INFO_ID,            NULL                       , 0},  \
-    {"SERIAL NUMBER",                   MENU_OK,        DEVICE_ID+1,            DEVICE_ID,          system_tag_cb              , 0},  \
-
-*/
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                        , 0},  \
     {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                        , 0},  \

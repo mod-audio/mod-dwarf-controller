@@ -521,7 +521,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (!pressed)
             {
                 if ((foot == 1) && (TM_check_tool_status() == TOOL_TUNER))
-                    ledz_on(hardware_leds(1), WHITE);
+                    TM_foot_change(foot, pressed);
 
                 return;
             }
@@ -530,7 +530,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
             if (foot < 2)
             {
-                TM_foot_change(foot);
+                TM_foot_change(foot, pressed);
             }
             else if (foot == 2)
             {

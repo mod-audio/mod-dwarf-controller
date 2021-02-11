@@ -1053,6 +1053,8 @@ void NM_set_leds(void)
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
+            led_state.brightness = 0.1;
+
             if (g_pedalboards->hover > 0)
             {
                 led = hardware_leds(0);
@@ -1072,6 +1074,8 @@ void NM_set_leds(void)
             led = hardware_leds(2);
             led_state.color = FS_PB_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            led_state.brightness = 0.1;
 
             if (g_snapshots->hover > 0)
             {

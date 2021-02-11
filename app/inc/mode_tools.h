@@ -66,7 +66,7 @@ uint8_t TM_has_tool_enabled(void);
 void TM_enter(uint8_t button);
 void TM_up(uint8_t encoder);
 void TM_down(uint8_t encoder);
-void TM_foot_change(uint8_t foot);
+void TM_foot_change(uint8_t foot, uint8_t pressed);
 void TM_reset_menu(void);
 void TM_set_dummy_menu_item(node_t *dummy_menu);
 void TM_settings_refresh(void);

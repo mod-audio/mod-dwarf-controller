@@ -317,29 +317,35 @@ static void foot_control_add(control_t *control)
 
     if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
-        if ((control->scroll_dir == 0)||(control->scroll_dir == 2))
-            led->led_state.color = TRIGGER_COLOR;
-        else
-            led->led_state.color = TRIGGER_COLOR;
-        
         // updates the footer
         screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
                      (control->value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT), control->properties);
-        ledz_set_state(led, LED_ON);
+
+        // updates the led
+        led->led_state.color = TRIGGER_COLOR;
+        if (control->value <= 0)
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
+        }
+        else
+            ledz_set_state(led, LED_ON);
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
         // trigger specification: http://lv2plug.in/ns/ext/port-props/#trigger
-        // updates the led
-        //check if its assigned to a trigger and if the button is released
-        if (control->scroll_dir == 2) 
-            led->led_state.color = TRIGGER_COLOR;
-        else
-            led->led_state.color = TRIGGER_COLOR;
-
         // updates the footer (a getto fix here, the screen.c file did not regognize the NULL pointer so it did not allign the text properly, TODO fix this)
         screen_footer(control->hw_id - ENCODERS_COUNT, control->label, BYPASS_ON_FOOTER_TEXT, control->properties);
-        ledz_set_state(led, LED_ON);
+
+        // updates the led
+        led->led_state.color = TRIGGER_COLOR;
+        if (control->value <= 0)
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
+        }
+        else
+            ledz_set_state(led, LED_ON);
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED)
     {
@@ -347,7 +353,10 @@ static void foot_control_add(control_t *control)
         // updates the led
         led->led_state.color = TOGGLED_COLOR;
         if (control->value <= 0)
-            ledz_set_state(led, LED_OFF);
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
+        }
         else
             ledz_set_state(led, LED_ON);
 
@@ -432,7 +441,10 @@ static void foot_control_add(control_t *control)
         if (control->value <= 0)
             ledz_set_state(led, LED_ON);
         else
-            ledz_set_state(led, LED_OFF);
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
+        }
 
         // updates the footer
         screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
@@ -442,22 +454,19 @@ static void foot_control_add(control_t *control)
     {
         // updates the led
         //check if its assigned to a trigger and if the button is released
-        if ((control->scroll_dir == 2) || (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR))
+        if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
         {
-            if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-            {
-                set_alternated_led_list_colour(control);
-            }
-            else
-            {
-                led->led_state.color = ENUMERATED_COLOR;
-                ledz_set_state(led, LED_ON);
-            }
+            set_alternated_led_list_colour(control);
+        }
+        else if ((control->scroll_dir == 2))
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
         }
         else
         {
-            led->led_state.brightness = 0.25;
-            ledz_set_state(led, LED_DIMMED);
+            led->led_state.color = ENUMERATED_COLOR;
+            ledz_set_state(led, LED_ON);
         }
 
         // locates the current value
@@ -600,7 +609,7 @@ static void control_set(uint8_t id, control_t *control)
 
             // updates the led
             //check if its assigned to a trigger and if the button is released
-            if ((control->scroll_dir == 2) || (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR))
+            if ((control->scroll_dir) || (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR))
             {
                 if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
                 {
@@ -614,7 +623,7 @@ static void control_set(uint8_t id, control_t *control)
             }
             else
             {
-                led->led_state.brightness = 0.25;
+                led->led_state.brightness = 0.1;
                 ledz_set_state(led, LED_DIMMED);
             }
 
@@ -1093,19 +1102,21 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
         if (g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER))
         {
             led->led_state.color = TRIGGER_COLOR;
-            ledz_set_state(led, LED_ON);
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED);
         }
         else if (g_foots[foot]->properties & (FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION))  
         {
-                if (g_foots[foot]->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-                {
-                    set_alternated_led_list_colour(g_foots[foot]);
-                }
-                else
-                {
-                    led->led_state.color = ENUMERATED_COLOR;
-                    ledz_set_state(led, LED_ON);
-                }
+            if (g_foots[foot]->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
+            {
+                set_alternated_led_list_colour(g_foots[foot]);
+            }
+            else
+            {
+                led->led_state.color = ENUMERATED_COLOR;
+				led->led_state.brightness = 0.1;
+				ledz_set_state(led, LED_DIMMED);
+            }
         }
 
         //not used right now anymore, maybe in the future, TODO: rename to actuator flag
@@ -1225,6 +1236,7 @@ void CM_set_control(uint8_t hw_id, float value)
 
                 led->led_state.color = TAP_TEMPO_COLOR;
                 led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+                led->led_state.fade_ratio = 10;
 
                 // setup the led blink
                 if (time_ms > TAP_TEMPO_TIME_ON)

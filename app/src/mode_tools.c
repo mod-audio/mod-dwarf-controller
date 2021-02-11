@@ -769,7 +769,7 @@ void TM_down(uint8_t encoder)
     }
 }
 
-void TM_foot_change(uint8_t foot)
+void TM_foot_change(uint8_t foot, uint8_t pressed)
 {
     if ((!g_initialized)&&(g_update_cb)) return;
 
@@ -781,9 +781,19 @@ void TM_foot_change(uint8_t foot)
         }
         else if (foot == 1)
         {
-            system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
-            ledz_off(hardware_leds(1), WHITE);
-            ledz_on(hardware_leds(1), RED);
+            if (pressed)
+                system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
+            
+            led_state_t led_state;
+            led_state.color = ENUMERATED_COLOR;
+
+            if (pressed)
+                led_state.brightness = 1;
+            else
+                led_state.brightness = 0.1;
+
+            set_ledz_trigger_by_color_id(hardware_leds(1), LED_DIMMED, led_state);
+
             TM_print_tool();
             return;
         }
@@ -965,12 +975,12 @@ void TM_set_leds(void)
 {
     naveg_turn_off_leds();
 
+    led_state_t led_state;
     switch (g_current_tool)
     {
         case TOOL_MENU:
             if (g_current_item->desc->type == MENU_MAIN)
             {
-                led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -996,7 +1006,6 @@ void TM_set_leds(void)
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
-                led_state_t led_state;
                 ledz_t *led = hardware_leds(3);
                 led_state.color = WHITE;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -1006,21 +1015,27 @@ void TM_set_leds(void)
             }
         break;
 
-        case TOOL_TUNER:
-            ledz_on(hardware_leds(1), WHITE);
+        case TOOL_TUNER:;
+            led_state.brightness = 0.1;
+            led_state.color = ENUMERATED_COLOR;
+            set_ledz_trigger_by_color_id(hardware_leds(1), LED_DIMMED, led_state);
 
             menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
-            if (tuner_item->data.value) ledz_on(hardware_leds(0), RED);
-            else ledz_off(hardware_leds(0), RED);
+            led_state.color = TOGGLED_COLOR;
+            if (tuner_item->data.value) led_state.brightness = 1;
+            set_ledz_trigger_by_color_id(hardware_leds(0), LED_DIMMED, led_state);
 
             set_tool_pages_led_state();
         break;
 
         case TOOL_SYNC:;
-            //draw the foots
             menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
-            if (sync_item->data.value) ledz_on(hardware_leds(0), GREEN);
-            else ledz_off(hardware_leds(0), GREEN);
+            led_state.color = LED_LIST_COLOR_5;
+
+            if (sync_item->data.value) led_state.brightness = 1;
+            else led_state.brightness = 0.1;
+
+            set_ledz_trigger_by_color_id(hardware_leds(0), LED_DIMMED, led_state);
 
             update_tap_tempo_led();
 
