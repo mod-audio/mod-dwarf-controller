@@ -99,7 +99,7 @@ void naveg_button_released(uint8_t button);
 void naveg_shift_pressed();
 void naveg_shift_releaed();
 uint8_t naveg_dialog_status(void);
-uint8_t naveg_dialog(const char *msg);
+uint8_t naveg_dialog(char *msg);
 void naveg_release_dialog_semaphore(void);
 void naveg_trigger_mode_change(uint8_t mode);
 void naveg_print_shift_screen(void);

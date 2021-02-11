@@ -953,7 +953,7 @@ uint8_t naveg_dialog_status(void)
     return g_dialog_active;
 }
 
-uint8_t naveg_dialog(const char *msg)
+uint8_t naveg_dialog(char *msg)
 {
     static node_t *dummy_menu = NULL;
     static menu_desc_t desc = {NULL, MENU_CONFIRM2, DIALOG_ID, DIALOG_ID, NULL, 0};

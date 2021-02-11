@@ -307,6 +307,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 3",                          MENU_LIST,      SHIFT_ITEM_3_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
+    {"BlUETOOTH",                       MENU_CONFIRM,   BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb         , 0},  \
+    {"INFO",                            MENU_OK,        INFO_ID,                ROOT_ID,            system_info_cb              , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
     {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            NULL                        , 0},  \
     {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_tuner_mute_cb        , 0},  \
@@ -323,10 +325,11 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {USER_PROFILE_ID+1, "LOAD USER PROFILE", "load user profile "}, \
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "save current settings as user profile "}, \
     {USB_MODE_ID, "Change USB mode", "Changing USB modes requires a device reboot\n\nreboot now?"},  \
-    {BLUETOOTH_ID+1, "Enable Bluetooth", "Bluetooth discovery mode is   now enabled for 2 minutes"},  \
+    {BLUETOOTH_ID, "Enable Bluetooth", "Enable Bluetooth discovery\nmode for 2 minutes?"},  \
+    {INFO_ID, "Device Info", "Current Release: "},  \
     {UPDATE_ID, "Start System Upgrade", "To start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
-#define MENU_VISIBLE_LIST_CUT   10
+#define MENU_VISIBLE_LIST_CUT   12
 #define MENU_LINE_CHARS     22
 
 //// Button functions leds colors, these reflect color ID's which are stored in eeprom.

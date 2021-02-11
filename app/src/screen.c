@@ -1027,11 +1027,23 @@ void screen_system_menu(menu_item_t *item)
             return;
         break;
 
+        case MENU_OK:
+            // popup
+            popup.width = DISPLAY_WIDTH;
+            popup.height = DISPLAY_HEIGHT;
+            popup.font = Terminal3x5;
+            popup.type = OK_ONLY;
+            popup.title = item->data.popup_header;
+            popup.content = item->data.popup_content;
+            popup.button_selected = item->data.hover;
+            widget_popup(display, &popup);
+            return;
+        break;
+
         case MENU_MAIN:
         case MENU_TOGGLE:
         case MENU_BAR:
         case MENU_NONE:
-        case MENU_OK:
         case MENU_LIST:
         case MENU_TOOL:
         case MENU_FOOT:

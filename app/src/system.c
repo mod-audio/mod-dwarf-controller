@@ -145,19 +145,6 @@ static void update_gain_item_value(uint8_t menu_id, float value)
     item->data.unit_text = str_bfr;
 }
 
-static void update_status(char *item_to_update, const char *response)
-{
-    if (!item_to_update) return;
-
-    char *pstr = strstr(item_to_update, ":");
-    if (pstr && response)
-    {
-        pstr++;
-        *pstr++ = ' ';
-        strcpy(pstr, response);
-    }
-}
-
 void set_item_value(char *command, uint16_t value)
 {
     if (g_comm_protocol_bussy) return;
@@ -351,10 +338,12 @@ void system_bluetooth_cb(void *arg, int event)
 
     if (event == MENU_EV_ENTER)
     {
-        const char *response;
-        char resp[LINE_BUFFER_SIZE];
-        if (item->desc->id == BLUETOOTH_ID)
+        // check if OK option was chosen
+        if (item->data.hover != 0)
         {
+            const char *response;
+            char resp[LINE_BUFFER_SIZE];
+
             response = cli_command("mod-bluetooth hmi", CLI_RETRIEVE_RESPONSE);
             
             strncpy(resp, response, sizeof(resp)-1);
@@ -362,106 +351,58 @@ void system_bluetooth_cb(void *arg, int event)
 
             if (items)
             {
-                update_status(item->data.list[2], items[0]);
-                update_status(item->data.list[3], items[1]);
-                update_status(item->data.list[4], items[2]);
+                static char buffer[120];
+                memset(buffer, 0, sizeof buffer);
+
+                strcpy(buffer, item->data.popup_content);
+                strcat(buffer, "\n\nSTATUS: ");
+                strcat(buffer, items[0]);
+                strcat(buffer, "\nNAME: ");
+                strcat(buffer, items[1]);
+                strcat(buffer, "\nADDRESS: ");
+                strcat(buffer, items[2]);
+
+                item->data.popup_content = buffer;
 
                 FREE(items);
             } 
         }
-        else if (item->desc->id == BLUETOOTH_ID+1)
+        else
         {
             cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
         }
     }
 }
 
-void system_services_cb(void *arg, int event)
+void system_info_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
+    item->data.hover = 0;
 
     if (event == MENU_EV_ENTER)
     {
-        uint8_t i = 0;
-        while (systemctl_services[i])
-        {
-            const char *response;
-            response = cli_systemctl("is-active ", systemctl_services[i]);
-            update_status(item->data.list[i+1], response);
-            i++;
-        }
-    }
-}
-
-void system_versions_cb(void *arg, int event)
-{
-    menu_item_t *item = arg;
-
-    if (event == MENU_EV_ENTER)
-    {
+        static char buffer[70];
+        memset(buffer, 0, sizeof buffer);
         const char *response;
-        char version[8];
 
-        uint8_t i = 0;
-        while (versions_names[i])
-        {
-            cli_command("mod-version ", CLI_CACHE_ONLY);
-            response = cli_command(versions_names[i], CLI_RETRIEVE_RESPONSE);
-            strncpy(version, response, (sizeof version) - 1);
-            version[(sizeof version) - 1] = 0;
-            update_status(item->data.list[i+1], version);
-            screen_system_menu(item);
-            i++;
-        }
-    }
-}
-
-void system_release_cb(void *arg, int event)
-{
-    menu_item_t *item = arg;
-
-    if (event == MENU_EV_ENTER)
-    {
-        const char *response;
         response = cli_command("mod-version release", CLI_RETRIEVE_RESPONSE);
-        item->data.popup_content = response;
-    }
-}
 
+        strcpy(buffer, item->data.popup_content);
+        strcat(buffer, response);
 
-void system_device_cb(void *arg, int event)
-{
-    menu_item_t *item = arg;
-
-    if (event == MENU_EV_ENTER)
-    {
-        const char *response;
         response = cli_command("cat /var/cache/mod/tag", CLI_RETRIEVE_RESPONSE);
-        update_status(item->data.list[1], response);
-    }
-}
 
-void system_tag_cb(void *arg, int event)
-{
+        strcat(buffer, "\n\nDevice Serial: ");
+        strcat(buffer, response);
 
-    menu_item_t *item = arg;
-
-    if (event == MENU_EV_ENTER)
-    {
-        const char *response;
-        char *txt = "The serial number of your     device is:                    ";
-        response =  cli_command("cat /var/cache/mod/tag", CLI_RETRIEVE_RESPONSE);
-        char * bfr = (char *) MALLOC(1 + strlen(txt)+ strlen(response));
-        strcpy(bfr, txt);
-        strcat(bfr, response);
-        item->data.popup_content = bfr;
-        item->data.popup_header = "serial number";
+        item->data.popup_content = buffer;
     }
 }
 
 void system_upgrade_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
+
     if (event == MENU_EV_ENTER)
     {
         button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH2);

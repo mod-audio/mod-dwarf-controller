@@ -268,7 +268,7 @@ static void menu_enter(uint8_t encoder)
         //print the 3 items on screen
         screen_menu_page(node);
     }
-    else if (item->desc->type == MENU_CONFIRM)
+    else if ((item->desc->type == MENU_CONFIRM) || (item->desc->type == MENU_OK))
     {
         i = 0;
         while (g_menu_popups[i].popup_content)
@@ -375,7 +375,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                     item->data.popup_active = 0;
                     g_popup_active = 0;
 
-                    if (item->desc->id == UPDATE_ID)
+                    if ((item->desc->id == UPDATE_ID) || (item->desc->id == BLUETOOTH_ID) || (item->desc->id == INFO_ID))
                     {
                         if (item->desc->action_cb)
                             item->desc->action_cb(item, action);
@@ -420,7 +420,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     if (item->desc->action_cb)        
         item->desc->action_cb(item, action);
 
-    if ((item->desc->id != ROOT_ID) && (item->desc->id != UPDATE_ID) && (item->desc->id != DIALOG_ID))
+    if ((item->desc->id != ROOT_ID) && (item->desc->id != UPDATE_ID) && (item->desc->id != DIALOG_ID) && (item->desc->id != BLUETOOTH_ID) && (item->desc->id != INFO_ID))
         screen_menu_page(g_current_menu);
     else
         screen_system_menu(g_current_item);

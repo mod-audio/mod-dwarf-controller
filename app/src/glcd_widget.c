@@ -618,13 +618,14 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 
         if (listbox->selected == listbox->hover-1)
         {
-            strncpy(item_str_bfr, "> ", 4);
+            strncpy(item_str_bfr, ">", 4);
             strncat(item_str_bfr, listbox->list[listbox->hover-1], line_length - 2);
         }
         else
             strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
 
-        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        //commented out code is allignment to the middle
+        uint8_t item_x = 3;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         item_str_bfr[line_length] = '\0';
         glcd_text(display, item_x, listbox->y + 12, item_str_bfr, listbox->font, listbox->color);
         FREE(item_str_bfr);
@@ -644,13 +645,14 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 
         if (listbox->selected == listbox->hover+1)
         {
-            strncpy(item_str_bfr, "> ", 4);
+            strncpy(item_str_bfr, ">", 4);
             strncat(item_str_bfr, listbox->list[listbox->hover+1], line_length - 2);
         }
         else
             strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
 
-        uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        //commented out code is allignment to the middle
+        uint8_t item_x = 3;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         item_str_bfr[line_length] = '\0';
         glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
         FREE(item_str_bfr);
@@ -668,13 +670,14 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         
     if (listbox->selected == listbox->hover)
     {
-        strncpy(item_str_bfr, "> ", 4);
+        strncpy(item_str_bfr, ">", 4);
         strncat(item_str_bfr, listbox->list[listbox->hover], line_length - 2);
     }
     else
         strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
 
-    uint8_t item_x = (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+    //commented out code is allignment to the middle
+    uint8_t item_x = 3;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
     item_str_bfr[line_length] = '\0';
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
