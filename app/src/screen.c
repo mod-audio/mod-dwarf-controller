@@ -442,14 +442,13 @@ void screen_encoder(control_t *control, uint8_t encoder)
         bar.steps = control->steps - 1;
 
         char str_bfr[15] = {0};
-        if ((control->value > 99.9) || (control->properties == FLAG_CONTROL_INTEGER))
-        {
+        if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
             int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
-        }
+        else if ((control->value > 99.99) || (control->value < -99.99))
+            float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
         else 
-        {
             float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
-        }
+
         str_bfr[14] = 0;
 
         bar.value = str_bfr;
