@@ -1059,14 +1059,14 @@ void NM_set_leds(void)
             {
                 led = hardware_leds(0);
                 led_state.color = FS_PB_MENU_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
             if (g_pedalboards->hover < g_pedalboards->menu_max - 1)
             {
                 led = hardware_leds(1);
                 led_state.color = FS_PB_MENU_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
         break;
 
@@ -1081,14 +1081,14 @@ void NM_set_leds(void)
             {
                 led = hardware_leds(0);
                 led_state.color = FS_SS_MENU_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
             if (g_snapshots->hover < g_snapshots->menu_max - 1)
             {
                 led = hardware_leds(1);
                 led_state.color = FS_SS_MENU_COLOR;
-                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
         break;
     }
@@ -1135,18 +1135,32 @@ void NM_button_pressed(uint8_t button)
     NM_print_screen();
 }
 
-void NM_change_pbss(uint8_t next_prev)
+void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
 {
-    if (next_prev)
+    if (pressed)
     {
-        if (NM_down())
-            NM_enter();
+        if (next_prev)
+        {
+            if (NM_down())
+            {
+                NM_enter();
+                if (g_current_list == SNAPSHOT_LIST)
+                    ledz_on(hardware_leds(next_prev), CYAN);
+            }
+        }
+        else
+        {
+            if (NM_up())
+            {
+                NM_enter();
+                if (g_current_list == SNAPSHOT_LIST)
+                    ledz_on(hardware_leds(next_prev), CYAN);
+            }
+        }
     }
-    else
-    {
-        if (NM_up())
-            NM_enter();
-    }
+
+    if ((g_current_list == SNAPSHOT_LIST) && !pressed)
+        NM_set_leds();
 }
 
 void NM_toggle_pb_ss(void)

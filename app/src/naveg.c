@@ -501,19 +501,17 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
         case MODE_NAVIGATION:
             //no release action
-            if (!pressed)
-                return;
-            
-            hardware_set_overlay_timeout(0, NULL);
+            if (pressed)
+                hardware_set_overlay_timeout(0, NULL);
 
-            if (foot == 2)
+            if ((foot == 2) && pressed)
             {
                 //change pb <-> ss
                 NM_toggle_pb_ss();
             }
             else 
             {
-                NM_change_pbss(foot);
+                NM_change_pbss(foot, pressed);
             }
         break;
 
