@@ -470,108 +470,6 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
     }
 }
 
-//TODO find something better
-void widget_listbox_mdx(glcd_t *display, listbox_t *listbox)
-{
-    uint8_t i, font_height, max_lines, y_line;
-    uint8_t first_line, focus, center_focus, focus_height;
-    char aux[DISPLAY_WIDTH/2];
-    const char *line_txt;
-
-    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
-
-    font_height = listbox->font[FONT_HEIGHT];
-    max_lines = listbox->height / (font_height + listbox->line_space);
-
-    center_focus = (max_lines / 2) - (1 - (max_lines % 2));
-    first_line = 0;
-
-    if (listbox->hover > center_focus && listbox->count > max_lines)
-    {
-        first_line = listbox->hover - center_focus;
-        if (first_line > ABS(listbox->count - max_lines))
-        {
-            first_line = ABS(listbox->count - max_lines);
-        }
-    }
-
-    if (max_lines > listbox->count) max_lines = listbox->count;
-    focus = listbox->hover - first_line;
-    focus_height = font_height + listbox->line_top_margin + listbox->line_bottom_margin;
-    y_line = listbox->y + listbox->line_space;
-
-    for (i = 0; i < max_lines; i++)
-    {
-        if (i < listbox->count)
-        {
-            line_txt = listbox->list[first_line + i];
-
-            if ((first_line + i) == listbox->selected)
-            {
-                uint8_t j = 0;
-                aux[j++] = ' ';
-                aux[j++] = '>';
-                aux[j++] = ' ';
-                while (*line_txt && j < sizeof(aux)-1) aux[j++] = *line_txt++;
-                aux[j] = 0;
-                line_txt = aux;
-            }
-
-            glcd_text(display, listbox->x + listbox->text_left_margin, y_line, line_txt, listbox->font, listbox->color);
-
-            if (i == focus)
-            {
-                glcd_rect_invert(display, listbox->x, y_line - listbox->line_top_margin, listbox->width, focus_height);
-            }
-
-            y_line += font_height + listbox->line_space;
-        }
-    }
-}
-
-void widget_listbox4(glcd_t *display, listbox_t *listbox)
-{
-    const char *line_txt;
-
-    glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
-
-    int8_t first_line;
-    uint8_t y_line = listbox->y + listbox->line_space;
-    uint8_t font_height = listbox->font[FONT_HEIGHT];
-    uint8_t focus_height = listbox->font_highlight[FONT_HEIGHT] + listbox->line_top_margin + listbox->line_bottom_margin;
-
-    //beginning of list
-    if (listbox->selected < 2)
-        first_line = 0;
-    //end of list
-    else if (listbox->selected > (listbox->count -2) )   
-        first_line = listbox->count -3;
-    //anywhere else
-    else
-        first_line = listbox->selected - 1;
-
-    for (uint8_t i = 0; i < 3; i++)
-    {
-        if (i < listbox->count)
-        {
-            line_txt = listbox->list[first_line + i];
-
-            if ((first_line + i) == listbox->selected)
-            {
-                y_line++;
-                glcd_text(display, listbox->x + listbox->text_left_margin, y_line, line_txt, listbox->font_highlight, listbox->color);
-                glcd_rect_invert(display, listbox->x, y_line - listbox->line_top_margin, listbox->width, focus_height);
-                y_line += focus_height;
-            }
-            else 
-            {
-                glcd_text(display, listbox->x + listbox->text_left_margin, y_line, line_txt, listbox->font, listbox->color);
-                y_line += font_height + listbox->line_space;
-            }
-        }
-    }
-}
-
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
 {
     //draw the title line around it
@@ -608,25 +506,29 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     {
         uint8_t line_length = strlen(listbox->list[listbox->hover-1]);
 
-        if (listbox->selected == listbox->hover-1)
-            line_length+=2;
-
         if (line_length > 15)
             line_length = 15;
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
+        //commented out code is allignment to the middle
+        uint8_t item_x = 2;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+
         if (listbox->selected == listbox->hover-1)
         {
-            strncpy(item_str_bfr, ">", 4);
-            strncat(item_str_bfr, listbox->list[listbox->hover-1], line_length - 2);
+            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length-1);
+            item_str_bfr[line_length-1] = '\0';
+
+            //draw indicator
+            icon_pb_selected(display, item_x, listbox->y + 12);
+            item_x += 9;
         }
         else
+        {
             strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+            item_str_bfr[line_length] = '\0';
+        }
 
-        //commented out code is allignment to the middle
-        uint8_t item_x = 3;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
-        item_str_bfr[line_length] = '\0';
         glcd_text(display, item_x, listbox->y + 12, item_str_bfr, listbox->font, listbox->color);
         FREE(item_str_bfr);
     }
@@ -634,51 +536,59 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     if (listbox->hover < (listbox->count - 1))
     {
         uint8_t line_length = strlen(listbox->list[listbox->hover+1]);
-        
-        if (listbox->selected == listbox->hover+1)
-            line_length+=2;
 
         if (line_length > 15)
             line_length = 15;
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
+        //commented out code is allignment to the middle
+        uint8_t item_x = 2;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+
         if (listbox->selected == listbox->hover+1)
         {
-            strncpy(item_str_bfr, ">", 4);
-            strncat(item_str_bfr, listbox->list[listbox->hover+1], line_length - 2);
+            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length-1);
+            item_str_bfr[line_length-1] = '\0';
+
+            //draw indicator
+            icon_pb_selected(display, item_x, listbox->y + 32);
+            item_x += 9;
         }
         else
+        {
             strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+            item_str_bfr[line_length] = '\0';
+        }
 
-        //commented out code is allignment to the middle
-        uint8_t item_x = 3;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
-        item_str_bfr[line_length] = '\0';
         glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
         FREE(item_str_bfr);
     }
 
     uint8_t line_length = strlen(listbox->list[listbox->hover]);
 
-    if (listbox->selected == listbox->hover)
-        line_length+=2;
-
     if (line_length > 15)
         line_length = 15;
 
     char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+
+    //commented out code is allignment to the middle
+    uint8_t item_x = 2;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         
     if (listbox->selected == listbox->hover)
     {
-        strncpy(item_str_bfr, ">", 4);
-        strncat(item_str_bfr, listbox->list[listbox->hover], line_length - 2);
+        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length - 1);
+        item_str_bfr[line_length-1] = '\0';
+
+        //draw indicator
+        icon_pb_selected(display, item_x, listbox->y + 22);
+        item_x += 9;
     }
     else
+    {
         strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+        item_str_bfr[line_length] = '\0';
+    }
 
-    //commented out code is allignment to the middle
-    uint8_t item_x = 3;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
-    item_str_bfr[line_length] = '\0';
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
     FREE(title_str_bfr);
@@ -1356,4 +1266,20 @@ void icon_bank(glcd_t *display, uint8_t x, uint8_t y)
     glcd_rect(display, x, y + 4, 4, 3, GLCD_BLACK);
     glcd_rect(display, x + 5, y, 4, 3, GLCD_BLACK);
     glcd_rect(display, x + 5, y + 4, 4, 3, GLCD_BLACK);
+}
+
+void icon_pb_selected(glcd_t *display, uint8_t x, uint8_t y)
+{
+    // clears the icon area
+    glcd_rect_fill(display, x, y, 7, 7, GLCD_WHITE);
+
+    // draws the icon
+    glcd_rect(display, x+3, y, 1, 1, GLCD_BLACK);
+    glcd_rect(display, x+2, y+1, 3, 1, GLCD_BLACK);
+    glcd_rect(display, x+1, y+2, 5, 1, GLCD_BLACK);
+    glcd_rect(display, x, y+3, 7, 1, GLCD_BLACK);
+    glcd_rect(display, x, y+4, 7, 1, GLCD_BLACK);
+    glcd_rect(display, x+1, y+5, 5, 1, GLCD_BLACK);
+    glcd_rect(display, x+2, y+6, 3, 1, GLCD_BLACK);
+    glcd_rect(display, x+3, y+7, 1, 1, GLCD_BLACK);
 }
