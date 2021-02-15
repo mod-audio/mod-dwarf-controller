@@ -344,7 +344,9 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     else
         item = g_current_item;
 
-    if ( (item->desc->id == INP_1_GAIN_ID) || (item->desc->id == INP_2_GAIN_ID) || (item->desc->id == OUTP_1_GAIN_ID) || (item->desc->id == OUTP_2_GAIN_ID) || (item->desc->id == HEADPHONE_VOLUME_ID))
+    if ( (item->desc->id == INP_1_GAIN_ID) || (item->desc->id == INP_2_GAIN_ID) || (item->desc->id == INP_STEREO_LINK) || \
+         (item->desc->id == OUTP_1_GAIN_ID) || (item->desc->id == OUTP_2_GAIN_ID) || (item->desc->id == OUTP_STEREO_LINK) || \
+         (item->desc->id == HEADPHONE_VOLUME_ID))
     {
         if (g_encoders_pressed[encoder])
             item->data.step = 10;
