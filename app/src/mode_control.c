@@ -1186,43 +1186,21 @@ void CM_set_control(uint8_t hw_id, float value)
             // trigger specification: http://lv2plug.in/ns/ext/port-props/#trigger
             else if (control->properties & FLAG_CONTROL_TRIGGER)
             {
-                // updates the led
-                //check if its assigned to a trigger and if the button is released
-                if (!control->scroll_dir)
-                {
-                    led->led_state.color = TRIGGER_COLOR;
-                    ledz_set_state(led, LED_ON);
-                    return;
-                }
-                else if (control->scroll_dir == 2)
-                {
-                    led->led_state.color = TRIGGER_COLOR;
-                    ledz_set_state(led, LED_ON);
-                }
-                else
-                {
-                    led->led_state.brightness = 0.25;
-                    ledz_set_state(led, LED_DIMMED);
-                }
-
-                // updates the footer (a getto fix here, the screen.c file did not regognize the NULL pointer so it did not allign the text properly, TODO fix this)
-                screen_footer(control->hw_id - ENCODERS_COUNT, control->label, BYPASS_ON_FOOTER_TEXT, control->properties);
+                //we only get 1 msg from the webui for triggers, so do not update
             }
 
             // toggled specification: http://lv2plug.in/ns/lv2core/#toggled
             else if (control->properties & FLAG_CONTROL_TOGGLED)
             {
                 // updates the led
+                led->led_state.color = TOGGLED_COLOR;
                 if (control->value <= 0)
                 {
-                    led->led_state.color = TOGGLED_COLOR;
-                    ledz_set_state(led, LED_OFF);
+                    led->led_state.brightness = 0.1;
+                    ledz_set_state(led, LED_DIMMED);
                 }
                 else
-                {
-                    led->led_state.color = TOGGLED_COLOR;
                     ledz_set_state(led, LED_ON);
-                }
 
 
                 // updates the footer
@@ -1301,16 +1279,13 @@ void CM_set_control(uint8_t hw_id, float value)
             }
             else if (control->properties & FLAG_CONTROL_BYPASS)
             {
-                // updates the led
+                led->led_state.color = BYPASS_COLOR;
                 if (control->value <= 0)
-                {
-                    led->led_state.color = BYPASS_COLOR;
                     ledz_set_state(led, LED_ON);
-                }
                 else
                 {
-                    led->led_state.color = BYPASS_COLOR;
-                    ledz_set_state(led, LED_OFF);
+                    led->led_state.brightness = 0.1;
+                    ledz_set_state(led, LED_DIMMED);
                 }
 
                 // updates the footer
