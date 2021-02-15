@@ -1421,10 +1421,10 @@ void screen_msg_overlay(char *message)
     // clear screen
     glcd_clear(display, GLCD_WHITE);
 
-    glcd_text(display, (DISPLAY_WIDTH / 2) - 18, 1, "ATTENTION", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 42, 1, "ATTENTION", Terminal5x7, GLCD_BLACK);
 
     //drraw the title area
-    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 
     //draw the outlinbes
     glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 8, GLCD_BLACK);
