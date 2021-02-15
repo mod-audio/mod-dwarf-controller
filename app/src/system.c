@@ -349,7 +349,7 @@ void system_bluetooth_cb(void *arg, int event)
         static char buffer[120];
         memset(buffer, 0, sizeof buffer);
 
-        strcpy(buffer, "Enable Bluetooth discovery\nmode for 2 minutes?");
+        strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
         strcat(buffer, "\n\nSTATUS: ");
         strcat(buffer, items[0]);
         strcat(buffer, "\nNAME: ");
