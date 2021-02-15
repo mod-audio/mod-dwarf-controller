@@ -1102,7 +1102,7 @@ void screen_menu_page(node_t *node)
 
     //draw the third box, save PB
     menu_item_t *end_item = node->next->data;
-    if (end_item->desc->id != UPDATE_ID)
+    if (end_item->desc->id != BLUETOOTH_ID)
     {
         text = "NEXT";
         x = 90;

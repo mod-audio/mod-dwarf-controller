@@ -644,8 +644,8 @@ void TM_enter(uint8_t button)
         else if (button == 2)
         {
             menu_item_t *next_menu = g_current_menu->next->data;
-            //twice next, as there is the update we can not enter like this
-            if ((next_menu->desc->id == UPDATE_ID) || (g_current_item->desc->id == ROOT_ID))
+            //twice next, as there is a popup
+            if ((next_menu->desc->id == BLUETOOTH_ID) || (g_current_item->desc->id == ROOT_ID))
                 return;
 
             node_t *node = g_current_menu->next;
@@ -1012,7 +1012,7 @@ void TM_set_leds(void)
                 led = hardware_leds(5);
                 led_state.color = WHITE;
                 menu_item_t *next_menu = g_current_menu->next->data;
-                if (next_menu->desc->id == UPDATE_ID)
+                if (next_menu->desc->id == BLUETOOTH_ID)
                     led_state.brightness = 0.25;
                 else
                     led_state.brightness = 1;
