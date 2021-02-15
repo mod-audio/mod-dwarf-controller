@@ -28,6 +28,7 @@
 #include "images.h"
 #include "uc1701.h"
 #include "mode_navigation.h"
+#include "mode_tools.h"
 
 /*
 ************************************************************************************************************************
@@ -262,11 +263,11 @@ static void displays_task(void *pvParameters)
         glcd_update(hardware_glcds(i));
         if (++i == GLCD_COUNT) i = 0;
 
-        if (NM_need_update())
+        if (TM_need_update_menu())
         {
-            if (++count == 500000)
+            if (++count == 5000)
             {
-                NM_update();
+                TM_update_menu();
                 count = 0;
             }
         }

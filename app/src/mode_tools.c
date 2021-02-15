@@ -237,13 +237,6 @@ static void menu_enter(uint8_t encoder)
         }
 
         screen_system_menu(item);
-        g_update_cb = NULL;
-        g_update_data = NULL;
-        if (item->desc->need_update)
-        {
-            g_update_cb = item->desc->action_cb;
-            g_update_data = item;
-        }
     }
     else if (item->desc->type == MENU_MAIN)
     {
@@ -295,6 +288,14 @@ static void menu_enter(uint8_t encoder)
 
         if (item->desc->action_cb)
             item->desc->action_cb(item, MENU_EV_ENTER);
+    }
+
+    g_update_cb = NULL;
+    g_update_data = NULL;
+    if (item->desc->need_update)
+    {
+        g_update_cb = item->desc->action_cb;
+        g_update_data = item;
     }
 
     TM_print_tool();
@@ -526,6 +527,20 @@ uint8_t TM_status(void)
     }
 
     return 0;
+}
+
+void TM_update_menu(void)
+{
+    if (g_update_cb)
+    {
+        (*g_update_cb)(g_update_data, MENU_EV_NONE);
+        screen_system_menu(g_update_data);
+    }
+}
+
+int TM_need_update_menu(void)
+{
+    return (g_update_cb ? 1: 0);
 }
 
 uint8_t TM_has_tool_enabled(void)

@@ -336,41 +336,35 @@ void system_bluetooth_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if (event == MENU_EV_ENTER)
-    {
-        // check if OK option was chosen
-        if (item->data.hover != 0)
-        {
-            const char *response;
-            char resp[LINE_BUFFER_SIZE];
+    const char *response;
+    char resp[LINE_BUFFER_SIZE];
 
-            response = cli_command("mod-bluetooth hmi", CLI_RETRIEVE_RESPONSE);
+    response = cli_command("mod-bluetooth hmi", CLI_RETRIEVE_RESPONSE);
             
-            strncpy(resp, response, sizeof(resp)-1);
-            char **items = strarr_split(resp, '|');;
+    strncpy(resp, response, sizeof(resp)-1);
+    char **items = strarr_split(resp, '|');;
 
-            if (items)
-            {
-                static char buffer[120];
-                memset(buffer, 0, sizeof buffer);
+    if (items)
+    {
+        static char buffer[120];
+        memset(buffer, 0, sizeof buffer);
 
-                strcpy(buffer, item->data.popup_content);
-                strcat(buffer, "\n\nSTATUS: ");
-                strcat(buffer, items[0]);
-                strcat(buffer, "\nNAME: ");
-                strcat(buffer, items[1]);
-                strcat(buffer, "\nADDRESS: ");
-                strcat(buffer, items[2]);
+        strcpy(buffer, "Enable Bluetooth discovery\nmode for 2 minutes?");
+        strcat(buffer, "\n\nSTATUS: ");
+        strcat(buffer, items[0]);
+        strcat(buffer, "\nNAME: ");
+        strcat(buffer, items[1]);
+        strcat(buffer, "\nADDRESS: ");
+        strcat(buffer, items[2]);
 
-                item->data.popup_content = buffer;
+        item->data.popup_content = buffer;
 
-                FREE(items);
-            } 
-        }
-        else
-        {
-            cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
-        }
+        FREE(items);
+    }
+
+    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+    {
+        cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
     }
 }
 

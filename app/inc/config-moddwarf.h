@@ -307,7 +307,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 3",                          MENU_LIST,      SHIFT_ITEM_3_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
-    {"BlUETOOTH",                       MENU_CONFIRM,   BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb         , 0},  \
+    {"BlUETOOTH",                       MENU_CONFIRM,   BLUETOOTH_ID,           ROOT_ID,            system_bluetooth_cb         , 1},  \
     {"INFO",                            MENU_OK,        INFO_ID,                ROOT_ID,            system_info_cb              , 0},  \
     {"SYSTEM UPGRADE",                  MENU_CONFIRM,   UPDATE_ID,              ROOT_ID,            system_upgrade_cb           , 0},  \
     {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            NULL                        , 0},  \

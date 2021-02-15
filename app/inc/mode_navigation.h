@@ -66,8 +66,6 @@ bp_list_t *NM_get_banks(void);
 void NM_set_pedalboards(bp_list_t *bp_list);
 bp_list_t *NM_get_pedalboards(void);
 char* NM_get_current_pb_name(void);
-void NM_update(void);
-int NM_need_update(void);
 void NM_print_screen();
 void NM_print_prev_screen(void);
 void NM_set_leds(void);

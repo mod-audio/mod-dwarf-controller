@@ -76,8 +76,6 @@ static bp_list_t *g_banks, *g_pedalboards, *g_snapshots;
 static uint16_t g_current_pedalboard, g_bp_first, g_current_snapshot;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static int16_t g_current_bank, g_force_update_pedalboard;
-static void (*g_update_cb)(void *data, int event);
-static void *g_update_data;
 static uint8_t g_snapshots_loaded = 0;
 static uint8_t g_current_list = PEDALBOARD_LIST;
 
@@ -952,20 +950,6 @@ bp_list_t *NM_get_pedalboards(void)
 char* NM_get_current_pb_name(void)
 {
     return g_banks->names[g_banks->hover];
-}
-
-void NM_update(void)
-{
-    if (g_update_cb)
-    {
-        (*g_update_cb)(g_update_data, MENU_EV_ENTER);
-        screen_system_menu(g_update_data);
-    }
-}
-
-int NM_need_update(void)
-{
-    return (g_update_cb ? 1: 0);
 }
 
 void NM_print_screen(void)
