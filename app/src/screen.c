@@ -597,7 +597,7 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
     glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
 
-    if (name == NULL && value == NULL)
+    if (name == NULL || value == NULL)
     {
         char text[sizeof(SCREEN_FOOT_DEFAULT_NAME) + 2];
 

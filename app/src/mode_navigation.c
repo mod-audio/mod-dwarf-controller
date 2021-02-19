@@ -301,10 +301,11 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     if (g_current_list == PEDALBOARD_LIST)
     {
         ledz_t *led = hardware_leds(0);
-        led_state_t led_state;
-        led_state.color = FS_PB_MENU_COLOR;
-        led_state.fade_ratio = 5;
-        led_state.fade_rate = 5;
+        led_state_t led_state = {
+            .color = FS_PB_MENU_COLOR,
+            .fade_ratio = 5,
+            .fade_rate = 5,
+        };
         set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
         led = hardware_leds(1);
         set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
