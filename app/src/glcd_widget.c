@@ -512,12 +512,15 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
         //commented out code is allignment to the middle
-        uint8_t item_x = 2;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        uint8_t item_x = 4;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
         if (listbox->selected == listbox->hover-1)
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length-1);
-            item_str_bfr[line_length-1] = '\0';
+            if (line_length == 15)
+                line_length--;
+
+            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+            item_str_bfr[line_length] = '\0';
 
             //draw indicator
             icon_pb_selected(display, item_x, listbox->y + 12);
@@ -543,12 +546,15 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
         //commented out code is allignment to the middle
-        uint8_t item_x = 2;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        uint8_t item_x = 4;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
         if (listbox->selected == listbox->hover+1)
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length-1);
-            item_str_bfr[line_length-1] = '\0';
+            if (line_length == 15)
+                line_length--;
+
+            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+            item_str_bfr[line_length] = '\0';
 
             //draw indicator
             icon_pb_selected(display, item_x, listbox->y + 32);
@@ -572,12 +578,15 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
     //commented out code is allignment to the middle
-    uint8_t item_x = 2;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+    uint8_t item_x = 4;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         
     if (listbox->selected == listbox->hover)
     {
-        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length - 1);
-        item_str_bfr[line_length-1] = '\0';
+        if (line_length == 15)
+            line_length--;
+
+        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+        item_str_bfr[line_length] = '\0';
 
         //draw indicator
         icon_pb_selected(display, item_x, listbox->y + 22);
