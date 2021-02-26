@@ -545,6 +545,12 @@ int TM_need_update_menu(void)
     return (g_update_cb ? 1: 0);
 }
 
+void TM_stop_update_menu(void)
+{
+    g_update_cb = NULL;
+    g_update_data = NULL;
+}
+
 uint8_t TM_has_tool_enabled(void)
 {
     int i;

@@ -362,9 +362,14 @@ void system_bluetooth_cb(void *arg, int event)
         FREE(items);
     }
 
-    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+    if ((event == MENU_EV_ENTER) && item->data.popup_active)
     {
-        cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
+        TM_stop_update_menu();
+
+        if (item->data.hover == 0)
+        {
+            cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
+        }
     }
 }
 

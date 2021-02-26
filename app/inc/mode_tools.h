@@ -64,6 +64,7 @@ void TM_set_first_foot_tool(uint8_t tool);
 uint8_t TM_status(void);
 void TM_update_menu(void);
 int TM_need_update_menu(void);
+void TM_stop_update_menu(void);
 uint8_t TM_has_tool_enabled(void);
 void TM_enter(uint8_t button);
 void TM_up(uint8_t encoder);
