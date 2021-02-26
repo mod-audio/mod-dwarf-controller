@@ -426,7 +426,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 //overlay timeouts
 #define ENCODER_LIST_TIMEOUT        500
 #define FOOT_CONTROLS_TIMEOUT       700
-#define MSG_TIMEOUT                 400
+#define MSG_TIMEOUT                 800
 
 //// Command line interface configurations
 // defines the cli serial
