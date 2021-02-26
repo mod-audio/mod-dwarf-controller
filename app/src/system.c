@@ -209,6 +209,53 @@ static void recieve_sys_value(void *data, menu_item_t *item)
         item->data.value = atof(values[2]);
 }
 
+static void recieve_bluetooth_info(void *data, menu_item_t *item)
+{
+    char **values = data;
+
+    //protocol ok
+    if (atof(values[1]) != 0)
+        return;
+
+    char resp[LINE_BUFFER_SIZE];
+            
+    strncpy(resp, values[2], sizeof(resp)-1);
+    char **items = strarr_split(resp, '|');;
+
+    if (items)
+    {
+        static char buffer[120];
+        memset(buffer, 0, sizeof buffer);
+
+        strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
+        strcat(buffer, "\n\nSTATUS: ");
+        strcat(buffer, items[0]);
+        strcat(buffer, "\nNAME: ");
+        strcat(buffer, items[1]);
+        strcat(buffer, "\nADDRESS: ");
+        strcat(buffer, items[2]);
+
+        item->data.popup_content = buffer;
+
+        FREE(items);
+    }
+}
+
+static void append_sys_value_popup(void *data, menu_item_t *item)
+{
+    char **values = data;
+
+    //protocol ok
+    if (atof(values[1]) != 0)
+        return;
+
+    char resp[LINE_BUFFER_SIZE];
+            
+    strncpy(resp, values[2], sizeof(resp)-1);
+
+    strcat(item->data.popup_content, resp);
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -336,39 +383,21 @@ void system_bluetooth_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    const char *response;
-    char resp[LINE_BUFFER_SIZE];
+    sys_comm_set_response_cb(recieve_bluetooth_info, item);
 
-    response = cli_command("mod-bluetooth hmi", CLI_RETRIEVE_RESPONSE);
-            
-    strncpy(resp, response, sizeof(resp)-1);
-    char **items = strarr_split(resp, '|');;
+    sys_comm_send(CMD_SYS_BT_STATUS, NULL);
+    sys_comm_wait_response();
 
-    if (items)
-    {
-        static char buffer[120];
-        memset(buffer, 0, sizeof buffer);
-
-        strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
-        strcat(buffer, "\n\nSTATUS: ");
-        strcat(buffer, items[0]);
-        strcat(buffer, "\nNAME: ");
-        strcat(buffer, items[1]);
-        strcat(buffer, "\nADDRESS: ");
-        strcat(buffer, items[2]);
-
-        item->data.popup_content = buffer;
-
-        FREE(items);
-    }
-
-    if ((event == MENU_EV_ENTER) && item->data.popup_active)
+    if ((event == MENU_EV_ENTER) && !item->data.popup_active)
     {
         TM_stop_update_menu();
 
         if (item->data.hover == 0)
         {
-            cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
+            sys_comm_set_response_cb(NULL, NULL);
+
+            sys_comm_send(CMD_SYS_BT_DISCOVERY, NULL);
+            sys_comm_wait_response();
         }
     }
 }
@@ -382,19 +411,18 @@ void system_info_cb(void *arg, int event)
     {
         static char buffer[70];
         memset(buffer, 0, sizeof buffer);
-        const char *response;
-
-        response = cli_command("mod-version release", CLI_RETRIEVE_RESPONSE);
-
         strcpy(buffer, item->data.popup_content);
-        strcat(buffer, response);
-
-        response = cli_command("cat /var/cache/mod/tag", CLI_RETRIEVE_RESPONSE);
-
-        strcat(buffer, "\n\nDevice Serial: ");
-        strcat(buffer, response);
-
         item->data.popup_content = buffer;
+
+        sys_comm_set_response_cb(append_sys_value_popup, item);
+        sys_comm_send(CMD_SYS_VERSION, "release");
+        sys_comm_wait_response();
+
+        strcat(item->data.popup_content, "\n\nDevice Serial: ");
+
+        sys_comm_set_response_cb(append_sys_value_popup, item);
+        sys_comm_send(CMD_SYS_SERIAL, NULL);
+        sys_comm_wait_response();
     }
 }
 
