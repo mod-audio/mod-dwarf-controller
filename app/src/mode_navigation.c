@@ -1019,7 +1019,7 @@ void NM_set_leds(void)
     {
         case BANKS_LIST:
             led = hardware_leds(2);
-            led_state.color = FS_SS_MENU_COLOR;
+            led_state.color = FS_PB_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;

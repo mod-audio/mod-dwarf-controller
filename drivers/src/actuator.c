@@ -71,7 +71,6 @@
 
 static void *g_actuators_pointers[MAX_ACTUATORS];
 static uint8_t g_actuators_count = 0;
-static uint8_t acceleration = 1;
 
 /*
 *********************************************************************************************************
@@ -580,9 +579,6 @@ void actuators_clock(void)
                 // --- rotary processing ---
                 // encoder algorithm from PaulStoffregen
                 // https://github.com/PaulStoffregen/Encoder
-                static uint8_t acceleration_count = 0;
-                static uint8_t firsttick = 0;
-
                 uint8_t seq = encoder->state & 3;
 
                 seq |= READ_PIN(encoder->port_chA, encoder->pin_chA) ? 4 : 0;
@@ -625,34 +621,9 @@ void actuators_clock(void)
 
                 encoder->state = (seq >> 2);
 
-                 if (firsttick)
-                     acceleration_count++;
-
                 // checks the steps
                 if (ABS(encoder->counter) >= encoder->steps)
                 {
-                    static uint8_t ticks_count = 0;
-                    firsttick = 1;
-                    if (acceleration_count < 100)
-                    {
-                        ticks_count++;
-                        if (ticks_count > ENCODER_ACCEL_STEP_3)
-                            acceleration = 7;
-                        else if (ticks_count > ENCODER_ACCEL_STEP_2)
-                            acceleration = 5;
-                        else if (ticks_count > ENCODER_ACCEL_STEP_1)
-                            acceleration = 3;
-                        else
-                            acceleration = 1;
-                    }
-                    else
-                    {
-                        acceleration_count = 0;
-                        firsttick = 0;
-                        ticks_count = 0;
-                        acceleration = 1;
-                    }
-
                     // update flags
                     CLR_FLAG(encoder->status, EV_ENCODER_TURNED_CW);
                     CLR_FLAG(encoder->status, EV_ENCODER_TURNED_ACW);
@@ -668,6 +639,7 @@ void actuators_clock(void)
 
                     encoder->counter = 0;
                 }
+            break;
         }
     }
 }
