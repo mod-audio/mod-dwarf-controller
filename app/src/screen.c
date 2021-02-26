@@ -446,8 +446,10 @@ void screen_encoder(control_t *control, uint8_t encoder)
             int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
         else if ((control->value > 99.99) || (control->value < -99.99))
             float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
-        else 
+        else if ((control->value > 9.99) || (control->value < -9.99))
             float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
+        else
+            float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
 
         str_bfr[14] = 0;
 
