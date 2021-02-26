@@ -868,16 +868,19 @@ void system_display_brightness_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    hardware_glcd_brightness(g_display_brightness); 
+    if (item->data.value != g_display_brightness)
+    {
+        hardware_glcd_brightness(g_display_brightness);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_display_brightness;
-    EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_display_brightness;
+        EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+
+        item->data.value = g_display_brightness;
+    }
 
     int_to_str((g_display_brightness * 25), str_bfr, 4, 0);
-
-    item->data.value = g_display_brightness;
-
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
 }
@@ -915,16 +918,19 @@ void system_display_contrast_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    st7565p_set_contrast(hardware_glcds(0), g_display_contrast); 
+    if (item->data.value != g_display_contrast)
+    {
+        st7565p_set_contrast(hardware_glcds(0), g_display_contrast);
         
-    //also write to EEPROM
-    uint8_t write_buffer = g_display_contrast;
-    EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_display_contrast;
+        EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+        item->data.value = g_display_contrast;
+    }
 
     int mapped_value = MAP(g_display_contrast, (int)DISPLAY_CONTRAST_MIN, (int)DISPLAY_CONTRAST_MAX, 0, 100);
     int_to_str(mapped_value, str_bfr, 4, 0);
-
-    item->data.value = g_display_contrast;
 
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
@@ -1315,6 +1321,7 @@ void system_default_tool_cb(void *arg, int event)
     }
 }
 
+/*
 void system_list_mode_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
@@ -1346,6 +1353,7 @@ void system_list_mode_cb(void *arg, int event)
     //hardware_glcd_brightness(g_display_brightness); 
 
     //also write to EEPROM
+    if 
     uint8_t write_buffer = g_list_mode;
     EEPROM_Write(0, LIST_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
@@ -1355,7 +1363,7 @@ void system_list_mode_cb(void *arg, int event)
         item->data.unit_text = "Click to load";
     else
         item->data.unit_text = "load on select";
-}
+}*/
 
 void system_control_header_cb(void *arg, int event)
 {
@@ -1389,14 +1397,17 @@ void system_control_header_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    screen_set_control_mode_header(g_control_header); 
+    if (item->data.value != g_control_header)
+    {
+        screen_set_control_mode_header(g_control_header);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_control_header;
-    EEPROM_Write(0, CONTROL_HEADER_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_control_header;
+        EEPROM_Write(0, CONTROL_HEADER_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_control_header;
-    
+        item->data.value = g_control_header;
+    }
+
     if (g_control_header)
         item->data.unit_text = "Snapshot name";
     else
