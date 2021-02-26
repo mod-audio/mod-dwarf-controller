@@ -57,7 +57,7 @@ const char *versions_names[] = {
     NULL
 };
 
-static const uint8_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
+static const int16_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
                                                                 HEADPHONE_VOLUME_ID, CLOCK_SOURCE_ID, SEND_CLOCK_ID, MIDI_PB_PC_CHANNEL_ID, MIDI_SS_PC_CHANNEL_ID,\
                                                                 DISPLAY_BRIGHTNESS_ID, BPM_ID, BPB_ID};
 
@@ -215,7 +215,7 @@ static void recieve_sys_value(void *data, menu_item_t *item)
 ************************************************************************************************************************
 */
 
-uint8_t system_get_shift_item(uint8_t index)
+int16_t system_get_shift_item(uint8_t index)
 {
     if (index < SHIFT_MENU_ITEMS_COUNT)
         return SHIFT_ITEM_IDS[index];
@@ -477,12 +477,12 @@ void system_inp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_inp_1_volume_cb(void *arg, int event)
@@ -535,12 +535,12 @@ void system_inp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_inp_2_volume_cb(void *arg, int event)
@@ -593,12 +593,12 @@ void system_inp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_0_volume_cb(void *arg, int event)
@@ -653,12 +653,12 @@ void system_outp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_1_volume_cb(void *arg, int event)
@@ -711,12 +711,12 @@ void system_outp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_2_volume_cb(void *arg, int event)
@@ -769,12 +769,12 @@ void system_outp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_hp_volume_cb(void *arg, int event)
@@ -822,12 +822,12 @@ void system_hp_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_display_brightness_cb(void *arg, int event)
@@ -1122,6 +1122,9 @@ void system_load_pro_cb(void *arg, int event)
         g_current_profile = item->data.value;
         item->data.selected = g_current_profile;
         set_item_value(CMD_PROFILE_LOAD, g_current_profile);
+
+        naveg_update_shift_item_ids();
+        naveg_update_shift_item_values();
     }
 
     if (item->data.popup_active)
@@ -1197,48 +1200,55 @@ void system_save_pro_cb(void *arg, int event)
 void system_shift_item_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
-
-    if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] == -1)
+    
+    uint8_t shift_item_id = item->desc->id - SHIFT_ITEMS_ID - 1;
+    
+    if (g_shift_item[shift_item_id] == -1)
     {
         //read EEPROM
         uint8_t read_buffer = 0;
-        EEPROM_Read(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &read_buffer, MODE_8_BIT, 1);
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS + shift_item_id, &read_buffer, MODE_8_BIT, 1);
 
         if (read_buffer < SHIFT_MENU_ITEMS_COUNT)
-            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = read_buffer;
+            g_shift_item[shift_item_id] = read_buffer;
         else
-            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
+            g_shift_item[shift_item_id] = 0;
     }
 
     if (event == MENU_EV_ENTER)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
-        else g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
+        if (g_shift_item[shift_item_id] < item->data.max) g_shift_item[shift_item_id]++;
+        else g_shift_item[shift_item_id] = 0;
     }
     else if (event == MENU_EV_UP)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
+        if (g_shift_item[shift_item_id] < item->data.max) g_shift_item[shift_item_id]++;
         else return;
     }
     else if (event == MENU_EV_DOWN)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] > 0) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]--;
+        if (g_shift_item[shift_item_id] > 0) g_shift_item[shift_item_id]--;
         else return;
     }
     else if (event == MENU_EV_NONE)
     {
         //only display value
-        item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+        item->data.value = g_shift_item[shift_item_id];
         item->data.min = 0;
         item->data.max = SHIFT_MENU_ITEMS_COUNT-1;
         item->data.step = 1;
     }
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
-    EEPROM_Write(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &write_buffer, MODE_8_BIT, 1);
+    if (item->data.value != g_shift_item[shift_item_id])
+    {
+        //also write to EEPROM
+        uint8_t write_buffer = g_shift_item[shift_item_id];
+        EEPROM_Write(0, SHIFT_ITEM_ADRESS + shift_item_id, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+        item->data.value = g_shift_item[shift_item_id];
+
+        naveg_update_single_shift_item(shift_item_id, SHIFT_ITEM_IDS[(int)item->data.value]);
+    }
 
     //add item to text
     item->data.unit_text = TM_get_menu_item_by_ID(SHIFT_ITEM_IDS[(int)item->data.value])->name;
@@ -1285,13 +1295,16 @@ void system_default_tool_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    TM_set_first_foot_tool(g_default_tool+1);
+    if (event != MENU_EV_NONE)
+    {
+        TM_set_first_foot_tool(g_default_tool+1);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_default_tool;
-    EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_default_tool;
+        EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_default_tool;
+        item->data.value = g_default_tool;
+    }
     
     switch ((int)item->data.value)
     {

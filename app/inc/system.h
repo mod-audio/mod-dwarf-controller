@@ -57,7 +57,7 @@
 */
 
 // system menu callbacks
-uint8_t system_get_shift_item(uint8_t index);
+int16_t system_get_shift_item(uint8_t index);
 void system_recall_stereo_link_settings(void);
 void system_lock_comm_serial(bool busy);
 void system_update_menu_value(uint8_t item_ID, uint16_t value);

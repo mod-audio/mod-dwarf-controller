@@ -76,7 +76,7 @@ void screen_system_menu(menu_item_t *item);
 void screen_tool_control_page(node_t *node);
 void screen_toggle_tuner(float frequency, char *note, int8_t cents);
 void screen_image(uint8_t display, const uint8_t *image);
-void screen_shift_overlay(int8_t prev_mode);
+void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids);
 void screen_menu_page(node_t *node);
 void screen_control_overlay(control_t *control);
 void screen_msg_overlay(char *message);

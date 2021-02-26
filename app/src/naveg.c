@@ -19,6 +19,7 @@
 #include "mode_control.h"
 #include "mode_navigation.h"
 #include "mode_tools.h"
+#include "data.h"
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -83,6 +84,8 @@ static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 uint8_t g_initialized = 0;
 uint8_t g_lock_release[FOOTSWITCHES_COUNT] = {};
 
+int16_t g_shift_item_ids[3];
+
 // only disabled after "boot" command received
 bool g_self_test_mode = true;
 bool g_self_test_cancel_button = false;
@@ -139,11 +142,44 @@ void naveg_init(void)
 
     g_initialized = 1;
 
+    naveg_update_shift_item_ids();
+    naveg_update_shift_item_values();
+
     vSemaphoreCreateBinary(g_dialog_sem);
     // vSemaphoreCreateBinary is created as available which makes
     // first xSemaphoreTake pass even if semaphore has not been given
     // http://sourceforge.net/p/freertos/discussion/382005/thread/04bfabb9
     xSemaphoreTake(g_dialog_sem, 0);
+}
+
+void naveg_update_shift_item_ids(void)
+{
+    uint8_t i;
+    uint8_t read_buffer = 0;
+
+    for (i = 0; i < 3; i++)
+    {
+        //do system callbacks
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS+i, &read_buffer, MODE_8_BIT, 1);
+        g_shift_item_ids[i] = system_get_shift_item(read_buffer);
+    }
+}
+
+void naveg_update_shift_item_values(void)
+{
+    uint8_t i;
+    for (i = 0; i < 3; i++)
+    {
+        menu_item_t *shift_item = TM_get_menu_item_by_ID(g_shift_item_ids[i]);
+        shift_item->desc->action_cb(shift_item, MENU_EV_NONE);
+    }
+}
+
+void naveg_update_single_shift_item(uint8_t shift_item_id, int16_t item_id)
+{
+    g_shift_item_ids[shift_item_id] = item_id;
+    menu_item_t *shift_item = TM_get_menu_item_by_ID(g_shift_item_ids[shift_item_id]);
+    shift_item->desc->action_cb(shift_item, MENU_EV_NONE);
 }
 
 void naveg_turn_off_leds(void)
@@ -336,7 +372,7 @@ void naveg_enc_down(uint8_t encoder)
 
             item->desc->action_cb(item, MENU_EV_UP);
 
-            screen_shift_overlay(-1);
+            screen_shift_overlay(-1, NULL);
         break;
 
         case MODE_BUILDER:
@@ -430,7 +466,7 @@ void naveg_enc_up(uint8_t encoder)
 
             item->desc->action_cb(item, MENU_EV_DOWN);
 
-            screen_shift_overlay(-1);
+            screen_shift_overlay(-1, NULL);
         break;
 
         case MODE_BUILDER:
@@ -885,21 +921,10 @@ void naveg_shift_pressed()
     if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
         TM_turn_off_tuner();
 
-    uint8_t i;
-    uint8_t read_buffer = 0;
-    for (i = 0; i < 3; i++)
-    {
-        //do system callbacks
-        EEPROM_Read(0, SHIFT_ITEM_ADRESS+i, &read_buffer, MODE_8_BIT, 1);
-            
-        menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
-        item->desc->action_cb(item, MENU_EV_NONE);
-    }
-
     //toggle shift
     g_device_mode = MODE_SHIFT;
 
-    screen_shift_overlay(g_prev_shift_device_mode);
+    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0]);
 }
 
 void naveg_shift_releaed()
@@ -1045,5 +1070,5 @@ void naveg_trigger_mode_change(uint8_t mode)
 
 void naveg_print_shift_screen(void)
 {
-    screen_shift_overlay(g_prev_shift_device_mode);
+    screen_shift_overlay(g_prev_shift_device_mode, NULL);
 }

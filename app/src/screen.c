@@ -1257,12 +1257,24 @@ void screen_image(uint8_t display, const uint8_t *image)
     glcd_draw_image(display_img, 0, 0, image, GLCD_BLACK);
 }
 
-void screen_shift_overlay(int8_t prev_mode)
+void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
 {
     static uint8_t previous_mode;
-
+    static int16_t last_item_ids[3];
+    uint8_t i;
+    
     if (prev_mode != -1)
+    {
         previous_mode = prev_mode;
+    }
+
+    if (item_ids)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            last_item_ids[i] = item_ids[i];
+        }
+    }
 
     //clear screen first
     screen_clear();
@@ -1308,16 +1320,9 @@ void screen_shift_overlay(int8_t prev_mode)
     glcd_text(display, 84, DISPLAY_HEIGHT - 7, "SAVE PB", Terminal3x5, GLCD_BLACK);
 
     //print the 3 quick controls
-    uint8_t i;
-    uint8_t read_buffer = 0;
     for (i = 0; i < 3; i++)
     {
-        //do system callbacks
-        EEPROM_Read(0, SHIFT_ITEM_ADRESS+i, &read_buffer, MODE_8_BIT, 1);
-            
-        menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
-
-        print_tripple_menu_items(item, i, 0);
+        print_tripple_menu_items(TM_get_menu_item_by_ID(last_item_ids[i]), i, 0);
     }
 }
 
