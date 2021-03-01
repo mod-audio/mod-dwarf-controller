@@ -13,7 +13,6 @@
 #include "actuator.h"
 #include "task.h"
 #include "device.h"
-#include "mode_control.h"
 #include "st7565p.h"
 
 
@@ -227,14 +226,6 @@ static const uint8_t *LED_COLORS[]  = {
 ************************************************************************************************************************
 */
 
-#define ABS(x)                  ((x) > 0 ? (x) : -(x))
-
-#define CPU_IS_ON()             (1 - ((FIO_ReadValue(CPU_STATUS_PORT) >> CPU_STATUS_PIN) & 1))
-#define CPU_PULSE_BUTTON()      GPIO_ClearValue(CPU_BUTTON_PORT, (1 << CPU_BUTTON_PIN));    \
-                                delay_ms(200);                                              \
-                                GPIO_SetValue(CPU_BUTTON_PORT, (1 << CPU_BUTTON_PIN));
-
-
 /*
 ************************************************************************************************************************
 *           LOCAL GLOBAL VARIABLES
@@ -397,12 +388,6 @@ void hardware_setup(void)
     //Pass the array into vPortDefineHeapRegions().
     vPortDefineHeapRegions(xHeapRegions);
 
-    // configure and set initial state of shutdown cpu button
-    // note: CLR_PIN will make the coreboard reboot unless SET_PIN is called in less than 5s
-    //       this is done in the beginning of cli_task()
-    //CONFIG_PIN_OUTPUT(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
-    //CLR_PIN(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
-
     EEPROM_Init();
 
     //check if this unit is being turned on for the first time (empty EEPROM)
@@ -428,7 +413,6 @@ void hardware_setup(void)
     }
 
     //MDW_TODO Fix this init, can be way cleaner
-
     // GLCD initialization
     g_glcd.id = 0;
     g_glcd.cs_port = GLCD0_CS_PORT;

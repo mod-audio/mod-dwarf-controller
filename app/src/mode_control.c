@@ -18,18 +18,14 @@
 
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
 #include "glcd.h"
 #include "ledz.h"
 #include "actuator.h"
-#include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "ui_comm.h"
 #include "sys_comm.h"
-#include "images.h"
 #include "mode_control.h"
 #include "mode_tools.h"
 
@@ -838,9 +834,7 @@ static void control_set(uint8_t id, control_t *control)
     ui_comm_webgui_send(buffer, i);
 
     //wait for a response from mod-ui
-    if (g_should_wait_for_webgui) {
-        ui_comm_webgui_wait_response();
-    }
+    ui_comm_webgui_wait_response();
 }
 
 /*

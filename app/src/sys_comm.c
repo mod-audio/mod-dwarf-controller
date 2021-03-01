@@ -12,9 +12,6 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-#include "hardware.h"
-#include "ledz.h"
-
 #include "mod-protocol.h"
 
 /*

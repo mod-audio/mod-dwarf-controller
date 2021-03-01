@@ -9,7 +9,6 @@
 #include "utils.h"
 #include "mod-protocol.h"
 
-#include <math.h>
 #include <string.h>
 
 /*
@@ -47,7 +46,6 @@
 
 #define ABS(x)      ((x) > 0 ? (x) : -(x))
 #define ROUND(x)    ((x) > 0.0 ? (((float)(x)) + 0.5) : (((float)(x)) - 0.5))
-#define MAP(x, in_min, in_max, out_min, out_max)    ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 /*
 ************************************************************************************************************************

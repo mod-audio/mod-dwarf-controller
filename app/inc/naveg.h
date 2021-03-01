@@ -57,8 +57,6 @@ enum{TOOL_MENU, TOOL_FOOT, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
 *           GLOBAL VARIABLES
 ************************************************************************************************************************
 */
-bool g_should_wait_for_webgui;
-bool g_ui_communication_started;
 bool g_device_booted; 
 bool g_popup_active;
 

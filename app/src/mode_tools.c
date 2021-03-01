@@ -15,19 +15,15 @@
 
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
 #include "glcd.h"
 #include "ledz.h"
-#include "actuator.h"
 #include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "node.h"
 #include "ui_comm.h"
 #include "sys_comm.h"
-#include "images.h"
 #include "mode_tools.h"
 
 /*
@@ -510,26 +506,9 @@ void TM_init(void)
     system_default_tool_cb(NULL, MENU_EV_NONE);
 }
 
-void TM_trigger_tool(uint8_t tool, uint8_t status)
-{
-    g_tool[tool].state = status;
-}
-
 void TM_set_first_foot_tool(uint8_t tool)
 {
     g_first_foot_tool = TOOL_FOOT + tool;
-}
-
-uint8_t TM_status(void)
-{
-    int i;
-    for (i = 0; i < MAX_TOOLS; i++)
-    {
-        if (g_tool[i].state == TOOL_ON)
-            return 1;
-    }
-
-    return 0;
 }
 
 void TM_update_menu(void)

@@ -16,18 +16,11 @@
 #include "mode_control.h"
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
-#include "glcd.h"
 #include "ledz.h"
-#include "actuator.h"
-#include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "ui_comm.h"
-#include "sys_comm.h"
-#include "images.h"
 
 /*
 ************************************************************************************************************************
