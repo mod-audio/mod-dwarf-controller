@@ -909,7 +909,7 @@ void naveg_shift_pressed()
         return;
     }
 
-    if (g_popup_active) return;
+    if (g_popup_active || !g_device_booted) return;
 
     hardware_set_overlay_timeout(0, NULL);
 
@@ -929,7 +929,7 @@ void naveg_shift_pressed()
 
 void naveg_shift_releaed()
 {
-    if (g_popup_active) return;
+    if (g_popup_active || !g_device_booted) return;
 
     hardware_set_overlay_timeout(0, NULL);
 

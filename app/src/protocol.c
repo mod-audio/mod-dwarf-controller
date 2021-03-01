@@ -564,10 +564,10 @@ void cb_boot(uint8_t serial_id, proto_t *proto)
     //system is live, we can ask gains
     cli_command(NULL, CLI_DISCARD_RESPONSE);
 
-    g_device_booted = true; 
-
     //after boot we are ready to print the control vieuw
     CM_set_state();
+
+    g_device_booted = true;
 }
 
 void cb_set_selftest_control_skip(uint8_t serial_id, proto_t *proto)

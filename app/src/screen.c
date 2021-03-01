@@ -1260,7 +1260,7 @@ void screen_image(uint8_t display, const uint8_t *image)
 void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
 {
     static uint8_t previous_mode;
-    static int16_t last_item_ids[3];
+    static int16_t last_item_ids[3] = {-1};
     uint8_t i;
     
     if (prev_mode != -1)
@@ -1275,6 +1275,10 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
             last_item_ids[i] = item_ids[i];
         }
     }
+
+    //we dont have any items to display
+    if (last_item_ids[0] == -1)
+        return;
 
     //clear screen first
     screen_clear();
