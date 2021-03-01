@@ -254,6 +254,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DISPLAY_BRIGHTNESS_ID   DEVICE_SET_1_ID+1
 #define DISPLAY_CONTRAST_ID     DEVICE_SET_1_ID+2
 #define UNASSIGNED_ACTUATRS_ID  DEVICE_SET_1_ID+3
+
 #define DEFAULT_TOOL_ID         DEVICE_SET_2_ID+1
 #define KNOB_LIST_ID            DEVICE_SET_2_ID+2
 #define CONTROL_HEADER_ID       DEVICE_SET_2_ID+3
@@ -420,12 +421,12 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define PEDALBOARD_PREV_FOOTER_TEXT "-"
 
 //msg overlay txt
-#define PEDALBOARD_SAVED_TXT        "PEDALBOARD SAVED"
+#define PEDALBOARD_SAVED_TXT        "\n\n\nPEDALBOARD SAVED"
 
 //overlay timeouts
 #define ENCODER_LIST_TIMEOUT        500
 #define FOOT_CONTROLS_TIMEOUT       700
-#define MSG_TIMEOUT                 400
+#define MSG_TIMEOUT                 800
 
 //// Command line interface configurations
 // defines the cli serial
@@ -453,7 +454,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_SL_OUTPUT                  0
 #define DEFAULT_SHIFT_1_ITEM               1
 #define DEFAULT_SHIFT_2_ITEM               2
-#define DEFAULT_SHIFT_3_ITEM               4
+#define DEFAULT_SHIFT_3_ITEM               3
 #define DEFAULT_DEFAULT_TOOL               0
 #define DEFAULT_LIST_MODE                  0
 #define DEFAULT_CONTROL_HEADER             0

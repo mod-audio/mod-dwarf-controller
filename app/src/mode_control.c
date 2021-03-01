@@ -323,13 +323,26 @@ static void foot_control_add(control_t *control)
 
         // updates the led
         led->led_state.color = TRIGGER_COLOR;
-        if (control->value <= 0)
+        if (control->properties & FLAG_CONTROL_BYPASS)
         {
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED);
+            if (control->value <= 0)
+                ledz_set_state(led, LED_ON);
+            else
+            {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED);
+            }
         }
         else
-            ledz_set_state(led, LED_ON);
+        {
+            if (control->value <= 0)
+            {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED);
+            }
+            else
+                ledz_set_state(led, LED_ON);
+        }
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
@@ -339,7 +352,7 @@ static void foot_control_add(control_t *control)
 
         // updates the led
         led->led_state.color = TRIGGER_COLOR;
-        if (control->value <= 0)
+        if ((control->value <= 0) || (control->scroll_dir == 2))
         {
             led->led_state.brightness = 0.1;
             ledz_set_state(led, LED_DIMMED);
@@ -460,6 +473,7 @@ static void foot_control_add(control_t *control)
         }
         else if ((control->scroll_dir == 2))
         {
+            led->led_state.color = ENUMERATED_COLOR;
             led->led_state.brightness = 0.1;
             ledz_set_state(led, LED_DIMMED);
         }
@@ -1458,6 +1472,11 @@ void CM_load_next_page()
 
     g_protocol_busy = false;
     system_lock_comm_serial(g_protocol_busy);
+}
+
+void CM_reset_page(void)
+{
+    g_current_foot_control_page = 0;
 }
 
 void CM_load_next_encoder_page(uint8_t button)

@@ -63,8 +63,8 @@
 #define TASK_NAME(name)     ((const char * const) (name))
 #define ACTUATOR_TYPE(act)  (((button_t *)(act))->type)
 
-#define ACTUATORS_QUEUE_SIZE    10
-#define RESERVED_QUEUE_SPACES   3
+#define ACTUATORS_QUEUE_SIZE    20
+#define RESERVED_QUEUE_SPACES   10
 
 
 /*
@@ -163,6 +163,7 @@ static void actuators_cb(void *actuator)
 
     // queue actuator info
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    
     //make sure button and encoder hold evens make it through when turning the encoder fast
     if ((actuator_info[0] == BUTTON) || ((actuator_info[0] == ROTARY_ENCODER) && (BUTTON_HOLD(actuator_info[2]))))
     {

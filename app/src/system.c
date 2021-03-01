@@ -57,7 +57,7 @@ const char *versions_names[] = {
     NULL
 };
 
-static const uint8_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
+static const int16_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, INP_1_GAIN_ID, INP_2_GAIN_ID, OUTP_STEREO_LINK, OUTP_1_GAIN_ID, OUTP_2_GAIN_ID,\
                                                                 HEADPHONE_VOLUME_ID, CLOCK_SOURCE_ID, SEND_CLOCK_ID, MIDI_PB_PC_CHANNEL_ID, MIDI_SS_PC_CHANNEL_ID,\
                                                                 DISPLAY_BRIGHTNESS_ID, BPM_ID, BPB_ID};
 
@@ -209,13 +209,60 @@ static void recieve_sys_value(void *data, menu_item_t *item)
         item->data.value = atof(values[2]);
 }
 
+static void recieve_bluetooth_info(void *data, menu_item_t *item)
+{
+    char **values = data;
+
+    //protocol ok
+    if (atof(values[1]) != 0)
+        return;
+
+    char resp[LINE_BUFFER_SIZE];
+            
+    strncpy(resp, values[2], sizeof(resp)-1);
+    char **items = strarr_split(resp, '|');;
+
+    if (items)
+    {
+        static char buffer[120];
+        memset(buffer, 0, sizeof buffer);
+
+        strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
+        strcat(buffer, "\n\nSTATUS: ");
+        strcat(buffer, items[0]);
+        strcat(buffer, "\nNAME: ");
+        strcat(buffer, items[1]);
+        strcat(buffer, "\nADDRESS: ");
+        strcat(buffer, items[2]);
+
+        item->data.popup_content = buffer;
+
+        FREE(items);
+    }
+}
+
+static void append_sys_value_popup(void *data, menu_item_t *item)
+{
+    char **values = data;
+
+    //protocol ok
+    if (atof(values[1]) != 0)
+        return;
+
+    char resp[LINE_BUFFER_SIZE];
+            
+    strncpy(resp, values[2], sizeof(resp)-1);
+
+    strcat(item->data.popup_content, resp);
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
 ************************************************************************************************************************
 */
 
-uint8_t system_get_shift_item(uint8_t index)
+int16_t system_get_shift_item(uint8_t index)
 {
     if (index < SHIFT_MENU_ITEMS_COUNT)
         return SHIFT_ITEM_IDS[index];
@@ -336,35 +383,22 @@ void system_bluetooth_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    const char *response;
-    char resp[LINE_BUFFER_SIZE];
+    sys_comm_set_response_cb(recieve_bluetooth_info, item);
 
-    response = cli_command("mod-bluetooth hmi", CLI_RETRIEVE_RESPONSE);
-            
-    strncpy(resp, response, sizeof(resp)-1);
-    char **items = strarr_split(resp, '|');;
+    sys_comm_send(CMD_SYS_BT_STATUS, NULL);
+    sys_comm_wait_response();
 
-    if (items)
+    if ((event == MENU_EV_ENTER) && !item->data.popup_active)
     {
-        static char buffer[120];
-        memset(buffer, 0, sizeof buffer);
+        TM_stop_update_menu();
 
-        strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
-        strcat(buffer, "\n\nSTATUS: ");
-        strcat(buffer, items[0]);
-        strcat(buffer, "\nNAME: ");
-        strcat(buffer, items[1]);
-        strcat(buffer, "\nADDRESS: ");
-        strcat(buffer, items[2]);
+        if (item->data.hover == 0)
+        {
+            sys_comm_set_response_cb(NULL, NULL);
 
-        item->data.popup_content = buffer;
-
-        FREE(items);
-    }
-
-    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
-    {
-        cli_command("mod-bluetooth discovery", CLI_DISCARD_RESPONSE);
+            sys_comm_send(CMD_SYS_BT_DISCOVERY, NULL);
+            sys_comm_wait_response();
+        }
     }
 }
 
@@ -377,19 +411,18 @@ void system_info_cb(void *arg, int event)
     {
         static char buffer[70];
         memset(buffer, 0, sizeof buffer);
-        const char *response;
-
-        response = cli_command("mod-version release", CLI_RETRIEVE_RESPONSE);
-
         strcpy(buffer, item->data.popup_content);
-        strcat(buffer, response);
-
-        response = cli_command("cat /var/cache/mod/tag", CLI_RETRIEVE_RESPONSE);
-
-        strcat(buffer, "\n\nDevice Serial: ");
-        strcat(buffer, response);
-
         item->data.popup_content = buffer;
+
+        sys_comm_set_response_cb(append_sys_value_popup, item);
+        sys_comm_send(CMD_SYS_VERSION, "release");
+        sys_comm_wait_response();
+
+        strcat(item->data.popup_content, "\n\nDevice Serial: ");
+
+        sys_comm_set_response_cb(append_sys_value_popup, item);
+        sys_comm_send(CMD_SYS_SERIAL, NULL);
+        sys_comm_wait_response();
     }
 }
 
@@ -477,12 +510,12 @@ void system_inp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_inp_1_volume_cb(void *arg, int event)
@@ -535,12 +568,12 @@ void system_inp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_inp_2_volume_cb(void *arg, int event)
@@ -593,12 +626,12 @@ void system_inp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_0_volume_cb(void *arg, int event)
@@ -653,12 +686,12 @@ void system_outp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_1_volume_cb(void *arg, int event)
@@ -711,12 +744,12 @@ void system_outp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_outp_2_volume_cb(void *arg, int event)
@@ -769,12 +802,12 @@ void system_outp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_hp_volume_cb(void *arg, int event)
@@ -822,12 +855,12 @@ void system_hp_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-
+/*
     if (event != MENU_EV_NONE)
     {
         if (naveg_get_current_mode() == MODE_SHIFT)
             screen_shift_overlay(-1);
-    }
+    }*/
 }
 
 void system_display_brightness_cb(void *arg, int event)
@@ -868,16 +901,19 @@ void system_display_brightness_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    hardware_glcd_brightness(g_display_brightness); 
+    if (item->data.value != g_display_brightness)
+    {
+        hardware_glcd_brightness(g_display_brightness);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_display_brightness;
-    EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_display_brightness;
+        EEPROM_Write(0, DISPLAY_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+
+        item->data.value = g_display_brightness;
+    }
 
     int_to_str((g_display_brightness * 25), str_bfr, 4, 0);
-
-    item->data.value = g_display_brightness;
-
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
 }
@@ -915,16 +951,19 @@ void system_display_contrast_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    st7565p_set_contrast(hardware_glcds(0), g_display_contrast); 
+    if (item->data.value != g_display_contrast)
+    {
+        st7565p_set_contrast(hardware_glcds(0), g_display_contrast);
         
-    //also write to EEPROM
-    uint8_t write_buffer = g_display_contrast;
-    EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_display_contrast;
+        EEPROM_Write(0, DISPLAY_CONTRAST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+        item->data.value = g_display_contrast;
+    }
 
     int mapped_value = MAP(g_display_contrast, (int)DISPLAY_CONTRAST_MIN, (int)DISPLAY_CONTRAST_MAX, 0, 100);
     int_to_str(mapped_value, str_bfr, 4, 0);
-
-    item->data.value = g_display_contrast;
 
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
@@ -1122,6 +1161,9 @@ void system_load_pro_cb(void *arg, int event)
         g_current_profile = item->data.value;
         item->data.selected = g_current_profile;
         set_item_value(CMD_PROFILE_LOAD, g_current_profile);
+
+        naveg_update_shift_item_ids();
+        naveg_update_shift_item_values();
     }
 
     if (item->data.popup_active)
@@ -1197,48 +1239,55 @@ void system_save_pro_cb(void *arg, int event)
 void system_shift_item_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
-
-    if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] == -1)
+    
+    uint8_t shift_item_id = item->desc->id - SHIFT_ITEMS_ID - 1;
+    
+    if (g_shift_item[shift_item_id] == -1)
     {
         //read EEPROM
         uint8_t read_buffer = 0;
-        EEPROM_Read(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &read_buffer, MODE_8_BIT, 1);
+        EEPROM_Read(0, SHIFT_ITEM_ADRESS + shift_item_id, &read_buffer, MODE_8_BIT, 1);
 
         if (read_buffer < SHIFT_MENU_ITEMS_COUNT)
-            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = read_buffer;
+            g_shift_item[shift_item_id] = read_buffer;
         else
-            g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
+            g_shift_item[shift_item_id] = 0;
     }
 
     if (event == MENU_EV_ENTER)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
-        else g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] = 0;
+        if (g_shift_item[shift_item_id] < item->data.max) g_shift_item[shift_item_id]++;
+        else g_shift_item[shift_item_id] = 0;
     }
     else if (event == MENU_EV_UP)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] < item->data.max) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]++;
+        if (g_shift_item[shift_item_id] < item->data.max) g_shift_item[shift_item_id]++;
         else return;
     }
     else if (event == MENU_EV_DOWN)
     {
-        if (g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1] > 0) g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1]--;
+        if (g_shift_item[shift_item_id] > 0) g_shift_item[shift_item_id]--;
         else return;
     }
     else if (event == MENU_EV_NONE)
     {
         //only display value
-        item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+        item->data.value = g_shift_item[shift_item_id];
         item->data.min = 0;
         item->data.max = SHIFT_MENU_ITEMS_COUNT-1;
         item->data.step = 1;
     }
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
-    EEPROM_Write(0, SHIFT_ITEM_ADRESS + item->desc->id - SHIFT_ITEMS_ID - 1, &write_buffer, MODE_8_BIT, 1);
+    if (item->data.value != g_shift_item[shift_item_id])
+    {
+        //also write to EEPROM
+        uint8_t write_buffer = g_shift_item[shift_item_id];
+        EEPROM_Write(0, SHIFT_ITEM_ADRESS + shift_item_id, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_shift_item[item->desc->id - SHIFT_ITEMS_ID - 1];
+        item->data.value = g_shift_item[shift_item_id];
+
+        naveg_update_single_shift_item(shift_item_id, SHIFT_ITEM_IDS[(int)item->data.value]);
+    }
 
     //add item to text
     item->data.unit_text = TM_get_menu_item_by_ID(SHIFT_ITEM_IDS[(int)item->data.value])->name;
@@ -1285,13 +1334,16 @@ void system_default_tool_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    TM_set_first_foot_tool(g_default_tool+1);
+    if (event != MENU_EV_NONE)
+    {
+        TM_set_first_foot_tool(g_default_tool+1);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_default_tool;
-    EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_default_tool;
+        EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_default_tool;
+        item->data.value = g_default_tool;
+    }
     
     switch ((int)item->data.value)
     {
@@ -1302,6 +1354,7 @@ void system_default_tool_cb(void *arg, int event)
     }
 }
 
+/*
 void system_list_mode_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
@@ -1333,6 +1386,7 @@ void system_list_mode_cb(void *arg, int event)
     //hardware_glcd_brightness(g_display_brightness); 
 
     //also write to EEPROM
+    if 
     uint8_t write_buffer = g_list_mode;
     EEPROM_Write(0, LIST_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
@@ -1342,7 +1396,7 @@ void system_list_mode_cb(void *arg, int event)
         item->data.unit_text = "Click to load";
     else
         item->data.unit_text = "load on select";
-}
+}*/
 
 void system_control_header_cb(void *arg, int event)
 {
@@ -1376,14 +1430,17 @@ void system_control_header_cb(void *arg, int event)
         item->data.step = 1;
     }
 
-    screen_set_control_mode_header(g_control_header); 
+    if (item->data.value != g_control_header)
+    {
+        screen_set_control_mode_header(g_control_header);
 
-    //also write to EEPROM
-    uint8_t write_buffer = g_control_header;
-    EEPROM_Write(0, CONTROL_HEADER_ADRESS, &write_buffer, MODE_8_BIT, 1);
+        //also write to EEPROM
+        uint8_t write_buffer = g_control_header;
+        EEPROM_Write(0, CONTROL_HEADER_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-    item->data.value = g_control_header;
-    
+        item->data.value = g_control_header;
+    }
+
     if (g_control_header)
         item->data.unit_text = "Snapshot name";
     else

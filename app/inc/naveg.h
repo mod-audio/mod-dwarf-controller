@@ -84,6 +84,9 @@ bool g_self_test_cancel_button;
 
 uint8_t naveg_get_current_mode(void);
 void naveg_init(void);
+void naveg_update_shift_item_ids(void);
+void naveg_update_shift_item_values(void);
+void naveg_update_single_shift_item(uint8_t shift_item_id, int16_t item_id);
 void naveg_turn_off_leds(void);
 void naveg_ui_connection(uint8_t status);
 uint8_t naveg_ui_status(void);
