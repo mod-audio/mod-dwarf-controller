@@ -618,9 +618,9 @@ void hardware_setup(void)
     // Timer 3 configuration
     // this timer is all device screen overlays
 
-    // initialize timer 3, prescale count time of 10ms
+    // initialize timer 3, prescale count time of 20ms
     TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
-    TIM_ConfigStruct.PrescaleValue = 100000;
+    TIM_ConfigStruct.PrescaleValue = 20000;
     // use channel 3, MR3
     TIM_MatchConfigStruct.MatchChannel = 3;
     // enable interrupt when MR3 matches the value in TC register
