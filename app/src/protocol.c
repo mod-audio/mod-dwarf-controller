@@ -308,7 +308,6 @@ void cb_ping(uint8_t serial_id, proto_t *proto)
     (void) serial_id;
 
     g_ui_communication_started = 1;
-    g_protocol_busy = false;
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 
@@ -391,9 +390,6 @@ void cb_gui_connection(uint8_t serial_id, proto_t *proto)
 {
     (void) serial_id;
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
     //clear the buffer so we dont send any messages
     ui_comm_webgui_clear();
 
@@ -401,10 +397,6 @@ void cb_gui_connection(uint8_t serial_id, proto_t *proto)
         naveg_ui_connection(UI_CONNECTED);
     else
         naveg_ui_connection(UI_DISCONNECTED);
-
-    //we are done supposedly closing the menu, we can unlock the actuators
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
@@ -414,16 +406,10 @@ void cb_control_add(uint8_t serial_id, proto_t *proto)
     if (serial_id != WEBGUI_SERIAL)
         return;
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     control_t *control = data_parse_control(proto->list);
 
     CM_add_control(control, 1);
 
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 
@@ -454,10 +440,6 @@ void cb_control_set(uint8_t serial_id, proto_t *proto)
     if (serial_id != WEBGUI_SERIAL)
         return;
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     if (hardware_get_overlay_counter())
         g_actuator_display_lock = 1;
 
@@ -466,9 +448,6 @@ void cb_control_set(uint8_t serial_id, proto_t *proto)
     g_actuator_display_lock = 0;
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_control_get(uint8_t serial_id, proto_t *proto)
@@ -502,17 +481,7 @@ void cb_bank_config(uint8_t serial_id, proto_t *proto)
     if (serial_id != WEBGUI_SERIAL)
         return;
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-/*
-    bank_config_t bank_func;
-    bank_func.hw_id = atoi(proto->list[1]);
-    bank_func.function = atoi(proto->list[2]);
-    naveg_bank_config(&bank_func);*/
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_tuner(uint8_t serial_id, proto_t *proto)
@@ -574,26 +543,18 @@ void cb_set_selftest_control_skip(uint8_t serial_id, proto_t *proto)
 {
     (void) serial_id;
 
-    //lock actuators and clear tx buffer
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
+    //clear tx buffer
     ui_comm_webgui_clear_tx_buffer();
 
     g_self_test_cancel_button = true; 
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_menu_item_changed(uint8_t serial_id, proto_t *proto)
 {
     if (serial_id != WEBGUI_SERIAL)
         return;
-
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     system_update_menu_value(atoi(proto->list[1]), atoi(proto->list[2]));
     
@@ -608,18 +569,12 @@ void cb_menu_item_changed(uint8_t serial_id, proto_t *proto)
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
 {
     if (serial_id != WEBGUI_SERIAL)
         return;
-
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     //clear controls
     uint8_t i;
@@ -634,19 +589,12 @@ void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
         CM_set_state();
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_pedalboard_name(uint8_t serial_id, proto_t *proto)
 {
     if (serial_id != WEBGUI_SERIAL)
         return;
-
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     screen_tittle(&proto->list[1], 1, 0);
 
@@ -658,9 +606,6 @@ void cb_pedalboard_name(uint8_t serial_id, proto_t *proto)
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
@@ -668,26 +613,15 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
     if (serial_id != WEBGUI_SERIAL)
         return;
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     screen_tittle(&proto->list[1], 1, 1);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void cb_pages_available(uint8_t serial_id, proto_t *proto)
 {
     if (serial_id != WEBGUI_SERIAL)
         return;
-
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     uint8_t pages_toggles[8] = {};
     pages_toggles[0] = atoi(proto->list[1]);
@@ -702,7 +636,4 @@ void cb_pages_available(uint8_t serial_id, proto_t *proto)
     CM_set_pages_available(pages_toggles);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }

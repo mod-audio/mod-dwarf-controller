@@ -285,15 +285,8 @@ void naveg_enc_enter(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -397,15 +390,8 @@ void naveg_enc_down(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -491,15 +477,8 @@ void naveg_enc_up(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -594,15 +573,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -825,15 +797,8 @@ void naveg_button_pressed(uint8_t button)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
 
                 return;
             }
@@ -897,15 +862,8 @@ void naveg_shift_pressed()
 
         ui_comm_webgui_clear_tx_buffer();
 
-        //lock actuators
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
         // send the data to GUI
         ui_comm_webgui_send(buffer, i);
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
 
         return;
     }

@@ -585,17 +585,11 @@ static void request_control_page(control_t *control, uint8_t dir)
     // insert the direction on buffer
     i += int_to_str(bitmask, &buffer[i], sizeof(buffer) - i, 0);
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 static void control_set(uint8_t id, control_t *control)
@@ -840,9 +834,6 @@ static void control_set(uint8_t id, control_t *control)
     i += float_to_str(control->value, &buffer[i], sizeof(buffer) - i, 3);
     buffer[i] = 0;
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
@@ -850,9 +841,6 @@ static void control_set(uint8_t id, control_t *control)
     if (g_should_wait_for_webgui) {
         ui_comm_webgui_wait_response();
     }
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 /*
@@ -1462,16 +1450,9 @@ void CM_load_next_page()
 
     ui_comm_webgui_clear();
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     ui_comm_webgui_send(buffer, i);
 
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void CM_reset_page(void)

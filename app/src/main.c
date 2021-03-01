@@ -144,11 +144,6 @@ void serial_error(uint8_t uart_id, uint32_t error)
 // this callback is called from a ISR
 static void actuators_cb(void *actuator)
 {
-    if (g_protocol_busy)
-    {
-        if (!naveg_dialog_status()) return;
-    }
-
     static uint8_t i, info[ACTUATORS_QUEUE_SIZE][3];
 
     // does a copy of actuator id and status
@@ -201,8 +196,6 @@ static void webgui_procotol_task(void *pvParameters)
     while (1)
     {
         uint32_t msg_size;
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
         // blocks until receive a new message
         ringbuff_t *rb = ui_comm_webgui_read();
         msg_size = ringbuff_read_until(rb, g_msg_buffer, WEBGUI_COMM_RX_BUFF_SIZE, 0);
@@ -211,8 +204,6 @@ static void webgui_procotol_task(void *pvParameters)
         if (msg_size > 0)
         {
             //if parsing messages block the actuator messages.
-            g_protocol_busy = true;
-            system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
             msg.sender_id = WEBGUI_SERIAL;
             msg.data = (char *) g_msg_buffer;
@@ -231,8 +222,6 @@ static void system_procotol_task(void *pvParameters)
     while (1)
     {
         uint32_t msg_size;
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
         // blocks until receive a new message
         ringbuff_t *rb = sys_comm_read();
         msg_size = ringbuff_read_until(rb, g_msg_buffer, SYSTEM_COMM_RX_BUFF_SIZE, 0);
@@ -240,8 +229,6 @@ static void system_procotol_task(void *pvParameters)
         if (msg_size > 0)
         {
             //if parsing messages block the actuator messages.
-            g_protocol_busy = true;
-            system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
             msg.sender_id = SYSTEM_SERIAL;
             msg.data = (char *) g_msg_buffer;

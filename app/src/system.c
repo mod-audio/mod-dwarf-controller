@@ -1493,17 +1493,11 @@ void system_tuner_input_cb(void *arg, int event)
         //insert the input
         i += int_to_str(g_tuner_input + 1, &buffer[i], sizeof(buffer) - i, 0);
 
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
         // sends the data to GUI
         ui_comm_webgui_send(buffer, i);
 
         // waits the pedalboards list be received
         ui_comm_webgui_wait_response();
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
     }
 }
 
