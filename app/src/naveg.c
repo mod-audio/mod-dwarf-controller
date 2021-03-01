@@ -189,8 +189,9 @@ void naveg_turn_off_leds(void)
     for (i = 0; i < LEDS_COUNT; i++)
     {
         led = hardware_leds(i);
-        led_state_t led_state;
-        led_state.color = WHITE;
+        led_state_t led_state = {
+            .color = WHITE,
+        };
         set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
     }
 }

@@ -130,9 +130,9 @@ static int tool_is_on(uint8_t tool)
 void set_tool_pages_led_state(void)
 {
     ledz_t *led = hardware_leds(2);
-    led_state_t page_state;
-
-    page_state.color = FS_PAGE_COLOR_1 + g_current_tool - TOOL_FOOT-1;
+    led_state_t page_state = {
+        .color = FS_PAGE_COLOR_1 + g_current_tool - TOOL_FOOT-1,
+    };
     set_ledz_trigger_by_color_id(led, LED_ON, page_state);
 }
 
@@ -143,9 +143,10 @@ void update_tap_tempo_led(void)
     // convert the time unit
     uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
 
-    led_state_t tap_state;
-    tap_state.color = TAP_TEMPO_COLOR;
-    tap_state.amount_of_blinks = LED_BLINK_INFINIT;
+    led_state_t tap_state = {
+        .color = TAP_TEMPO_COLOR,
+        .amount_of_blinks = LED_BLINK_INFINIT,
+    };
 
     // setup the led blink
     if (time_ms > TAP_TEMPO_TIME_ON)
@@ -807,8 +808,9 @@ void TM_foot_change(uint8_t foot, uint8_t pressed)
             if (pressed)
                 system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
             
-            led_state_t led_state;
-            led_state.color = ENUMERATED_COLOR;
+            led_state_t led_state = {
+                .color = ENUMERATED_COLOR,
+            };
 
             if (pressed)
                 led_state.brightness = 1;
@@ -998,7 +1000,7 @@ void TM_set_leds(void)
 {
     naveg_turn_off_leds();
 
-    led_state_t led_state;
+    led_state_t led_state = {};
     switch (g_current_tool)
     {
         case TOOL_MENU:

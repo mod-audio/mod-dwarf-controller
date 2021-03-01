@@ -251,7 +251,7 @@ void protocol_send_response(const char *response, const uint8_t value ,proto_t *
     i = copy_command(buffer, response); 
     
     // insert the value on buffer
-    i += int_to_str(value, &buffer[i], sizeof(buffer) - i, 0);
+    int_to_str(value, &buffer[i], sizeof(buffer) - i, 0);
 
     protocol_response(&buffer[0], proto);
 }
