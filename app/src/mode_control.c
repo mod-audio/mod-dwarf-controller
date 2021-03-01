@@ -1460,6 +1460,11 @@ void CM_load_next_page()
     system_lock_comm_serial(g_protocol_busy);
 }
 
+void CM_reset_page(void)
+{
+    g_current_foot_control_page = 0;
+}
+
 void CM_load_next_encoder_page(uint8_t button)
 {
     char buffer[30];

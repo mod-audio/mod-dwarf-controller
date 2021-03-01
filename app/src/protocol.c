@@ -628,6 +628,8 @@ void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
         CM_remove_control(i);
     }
 
+    CM_reset_page();
+
     if (naveg_get_current_mode() == MODE_CONTROL)
         CM_set_state();
 

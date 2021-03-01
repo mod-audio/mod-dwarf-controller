@@ -76,6 +76,7 @@ void CM_set_leds(void);
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time);
 void CM_set_pages_available(uint8_t page_toggles[8]);
 void CM_reset_encoder_page(void);
+void CM_reset_page(void);
 
 
 /*
