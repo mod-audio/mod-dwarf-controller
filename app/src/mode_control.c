@@ -78,6 +78,7 @@ uint8_t g_scroll_dir = 1;
 static uint8_t g_current_foot_control_page = 0;
 static uint8_t g_current_encoder_page = 0;
 static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static uint8_t g_available_foot_pages = 0;
 static int8_t g_current_overlay_actuator = -1;
 
 int8_t g_overlay_actuator_lock = 0;
@@ -168,20 +169,6 @@ void restore_led_states(void)
     {
         ledz_restore_state(hardware_leds(i));
     }
-}
-
-uint8_t foot_pages_available(void)
-{
-    //sum available pages
-    uint8_t j;
-    uint8_t pages_available = 0;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
-    return pages_available;
 }
 
 // control assigned to display
@@ -1517,7 +1504,7 @@ void CM_print_screen(void)
     screen_tittle(NULL, 0, -1);
 
     //update screen
-    screen_page_index(g_current_foot_control_page, foot_pages_available());
+    screen_page_index(g_current_foot_control_page, g_available_foot_pages);
 
     screen_encoder_container(g_current_encoder_page);
 
@@ -1539,8 +1526,19 @@ void CM_set_pages_available(uint8_t page_toggles[8])
 {
     memcpy(g_fs_page_available, page_toggles, sizeof(g_fs_page_available));
 
+    //sum available pages
+    uint8_t j;
+    uint8_t pages_available = 0;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    g_available_foot_pages = pages_available;
+
     if  (naveg_get_current_mode() == MODE_CONTROL)
-        screen_page_index(g_current_foot_control_page, foot_pages_available());
+        screen_page_index(g_current_foot_control_page, g_available_foot_pages);
 }
 
 void CM_reset_encoder_page(void)

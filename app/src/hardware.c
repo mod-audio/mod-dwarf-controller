@@ -22,10 +22,14 @@
 ************************************************************************************************************************
 */
 
-// check in hardware_setup() what is the function of each timer
-#define TIMER0_PRIORITY     1
-#define TIMER1_PRIORITY     3
-#define TIMER2_PRIORITY     2
+//Timer 0 LEDS + Display backlight
+#define TIMER0_PRIORITY     2
+//Timer 1 Actuators polling
+#define TIMER1_PRIORITY     4
+//Timer 2 overlay counter
+#define TIMER2_PRIORITY     1
+//Timer 3 pols overlay and print if needed
+#define TIMER3_PRIORITY     3
 
 /*
 ************************************************************************************************************************
@@ -241,7 +245,7 @@ static button_t g_buttons[BUTTONS_COUNT];
 static uint32_t g_counter, g_overlay_counter;
 static int g_brightness;
 static void (*g_overlay_callback)(void);
-
+static uint8_t trigger_overlay_callback = 0;
 
 /*
 ************************************************************************************************************************
@@ -587,7 +591,7 @@ void hardware_setup(void)
     // Timer 2 configuration
     // this timer is all device screen overlays
 
-    // initialize timer 1, prescale count time of 10ms
+    // initialize timer 2, prescale count time of 10ms
     TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
     TIM_ConfigStruct.PrescaleValue = 10000;
     // use channel 2, MR2
@@ -605,10 +609,37 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM2, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER2_IRQn, TIMER2_PRIORITY);
-    // enable interrupt for timer 1
+    // enable interrupt for timer 2
     NVIC_EnableIRQ(TIMER2_IRQn);
     // to start timer
     TIM_Cmd(LPC_TIM2, ENABLE);
+
+    ////////////////////////////////////////////////////////////////
+    // Timer 3 configuration
+    // this timer is all device screen overlays
+
+    // initialize timer 3, prescale count time of 10ms
+    TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
+    TIM_ConfigStruct.PrescaleValue = 100000;
+    // use channel 3, MR3
+    TIM_MatchConfigStruct.MatchChannel = 3;
+    // enable interrupt when MR3 matches the value in TC register
+    TIM_MatchConfigStruct.IntOnMatch = TRUE;
+    // enable reset on MR3: TIMER will reset if MR3 matches it
+    TIM_MatchConfigStruct.ResetOnMatch = TRUE;
+    // stop on MR1 if MR3 matches it
+    TIM_MatchConfigStruct.StopOnMatch = FALSE;
+    // set Match value, count value of 1
+    TIM_MatchConfigStruct.MatchValue = 1;
+    // set configuration for Tim_config and Tim_MatchConfig
+    TIM_Init(LPC_TIM3, TIM_TIMER_MODE, &TIM_ConfigStruct);
+    TIM_ConfigMatch(LPC_TIM3, &TIM_MatchConfigStruct);
+    // set priority
+    NVIC_SetPriority(TIMER3_IRQn, TIMER3_PRIORITY);
+    // enable interrupt for timer 1
+    NVIC_EnableIRQ(TIMER3_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM3, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Serial initialization
@@ -846,10 +877,24 @@ void TIMER2_IRQHandler(void)
 
             if ((g_overlay_counter == 0) && (g_overlay_callback))
             {
-                g_overlay_callback();
+                trigger_overlay_callback = 1;
             }
         }
     }
 
     TIM_ClearIntPending(LPC_TIM2, TIM_MR2_INT);
+}
+
+void TIMER3_IRQHandler(void)
+{
+    if (TIM_GetIntStatus(LPC_TIM3, TIM_MR3_INT) == SET)
+    {
+        if (trigger_overlay_callback)
+        {
+            g_overlay_callback();
+            trigger_overlay_callback = 0;
+        }
+    }
+
+    TIM_ClearIntPending(LPC_TIM3, TIM_MR3_INT);
 }
