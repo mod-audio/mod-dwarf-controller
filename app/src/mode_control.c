@@ -460,6 +460,7 @@ static void foot_control_add(control_t *control)
         }
         else if ((control->scroll_dir == 2))
         {
+            led->led_state.color = ENUMERATED_COLOR;
             led->led_state.brightness = 0.1;
             ledz_set_state(led, LED_DIMMED);
         }
