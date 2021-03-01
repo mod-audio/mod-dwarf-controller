@@ -117,10 +117,10 @@ void naveg_init(void)
     g_prev_device_mode = MODE_CONTROL;
     g_prev_shift_device_mode = MODE_CONTROL;
 
+    g_initialized = 1;
+
     naveg_update_shift_item_ids();
     naveg_update_shift_item_values();
-
-    g_initialized = 1;
 
     vSemaphoreCreateBinary(g_dialog_sem);
     // vSemaphoreCreateBinary is created as available which makes
