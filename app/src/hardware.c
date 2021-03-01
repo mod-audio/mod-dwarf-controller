@@ -26,7 +26,7 @@
 // check in hardware_setup() what is the function of each timer
 #define TIMER0_PRIORITY     1
 #define TIMER1_PRIORITY     3
-#define TIMER2_PRIORITY     3
+#define TIMER2_PRIORITY     2
 
 /*
 ************************************************************************************************************************
