@@ -23,13 +23,13 @@
 */
 
 //Timer 0 LEDS + Display backlight
-#define TIMER0_PRIORITY     2
+#define TIMER0_PRIORITY     4
 //Timer 1 Actuators polling
-#define TIMER1_PRIORITY     4
+#define TIMER1_PRIORITY     5
 //Timer 2 overlay counter
-#define TIMER2_PRIORITY     1
+#define TIMER2_PRIORITY     3
 //Timer 3 pols overlay and print if needed
-#define TIMER3_PRIORITY     3
+#define TIMER3_PRIORITY     6
 
 /*
 ************************************************************************************************************************
@@ -582,10 +582,6 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM1, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER1_IRQn, TIMER1_PRIORITY);
-    // enable interrupt for timer 1
-    NVIC_EnableIRQ(TIMER1_IRQn);
-    // to start timer
-    TIM_Cmd(LPC_TIM1, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Timer 2 configuration
@@ -609,10 +605,6 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM2, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER2_IRQn, TIMER2_PRIORITY);
-    // enable interrupt for timer 2
-    NVIC_EnableIRQ(TIMER2_IRQn);
-    // to start timer
-    TIM_Cmd(LPC_TIM2, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Timer 3 configuration
@@ -636,10 +628,6 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM3, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER3_IRQn, TIMER3_PRIORITY);
-    // enable interrupt for timer 1
-    NVIC_EnableIRQ(TIMER3_IRQn);
-    // to start timer
-    TIM_Cmd(LPC_TIM3, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Serial initialization
@@ -730,6 +718,24 @@ void hardware_setup(void)
 void hardware_eneble_serial_interupt(uint8_t serial_port)
 {
     serial_enable_interupt(&g_serial[serial_port]);
+}
+
+void hardware_enable_device_IRQS(void)
+{
+    // enable interrupt for timer 1
+    NVIC_EnableIRQ(TIMER1_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM1, ENABLE);
+
+    // enable interrupt for timer 2
+    NVIC_EnableIRQ(TIMER2_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM2, ENABLE);
+
+    // enable interrupt for timer 3
+    NVIC_EnableIRQ(TIMER3_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM3, ENABLE);
 }
 
 glcd_t *hardware_glcds()

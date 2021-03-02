@@ -119,9 +119,6 @@ void naveg_init(void)
 
     g_initialized = 1;
 
-    naveg_update_shift_item_ids();
-    naveg_update_shift_item_values();
-
     vSemaphoreCreateBinary(g_dialog_sem);
     // vSemaphoreCreateBinary is created as available which makes
     // first xSemaphoreTake pass even if semaphore has not been given

@@ -80,6 +80,8 @@ enum {COREBOARD_INIT, COREBOARD_TURN_OFF, COREBOARD_TURN_ON};
 void hardware_setup(void);
 //enable the serial interupt
 void hardware_eneble_serial_interupt(uint8_t serial_port);
+//enable IRQs related to device operations
+void hardware_enable_device_IRQS(void);
 // returns the glcd object relative to glcd id
 glcd_t *hardware_glcds();
 void hardware_glcd_brightness(int level);
