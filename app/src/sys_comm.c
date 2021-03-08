@@ -144,7 +144,6 @@ void sys_comm_send(const char *command, const char *arguments)
 
     //calc total size
     uint32_t data_size = strlen(buffer);
-
     serial_send(SYSTEM_SERIAL, (const uint8_t*)buffer, data_size+1);
 }
 

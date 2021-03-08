@@ -508,13 +508,6 @@ void cb_boot(uint8_t serial_id, proto_t *proto)
     //after boot we are ready to print the control vieuw
     CM_set_state();
 
-    //recieve all values needed for shift items
-    naveg_update_shift_item_ids();
-    naveg_update_shift_item_values();
-
-    //we are now ready to start recieving user interactions
-    hardware_enable_device_IRQS();
-
     g_device_booted = true;
 }
 
