@@ -439,9 +439,6 @@ uint8_t cli_restore(uint8_t action)
             CM_remove_control(j);
         }
 
-        // disable system menu
-        //naveg_toggle_tool(DISPLAY_TOOL_SYSTEM, DISPLAY_TOOL_SYSTEM);
-
         // clear screens
         screen_clear();
 
@@ -466,8 +463,8 @@ uint8_t cli_restore(uint8_t action)
         encoder_t *knob_maskrom = (encoder_t *) hardware_actuators(ENCODER2);
 
         // check if first footswitch and first encoder is pressed down if so enter restore mode
-        if (BUTTON_PRESSED(actuator_get_status(foot_restore)) &&
-            BUTTON_PRESSED(actuator_get_status(knob_restore)))
+        if ((READ_PIN(foot_restore->port, foot_restore->pin) == BUTTON_ACTIVATED) &&
+            (READ_PIN(knob_restore->port, knob_restore->pin) == ENCODER_ACTIVATED))
         {
             // force entering on restore mode using debug
             g_cli.boot_step = 0;
@@ -475,9 +472,9 @@ uint8_t cli_restore(uint8_t action)
             g_cli.status = LOGGED_ON_RESTORE;
         }
 
-        // check if first footswitch and first encoder is pressed down if so enter maskrom mode
-        if (BUTTON_PRESSED(actuator_get_status(foot_maskrom)) &&
-            BUTTON_PRESSED(actuator_get_status(knob_maskrom)))
+        // check if last footswitch and last encoder is pressed down if so enter maskrom mode
+        if ((READ_PIN(foot_maskrom->port, foot_maskrom->pin) == BUTTON_ACTIVATED) &&
+            (READ_PIN(knob_maskrom->port, knob_maskrom->pin) == ENCODER_ACTIVATED))
         {
             // force entering on restore mode using debug
             g_cli.boot_step = 0;

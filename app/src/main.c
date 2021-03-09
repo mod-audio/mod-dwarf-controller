@@ -292,10 +292,6 @@ static void actuators_task(void *pvParameters)
         // take the actuator from queue
         xStatus = xQueueReceive(g_actuators_queue, &actuator_info, portMAX_DELAY);
 
-        // check if must enter in the restore mode
-        if (cli_restore(RESTORE_STATUS) == NOT_LOGGED)
-            cli_restore(RESTORE_CHECK_BOOT);
-
         // checks if actuator has successfully taken
         if (xStatus == pdPASS && cli_restore(RESTORE_STATUS) == LOGGED_ON_SYSTEM && g_device_booted)
         {
@@ -422,6 +418,10 @@ static void post_boot_task(void *pvParameters)
             // deletes itself
             vTaskDelete(NULL);
         }
+
+        // check if must enter in the restore mode before we are booted
+        if (cli_restore(RESTORE_STATUS) == NOT_LOGGED)
+            cli_restore(RESTORE_CHECK_BOOT);
 
         taskYIELD();
     }
