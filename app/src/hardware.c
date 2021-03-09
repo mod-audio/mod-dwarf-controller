@@ -13,7 +13,6 @@
 #include "actuator.h"
 #include "task.h"
 #include "device.h"
-#include "mode_control.h"
 #include "st7565p.h"
 
 
@@ -23,10 +22,14 @@
 ************************************************************************************************************************
 */
 
-// check in hardware_setup() what is the function of each timer
-#define TIMER0_PRIORITY     1
-#define TIMER1_PRIORITY     3
+//Timer 0 LEDS + Display backlight
+#define TIMER0_PRIORITY     4
+//Timer 1 Actuators polling
+#define TIMER1_PRIORITY     5
+//Timer 2 overlay counter
 #define TIMER2_PRIORITY     3
+//Timer 3 pols overlay and print if needed
+#define TIMER3_PRIORITY     6
 
 /*
 ************************************************************************************************************************
@@ -227,14 +230,6 @@ static const uint8_t *LED_COLORS[]  = {
 ************************************************************************************************************************
 */
 
-#define ABS(x)                  ((x) > 0 ? (x) : -(x))
-
-#define CPU_IS_ON()             (1 - ((FIO_ReadValue(CPU_STATUS_PORT) >> CPU_STATUS_PIN) & 1))
-#define CPU_PULSE_BUTTON()      GPIO_ClearValue(CPU_BUTTON_PORT, (1 << CPU_BUTTON_PIN));    \
-                                delay_ms(200);                                              \
-                                GPIO_SetValue(CPU_BUTTON_PORT, (1 << CPU_BUTTON_PIN));
-
-
 /*
 ************************************************************************************************************************
 *           LOCAL GLOBAL VARIABLES
@@ -250,7 +245,7 @@ static button_t g_buttons[BUTTONS_COUNT];
 static uint32_t g_counter, g_overlay_counter;
 static int g_brightness;
 static void (*g_overlay_callback)(void);
-
+static uint8_t trigger_overlay_callback = 0;
 
 /*
 ************************************************************************************************************************
@@ -397,12 +392,6 @@ void hardware_setup(void)
     //Pass the array into vPortDefineHeapRegions().
     vPortDefineHeapRegions(xHeapRegions);
 
-    // configure and set initial state of shutdown cpu button
-    // note: CLR_PIN will make the coreboard reboot unless SET_PIN is called in less than 5s
-    //       this is done in the beginning of cli_task()
-    //CONFIG_PIN_OUTPUT(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
-    //CLR_PIN(SHUTDOWN_BUTTON_PORT, SHUTDOWN_BUTTON_PIN);
-
     EEPROM_Init();
 
     //check if this unit is being turned on for the first time (empty EEPROM)
@@ -428,7 +417,6 @@ void hardware_setup(void)
     }
 
     //MDW_TODO Fix this init, can be way cleaner
-
     // GLCD initialization
     g_glcd.id = 0;
     g_glcd.cs_port = GLCD0_CS_PORT;
@@ -594,16 +582,12 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM1, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER1_IRQn, TIMER1_PRIORITY);
-    // enable interrupt for timer 1
-    NVIC_EnableIRQ(TIMER1_IRQn);
-    // to start timer
-    TIM_Cmd(LPC_TIM1, ENABLE);
 
     ////////////////////////////////////////////////////////////////
     // Timer 2 configuration
     // this timer is all device screen overlays
 
-    // initialize timer 1, prescale count time of 10ms
+    // initialize timer 2, prescale count time of 10ms
     TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
     TIM_ConfigStruct.PrescaleValue = 10000;
     // use channel 2, MR2
@@ -621,10 +605,29 @@ void hardware_setup(void)
     TIM_ConfigMatch(LPC_TIM2, &TIM_MatchConfigStruct);
     // set priority
     NVIC_SetPriority(TIMER2_IRQn, TIMER2_PRIORITY);
-    // enable interrupt for timer 1
-    NVIC_EnableIRQ(TIMER2_IRQn);
-    // to start timer
-    TIM_Cmd(LPC_TIM2, ENABLE);
+
+    ////////////////////////////////////////////////////////////////
+    // Timer 3 configuration
+    // this timer is all device screen overlays
+
+    // initialize timer 3, prescale count time of 20ms
+    TIM_ConfigStruct.PrescaleOption = TIM_PRESCALE_USVAL;
+    TIM_ConfigStruct.PrescaleValue = 20000;
+    // use channel 3, MR3
+    TIM_MatchConfigStruct.MatchChannel = 3;
+    // enable interrupt when MR3 matches the value in TC register
+    TIM_MatchConfigStruct.IntOnMatch = TRUE;
+    // enable reset on MR3: TIMER will reset if MR3 matches it
+    TIM_MatchConfigStruct.ResetOnMatch = TRUE;
+    // stop on MR1 if MR3 matches it
+    TIM_MatchConfigStruct.StopOnMatch = FALSE;
+    // set Match value, count value of 1
+    TIM_MatchConfigStruct.MatchValue = 1;
+    // set configuration for Tim_config and Tim_MatchConfig
+    TIM_Init(LPC_TIM3, TIM_TIMER_MODE, &TIM_ConfigStruct);
+    TIM_ConfigMatch(LPC_TIM3, &TIM_MatchConfigStruct);
+    // set priority
+    NVIC_SetPriority(TIMER3_IRQn, TIMER3_PRIORITY);
 
     ////////////////////////////////////////////////////////////////
     // Serial initialization
@@ -715,6 +718,24 @@ void hardware_setup(void)
 void hardware_eneble_serial_interupt(uint8_t serial_port)
 {
     serial_enable_interupt(&g_serial[serial_port]);
+}
+
+void hardware_enable_device_IRQS(void)
+{
+    // enable interrupt for timer 1
+    NVIC_EnableIRQ(TIMER1_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM1, ENABLE);
+
+    // enable interrupt for timer 2
+    NVIC_EnableIRQ(TIMER2_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM2, ENABLE);
+
+    // enable interrupt for timer 3
+    NVIC_EnableIRQ(TIMER3_IRQn);
+    // to start timer
+    TIM_Cmd(LPC_TIM3, ENABLE);
 }
 
 glcd_t *hardware_glcds()
@@ -862,10 +883,24 @@ void TIMER2_IRQHandler(void)
 
             if ((g_overlay_counter == 0) && (g_overlay_callback))
             {
-                g_overlay_callback();
+                trigger_overlay_callback = 1;
             }
         }
     }
 
     TIM_ClearIntPending(LPC_TIM2, TIM_MR2_INT);
+}
+
+void TIMER3_IRQHandler(void)
+{
+    if (TIM_GetIntStatus(LPC_TIM3, TIM_MR3_INT) == SET)
+    {
+        if (trigger_overlay_callback)
+        {
+            g_overlay_callback();
+            trigger_overlay_callback = 0;
+        }
+    }
+
+    TIM_ClearIntPending(LPC_TIM3, TIM_MR3_INT);
 }

@@ -18,18 +18,14 @@
 
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
 #include "glcd.h"
 #include "ledz.h"
 #include "actuator.h"
-#include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "ui_comm.h"
 #include "sys_comm.h"
-#include "images.h"
 #include "mode_control.h"
 #include "mode_tools.h"
 
@@ -82,6 +78,7 @@ uint8_t g_scroll_dir = 1;
 static uint8_t g_current_foot_control_page = 0;
 static uint8_t g_current_encoder_page = 0;
 static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static uint8_t g_available_foot_pages = 0;
 static int8_t g_current_overlay_actuator = -1;
 
 int8_t g_overlay_actuator_lock = 0;
@@ -172,20 +169,6 @@ void restore_led_states(void)
     {
         ledz_restore_state(hardware_leds(i));
     }
-}
-
-uint8_t foot_pages_available(void)
-{
-    //sum available pages
-    uint8_t j;
-    uint8_t pages_available = 0;
-    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
-    {
-        if (g_fs_page_available[j])
-            pages_available++;
-    }
-
-    return pages_available;
 }
 
 // control assigned to display
@@ -585,17 +568,11 @@ static void request_control_page(control_t *control, uint8_t dir)
     // insert the direction on buffer
     i += int_to_str(bitmask, &buffer[i], sizeof(buffer) - i, 0);
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 static void control_set(uint8_t id, control_t *control)
@@ -840,19 +817,11 @@ static void control_set(uint8_t id, control_t *control)
     i += float_to_str(control->value, &buffer[i], sizeof(buffer) - i, 3);
     buffer[i] = 0;
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     //wait for a response from mod-ui
-    if (g_should_wait_for_webgui) {
-        ui_comm_webgui_wait_response();
-    }
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
+    ui_comm_webgui_wait_response();
 }
 
 /*
@@ -1462,16 +1431,9 @@ void CM_load_next_page()
 
     ui_comm_webgui_clear();
 
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     ui_comm_webgui_send(buffer, i);
 
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 void CM_reset_page(void)
@@ -1542,7 +1504,7 @@ void CM_print_screen(void)
     screen_tittle(NULL, 0, -1);
 
     //update screen
-    screen_page_index(g_current_foot_control_page, foot_pages_available());
+    screen_page_index(g_current_foot_control_page, g_available_foot_pages);
 
     screen_encoder_container(g_current_encoder_page);
 
@@ -1564,8 +1526,19 @@ void CM_set_pages_available(uint8_t page_toggles[8])
 {
     memcpy(g_fs_page_available, page_toggles, sizeof(g_fs_page_available));
 
+    //sum available pages
+    uint8_t j;
+    uint8_t pages_available = 0;
+    for (j = 0; j < FOOTSWITCH_PAGES_COUNT; j++)
+    {
+        if (g_fs_page_available[j])
+            pages_available++;
+    }
+
+    g_available_foot_pages = pages_available;
+
     if  (naveg_get_current_mode() == MODE_CONTROL)
-        screen_page_index(g_current_foot_control_page, foot_pages_available());
+        screen_page_index(g_current_foot_control_page, g_available_foot_pages);
 }
 
 void CM_reset_encoder_page(void)

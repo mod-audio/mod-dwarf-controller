@@ -182,24 +182,19 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define SYSTEM_COMM_RX_BUFF_SIZE    1024
 #define SYSTEM_COMM_TX_BUFF_SIZE    512
 
+//// Command line interface configurations
+// defines the cli serial
+#define CLI_SERIAL                  1
+// defines how much time wait for console response (in milliseconds)
+#define CLI_RESPONSE_TIMEOUT        200
+
 //// Tools configuration
-// navigation update time, this is only useful in tool mode
-#define NAVEG_UPDATE_TIME   1500
-
-// the amount of pulses from the encoder that is equal to one up/down movement in a menu
-#define SCROL_SENSITIVITY   0
-
-#define ENCODER_ACCEL_STEP_1 2
-#define ENCODER_ACCEL_STEP_2 3
-#define ENCODER_ACCEL_STEP_3 5
-
 // which display will show which tool
 #define DISPLAY_TOOL_SYSTEM         0
 #define DISPLAY_TOOL_TUNER          1
 #define DISPLAY_TOOL_NAVIG          2
 #define DISPLAY_TOOL_SYSTEM_SUBMENU 3
-
-#define MAX_TOOLS                   5
+#define MAX_TOOLS                   4
 
 //// Screen definitions
 // defines the default rotary text
@@ -412,14 +407,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define BYPASS_ON_FOOTER_TEXT       "OFF"
 #define BYPASS_OFF_FOOTER_TEXT      "ON"
 
-//// Bank configuration functions
-// defines the true bypass footer text
-#define TRUE_BYPASS_FOOTER_TEXT     "TRUE BYPASS"
-// defines the next pedalboard footer text
-#define PEDALBOARD_NEXT_FOOTER_TEXT "+"
-// defines the previous pedalboard footer text
-#define PEDALBOARD_PREV_FOOTER_TEXT "-"
-
 //msg overlay txt
 #define PEDALBOARD_SAVED_TXT        "\n\n\nPEDALBOARD SAVED"
 
@@ -428,11 +415,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define FOOT_CONTROLS_TIMEOUT       700
 #define MSG_TIMEOUT                 800
 
-//// Command line interface configurations
-// defines the cli serial
-#define CLI_SERIAL                  1
-// defines how much time wait for console response (in milliseconds)
-#define CLI_RESPONSE_TIMEOUT        200
+//defines the timeout of the LEDS in us
+#define LED_INTERUPT_TIME                 16
 
 ///EEPROM adress page defines
 #define HIDE_ACTUATOR_ADRESS               0
@@ -471,11 +455,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0
-
-#define LED_INTERUPT_TIME                 10
-
-//volume message timeout in a multiple of 500us
-#define VOL_MESSAGE_TIMEOUT         200
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)
@@ -547,9 +526,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #ifndef GLCD3_CONFIG
 #define GLCD3_CONFIG
 #endif
-
-#define DISPLAY_RIGHT 1
-#define DISPLAY_LEFT  0
 
 // GLCD drivers definitions
 #define KS0108      0

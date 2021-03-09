@@ -6,25 +6,18 @@
 */
 
 #include "naveg.h"
-#include "node.h"
 #include "config.h"
 #include "screen.h"
-#include "utils.h"
 #include "ledz.h"
 #include "hardware.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "actuator.h"
 #include "protocol.h"
 #include "mode_control.h"
 #include "mode_navigation.h"
 #include "mode_tools.h"
-#include "data.h"
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <math.h>
-#include <float.h>
 
 //reset actuator queue
 void reset_queue(void);
@@ -34,12 +27,6 @@ void reset_queue(void);
 *           LOCAL DEFINES
 ************************************************************************************************************************
 */
-
-#define DIALOG_MAX_SEM_COUNT   1
-
-#define PAGE_DIR_DOWN       0
-#define PAGE_DIR_UP         1
-#define PAGE_DIR_INIT       2
 
 /*
 ************************************************************************************************************************
@@ -58,7 +45,6 @@ void reset_queue(void);
 *           LOCAL MACROS
 ************************************************************************************************************************
 */
-#define BANKS_LIST 0
 
 /*
 ************************************************************************************************************************
@@ -71,13 +57,8 @@ static xSemaphoreHandle g_dialog_sem;
 static uint8_t g_dialog_active = 0;
 
 // only enabled after "boot" command received
-bool g_should_wait_for_webgui = false;
-bool g_device_booted = false;
 bool g_popup_active = false;
 uint8_t g_encoders_pressed[ENCODERS_COUNT] = {};
-
-static void (*g_update_cb)(void *data, int event);
-static void *g_update_data;
 
 static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 
@@ -132,18 +113,11 @@ void naveg_init(void)
     //init tool mode
     TM_init();
 
-    // initialize update variables
-    g_update_cb = NULL;
-    g_update_data = NULL;
-
     g_device_mode = MODE_CONTROL;
     g_prev_device_mode = MODE_CONTROL;
     g_prev_shift_device_mode = MODE_CONTROL;
 
     g_initialized = 1;
-
-    naveg_update_shift_item_ids();
-    naveg_update_shift_item_values();
 
     vSemaphoreCreateBinary(g_dialog_sem);
     // vSemaphoreCreateBinary is created as available which makes
@@ -285,15 +259,8 @@ void naveg_enc_enter(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -397,15 +364,8 @@ void naveg_enc_down(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -491,15 +451,8 @@ void naveg_enc_up(uint8_t encoder)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -594,15 +547,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
             }
         break;
     }
@@ -825,15 +771,8 @@ void naveg_button_pressed(uint8_t button)
 
                 ui_comm_webgui_clear_tx_buffer();
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 // send the data to GUI
                 ui_comm_webgui_send(buffer, i);
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
 
                 return;
             }
@@ -897,15 +836,8 @@ void naveg_shift_pressed()
 
         ui_comm_webgui_clear_tx_buffer();
 
-        //lock actuators
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
         // send the data to GUI
         ui_comm_webgui_send(buffer, i);
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
 
         return;
     }
@@ -1013,9 +945,6 @@ uint8_t naveg_dialog(char *msg)
         g_dialog_active = 0;
 
         TM_reset_menu();
-
-        g_update_cb = NULL;
-        g_update_data = NULL;
 
         screen_clear();
 

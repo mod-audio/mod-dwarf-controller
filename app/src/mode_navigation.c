@@ -16,18 +16,11 @@
 #include "mode_control.h"
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
-#include "glcd.h"
 #include "ledz.h"
-#include "actuator.h"
-#include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "ui_comm.h"
-#include "sys_comm.h"
-#include "images.h"
 
 /*
 ************************************************************************************************************************
@@ -144,17 +137,11 @@ static void request_banks_list(uint8_t dir)
     //insert current bank, because first time we are entering the menu
     i += int_to_str(g_current_bank, &buffer[i], sizeof(buffer) - i, 0);
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     g_banks->hover = g_current_bank;
 }
@@ -183,17 +170,11 @@ static void request_next_bank_page(uint8_t dir)
 
     i += int_to_str(g_banks->hover, &buffer[i], sizeof(buffer) - i, 0);
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     //restore our previous hover / selected bank
     g_banks->hover = prev_hover;
@@ -271,18 +252,12 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
         prev_hover = g_pedalboards->hover;
         prev_selected = g_pedalboards->selected;
     }
-    
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     if (g_pedalboards)
     {
@@ -341,9 +316,6 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     }
     buffer[i] = 0;
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sets the response callback
     ui_comm_webgui_set_response_cb(NULL, NULL);
 
@@ -352,9 +324,6 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
 
     // waits the pedalboard loaded message to be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     CM_reset_encoder_page();
 }
@@ -429,18 +398,12 @@ static void request_snapshots(uint8_t dir)
         prev_hover = g_snapshots->hover;
         prev_selected = g_snapshots->selected;
     }
-    
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
 
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     if (g_snapshots)
     {
@@ -478,9 +441,6 @@ static void send_load_snapshot(const char *snapshot_uid)
     }
     buffer[i] = 0;
 
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     // sets the response callback
     ui_comm_webgui_set_response_cb(NULL, NULL);
 
@@ -489,9 +449,6 @@ static void send_load_snapshot(const char *snapshot_uid)
 
     // waits the pedalboard loaded message to be received
     ui_comm_webgui_wait_response();
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 }
 
 /*

@@ -15,19 +15,15 @@
 
 #include "config.h"
 #include "hardware.h"
-#include "serial.h"
 #include "protocol.h"
 #include "glcd.h"
 #include "ledz.h"
-#include "actuator.h"
 #include "data.h"
 #include "naveg.h"
 #include "screen.h"
-#include "cli.h"
 #include "node.h"
 #include "ui_comm.h"
 #include "sys_comm.h"
-#include "images.h"
 #include "mode_tools.h"
 
 /*
@@ -510,26 +506,9 @@ void TM_init(void)
     system_default_tool_cb(NULL, MENU_EV_NONE);
 }
 
-void TM_trigger_tool(uint8_t tool, uint8_t status)
-{
-    g_tool[tool].state = status;
-}
-
 void TM_set_first_foot_tool(uint8_t tool)
 {
     g_first_foot_tool = TOOL_FOOT + tool;
-}
-
-uint8_t TM_status(void)
-{
-    int i;
-    for (i = 0; i < MAX_TOOLS; i++)
-    {
-        if (g_tool[i].state == TOOL_ON)
-            return 1;
-    }
-
-    return 0;
 }
 
 void TM_update_menu(void)
@@ -900,14 +879,7 @@ void TM_launch_tool(int8_t tool)
                 tools_off();
                 tool_on(TOOL_TUNER);
 
-                //lock actuators
-                g_protocol_busy = true;
-                system_lock_comm_serial(g_protocol_busy);
-
                 ui_comm_webgui_send(CMD_TUNER_ON, strlen(CMD_TUNER_ON));
-
-                g_protocol_busy = false;
-                system_lock_comm_serial(g_protocol_busy);
 
                 system_tuner_mute_cb(TM_get_menu_item_by_ID(TUNER_MUTE_ID), MENU_EV_NONE);
                 system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_NONE);
@@ -1079,14 +1051,7 @@ menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
 
 void TM_turn_off_tuner(void)
 {
-    //lock actuators
-    g_protocol_busy = true;
-    system_lock_comm_serial(g_protocol_busy);
-
     ui_comm_webgui_send(CMD_TUNER_OFF, strlen(CMD_TUNER_OFF));
-
-    g_protocol_busy = false;
-    system_lock_comm_serial(g_protocol_busy);
 
     //turn off all tools
     tools_off();

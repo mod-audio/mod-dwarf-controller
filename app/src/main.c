@@ -1,4 +1,3 @@
-
 /*
 ************************************************************************************************************************
 *           INCLUDE FILES
@@ -74,7 +73,8 @@
 */
 
 static volatile xQueueHandle g_actuators_queue;
-static uint8_t g_msg_buffer[WEBGUI_COMM_RX_BUFF_SIZE];
+static uint8_t g_comm_msg_buffer[WEBGUI_COMM_RX_BUFF_SIZE];
+static uint8_t g_sys_msg_buffer[SYSTEM_COMM_RX_BUFF_SIZE];
 
 /*
 ************************************************************************************************************************
@@ -91,6 +91,7 @@ static void system_procotol_task(void *pvParameters);
 static void displays_task(void *pvParameters);
 static void actuators_task(void *pvParameters);
 static void cli_task(void *pvParameters);
+static void post_boot_task(void *pvParameters);
 static void setup_task(void *pvParameters);
 
 /*
@@ -144,11 +145,6 @@ void serial_error(uint8_t uart_id, uint32_t error)
 // this callback is called from a ISR
 static void actuators_cb(void *actuator)
 {
-    if (g_protocol_busy)
-    {
-        if (!naveg_dialog_status()) return;
-    }
-
     static uint8_t i, info[ACTUATORS_QUEUE_SIZE][3];
 
     // does a copy of actuator id and status
@@ -164,8 +160,17 @@ static void actuators_cb(void *actuator)
     // queue actuator info
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     
+    //make sure to catch encoder presses
+    if ((actuator_info[0] == ROTARY_ENCODER))
+    {
+        if ((BUTTON_HOLD(actuator_info[2])) || (BUTTON_PRESSED(actuator_info[2])))
+            g_encoders_pressed[actuator_info[1]] = 1;
+        else if (BUTTON_RELEASED(actuator_info[2]))
+            g_encoders_pressed[actuator_info[1]] = 0;
+    }
+
     //make sure button and encoder hold evens make it through when turning the encoder fast
-    if ((actuator_info[0] == BUTTON) || ((actuator_info[0] == ROTARY_ENCODER) && (BUTTON_HOLD(actuator_info[2]))))
+    if (actuator_info[0] == BUTTON)
     {
         xQueueSendToFrontFromISR(g_actuators_queue, &actuator_info, &xHigherPriorityTaskWoken);
     }
@@ -201,21 +206,17 @@ static void webgui_procotol_task(void *pvParameters)
     while (1)
     {
         uint32_t msg_size;
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
         // blocks until receive a new message
         ringbuff_t *rb = ui_comm_webgui_read();
-        msg_size = ringbuff_read_until(rb, g_msg_buffer, WEBGUI_COMM_RX_BUFF_SIZE, 0);
+        msg_size = ringbuff_read_until(rb, g_comm_msg_buffer, WEBGUI_COMM_RX_BUFF_SIZE, 0);
 
         // parses the message
         if (msg_size > 0)
         {
             //if parsing messages block the actuator messages.
-            g_protocol_busy = true;
-            system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
             msg.sender_id = WEBGUI_SERIAL;
-            msg.data = (char *) g_msg_buffer;
+            msg.data = (char *) g_comm_msg_buffer;
             msg.data_size = msg_size;
             protocol_parse(&msg);
         }
@@ -231,20 +232,16 @@ static void system_procotol_task(void *pvParameters)
     while (1)
     {
         uint32_t msg_size;
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
         // blocks until receive a new message
         ringbuff_t *rb = sys_comm_read();
-        msg_size = ringbuff_read_until(rb, g_msg_buffer, SYSTEM_COMM_RX_BUFF_SIZE, 0);
+        msg_size = ringbuff_read_until(rb, g_sys_msg_buffer, SYSTEM_COMM_RX_BUFF_SIZE, 0);
         // parses the message
         if (msg_size > 0)
         {
             //if parsing messages block the actuator messages.
-            g_protocol_busy = true;
-            system_lock_comm_serial(g_protocol_busy);
             msg_t msg;
             msg.sender_id = SYSTEM_SERIAL;
-            msg.data = (char *) g_msg_buffer;
+            msg.data = (char *) g_sys_msg_buffer;
             msg.data_size = msg_size;
             protocol_parse(&msg);
         }
@@ -290,7 +287,6 @@ static void actuators_task(void *pvParameters)
 
     while (1)
     {
-
         portBASE_TYPE xStatus;
 
         // take the actuator from queue
@@ -408,6 +404,29 @@ static void cli_task(void *pvParameters)
     }
 }
 
+static void post_boot_task(void *pvParameters)
+{
+    UNUSED_PARAM(pvParameters);
+
+    while (1)
+    {
+        if (g_device_booted)
+        {
+            //recieve all values needed for shift items
+            naveg_update_shift_item_ids();
+            naveg_update_shift_item_values();
+
+            //we are now ready to start recieving user interactions
+            hardware_enable_device_IRQS();
+
+            // deletes itself
+            vTaskDelete(NULL);
+        }
+
+        taskYIELD();
+    }
+}
+
 static void setup_task(void *pvParameters)
 {
     UNUSED_PARAM(pvParameters);
@@ -428,12 +447,15 @@ static void setup_task(void *pvParameters)
     // create the queues
     g_actuators_queue = xQueueCreate(ACTUATORS_QUEUE_SIZE, sizeof(uint8_t *));
 
-    // create the tasks
-    xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 5, NULL);
-    xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 4, NULL);
+    // create the continuous tasks
+    xTaskCreate(webgui_procotol_task, TASK_NAME("ui_proto"), 512, NULL, 4, NULL);
+    xTaskCreate(system_procotol_task, TASK_NAME("sys_proto"), 128, NULL, 5, NULL);
     xTaskCreate(actuators_task, TASK_NAME("act"), 256, NULL, 3, NULL);
     xTaskCreate(cli_task, TASK_NAME("cli"), 128, NULL, 4, NULL);
     xTaskCreate(displays_task, TASK_NAME("disp"), 128, NULL, 1, NULL);
+
+    //post boot operations, will be deleted after being ran once after boot_cb is ran
+    xTaskCreate(post_boot_task, TASK_NAME("post_boot"), 128, NULL, 1, NULL);
 
     // actuators callbacks
     uint8_t i;

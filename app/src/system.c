@@ -67,6 +67,10 @@ static const int16_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, 
 ************************************************************************************************************************
 */
 
+struct TAP_TEMPO_T {
+    uint32_t time, max;
+    uint8_t state;
+} g_tool_tap_tempo;
 
 /*
 ************************************************************************************************************************
@@ -75,7 +79,6 @@ static const int16_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, 
 */
 
 #define UNUSED_PARAM(var)   do { (void)(var); } while (0)
-#define ROUND(x)    ((x) > 0.0 ? (((float)(x)) + 0.5) : (((float)(x)) - 0.5))
 #define MAP(x, Omin, Omax, Nmin, Nmax)      ( x - Omin ) * (Nmax -  Nmin)  / (Omax - Omin) + Nmin;
 
 
@@ -85,7 +88,6 @@ static const int16_t SHIFT_ITEM_IDS[SHIFT_MENU_ITEMS_COUNT] = {INP_STEREO_LINK, 
 ************************************************************************************************************************
 */
 
-static uint8_t g_comm_protocol_bussy = 0;
 uint8_t g_bypass[4] = {};
 uint8_t g_current_profile = 1;
 uint8_t g_snapshot_prog_change = 0;
@@ -105,11 +107,6 @@ int8_t g_default_tool = -1;
 int8_t g_list_mode = -1;
 int8_t g_control_header = -1;
 int8_t g_usb_mode = -1;
-
-struct TAP_TEMPO_T {
-    uint32_t time, max;
-    uint8_t state;
-} g_tool_tap_tempo;
 
 /*
 ************************************************************************************************************************
@@ -131,7 +128,6 @@ struct TAP_TEMPO_T {
 ************************************************************************************************************************
 */
 
-
 static void update_gain_item_value(uint8_t menu_id, float value)
 {
     menu_item_t *item = TM_get_menu_item_by_ID(menu_id);
@@ -147,8 +143,6 @@ static void update_gain_item_value(uint8_t menu_id, float value)
 
 void set_item_value(char *command, uint16_t value)
 {
-    if (g_comm_protocol_bussy) return;
-
     uint8_t i;
     char buffer[50];
 
@@ -174,8 +168,6 @@ void set_item_value(char *command, uint16_t value)
 
 static void set_menu_item_value(uint16_t menu_id, uint16_t value)
 {
-    if (g_comm_protocol_bussy) return;
-
     uint8_t i = 0;
     char buffer[50];
     memset(buffer, 0, sizeof buffer);
@@ -270,11 +262,6 @@ int16_t system_get_shift_item(uint8_t index)
         return SHIFT_ITEM_IDS[0];
 }
 
-void system_lock_comm_serial(bool busy)
-{
-    g_comm_protocol_bussy = busy;
-}
-
 uint8_t system_get_clock_source(void)
 {
     return g_MIDI_clk_src;
@@ -291,8 +278,6 @@ void system_save_gains_cb(void *arg, int event)
 
     if (event == MENU_EV_ENTER)
     {
-        if (g_comm_protocol_bussy) return;
-
         uint8_t i = 0;
         char buffer[50];
         memset(buffer, 0, sizeof buffer);
@@ -372,11 +357,6 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         break;
         
     }
-}
-
-float system_get_gain_value(uint8_t item_ID)
-{
-    return TM_get_menu_item_by_ID(item_ID)->data.value;
 }
 
 void system_bluetooth_cb(void *arg, int event)
@@ -510,12 +490,6 @@ void system_inp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_inp_1_volume_cb(void *arg, int event)
@@ -568,12 +542,6 @@ void system_inp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_inp_2_volume_cb(void *arg, int event)
@@ -626,12 +594,6 @@ void system_inp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_outp_0_volume_cb(void *arg, int event)
@@ -686,12 +648,6 @@ void system_outp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_outp_1_volume_cb(void *arg, int event)
@@ -744,12 +700,6 @@ void system_outp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_outp_2_volume_cb(void *arg, int event)
@@ -802,12 +752,6 @@ void system_outp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_hp_volume_cb(void *arg, int event)
@@ -855,12 +799,6 @@ void system_hp_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
-/*
-    if (event != MENU_EV_NONE)
-    {
-        if (naveg_get_current_mode() == MODE_SHIFT)
-            screen_shift_overlay(-1);
-    }*/
 }
 
 void system_display_brightness_cb(void *arg, int event)
@@ -1349,8 +1287,6 @@ void system_default_tool_cb(void *arg, int event)
     {
         case 0: item->data.unit_text = "TUNER"; break;
         case 1: item->data.unit_text = "TEMPO"; break;
-        //case 3: item->data.unit_text = "[C]"; break;
-        //case 4: item->data.unit_text = "[D]"; break;
     }
 }
 
@@ -1493,17 +1429,11 @@ void system_tuner_input_cb(void *arg, int event)
         //insert the input
         i += int_to_str(g_tuner_input + 1, &buffer[i], sizeof(buffer) - i, 0);
 
-        g_protocol_busy = true;
-        system_lock_comm_serial(g_protocol_busy);
-
         // sends the data to GUI
         ui_comm_webgui_send(buffer, i);
 
         // waits the pedalboards list be received
         ui_comm_webgui_wait_response();
-
-        g_protocol_busy = false;
-        system_lock_comm_serial(g_protocol_busy);
     }
 }
 
