@@ -857,7 +857,19 @@ void naveg_shift_pressed()
     //toggle shift
     g_device_mode = MODE_SHIFT;
 
+    //print shift screen
     screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0]);
+
+    //toggle the LED's
+    ledz_t *led = hardware_leds(3);
+    led_state_t led_state = {
+        .color = ENUMERATED_COLOR,
+    };
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    led = hardware_leds(5);
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    led = hardware_leds(4);
+    set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
 }
 
 void naveg_shift_releaed()
