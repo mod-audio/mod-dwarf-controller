@@ -81,8 +81,6 @@ static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static uint8_t g_available_foot_pages = 0;
 static int8_t g_current_overlay_actuator = -1;
 
-int8_t g_overlay_actuator_lock = 0;
-
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -261,7 +259,7 @@ static void encoder_control_rm(uint8_t hw_id)
     {
         data_free_control(control);
         g_controls[hw_id] = NULL;
-        if ((naveg_get_current_mode() == MODE_CONTROL) && (g_overlay_actuator_lock == -1))
+        if (naveg_get_current_mode() == MODE_CONTROL)
             screen_encoder(NULL, hw_id);
     }
 }
