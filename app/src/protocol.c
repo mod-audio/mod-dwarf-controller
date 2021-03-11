@@ -329,7 +329,7 @@ void cb_led(uint8_t serial_id, proto_t *proto)
     if (proto->list_count == 7)
     {
         led->led_state.color = MAX_COLOR_ID;
-        ledz_set_state(led, LED_ON);
+        ledz_set_state(led, LED_ON, LED_UPDATE);
     }
     else
     {
@@ -337,7 +337,7 @@ void cb_led(uint8_t serial_id, proto_t *proto)
         led->led_state.time_on = atoi(proto->list[5]);
         led->led_state.time_off = atoi(proto->list[6]);
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
-        ledz_set_state(led, LED_BLINK);
+        ledz_set_state(led, LED_BLINK, LED_UPDATE);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);

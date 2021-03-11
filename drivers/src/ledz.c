@@ -501,7 +501,7 @@ void ledz_tick(void)
                 //stop blinking
                 else
                 {
-                    ledz_set_state(led, LED_ON);
+                    ledz_set_state(led, LED_ON, LED_UPDATE);
                 }
 
                 // toggle blink state
@@ -589,10 +589,12 @@ void ledz_tick(void)
     }
 }
 
-void ledz_set_state(ledz_t* led, uint8_t state)
+void ledz_set_state(ledz_t* led, uint8_t state, uint8_t update)
 {
     led->led_state.state = state;
-    set_ledz_trigger_by_color_id(led, state, led->led_state);
+
+    if (update)
+        set_ledz_trigger_by_color_id(led, state, led->led_state);
 }
 
 void ledz_restore_state(ledz_t* led)

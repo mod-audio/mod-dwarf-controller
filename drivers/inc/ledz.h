@@ -87,6 +87,10 @@ extern "C"
 #define LED_FADE 			3
 #define LED_DIMMED			4
 
+//update defines
+#define LED_STORE_STATE     0
+#define LED_UPDATE          1
+
 /*
 ****************************************************************************************************
 *       DATA TYPES
@@ -332,7 +336,7 @@ void ledz_tick(void);
  * @param[in] time_off the time in milliseconds which the LED will be off
  * @param[in] the amount of blinks the led should preform, pass -1 for infinate amount. 
  */
-void ledz_set_state(ledz_t* led, uint8_t state);
+void ledz_set_state(ledz_t* led, uint8_t state, uint8_t update);
 
 /**
  * toggle previous LED state
