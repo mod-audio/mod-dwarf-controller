@@ -456,14 +456,17 @@ uint8_t cli_restore(uint8_t action)
     }
     else if (action == RESTORE_CHECK_BOOT)
     {
-        button_t *foot_restore = (button_t *) hardware_actuators(BUTTON0);
+        button_t *button_restore = (button_t *) hardware_actuators(BUTTON0);
+        button_t *foot_restore = (button_t *) hardware_actuators(FOOTSWITCH2);
         encoder_t *knob_restore = (encoder_t *) hardware_actuators(ENCODER0);
 
-        button_t *foot_maskrom = (button_t *) hardware_actuators(BUTTON2);
+        button_t *button_maskrom = (button_t *) hardware_actuators(BUTTON2);
+        button_t *foot_maskrom = (button_t *) hardware_actuators(FOOTSWITCH1);
         encoder_t *knob_maskrom = (encoder_t *) hardware_actuators(ENCODER2);
 
         // check if first footswitch and first encoder is pressed down if so enter restore mode
-        if ((READ_PIN(foot_restore->port, foot_restore->pin) == BUTTON_ACTIVATED) &&
+        if (((READ_PIN(foot_restore->port, foot_restore->pin) == BUTTON_ACTIVATED) ||
+            (READ_PIN(button_restore->port, button_restore->pin) == BUTTON_ACTIVATED)) &&
             (READ_PIN(knob_restore->port, knob_restore->pin) == ENCODER_ACTIVATED))
         {
             // force entering on restore mode using debug
@@ -473,7 +476,8 @@ uint8_t cli_restore(uint8_t action)
         }
 
         // check if last footswitch and last encoder is pressed down if so enter maskrom mode
-        if ((READ_PIN(foot_maskrom->port, foot_maskrom->pin) == BUTTON_ACTIVATED) &&
+        if (((READ_PIN(foot_maskrom->port, foot_maskrom->pin) == BUTTON_ACTIVATED) ||
+            (READ_PIN(button_maskrom->port, button_maskrom->pin) == BUTTON_ACTIVATED)) &&
             (READ_PIN(knob_maskrom->port, knob_maskrom->pin) == ENCODER_ACTIVATED))
         {
             // force entering on restore mode using debug

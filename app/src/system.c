@@ -413,14 +413,16 @@ void system_upgrade_cb(void *arg, int event)
     if (event == MENU_EV_ENTER)
     {
         button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH2);
+        button_t *button = (button_t *) hardware_actuators(BUTTON0);
 
         // check if OK option was chosen
         if (item->data.hover == 0)
         {
-            uint8_t status = actuator_get_status(foot);
+            uint8_t foot_status = actuator_get_status(foot);
+            uint8_t button_status = actuator_get_status(button);
 
             // check if footswitch is pressed down
-            if (BUTTON_PRESSED(status))
+            if (BUTTON_PRESSED(foot_status) || BUTTON_PRESSED(button_status))
             {
                 //clear all screens
                 screen_clear();
