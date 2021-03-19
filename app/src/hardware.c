@@ -212,8 +212,11 @@ static const uint8_t *LED_COLORS[]  = {
 #ifdef DEFAULT_FS_SS_MENU
     (const uint8_t []) DEFAULT_FS_SS_MENU,
 #endif
-#ifdef DEFAULT_ENCODER_PAGE_COLOR
-    (const uint8_t []) DEFAULT_ENCODER_PAGE_COLOR,
+#ifdef DEFAULT_TUNER_COLOR
+    (const uint8_t []) DEFAULT_TUNER_COLOR,
+#endif
+#ifdef DEFAULT_TEMO_COLOR
+    (const uint8_t []) DEFAULT_TEMO_COLOR,
 #endif
 };
 
@@ -348,10 +351,12 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
-            //added selectable shift button mode
+            //added selectable shift button mode, and new colours
             case 3:;
                 uint8_t write_buffer = DEFAULT_SHIFT_MODE;
                 EEPROM_Write(0, SHIFT_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+                write_led_defaults();
             break;
 
             //nothing saved yet, new unit, write all settings

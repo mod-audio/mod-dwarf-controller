@@ -621,9 +621,12 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
                 ledz_brightness(led, ledz_color, 0);
             break;
 
+            //TODO FIX BLINK BRIGHTNESS
             case LED_BLINK:
+                ledz_off(led, LEDZ_WHITE);
                 ledz_on(led, ledz_color);
-                ledz_blink(led, ledz_color, led_state.time_on, led_state.time_off, led_state.amount_of_blinks);
+                if (led_colors[led_state.color][i] != 0)
+                    ledz_blink(led, ledz_color, led_state.time_on, led_state.time_off, led_state.amount_of_blinks);
                 ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
             break;
 

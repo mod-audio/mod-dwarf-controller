@@ -989,7 +989,7 @@ void NM_set_leds(void)
             led_state.color = FS_PB_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(3);
-            led_state.color = FS_PAGE_COLOR_5;
+            led_state.color = TOGGLED_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
             led_state.color = TRIGGER_COLOR;

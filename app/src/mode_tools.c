@@ -127,7 +127,7 @@ void set_tool_pages_led_state(void)
 {
     ledz_t *led = hardware_leds(2);
     led_state_t page_state = {
-        .color = FS_PAGE_COLOR_1 + g_current_tool - TOOL_FOOT-1,
+        .color = TUNER_COLOR + g_current_tool - TOOL_FOOT-1,
     };
     set_ledz_trigger_by_color_id(led, LED_ON, page_state);
 }
@@ -140,7 +140,7 @@ void update_tap_tempo_led(void)
     uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
 
     led_state_t tap_state = {
-        .color = TAP_TEMPO_COLOR,
+        .color = TEMPO_COLOR,
         .amount_of_blinks = LED_BLINK_INFINIT,
     };
 
@@ -788,7 +788,7 @@ void TM_foot_change(uint8_t foot, uint8_t pressed)
                 system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_ENTER);
             
             led_state_t led_state = {
-                .color = ENUMERATED_COLOR,
+                .color = TUNER_COLOR,
             };
 
             if (pressed)
@@ -1014,11 +1014,11 @@ void TM_set_leds(void)
 
         case TOOL_TUNER:;
             led_state.brightness = 0.1;
-            led_state.color = ENUMERATED_COLOR;
+            led_state.color = TUNER_COLOR;
             set_ledz_trigger_by_color_id(hardware_leds(1), LED_DIMMED, led_state);
 
             menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
-            led_state.color = TOGGLED_COLOR;
+            led_state.color = TUNER_COLOR;
             if (tuner_item->data.value) led_state.brightness = 1;
             set_ledz_trigger_by_color_id(hardware_leds(0), LED_DIMMED, led_state);
 
@@ -1027,7 +1027,7 @@ void TM_set_leds(void)
 
         case TOOL_SYNC:;
             menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
-            led_state.color = LED_LIST_COLOR_5;
+            led_state.color = TEMPO_COLOR;
 
             if (sync_item->data.value) led_state.brightness = 1;
             else led_state.brightness = 0.1;

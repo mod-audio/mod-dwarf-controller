@@ -360,7 +360,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define FS_PAGE_COLOR_8           23
 #define FS_PB_MENU_COLOR          24
 #define FS_SS_MENU_COLOR          25
-#define MAX_COLOR_ID              26
+#define TUNER_COLOR               26
+#define TEMPO_COLOR               27
+#define MAX_COLOR_ID              28
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
 #define DEFAULT_TRIGGER_COLOR             {80,80,80}
@@ -388,6 +390,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_FS_PAGE_COLOR_8           {0,0,100}
 #define DEFAULT_FS_PB_MENU                {53,22,61}
 #define DEFAULT_FS_SS_MENU                {0,80,80}
+#define DEFAULT_TUNER_COLOR               {0,0,80}
+#define DEFAULT_TEMO_COLOR                {0,80,0}
 
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7
