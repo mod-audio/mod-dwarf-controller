@@ -1118,7 +1118,15 @@ void widget_popup(glcd_t *display, popup_t *popup)
     glcd_rect_fill(display, popup->x, popup->y, popup->width, popup->height, GLCD_WHITE);
 
     // draws the contour
-    glcd_rect(display, popup->x, popup->y, popup->width, popup->height, GLCD_BLACK);
+    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
+    glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
+    glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
+    glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+    glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
 
     // draws the title text
     textbox_t title;
@@ -1136,7 +1144,7 @@ void widget_popup(glcd_t *display, popup_t *popup)
     widget_textbox(display, &title);
 
     // draws the title background
-    glcd_rect_invert(display, popup->x+1, popup->y+1, popup->width-2, 6);
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
 
     // draws the content
     textbox_t content;
@@ -1155,53 +1163,90 @@ void widget_popup(glcd_t *display, popup_t *popup)
     content.text = popup->content;
     widget_textbox(display, &content);
 
-    uint8_t button_x, button_y, button_w, button_h;
-    const char *button_text;
-
     // draws the buttons
     switch (popup->type)
     {
         case OK_ONLY:
-        case CANCEL_ONLY:
-            button_text = (popup->type == OK_ONLY ? "OK" : "CANCEL");
-            button_w = get_text_width(button_text, popup->font) + 8;
-            button_h = popup->font[FONT_HEIGHT]+2;
-            button_x = popup->x + (popup->width / 2) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h - 1;
-            glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
+            //print the 3 buttons
+            //draw the first box, back
+            glcd_text(display, 26, DISPLAY_HEIGHT - 7, "OK", Terminal3x5, GLCD_BLACK);
+
+            //draw the second box, TODO Builder MODE
+            /*box_2.x = 56;
+            box_2.y = DISPLAY_HEIGHT - 7;
+            box_2.text = "COPY";*/
+            glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+
+            //draw the third box, save PB
+            /*box_3.x = 92;
+            box_3.y = DISPLAY_HEIGHT - 7;
+            box_3.text = "NEW";*/
+            glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
             if (popup->button_selected == 0)
-                glcd_rect_invert(display, button_x+1, button_y-1, button_w-2, button_h);
-            break;
+                glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
+            else
+                glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
+
+        break;
 
         case OK_CANCEL:
-        case YES_NO:
-            button_text = (popup->type == OK_CANCEL ? "OK" : "YES");
-            button_w = get_text_width(button_text, popup->font) + 8;
-            button_h = popup->font[FONT_HEIGHT]+2;
-            button_x = popup->x + (popup->width / 4) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h - 1;
-            glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
+            //print the 3 buttons
+            //draw the first box, back
+            glcd_text(display, 26, DISPLAY_HEIGHT - 7, "OK", Terminal3x5, GLCD_BLACK);
+
+            //draw the second box, TODO Builder MODE
+            /*box_2.x = 56;
+            box_2.y = DISPLAY_HEIGHT - 7;
+            box_2.text = "COPY";*/
+            glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+
+            //draw the third box, save PB
+            /*box_3.x = 92;
+            box_3.y = DISPLAY_HEIGHT - 7;
+            box_3.text = "NEW";*/
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
 
             if (popup->button_selected == 0)
-                glcd_rect_invert(display, button_x+1, button_y-1, button_w-2, button_h);
+                glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
+            else
+                glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
 
-            button_text = (popup->type == OK_CANCEL ? "CANCEL" : "NO");
-            button_w = get_text_width(button_text, popup->font) + 8;
-            button_h = popup->font[FONT_HEIGHT]+2;
-            button_x = popup->x + popup->width - (popup->width / 4) - (button_w / 2);
-            button_y = popup->y + popup->height - button_h - 1;
-            glcd_text(display, button_x + 4, button_y, button_text, popup->font, GLCD_BLACK);
+        break;
 
-            if (popup->button_selected == 1)
-                glcd_rect_invert(display, button_x+1, button_y-1, button_w-2, button_h);
-            break;
+        case YES_NO:
+
+            //print the 3 buttons
+            //draw the first box, back
+            glcd_text(display, 24, DISPLAY_HEIGHT - 7, "YES", Terminal3x5, GLCD_BLACK);
+
+            //draw the second box, TODO Builder MODE
+            /*box_2.x = 56;
+            box_2.y = DISPLAY_HEIGHT - 7;
+            box_2.text = "COPY";*/
+            glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+
+            //draw the third box, save PB
+            /*box_3.x = 92;
+            box_3.y = DISPLAY_HEIGHT - 7;
+            box_3.text = "NEW";*/
+            glcd_text(display, 94, DISPLAY_HEIGHT - 7, "NO", Terminal3x5, GLCD_BLACK);
+
+            if (popup->button_selected == 0)
+                glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
+            else
+                glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
  
+        break;
+
         case EMPTY_POPUP:
         //we dont have a button
         break;
+
+        //TODO
+        case CANCEL_ONLY:
+        break;
     }
-    glcd_hline(display, 0, DISPLAY_HEIGHT-1, DISPLAY_WIDTH, GLCD_BLACK);
 }
 
 //draw function works in buffers of 8 so ofsets are not possible, thats why we draw icons ourselves

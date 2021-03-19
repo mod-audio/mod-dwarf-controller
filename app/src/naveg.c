@@ -795,7 +795,26 @@ void naveg_button_pressed(uint8_t button)
 {
     hardware_set_overlay_timeout(0, NULL);
 
-    if (!g_initialized || g_popup_active) return;
+    if (!g_initialized) return;
+
+    if (g_popup_active)
+    {
+        //do same actions as encoders would do, but with enter
+        //left = down + enter
+        //right = up + enter
+        if (button == 0)
+        {
+            naveg_enc_up(g_popup_encoder);
+            naveg_enc_enter(g_popup_encoder);
+        }
+        else if (button == 2)
+        {
+            naveg_enc_down(g_popup_encoder);
+            naveg_enc_enter(g_popup_encoder);
+        }
+
+        return;
+    }
 
     switch(g_device_mode)
     {

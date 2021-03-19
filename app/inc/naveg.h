@@ -61,7 +61,7 @@ bool g_device_booted;
 bool g_popup_active;
 
 uint8_t g_encoders_pressed[ENCODERS_COUNT];
-
+uint8_t g_popup_encoder;
 uint8_t g_initialized;
 
 bool g_self_test_mode;

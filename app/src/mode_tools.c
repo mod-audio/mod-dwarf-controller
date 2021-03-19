@@ -278,6 +278,7 @@ static void menu_enter(uint8_t encoder)
                 {
                     item->data.popup_active = 1;
                     g_popup_active = 1;
+                    g_popup_encoder = encoder;
                 }
             }
             i++;
@@ -394,6 +395,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                 {
                     item->data.popup_active = 1;
                     g_popup_active = 1;
+                    g_popup_encoder = encoder;
                 }
             }
             i++;

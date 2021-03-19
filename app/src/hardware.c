@@ -14,7 +14,7 @@
 #include "task.h"
 #include "device.h"
 #include "st7565p.h"
-
+#include "naveg.h"
 
 /*
 ************************************************************************************************************************
@@ -540,6 +540,11 @@ void hardware_setup(void)
     led_color_value[1] = 100;
     led_color_value[2] = 100;
     ledz_set_color(MAX_COLOR_ID, led_color_value);
+
+    //set the shift button behaviour
+    uint8_t shift_mode = 0;
+    EEPROM_Read(0, SHIFT_MODE_ADRESS, &shift_mode, MODE_8_BIT, 1);
+    naveg_set_shift_mode(shift_mode);
 
     ////////////////////////////////////////////////////////////////
     // Timer 0 configuration

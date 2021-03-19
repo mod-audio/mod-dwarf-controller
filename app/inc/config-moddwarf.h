@@ -330,7 +330,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {INFO_ID, "Device Info", "\n\nCurrent Release: "},  \
     {UPDATE_ID, "Start System Upgrade", "\n\nTo start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
-#define MENU_VISIBLE_LIST_CUT   12
+#define MENU_VISIBLE_LIST_CUT   13
 #define MENU_LINE_CHARS     22
 
 //// Button functions leds colors, these reflect color ID's which are stored in eeprom.
