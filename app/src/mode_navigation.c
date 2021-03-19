@@ -272,20 +272,6 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
     char buffer[40];
     memset(buffer, 0, sizeof buffer);
 
-    //set the LED's to fade mode if appicable
-    if (g_current_list == PEDALBOARD_LIST)
-    {
-        ledz_t *led = hardware_leds(0);
-        led_state_t led_state = {
-            .color = FS_PB_MENU_COLOR,
-            .fade_ratio = 5,
-            .fade_rate = 5,
-        };
-        set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
-        led = hardware_leds(1);
-        set_ledz_trigger_by_color_id(led, LED_FADE, led_state);
-    }
-
     i = copy_command((char *)buffer, CMD_PEDALBOARD_LOAD);
 
     if (g_snapshots)
@@ -615,6 +601,8 @@ void NM_enter(void)
         screen_pbss_list(title, g_snapshots, SS_MODE);
     else
         screen_bank_list(g_banks);
+
+    NM_set_leds();
 }
 
 uint8_t NM_up(void)
@@ -1088,6 +1076,11 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 NM_enter();
                 if (g_current_list == SNAPSHOT_LIST)
                     ledz_on(hardware_leds(next_prev), CYAN);
+                else
+                {
+                    ledz_on(hardware_leds(next_prev), MAGENTA);
+                    ledz_blink(hardware_leds(next_prev), MAGENTA, 100, 100, LED_BLINK_INFINIT);
+                }
             }
         }
         else
@@ -1097,6 +1090,11 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 NM_enter();
                 if (g_current_list == SNAPSHOT_LIST)
                     ledz_on(hardware_leds(next_prev), CYAN);
+                else
+                {
+                    ledz_on(hardware_leds(next_prev), MAGENTA);
+                    ledz_blink(hardware_leds(next_prev), MAGENTA, 200, 200, LED_BLINK_INFINIT);
+                }
             }
         }
     }
@@ -1107,6 +1105,9 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
 
 void NM_toggle_pb_ss(void)
 {
+    if (g_current_list == BANKS_LIST)
+        return;
+
     if (g_current_list == PEDALBOARD_LIST)
     {
         request_snapshots(PAGE_DIR_INIT);
