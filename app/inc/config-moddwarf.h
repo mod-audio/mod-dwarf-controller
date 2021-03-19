@@ -304,7 +304,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"APPEARANCE SETTINGS",             MENU_MAIN,      APPEARANCE_SET_ID,      ROOT_ID,            NULL                        , 0},  \
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      APPEARANCE_SET_ID,  system_control_header_cb    , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, APPEARANCE_SET_ID,  system_hide_actuator_cb     , 0},  \
-    {"QUICK ITEMS",                     MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
+    {"MENU ITEMS",                      MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 3",                          MENU_LIST,      SHIFT_ITEM_3_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
