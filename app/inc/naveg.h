@@ -103,6 +103,7 @@ uint8_t naveg_dialog(char *msg);
 void naveg_release_dialog_semaphore(void);
 void naveg_trigger_mode_change(uint8_t mode);
 void naveg_print_shift_screen(void);
+void naveg_set_shift_mode(uint8_t mode);
 
 /*
 ************************************************************************************************************************

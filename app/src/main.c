@@ -361,20 +361,10 @@ static void actuators_task(void *pvParameters)
                 else if (id == 6)
                 {
                     if (BUTTON_PRESSED(status))
-                    {
                         naveg_shift_pressed();
 
-                        if (!g_self_test_mode)
-                            ledz_on(hardware_leds(6), WHITE);
-                    }
-
                     if (BUTTON_RELEASED(status))
-                    {
                         naveg_shift_releaed();
-
-                        if (!g_self_test_mode)
-                            ledz_off(hardware_leds(6), WHITE);
-                    }
                 }
 
             }

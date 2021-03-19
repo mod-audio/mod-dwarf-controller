@@ -206,26 +206,27 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 // includes the system menu callbacks
 #include "system.h"
 // defines the menu id's
-#define ROOT_ID         (0 * 10)
-#define AUDIO_INP_ID    (1 * 10)
-#define AUDIO_OUTP_ID   (2 * 10)
-#define HEADPHONE_ID    (3 * 10)
-#define NOISE_GATE_ID   (4 * 10)
-#define COMPRESSOR_ID   (5 * 10)
-#define SYNC_ID         (6 * 10)
-#define MIDI_ID         (7 * 10)
-#define USER_PROFILE_ID (8 * 10)
-#define DEVICE_SET_1_ID (9 * 10)
-#define DEVICE_SET_2_ID (10 * 10)
-#define BLUETOOTH_ID    (11 * 10)
-#define INFO_ID         (12 * 10)
-#define SERVICES_ID     (13 * 10)
-#define VERSIONS_ID     (14 * 10)
-#define DEVICE_ID       (15 * 10)
-#define UPDATE_ID       (16 * 10)
-#define TEMPO_ID        (17 * 10)
-#define TUNER_ID        (18 * 10)
-#define SHIFT_ITEMS_ID  (19 * 10)
+#define ROOT_ID             (0 * 10)
+#define AUDIO_INP_ID        (1 * 10)
+#define AUDIO_OUTP_ID       (2 * 10)
+#define HEADPHONE_ID        (3 * 10)
+#define NOISE_GATE_ID       (4 * 10)
+#define COMPRESSOR_ID       (5 * 10)
+#define SYNC_ID             (6 * 10)
+#define MIDI_ID             (7 * 10)
+#define USER_PROFILE_ID     (8 * 10)
+#define DISPLAY_SETTINGS    (9 * 10)
+#define BEHAVIOR_SET_ID     (10 * 10)
+#define BLUETOOTH_ID        (11 * 10)
+#define INFO_ID             (12 * 10)
+#define SERVICES_ID         (13 * 10)
+#define VERSIONS_ID         (14 * 10)
+#define DEVICE_ID           (15 * 10)
+#define UPDATE_ID           (16 * 10)
+#define TEMPO_ID            (17 * 10)
+#define TUNER_ID            (18 * 10)
+#define SHIFT_ITEMS_ID      (19 * 10)
+#define APPEARANCE_SET_ID   (20 * 10)
 
 #define INP_STEREO_LINK         AUDIO_INP_ID+1
 #define INP_1_GAIN_ID           AUDIO_INP_ID+2
@@ -246,14 +247,16 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define LOAD_USER_PROF_ID       USER_PROFILE_ID+1
 #define SAVE_USER_PROF_ID       USER_PROFILE_ID+2
 
-#define DISPLAY_BRIGHTNESS_ID   DEVICE_SET_1_ID+1
-#define DISPLAY_CONTRAST_ID     DEVICE_SET_1_ID+2
-#define UNASSIGNED_ACTUATRS_ID  DEVICE_SET_1_ID+3
+#define DISPLAY_BRIGHTNESS_ID   DISPLAY_SETTINGS+1
+#define DISPLAY_CONTRAST_ID     DISPLAY_SETTINGS+2
 
-#define DEFAULT_TOOL_ID         DEVICE_SET_2_ID+1
-#define KNOB_LIST_ID            DEVICE_SET_2_ID+2
-#define CONTROL_HEADER_ID       DEVICE_SET_2_ID+3
-#define USB_MODE_ID             DEVICE_SET_2_ID+4
+#define DEFAULT_TOOL_ID         BEHAVIOR_SET_ID+1
+#define KNOB_LIST_ID            BEHAVIOR_SET_ID+2
+#define MENU_BUTTON_TOGGLE_ID   BEHAVIOR_SET_ID+3
+#define USB_MODE_ID             BEHAVIOR_SET_ID+4
+
+#define CONTROL_HEADER_ID       APPEARANCE_SET_ID+1
+#define UNASSIGNED_ACTUATRS_ID  APPEARANCE_SET_ID+2
 
 #define BPM_ID                  TEMPO_ID+1
 #define BPB_ID                  TEMPO_ID+2
@@ -291,14 +294,16 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
     {"LOAD PROFILE",                    MENU_CLICK_LIST,LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
     {"SAVE PROFILE AS",                 MENU_CLICK_LIST,SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
-    {"DEVICE SETTINGS (1/2)",           MENU_MAIN,      DEVICE_SET_1_ID,        ROOT_ID,            NULL                        , 0},  \
-    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DEVICE_SET_1_ID,    system_display_brightness_cb, 0},  \
-    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DEVICE_SET_1_ID,    system_display_contrast_cb  , 0},  \
-    {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, DEVICE_SET_1_ID,    system_hide_actuator_cb     , 0},  \
-    {"DEVICE SETTINGS (2/2)",           MENU_MAIN,      DEVICE_SET_2_ID,        ROOT_ID,            NULL                        , 0},  \
-    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        DEVICE_SET_2_ID,    system_default_tool_cb      , 0},  \
-    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      DEVICE_SET_2_ID,    system_control_header_cb    , 0},  \
-    {"USB-B MODE",                      MENU_CLICK_LIST,USB_MODE_ID,            DEVICE_SET_2_ID,    system_usb_mode_cb          , 0},  \
+    {"DISPLAY SETTINGS",                MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
+    {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DISPLAY_SETTINGS,   system_display_brightness_cb, 0},  \
+    {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DISPLAY_SETTINGS,   system_display_contrast_cb  , 0},  \
+    {"BEHAVIOR SETTINGS",               MENU_MAIN,      BEHAVIOR_SET_ID,        ROOT_ID,            NULL                        , 0},  \
+    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        BEHAVIOR_SET_ID,    system_default_tool_cb      , 0},  \
+    {"MENU BUTTON MODE",                MENU_LIST,      MENU_BUTTON_TOGGLE_ID,  BEHAVIOR_SET_ID,    system_shift_mode_cb        , 0},  \
+    {"USB-B MODE",                      MENU_CLICK_LIST,USB_MODE_ID,            BEHAVIOR_SET_ID,    system_usb_mode_cb          , 0},  \
+    {"APPEARANCE SETTINGS",             MENU_MAIN,      APPEARANCE_SET_ID,      ROOT_ID,            NULL                        , 0},  \
+    {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      APPEARANCE_SET_ID,  system_control_header_cb    , 0},  \
+    {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, APPEARANCE_SET_ID,  system_hide_actuator_cb     , 0},  \
     {"QUICK ITEMS",                     MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
@@ -429,6 +434,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_TOOL_ADRESS                8
 #define LIST_MODE_ADRESS                   9
 #define CONTROL_HEADER_ADRESS              10
+#define SHIFT_MODE_ADRESS                  11
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
@@ -442,6 +448,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_DEFAULT_TOOL               0
 #define DEFAULT_LIST_MODE                  0
 #define DEFAULT_CONTROL_HEADER             0
+#define DEFAULT_SHIFT_MODE                 1
 
 //memory used for LED value's
 #define LED_COLOR_EEMPROM_PAGE             2
@@ -451,7 +458,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_VERSION_ADRESS              62
 
 //for version control, when increasing they ALWAYS need to be bigger then the previous value
-#define EEPROM_CURRENT_VERSION             3L
+#define EEPROM_CURRENT_VERSION             4L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0

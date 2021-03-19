@@ -93,6 +93,7 @@ void system_load_pro_cb(void *arg, int event);
 void system_save_pro_cb(void *arg, int event);
 void system_hide_actuator_cb(void *arg, int event);
 void system_usb_mode_cb(void *arg, int event);
+void system_shift_mode_cb(void *arg, int event);
 
 /*
 ************************************************************************************************************************

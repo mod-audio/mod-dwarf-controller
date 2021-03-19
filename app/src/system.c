@@ -107,6 +107,7 @@ int8_t g_default_tool = -1;
 int8_t g_list_mode = -1;
 int8_t g_control_header = -1;
 int8_t g_usb_mode = -1;
+int8_t g_shift_mode = -1;
 
 /*
 ************************************************************************************************************************
@@ -1720,5 +1721,64 @@ void system_usb_mode_cb(void *arg, int event)
         case 0: item->data.unit_text = "NETWORK (DEFAULT)"; break;
         case 1: item->data.unit_text = "NET+MIDI"; break;
         case 2: item->data.unit_text = "NET+MIDI (WINDOWS)"; break;
+    }
+}
+
+void system_shift_mode_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_shift_mode == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, SHIFT_MODE_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_shift_mode = read_buffer;
+
+        naveg_set_shift_mode(g_shift_mode);
+
+        if (!item) return;
+    }
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_shift_mode < FOOT_TOOL_AMOUNT-1) g_shift_mode++;
+        else g_shift_mode = 0;
+    }
+    else if (event == MENU_EV_UP)
+    {
+        if (g_shift_mode < FOOT_TOOL_AMOUNT-1)
+            g_shift_mode += item->data.step;
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (g_shift_mode > 0)
+            g_shift_mode -= item->data.step;
+    }
+    else if (event == MENU_EV_NONE)
+    {
+        //only display value
+        item->data.value = g_shift_mode;
+        item->data.min = 0;
+        item->data.max = 1;
+        item->data.step = 1;
+    }
+
+    if (event != MENU_EV_NONE)
+    {
+        naveg_set_shift_mode(g_shift_mode);
+
+        //also write to EEPROM
+        uint8_t write_buffer = g_shift_mode;
+        EEPROM_Write(0, SHIFT_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+        item->data.value = g_shift_mode;
+    }
+    
+    switch ((int)item->data.value)
+    {
+        case 0: item->data.unit_text = "Momentary"; break;
+        case 1: item->data.unit_text = "Latching"; break;
     }
 }

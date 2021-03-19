@@ -64,12 +64,15 @@ static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
 
 uint8_t g_initialized = 0;
 uint8_t g_lock_release[FOOTSWITCHES_COUNT] = {};
+uint8_t g_shift_latching = 1;
 
 int16_t g_shift_item_ids[3];
 
 // only disabled after "boot" command received
 bool g_self_test_mode = true;
 bool g_self_test_cancel_button = false;
+
+bool shift_mode_active = false;
 
 /*
 ************************************************************************************************************************
@@ -90,6 +93,121 @@ bool g_self_test_cancel_button = false;
 *           LOCAL FUNCTIONS
 ************************************************************************************************************************
 */
+
+void enter_shift_menu(void)
+{
+    if (g_device_mode == MODE_SELFTEST)
+    {
+        if (g_dialog_active)
+            return;
+        
+        char buffer[30];
+        uint8_t i;
+
+        //skip control action
+        if (g_self_test_cancel_button)
+        {
+            i = copy_command(buffer, CMD_SELFTEST_SKIP_CONTROL);
+        }
+        else 
+        {
+            i = copy_command(buffer, CMD_SELFTEST_BUTTON_CLICKED);
+
+            // insert the hw_id on buffer
+            i += int_to_str(6, &buffer[i], sizeof(buffer) - i, 0);
+        }
+
+        ui_comm_webgui_clear_tx_buffer();
+
+        // send the data to GUI
+        ui_comm_webgui_send(buffer, i);
+
+        return;
+    }
+
+    if (g_popup_active || !g_device_booted) return;
+
+    hardware_set_overlay_timeout(0, NULL);
+
+    //enter shift mode
+    //save to return
+    g_prev_shift_device_mode = g_device_mode;
+
+    //turn of tuner if applicable
+    if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
+        TM_turn_off_tuner();
+
+    //toggle shift
+    g_device_mode = MODE_SHIFT;
+
+    //print shift screen
+    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0]);
+
+    //toggle the LED's
+    ledz_t *led = hardware_leds(3);
+    led_state_t led_state = {
+        .color = ENUMERATED_COLOR,
+    };
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    led = hardware_leds(5);
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    led = hardware_leds(4);
+    set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+
+
+    if (!g_self_test_mode)
+        ledz_on(hardware_leds(6), WHITE);
+}
+
+void exit_shift_menu(void)
+{
+    if (g_popup_active || !g_device_booted) return;
+
+    hardware_set_overlay_timeout(0, NULL);
+
+    //already entered some other mode
+    if (g_device_mode != MODE_SHIFT)
+        return;
+
+    //always a chance we changed gains, send save
+    system_save_gains_cb(NULL, MENU_EV_ENTER);
+
+    //exit the shift menu, return to opperational mode
+    switch(g_prev_shift_device_mode)
+    {
+        case MODE_CONTROL:
+            g_device_mode = MODE_CONTROL;
+            CM_set_state();
+        break;
+
+        case MODE_NAVIGATION:
+            g_device_mode = MODE_NAVIGATION;
+            NM_print_screen();
+        break;
+
+        case MODE_TOOL_FOOT:
+            g_device_mode = MODE_TOOL_FOOT;
+            TM_launch_tool(-1);
+        break;
+
+        case MODE_TOOL_MENU:
+            g_device_mode = MODE_TOOL_MENU;
+            TM_launch_tool(TOOL_MENU);
+        break;
+
+        case MODE_BUILDER:
+            //not defined yet
+        break;
+
+        case MODE_SELFTEST:
+            //not used
+        break;
+    }
+
+    if (!g_self_test_mode)
+        ledz_off(hardware_leds(6), WHITE);
+
+}
 
 /*
 ************************************************************************************************************************
@@ -813,109 +931,29 @@ void naveg_button_released(uint8_t button)
 //used for the shift button
 void naveg_shift_pressed()
 {
-    if (g_device_mode == MODE_SELFTEST)
+    if (g_shift_latching)
     {
-        if (g_dialog_active)
-            return;
-        
-        char buffer[30];
-        uint8_t i;
-
-        //skip control action
-        if (g_self_test_cancel_button)
+        if (shift_mode_active)
         {
-            i = copy_command(buffer, CMD_SELFTEST_SKIP_CONTROL);
+            shift_mode_active = false;
+            exit_shift_menu();
         }
-        else 
+        else
         {
-            i = copy_command(buffer, CMD_SELFTEST_BUTTON_CLICKED);
-
-            // insert the hw_id on buffer
-            i += int_to_str(6, &buffer[i], sizeof(buffer) - i, 0);
+            shift_mode_active = true;
+            enter_shift_menu();
         }
-
-        ui_comm_webgui_clear_tx_buffer();
-
-        // send the data to GUI
-        ui_comm_webgui_send(buffer, i);
-
-        return;
     }
-
-    if (g_popup_active || !g_device_booted) return;
-
-    hardware_set_overlay_timeout(0, NULL);
-
-    //enter shift mode
-    //save to return
-    g_prev_shift_device_mode = g_device_mode;
-
-    //turn of tuner if applicable
-    if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
-        TM_turn_off_tuner();
-
-    //toggle shift
-    g_device_mode = MODE_SHIFT;
-
-    //print shift screen
-    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0]);
-
-    //toggle the LED's
-    ledz_t *led = hardware_leds(3);
-    led_state_t led_state = {
-        .color = ENUMERATED_COLOR,
-    };
-    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-    led = hardware_leds(5);
-    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-    led = hardware_leds(4);
-    set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+    else
+        enter_shift_menu();
 }
 
 void naveg_shift_releaed()
 {
-    if (g_popup_active || !g_device_booted) return;
-
-    hardware_set_overlay_timeout(0, NULL);
-
-    //already entered some other mode
-    if (g_device_mode != MODE_SHIFT)
+    if (g_shift_latching)
         return;
-
-    //always a chance we changed gains, send save
-    system_save_gains_cb(NULL, MENU_EV_ENTER);
-
-    //exit the shift menu, return to opperational mode
-    switch(g_prev_shift_device_mode)
-    {
-        case MODE_CONTROL:
-            g_device_mode = MODE_CONTROL;
-            CM_set_state();
-        break;
-
-        case MODE_NAVIGATION:
-            g_device_mode = MODE_NAVIGATION;
-            NM_print_screen();
-        break;
-
-        case MODE_TOOL_FOOT:
-            g_device_mode = MODE_TOOL_FOOT;
-            TM_launch_tool(-1);
-        break;
-
-        case MODE_TOOL_MENU:
-            g_device_mode = MODE_TOOL_MENU;
-            TM_launch_tool(TOOL_MENU);
-        break;
-
-        case MODE_BUILDER:
-            //not defined yet
-        break;
-
-        case MODE_SELFTEST:
-            //not used
-        break;
-    }
+    else
+        exit_shift_menu();
 }
 
 uint8_t naveg_dialog_status(void)
@@ -1013,4 +1051,9 @@ void naveg_trigger_mode_change(uint8_t mode)
 void naveg_print_shift_screen(void)
 {
     screen_shift_overlay(g_prev_shift_device_mode, NULL);
+}
+
+void naveg_set_shift_mode(uint8_t mode)
+{
+    g_shift_latching = mode;
 }

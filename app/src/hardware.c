@@ -348,6 +348,12 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
+            //added selectable shift button mode
+            case 3:;
+                uint8_t write_buffer = DEFAULT_SHIFT_MODE;
+                EEPROM_Write(0, SHIFT_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
