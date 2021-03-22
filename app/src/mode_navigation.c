@@ -1079,7 +1079,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 else
                 {
                     ledz_on(hardware_leds(next_prev), MAGENTA);
-                    ledz_blink(hardware_leds(next_prev), MAGENTA, 100, 100, LED_BLINK_INFINIT);
+                    ledz_blink(hardware_leds(next_prev), MAGENTA, 150, 150, LED_BLINK_INFINIT);
                 }
             }
         }
@@ -1093,7 +1093,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 else
                 {
                     ledz_on(hardware_leds(next_prev), MAGENTA);
-                    ledz_blink(hardware_leds(next_prev), MAGENTA, 200, 200, LED_BLINK_INFINIT);
+                    ledz_blink(hardware_leds(next_prev), MAGENTA, 150, 150, LED_BLINK_INFINIT);
                 }
             }
         }
