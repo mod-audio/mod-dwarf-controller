@@ -414,7 +414,6 @@ void system_upgrade_cb(void *arg, int event)
     if (event == MENU_EV_ENTER)
     {
         button_t *foot = (button_t *) hardware_actuators(FOOTSWITCH2);
-        button_t *button = (button_t *) hardware_actuators(BUTTON0);
 
         // check if OK option was chosen
         if (item->data.hover == 0)
