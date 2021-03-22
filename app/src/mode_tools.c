@@ -371,10 +371,13 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                     item->data.popup_content = g_menu_popups[i].popup_content;
 
                 item->data.popup_header = g_menu_popups[i].popup_header;
+
                 if (item->data.popup_active)
                 {
                     item->data.popup_active = 0;
                     g_popup_active = 0;
+
+                    TM_set_leds();
 
                     if ((item->desc->id == UPDATE_ID) || (item->desc->id == BLUETOOTH_ID) || (item->desc->id == INFO_ID))
                     {
@@ -388,7 +391,6 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         g_current_item = g_current_menu->data;
 
                         TM_print_tool();
-                        TM_set_leds();
                     }
                 }
                 else
@@ -396,6 +398,8 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                     item->data.popup_active = 1;
                     g_popup_active = 1;
                     g_popup_encoder = encoder;
+
+                    TM_set_leds();
                 }
             }
             i++;
@@ -975,12 +979,70 @@ void TM_set_leds(void)
     naveg_turn_off_leds();
 
     led_state_t led_state = {};
+    ledz_t *led;
+
+    if (g_popup_active)
+    {
+        switch (g_current_item->desc->type)
+        {
+            case MENU_CLICK_LIST:
+            //fall-through
+            case MENU_CONFIRM2:
+            //fall-through
+            case MENU_CONFIRM:;
+                // ok / cancel or yes / no
+                led = hardware_leds(3);
+                led_state.color = WHITE;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+                led = hardware_leds(4);
+                set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+
+                led = hardware_leds(5);
+                led_state.color = TOGGLED_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                return;
+            break;
+
+        case MENU_OK:;
+            //single item
+            led = hardware_leds(3);
+            led_state.color = WHITE;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            led = hardware_leds(4);
+            set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+
+            led = hardware_leds(5);
+            set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+            return;
+        break;
+
+        //TODO catches popups on a menu page now, since current_item is the main page
+        //FIXME later to properly load popups inside a page
+        default:
+            // ok / cancel or yes / no
+            led = hardware_leds(3);
+            led_state.color = WHITE;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            led = hardware_leds(4);
+            set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+
+            led = hardware_leds(5);
+            led_state.color = TOGGLED_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            return;
+        break;
+        }
+    }
+
     switch (g_current_tool)
     {
         case TOOL_MENU:
             if (g_current_item->desc->type == MENU_MAIN)
             {
-                ledz_t *led = hardware_leds(3);
+                led = hardware_leds(3);
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
@@ -1005,7 +1067,7 @@ void TM_set_leds(void)
             }
             else if (g_current_item->desc->type == MENU_ROOT)
             {
-                ledz_t *led = hardware_leds(3);
+                led = hardware_leds(3);
                 led_state.color = WHITE;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
                 led = hardware_leds(4);
