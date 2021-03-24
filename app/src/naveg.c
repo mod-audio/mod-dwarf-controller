@@ -846,10 +846,12 @@ void naveg_button_pressed(uint8_t button)
                     if (g_prev_shift_device_mode != MODE_TOOL_MENU)
                     {
                         g_device_mode = MODE_TOOL_MENU;
+                        shift_mode_active = false;
                         TM_launch_tool(TOOL_MENU);
                     }
                     else 
                     {
+                        shift_mode_active = false;
                         //exit the shift menu, return to opperational mode
                         switch(g_prev_shift_device_mode)
                         {
@@ -969,9 +971,7 @@ void naveg_shift_pressed()
 
 void naveg_shift_releaed()
 {
-    if (g_shift_latching)
-        return;
-    else
+    if (!g_shift_latching)
         exit_shift_menu();
 }
 
