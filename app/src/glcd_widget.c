@@ -610,7 +610,7 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
 
     //clear the area
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height, ~listbox->color);
-    //hardcoded a bit, removes teh encoder pages that are lower then the widget
+    //hardcoded a bit, removes the encoder pages that are lower then the widget
     glcd_rect_fill(display, 31, listbox->y+listbox->height, 69, 5, ~listbox->color);
 
     glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
@@ -626,16 +626,16 @@ void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
     title_str_bfr[char_cnt_name] = '\0';
 
     //clear the name area
-    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +10), 9, ~listbox->color);
+    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-3, 12, ((6*char_cnt_name) +11), 9, ~listbox->color);
 
     //draw the title
-    glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 1, listbox->y+2, title_str_bfr, listbox->font, listbox->color);
+    glcd_text(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 7, listbox->y+2, title_str_bfr, listbox->font, listbox->color);
 
     //draw the icon before
-    icon_overlay(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -6, listbox->y+4);
+    icon_overlay(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -1, listbox->y+4);
 
     // invert the name area
-    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +10), 9);
+    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-3, 12, ((6*char_cnt_name) +11), 9);
 
     //draw the list
     if (listbox->selected > 0)
@@ -703,7 +703,7 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
     title_str_bfr[char_cnt_name] = '\0';
 
     //clear the name area
-    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +10), 9, ~overlay->color);
+    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-3, 12, ((6*char_cnt_name) +11), 9, ~overlay->color);
 
     textbox_t title;
     title.color = GLCD_BLACK;
@@ -720,14 +720,14 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
 
     title.text = title_str_bfr;
 
-    title.x = ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 1;
+    title.x = ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 7;
     widget_textbox(display, &title);
 
     //draw the icon before
-    icon_overlay(display, title.x - 7, overlay->y+4);
+    icon_overlay(display, title.x - 8, overlay->y+4);
 
     // invert the name area
-    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-8, 12, ((6*char_cnt_name) +10), 9);
+    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-3, 12, ((6*char_cnt_name) +11), 9);
 
     //draw the value
     textbox_t value;
@@ -770,8 +770,8 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
         //invert the area if value is 1
         if (overlay->value_num)
         {
-            uint8_t begin_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8);
-            uint8_t end_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-8) + ((6*char_cnt_name) +10);
+            uint8_t begin_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-3);
+            uint8_t end_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-2) + ((6*char_cnt_name) +10);
             glcd_rect_invert(display, overlay->x + 2, overlay->y + 7, begin_of_tittle_block - 3, 4);
             glcd_rect_invert(display, end_of_tittle_block + 1, overlay->y + 7, DISPLAY_WIDTH - end_of_tittle_block - 3, 4);
             //bigger invert
