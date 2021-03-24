@@ -813,7 +813,7 @@ void screen_bank_list(bp_list_t *list)
         uint8_t count = strarr_length(list->names);
         list_box.x = 1;
         list_box.y = 11;
-        list_box.width = DISPLAY_WIDTH-3;
+        list_box.width = DISPLAY_WIDTH-2;
         list_box.height = 39;
         list_box.color = GLCD_BLACK;
         list_box.hover = list->hover - list->page_min;
@@ -824,7 +824,7 @@ void screen_bank_list(bp_list_t *list)
         list_box.line_space = 2;
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
-        list_box.text_left_margin = 2;
+        list_box.text_left_margin = 1;
         widget_banks_listbox(display, &list_box);
     }
     else
