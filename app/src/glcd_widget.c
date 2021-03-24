@@ -504,25 +504,25 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     {
         uint8_t line_length = strlen(listbox->list[listbox->hover-1]);
 
-        if (line_length > 15)
-            line_length = 15;
+        if (line_length > 14)
+            line_length = 14;
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
         //commented out code is allignment to the middle
-        uint8_t item_x = 4;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        uint8_t item_x = 12;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
         if (listbox->selected == listbox->hover-1)
         {
-            if (line_length == 15)
+            if (line_length == 14)
                 line_length--;
 
             strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
             item_str_bfr[line_length] = '\0';
 
             //draw indicator
-            icon_pb_selected(display, item_x, listbox->y + 12);
-            item_x += 9;
+            icon_pb_selected(display, item_x-8, listbox->y + 12);
+            item_x += 1;
         }
         else
         {
@@ -538,25 +538,25 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     {
         uint8_t line_length = strlen(listbox->list[listbox->hover+1]);
 
-        if (line_length > 15)
-            line_length = 15;
+        if (line_length > 14)
+            line_length = 14;
 
         char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
         //commented out code is allignment to the middle
-        uint8_t item_x = 4;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        uint8_t item_x = 12;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
         if (listbox->selected == listbox->hover+1)
         {
-            if (line_length == 15)
+            if (line_length == 14)
                 line_length--;
 
             strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
             item_str_bfr[line_length] = '\0';
 
             //draw indicator
-            icon_pb_selected(display, item_x, listbox->y + 32);
-            item_x += 9;
+            icon_pb_selected(display, item_x-8, listbox->y + 32);
+            item_x += 1;
         }
         else
         {
@@ -570,25 +570,25 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 
     uint8_t line_length = strlen(listbox->list[listbox->hover]);
 
-    if (line_length > 15)
-        line_length = 15;
+    if (line_length > 14)
+        line_length = 14;
 
     char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
 
     //commented out code is allignment to the middle
-    uint8_t item_x = 4;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+    uint8_t item_x = 12;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
         
     if (listbox->selected == listbox->hover)
     {
-        if (line_length == 15)
+        if (line_length == 14)
             line_length--;
 
         strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
         item_str_bfr[line_length] = '\0';
 
         //draw indicator
-        icon_pb_selected(display, item_x, listbox->y + 22);
-        item_x += 9;
+        icon_pb_selected(display, item_x-8, listbox->y + 22);
+        item_x += 1;
     }
     else
     {

@@ -433,7 +433,7 @@ static void send_load_snapshot(const char *snapshot_uid)
     // send the data to GUI
     ui_comm_webgui_send(buffer, i);
 
-    // waits the pedalboard loaded message to be received
+    // waits the snapshot loaded message to be received
     ui_comm_webgui_wait_response();
 }
 
