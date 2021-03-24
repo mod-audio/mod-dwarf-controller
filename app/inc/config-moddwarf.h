@@ -327,7 +327,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "\n\nsave current settings as user profile "}, \
     {USB_MODE_ID, "Change USB mode", "\n\nChanging USB modes requires a device reboot\n\nreboot now?"},  \
     {BLUETOOTH_ID, "Enable Bluetooth", "\nEnable Bluetooth discovery\nmode for 2 minutes?"},  \
-    {INFO_ID, "Device Info", "\n\nCurrent Release: "},  \
+    {INFO_ID, "Device Info", "\nCurrent Release:\n"},  \
     {UPDATE_ID, "Start System Upgrade", "\n\nTo start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \
 
 #define MENU_VISIBLE_LIST_CUT   13

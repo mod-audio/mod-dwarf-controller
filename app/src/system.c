@@ -399,7 +399,7 @@ void system_info_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_VERSION, "release");
         sys_comm_wait_response();
 
-        strcat(item->data.popup_content, "\n\nDevice Serial: ");
+        strcat(item->data.popup_content, "\n\nDevice Serial:\n");
 
         sys_comm_set_response_cb(append_sys_value_popup, item);
         sys_comm_send(CMD_SYS_SERIAL, NULL);
