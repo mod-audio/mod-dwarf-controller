@@ -391,6 +391,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         g_current_item = g_current_menu->data;
 
                         TM_print_tool();
+                        TM_set_leds();
                     }
                 }
                 else
@@ -405,11 +406,11 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
             i++;
         }
 
-    if (item->desc->type == MENU_CONFIRM2)
-    {
-        naveg_release_dialog_semaphore();
-        return;
-    }
+        if (item->desc->type == MENU_CONFIRM2)
+        {
+            naveg_release_dialog_semaphore();
+            return;
+        }
 
     }
     else if ((action == MENU_EV_UP) && (item->data.popup_active == 1))
