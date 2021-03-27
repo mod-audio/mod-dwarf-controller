@@ -35,6 +35,8 @@
 ************************************************************************************************************************
 */
 
+enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
+
 /*
 ************************************************************************************************************************
 *           GLOBAL VARIABLES
@@ -66,6 +68,8 @@ bp_list_t *NM_get_banks(void);
 void NM_set_pedalboards(bp_list_t *bp_list);
 bp_list_t *NM_get_pedalboards(void);
 char* NM_get_current_pb_name(void);
+void NM_set_current_list(uint8_t list_type);
+uint8_t NM_get_current_list(void);
 void NM_print_screen();
 void NM_print_prev_screen(void);
 void NM_set_leds(void);

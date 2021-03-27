@@ -824,7 +824,7 @@ void screen_bank_list(bp_list_t *list)
         list_box.line_space = 2;
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
-        list_box.text_left_margin = 8;
+        list_box.text_left_margin = 7;
         widget_banks_listbox(display, &list_box);
     }
     else

@@ -464,9 +464,9 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
             if ((first_line + i) == listbox->selected)
             {
                 if (i == focus)
-                    icon_bank_selected(display, listbox->x+2, y_line+1);
+                    icon_bank_selected(display, listbox->x+1, y_line+1);
                 else
-                    icon_bank_selected(display, listbox->x+2, y_line);
+                    icon_bank_selected(display, listbox->x+1, y_line);
             }
 
             if (i == focus)

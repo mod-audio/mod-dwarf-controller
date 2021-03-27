@@ -181,6 +181,10 @@ void exit_shift_menu(void)
         break;
 
         case MODE_NAVIGATION:
+            //reset nav mode if nececary
+            if (NM_get_current_list() == BANKS_LIST)
+                NM_set_current_list(PEDALBOARD_LIST);
+
             g_device_mode = MODE_NAVIGATION;
             NM_print_screen();
         break;
@@ -708,6 +712,11 @@ void naveg_foot_double_press(uint8_t foot)
 
                 g_device_mode = MODE_CONTROL;
                 g_prev_device_mode = MODE_NAVIGATION;
+
+                //reset nav mode if nececary
+                if (NM_get_current_list() == BANKS_LIST)
+                    NM_set_current_list(PEDALBOARD_LIST);
+
                 CM_set_state();
             break;
 

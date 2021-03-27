@@ -28,9 +28,6 @@
 ************************************************************************************************************************
 */
 
-enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
-
-
 #define PAGE_DIR_DOWN 0
 #define PAGE_DIR_UP 1
 #define PAGE_DIR_INIT 2
@@ -896,6 +893,16 @@ bp_list_t *NM_get_pedalboards(void)
 char* NM_get_current_pb_name(void)
 {
     return g_banks->names[g_banks->hover];
+}
+
+void NM_set_current_list(uint8_t list_type)
+{
+    g_current_list = list_type;
+}
+
+uint8_t NM_get_current_list(void)
+{
+    return g_current_list;
 }
 
 void NM_print_screen(void)
