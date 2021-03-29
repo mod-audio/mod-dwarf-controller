@@ -145,11 +145,15 @@ void enter_shift_menu(void)
 
     //toggle the LED's
     ledz_t *led = hardware_leds(3);
-    led_state_t led_state = {
-        .color = ENUMERATED_COLOR,
-    };
+    led_state_t led_state;
+    if (g_prev_shift_device_mode != MODE_TOOL_MENU)
+        led_state.color = ENUMERATED_COLOR;
+    else
+        led_state.color = TOGGLED_COLOR;
+
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
     led = hardware_leds(5);
+    led_state.color = ENUMERATED_COLOR;
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
     led = hardware_leds(4);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
@@ -164,6 +168,9 @@ void exit_shift_menu(void)
     if (g_popup_active || !g_device_booted) return;
 
     hardware_set_overlay_timeout(0, NULL);
+
+    if (!g_self_test_mode)
+        ledz_off(hardware_leds(6), WHITE);
 
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
@@ -207,10 +214,6 @@ void exit_shift_menu(void)
             //not used
         break;
     }
-
-    if (!g_self_test_mode)
-        ledz_off(hardware_leds(6), WHITE);
-
 }
 
 /*
@@ -889,6 +892,9 @@ void naveg_button_pressed(uint8_t button)
                             break;
                         }
                     }
+                    
+                    if (!g_self_test_mode)
+                        ledz_off(hardware_leds(6), WHITE);
                 break;
 
                 //enter builder mode
