@@ -158,7 +158,6 @@ void enter_shift_menu(void)
     led = hardware_leds(4);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
 
-
     if (!g_self_test_mode)
         ledz_on(hardware_leds(6), WHITE);
 }
@@ -188,10 +187,6 @@ void exit_shift_menu(void)
         break;
 
         case MODE_NAVIGATION:
-            //reset nav mode if nececary
-            if (NM_get_current_list() == BANKS_LIST)
-                NM_set_current_list(PEDALBOARD_LIST);
-
             g_device_mode = MODE_NAVIGATION;
             NM_print_screen();
         break;
@@ -694,6 +689,10 @@ void naveg_foot_double_press(uint8_t foot)
     //navigation mode
     if (foot == 1)
     {
+        //reset nav mode if nececary
+        if (NM_get_current_list() == BANKS_LIST)
+            NM_set_current_list(PEDALBOARD_LIST);
+
         switch(g_device_mode)
         {
             case MODE_CONTROL:
@@ -715,10 +714,6 @@ void naveg_foot_double_press(uint8_t foot)
 
                 g_device_mode = MODE_CONTROL;
                 g_prev_device_mode = MODE_NAVIGATION;
-
-                //reset nav mode if nececary
-                if (NM_get_current_list() == BANKS_LIST)
-                    NM_set_current_list(PEDALBOARD_LIST);
 
                 CM_set_state();
             break;
@@ -791,6 +786,11 @@ void naveg_foot_double_press(uint8_t foot)
             else 
             {
                 if (g_ui_connected) return;
+
+				//reset nav mode if nececary
+      			if (NM_get_current_list() == BANKS_LIST)
+      			    NM_set_current_list(PEDALBOARD_LIST);
+                
                 g_device_mode = MODE_NAVIGATION;
                 NM_print_screen();
             }

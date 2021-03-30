@@ -638,14 +638,18 @@ void TM_enter(uint8_t button)
         }
         else if (button == 2)
         {
-            menu_item_t *next_menu = g_current_menu->next->data;
             //twice next, as there is a popup
-            if ((next_menu->desc->id == BLUETOOTH_ID) || (g_current_item->desc->id == ROOT_ID))
+            if(g_current_item->desc->id == ROOT_ID)
                 return;
 
             node_t *node = g_current_menu->next;
+            menu_item_t *next_item = node->data;
+
+            if (next_item->desc->id == BLUETOOTH_ID)
+                return;
+
             g_current_menu = node;
-            g_current_item = node->data;
+            g_current_item = next_item;
 
             //make sure we have all menu value's updated 
             node_t *child_nodes = node->first_child;
