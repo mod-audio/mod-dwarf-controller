@@ -95,7 +95,7 @@ const unsigned char cie1931[101] = {
 
 static ledz_t g_leds[LEDZ_MAX_INSTANCES];
 static unsigned int g_leds_available = LEDZ_MAX_INSTANCES;
-static uint8_t led_colors[MAX_COLOR_ID + 1][3];
+static int8_t led_colors[MAX_COLOR_ID + MAX_FOOT_ASSIGNMENTS + 1][3];
 static float g_ledz_brightness = 1;
 /*
 ****************************************************************************************************
@@ -171,11 +171,19 @@ static inline ledz_color_t get_color_by_id(uint8_t color_pin_id)
 ****************************************************************************************************
 */
 
-void ledz_set_color(uint8_t item, uint8_t value[3])
+void ledz_set_color(uint8_t item, int8_t value[3])
 {
     led_colors[item][0] = value[0];
     led_colors[item][1] = value[1];
     led_colors[item][2] = value[2];
+}
+
+uint8_t ledz_color_valid(uint8_t item)
+{
+    if (led_colors[item][0] > -1)
+        return 1;
+    else
+        return 0;
 }
 
 void ledz_set_global_brightness(uint8_t brightness)
@@ -613,7 +621,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
         {
             case LED_ON:
                 ledz_on(led, ledz_color);
-                ledz_brightness(led, ledz_color ,led_colors[led_state.color][i]);
+                ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
             break;
 
             case LED_OFF:

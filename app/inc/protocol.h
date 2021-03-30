@@ -86,6 +86,7 @@ void protocol_remove_commands(void);
 void cb_ping(uint8_t serial_id, proto_t *proto);
 void cb_say(uint8_t serial_id, proto_t *proto);
 void cb_led(uint8_t serial_id, proto_t *proto);
+void cb_change_assigned_led(uint8_t serial_id, proto_t *proto);
 void cb_glcd_text(uint8_t serial_id, proto_t *proto);
 void cb_glcd_dialog(uint8_t serial_id, proto_t *proto);
 void cb_glcd_draw(uint8_t serial_id, proto_t *proto);

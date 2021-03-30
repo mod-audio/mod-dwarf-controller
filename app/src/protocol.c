@@ -294,6 +294,7 @@ void protocol_init(void)
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
     protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
+    protocol_add_command(CMD_SYS_CHANGE_LED, cb_change_assigned_led);
 }
 
 /*
@@ -322,8 +323,8 @@ void cb_led(uint8_t serial_id, proto_t *proto)
 
     ledz_t *led = hardware_leds(atoi(proto->list[1]));
 
-    uint8_t value[3] = {atoi(proto->list[2]), atoi(proto->list[3]), atoi(proto->list[4])}; 
-    ledz_set_color(MAX_COLOR_ID,value);
+    int8_t value[3] = {atoi(proto->list[2]), atoi(proto->list[3]), atoi(proto->list[4])}; 
+    ledz_set_color(MAX_COLOR_ID, value);
 
     if (proto->list_count == 7)
     {
@@ -338,6 +339,49 @@ void cb_led(uint8_t serial_id, proto_t *proto)
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
         ledz_set_state(led, LED_BLINK, LED_UPDATE);
     }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    ledz_t *led;
+    if (hw_id == 3)
+        led = hardware_leds(0);
+    else if (hw_id == 4)
+        led = hardware_leds(1);
+    //error, no led for actuator
+    else
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
+    if (atoi(proto->list[3]) == -1)
+    {
+        //reset led
+        int8_t clear[3] = {-1, -1, -1};
+        ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT, clear);
+        NM_set_foot_led(CM_get_control(hw_id), LED_UPDATE);
+        return;
+    }
+
+    //set color
+    int8_t value[3] = {atoi(proto->list[3]), atoi(proto->list[4]), atoi(proto->list[5])}; 
+    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT, value);
+
+    led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT;
+
+    uint8_t led_update = 0;
+    if (naveg_get_current_mode() == MODE_CONTROL)
+        led_update = LED_UPDATE;
+
+    ledz_set_state(led, LED_ON, led_update);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }

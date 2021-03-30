@@ -163,7 +163,9 @@ typedef struct LEDZ_T {
 ****************************************************************************************************
 */
 
-void ledz_set_color(uint8_t item, uint8_t value[3]);
+void ledz_set_color(uint8_t item, int8_t value[3]);
+
+uint8_t ledz_color_valid(uint8_t item);
 
 /**
  * @defgroup ledz_funcs LED Functions

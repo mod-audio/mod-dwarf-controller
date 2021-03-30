@@ -508,7 +508,7 @@ void hardware_setup(void)
     hardware_glcd_brightness(display_brightness);
 
     //set led colors
-    uint8_t led_color_value[3] = {};
+    int8_t led_color_value[3] = {};
     uint8_t eeprom_index, eeprom_page;
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;

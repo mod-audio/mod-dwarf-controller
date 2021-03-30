@@ -380,116 +380,6 @@ static void foot_control_print(control_t *control)
     }
 }
 
-static void foot_control_set_led(control_t *control, uint8_t update_led)
-{
-	ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
-
-    if (control->properties & FLAG_CONTROL_MOMENTARY)
-    {
-        // updates the led
-        led->led_state.color = TRIGGER_COLOR;
-        if (control->properties & FLAG_CONTROL_BYPASS)
-        {
-            if (control->value <= 0)
-                ledz_set_state(led, LED_ON, update_led);
-            else
-            {
-                led->led_state.brightness = 0.1;
-                ledz_set_state(led, LED_DIMMED, update_led);
-            }
-        }
-        else
-        {
-            if (control->value <= 0)
-            {
-                led->led_state.brightness = 0.1;
-                ledz_set_state(led, LED_DIMMED, update_led);
-            }
-            else
-                ledz_set_state(led, LED_ON, update_led);
-        }
-    }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
-    {
-        // updates the led
-        led->led_state.color = TRIGGER_COLOR;
-        if ((control->value <= 0) || (control->scroll_dir == 2))
-        {
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, update_led);
-        }
-        else
-            ledz_set_state(led, LED_ON, update_led);
-    }
-    else if (control->properties & FLAG_CONTROL_TOGGLED)
-    {
-        // toggled specification: http://lv2plug.in/ns/lv2core/#toggled
-        // updates the led
-        led->led_state.color = TOGGLED_COLOR;
-        if (control->value <= 0)
-        {
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, update_led);
-        }
-        else
-            ledz_set_state(led, LED_ON, update_led);
-    }
-    else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
-    {
-        // convert the time unit
-        uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5);
-
-        led->led_state.color = TAP_TEMPO_COLOR;
-        led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
-
-        // setup the led blink
-        if (time_ms > TAP_TEMPO_TIME_ON)
-        {
-            led->led_state.time_on = TAP_TEMPO_TIME_ON;
-            led->led_state.time_off = time_ms - TAP_TEMPO_TIME_ON;
-        }
-        else
-        {
-            led->led_state.time_on = time_ms / 2;
-            led->led_state.time_off = time_ms / 2;
-        }
-
-        ledz_set_state(led, LED_BLINK, update_led);
-    }
-    else if (control->properties & FLAG_CONTROL_BYPASS)
-    {
-        // updates the led
-        led->led_state.color = BYPASS_COLOR;
-        if (control->value <= 0)
-            ledz_set_state(led, LED_ON, update_led);
-        else
-        {
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, update_led);
-        }
-    }
-    else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
-    {
-        // updates the led
-        //check if its assigned to a trigger and if the button is released
-        if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-        {
-            set_alternated_led_list_colour(control);
-        }
-        else if ((control->scroll_dir == 2))
-        {
-            led->led_state.color = ENUMERATED_COLOR;
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, update_led);
-        }
-        else
-        {
-            led->led_state.color = ENUMERATED_COLOR;
-            ledz_set_state(led, LED_ON, update_led);
-        }
-    }
-}
-
 // control assigned to foot
 static void foot_control_add(control_t *control)
 {
@@ -510,12 +400,12 @@ static void foot_control_add(control_t *control)
     //dont set ui when not in control mode
     if (naveg_get_current_mode() != MODE_CONTROL)
     {
-    	foot_control_set_led(control, LED_STORE_STATE);
+    	NM_set_foot_led(control, LED_STORE_STATE);
 		return;
     }
 
 	foot_control_print(control);
-	foot_control_set_led(control, LED_UPDATE);
+	NM_set_foot_led(control, LED_UPDATE);
 }
 
 
@@ -913,6 +803,16 @@ void CM_add_control(control_t *control, uint8_t protocol)
     {
         foot_control_add(control);     
     }
+}
+
+control_t *CM_get_control(uint8_t hw_id)
+{
+    if (!g_initialized) return NULL;
+
+    if (hw_id < ENCODERS_COUNT)
+        return g_controls[hw_id];
+    else
+        return g_foots[hw_id - ENCODERS_COUNT];
 }
 
 void CM_inc_control(uint8_t encoder)
@@ -1517,6 +1417,120 @@ void CM_set_state(void)
     CM_print_screen();
 
     CM_set_leds();
+}
+
+void NM_set_foot_led(control_t *control, uint8_t update_led)
+{
+    ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
+
+    if (ledz_color_valid(MAX_COLOR_ID + control->hw_id-ENCODERS_COUNT))
+    {
+        ledz_restore_state(led);
+    }
+    else if (control->properties & FLAG_CONTROL_MOMENTARY)
+    {
+        // updates the led
+        led->led_state.color = TRIGGER_COLOR;
+        if (control->properties & FLAG_CONTROL_BYPASS)
+        {
+            if (control->value <= 0)
+                ledz_set_state(led, LED_ON, update_led);
+            else
+            {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED, update_led);
+            }
+        }
+        else
+        {
+            if (control->value <= 0)
+            {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED, update_led);
+            }
+            else
+                ledz_set_state(led, LED_ON, update_led);
+        }
+    }
+    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    {
+        // updates the led
+        led->led_state.color = TRIGGER_COLOR;
+        if ((control->value <= 0) || (control->scroll_dir == 2))
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED, update_led);
+        }
+        else
+            ledz_set_state(led, LED_ON, update_led);
+    }
+    else if (control->properties & FLAG_CONTROL_TOGGLED)
+    {
+        // toggled specification: http://lv2plug.in/ns/lv2core/#toggled
+        // updates the led
+        led->led_state.color = TOGGLED_COLOR;
+        if (control->value <= 0)
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED, update_led);
+        }
+        else
+            ledz_set_state(led, LED_ON, update_led);
+    }
+    else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
+    {
+        // convert the time unit
+        uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5);
+
+        led->led_state.color = TAP_TEMPO_COLOR;
+        led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+
+        // setup the led blink
+        if (time_ms > TAP_TEMPO_TIME_ON)
+        {
+            led->led_state.time_on = TAP_TEMPO_TIME_ON;
+            led->led_state.time_off = time_ms - TAP_TEMPO_TIME_ON;
+        }
+        else
+        {
+            led->led_state.time_on = time_ms / 2;
+            led->led_state.time_off = time_ms / 2;
+        }
+
+        ledz_set_state(led, LED_BLINK, update_led);
+    }
+    else if (control->properties & FLAG_CONTROL_BYPASS)
+    {
+        // updates the led
+        led->led_state.color = BYPASS_COLOR;
+        if (control->value <= 0)
+            ledz_set_state(led, LED_ON, update_led);
+        else
+        {
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED, update_led);
+        }
+    }
+    else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+    {
+        // updates the led
+        //check if its assigned to a trigger and if the button is released
+        if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
+        {
+            set_alternated_led_list_colour(control);
+        }
+        else if ((control->scroll_dir == 2))
+        {
+            led->led_state.color = ENUMERATED_COLOR;
+            led->led_state.brightness = 0.1;
+            ledz_set_state(led, LED_DIMMED, update_led);
+        }
+        else
+        {
+            led->led_state.color = ENUMERATED_COLOR;
+            ledz_set_state(led, LED_ON, update_led);
+        }
+    }
 }
 
 void CM_set_leds(void)
