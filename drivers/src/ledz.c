@@ -180,7 +180,7 @@ void ledz_set_color(uint8_t item, int8_t value[3])
 
 uint8_t ledz_color_valid(uint8_t item)
 {
-    if (led_colors[item][0] > -1)
+    if (led_colors[item][0] != -1)
         return 1;
     else
         return 0;

@@ -541,6 +541,12 @@ void hardware_setup(void)
     led_color_value[2] = 100;
     ledz_set_color(MAX_COLOR_ID, led_color_value);
 
+    led_color_value[0] = -1;
+    led_color_value[1] = -1;
+    led_color_value[2] = -1;
+    ledz_set_color(MAX_COLOR_ID + 1, led_color_value);
+    ledz_set_color(MAX_COLOR_ID + 2, led_color_value);
+
     //set the shift button behaviour
     uint8_t shift_mode = 0;
     EEPROM_Read(0, SHIFT_MODE_ADRESS, &shift_mode, MODE_8_BIT, 1);

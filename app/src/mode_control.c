@@ -249,7 +249,8 @@ static void encoder_control_rm(uint8_t hw_id)
 
     if ((!g_controls[hw_id]) && (naveg_get_current_mode() == MODE_CONTROL))
     {
-        screen_encoder(NULL, hw_id);
+        if (hardware_get_overlay_counter()  == 0)
+            screen_encoder(NULL, hw_id);
         return;
     }
 
@@ -259,7 +260,7 @@ static void encoder_control_rm(uint8_t hw_id)
     {
         data_free_control(control);
         g_controls[hw_id] = NULL;
-        if (naveg_get_current_mode() == MODE_CONTROL)
+        if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter()  == 0))
             screen_encoder(NULL, hw_id);
     }
 }
@@ -1077,7 +1078,7 @@ void CM_set_control(uint8_t hw_id, float value)
         control->step =
             (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
 
-        if ((naveg_get_current_mode() != MODE_CONTROL) || g_actuator_display_lock)
+        if ((naveg_get_current_mode() != MODE_CONTROL) || (hardware_get_overlay_counter() != 0))
             return;
 
         //encoder
@@ -1423,7 +1424,7 @@ void NM_set_foot_led(control_t *control, uint8_t update_led)
 {
     ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
 
-    if (ledz_color_valid(MAX_COLOR_ID + control->hw_id-ENCODERS_COUNT))
+    if (ledz_color_valid(MAX_COLOR_ID + control->hw_id-ENCODERS_COUNT+1))
     {
         ledz_restore_state(led);
     }

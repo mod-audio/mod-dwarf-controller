@@ -218,7 +218,7 @@ void protocol_parse(msg_t *msg)
 
 void protocol_add_command(const char *command, void (*callback)(uint8_t serial_id, proto_t *proto))
 {
-    if (g_command_count >= COMMAND_COUNT_DUO) while (1);
+    if (g_command_count >= COMMAND_COUNT_DWARF) while (1);
 
     char *cmd = str_duplicate(command);
     g_commands[g_command_count].command = cmd;
@@ -295,6 +295,8 @@ void protocol_init(void)
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
     protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
     protocol_add_command(CMD_SYS_CHANGE_LED, cb_change_assigned_led);
+    protocol_add_command(CMD_SYS_CHANGE_NAME, cb_change_assigment_name);
+    protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
 }
 
 /*
@@ -362,26 +364,107 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
         return;
     }
 
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
     if (atoi(proto->list[3]) == -1)
     {
         //reset led
         int8_t clear[3] = {-1, -1, -1};
-        ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT, clear);
-        NM_set_foot_led(CM_get_control(hw_id), LED_UPDATE);
+        ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1, clear);
+        NM_set_foot_led(control, LED_UPDATE);
         return;
     }
 
     //set color
     int8_t value[3] = {atoi(proto->list[3]), atoi(proto->list[4]), atoi(proto->list[5])}; 
-    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT, value);
+    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
 
-    led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT;
+    led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1;
 
     uint8_t led_update = 0;
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
     ledz_set_state(led, LED_ON, led_update);
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    //error, no led for actuator
+    if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
+    FREE(control->label);
+
+    control->label = str_duplicate(proto->list[3]);
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        CM_draw_foots();
+        CM_draw_encoders();
+    }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    //error, no led for actuator
+    if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, -1, proto);
+        return;
+    }
+
+    FREE(control->unit);
+
+    control->unit = str_duplicate(proto->list[3]);
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        CM_draw_foots();
+        CM_draw_encoders();
+    }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
@@ -477,12 +560,7 @@ void cb_control_set(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    if (hardware_get_overlay_counter())
-        g_actuator_display_lock = 1;
-
     CM_set_control(atoi(proto->list[1]), atof(proto->list[2]));
-
-    g_actuator_display_lock = 0;
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
