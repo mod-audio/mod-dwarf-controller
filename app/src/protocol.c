@@ -328,7 +328,7 @@ void cb_led(uint8_t serial_id, proto_t *proto)
     int8_t value[3] = {atoi(proto->list[2]), atoi(proto->list[3]), atoi(proto->list[4])}; 
     ledz_set_color(MAX_COLOR_ID, value);
 
-    if (proto->list_count == 7)
+    if (proto->list_count < 6)
     {
         led->led_state.color = MAX_COLOR_ID;
         ledz_set_state(led, LED_ON, LED_UPDATE);
