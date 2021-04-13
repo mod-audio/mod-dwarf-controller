@@ -392,7 +392,15 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    ledz_set_state(led, LED_ON, led_update);
+    if (proto->list_count < 6)
+        ledz_set_state(led, LED_ON, led_update);
+    else
+    {
+        led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+        led->led_state.time_on = atoi(proto->list[6]);
+        led->led_state.time_off = atoi(proto->list[7]);
+        ledz_set_state(led, LED_BLINK, led_update);
+    }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
