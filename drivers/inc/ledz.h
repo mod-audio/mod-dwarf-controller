@@ -81,8 +81,8 @@ extern "C"
 #define LED_BLINK_INFINIT		-1
 
 //defines for LED state
+#define LED_OFF             0
 #define LED_ON 				1
-#define LED_OFF 			0
 #define LED_BLINK 			2
 #define LED_FADE 			3
 #define LED_DIMMED			4

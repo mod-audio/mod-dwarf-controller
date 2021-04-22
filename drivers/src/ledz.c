@@ -270,16 +270,6 @@ void ledz_on(ledz_t* led, ledz_color_t color)
 
 void ledz_off(ledz_t* led, ledz_color_t color)
 {
-    // disable blinking and brightness control
-    led->fade_rate = 0;
-    led->blink = 0;
-    led->time_on = 0;
-    led->time_off = 0;
-    led->brightness = 0;
-    led->fade_in = 0;
-    led->fade_out = 0;
-    led->amount_of_blinks = -1;
-
     ledz_set(led, color, 0);
 }
 
@@ -307,7 +297,7 @@ void ledz_set(ledz_t* led, ledz_color_t color, int value)
             led->brightness = 0;
             led->fade_in = 0;
             led->fade_out = 0;
-            led->amount_of_blinks = -1;
+            led->amount_of_blinks = 0;
 
             // skip update if value match current state
             if (led->state == value)
@@ -504,7 +494,6 @@ void ledz_tick(void)
                         if (led->amount_of_blinks > -1)
                         led->amount_of_blinks--;
                     }
-
                 }
                 //stop blinking
                 else
@@ -543,7 +532,6 @@ void ledz_tick(void)
             }
         }
 #endif
-
         // fade control
         if (flag_1ms)
         {
@@ -631,11 +619,11 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
 
             //TODO FIX BLINK BRIGHTNESS
             case LED_BLINK:
+                ledz_off(led, ledz_color);
                 if (led_colors[led_state.color][i] != 0)
                 {
-                    ledz_on(led, ledz_color);
                     ledz_blink(led, ledz_color, led_state.time_on, led_state.time_off, led_state.amount_of_blinks);
-                    ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
+                    //ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
                 }
             break;
 

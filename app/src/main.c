@@ -422,7 +422,7 @@ static void setup_task(void *pvParameters)
     UNUSED_PARAM(pvParameters);
 
     // draw start up images
-    screen_image(0, mod_logo);
+    screen_image(0, dwarf_logo);
     glcd_update(hardware_glcds(0));
 
     // CLI initialization

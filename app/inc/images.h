@@ -3,6 +3,6 @@
 #ifndef IMAGES_H
 #define IMAGES_H
 
-extern const uint8_t mod_logo[], mod_duo[];
+extern const uint8_t dwarf_logo[];
 
 #endif

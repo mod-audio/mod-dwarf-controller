@@ -81,6 +81,32 @@ typedef struct CMD_T {
 static unsigned int g_command_count = 0;
 static cmd_t g_commands[COMMAND_COUNT_DUO];
 
+static int8_t *WIDGET_LED_COLORS[]  = {
+#ifdef WIDGET_LED0_COLOR
+    (int8_t []) WIDGET_LED0_COLOR,
+#endif
+#ifdef WIDGET_LED1_COLOR
+    (int8_t []) WIDGET_LED1_COLOR,
+#endif
+#ifdef WIDGET_LED2_COLOR
+    (int8_t []) WIDGET_LED2_COLOR,
+#endif
+#ifdef WIDGET_LED3_COLOR
+    (int8_t []) WIDGET_LED3_COLOR,
+#endif
+#ifdef WIDGET_LED4_COLOR
+    (int8_t []) WIDGET_LED4_COLOR,
+#endif
+#ifdef WIDGET_LED5_COLOR
+    (int8_t []) WIDGET_LED5_COLOR,
+#endif
+#ifdef WIDGET_LED6_COLOR
+    (int8_t []) WIDGET_LED6_COLOR,
+#endif
+#ifdef WIDGET_LED7_COLOR
+    (int8_t []) WIDGET_LED7_COLOR,
+#endif
+};
 
 /*
 ************************************************************************************************************************
@@ -328,14 +354,12 @@ void cb_led(uint8_t serial_id, proto_t *proto)
     int8_t value[3] = {atoi(proto->list[2]), atoi(proto->list[3]), atoi(proto->list[4])}; 
     ledz_set_color(MAX_COLOR_ID, value);
 
+    led->led_state.color = MAX_COLOR_ID;
+
     if (proto->list_count < 6)
-    {
-        led->led_state.color = MAX_COLOR_ID;
         ledz_set_state(led, LED_ON, LED_UPDATE);
-    }
     else
     {
-        led->led_state.color = MAX_COLOR_ID;
         led->led_state.time_on = atoi(proto->list[5]);
         led->led_state.time_off = atoi(proto->list[6]);
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
@@ -360,7 +384,7 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
     //error, no led for actuator
     else
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
@@ -369,22 +393,12 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
     //error no assignment
     if (!control)
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
-        return;
-    }
-
-    if (atoi(proto->list[3]) == -1)
-    {
-        //reset led
-        int8_t clear[3] = {-1, -1, -1};
-        ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1, clear);
-        NM_set_foot_led(control, LED_UPDATE);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
     //set color
-    int8_t value[3] = {atoi(proto->list[3]), atoi(proto->list[4]), atoi(proto->list[5])}; 
-    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
+    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, WIDGET_LED_COLORS[atoi(proto->list[3])]);
 
     led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1;
 
@@ -392,13 +406,13 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if (proto->list_count < 6)
+    if ((atoi(proto->list[4]) == 0) && (atoi(proto->list[5]) == 0))
         ledz_set_state(led, LED_ON, led_update);
     else
     {
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
-        led->led_state.time_on = atoi(proto->list[6]);
-        led->led_state.time_off = atoi(proto->list[7]);
+        led->led_state.time_on = atoi(proto->list[4]);
+        led->led_state.time_off = atoi(proto->list[5]);
         ledz_set_state(led, LED_BLINK, led_update);
     }
 
@@ -415,7 +429,7 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
     //error, no led for actuator
     if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
@@ -424,7 +438,7 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
     //error no assignment
     if (!control)
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
@@ -451,7 +465,7 @@ void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
     //error, no led for actuator
     if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
@@ -460,7 +474,7 @@ void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
     //error no assignment
     if (!control)
     {
-        protocol_send_response(CMD_RESPONSE, -1, proto);
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
     }
 
