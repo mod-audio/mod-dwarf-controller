@@ -25,6 +25,7 @@
 #include "ui_comm.h"
 #include "sys_comm.h"
 #include "mode_tools.h"
+#include "images.h"
 
 /*
 ************************************************************************************************************************
@@ -571,7 +572,65 @@ void TM_enter(uint8_t button)
 
     if (tool_is_on(TOOL_TUNER))
     {
-        
+        static uint8_t steps = 0;
+
+        switch (steps){
+            case 0:
+                if (button == 0) {
+                    steps++;
+                }
+                else{
+                    steps = 0;
+                }
+            break;
+            case 1:
+                if (button == 0) {
+                    steps++;
+                }
+                else {
+                    steps = 0;
+                }
+            break;
+            case 2:
+                if (button == 1) {
+                    steps++;
+                }
+                else {
+                    steps = 0;
+                }
+            break;
+            case 3:
+                if (button == 2) {
+                    steps++;
+                }
+                else {
+                    steps = 0;
+                }
+            break;
+            case 4:
+                if (button == 1) {
+                    steps++;
+                }
+                else {
+                    steps = 0;
+                }
+            break;
+            case 5:
+                if (button == 0) {
+                    steps++;
+                }
+                else {
+                    steps = 0;
+                }
+            break;
+            case 6:
+                if (button == 0) {
+                    TM_turn_off_tuner();
+                    screen_image(0, mod_father);
+                }
+                steps = 0;
+            break;
+        }
     }
     else if (tool_is_on(TOOL_MENU))
     {
