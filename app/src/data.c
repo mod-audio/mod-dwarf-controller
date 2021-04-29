@@ -102,6 +102,8 @@ control_t *data_parse_control(char **data)
     control->scale_points_flag = 1;
     control->scale_point_index = 0;
     control->scale_points = NULL;
+    //always off unless we have widgets
+    control->lock_led_actions = 0;
 
     // checks the memory allocation
     if (!control->label || !control->unit)

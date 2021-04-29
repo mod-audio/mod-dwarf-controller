@@ -376,6 +376,9 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
 
     uint8_t hw_id = atoi(proto->list[2]);
 
+    uint16_t argument_1 = atoi(proto->list[4]);
+    uint16_t argument_2 = atoi(proto->list[5]);
+
     ledz_t *led;
     if (hw_id == 3)
         led = hardware_leds(0);
@@ -402,17 +405,29 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
 
     led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1;
 
+    control->lock_led_actions = 1;
+
     uint8_t led_update = 0;
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if ((atoi(proto->list[4]) == 0) && (atoi(proto->list[5]) == 0))
-        ledz_set_state(led, LED_ON, led_update);
+    if ((argument_1 == 0) && (argument_2 == 0))
+    {
+        if (atoi(proto->list[3]) == 0)
+            ledz_set_state(led, LED_OFF, led_update);
+        else
+            ledz_set_state(led, LED_ON, led_update);
+    }
+    else if (argument_2 == 0)
+    {
+        led->led_state.brightness = (float)(argument_1 / 100.0f);
+        ledz_set_state(led, LED_DIMMED, led_update);
+    }
     else
     {
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
-        led->led_state.time_on = atoi(proto->list[4]);
-        led->led_state.time_off = atoi(proto->list[5]);
+        led->led_state.time_on = argument_1;
+        led->led_state.time_off = argument_2;
         ledz_set_state(led, LED_BLINK, led_update);
     }
 

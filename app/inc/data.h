@@ -57,6 +57,7 @@ typedef struct CONTROL_T {
     scale_point_t **scale_points;
     uint16_t scale_point_index;
     uint8_t scroll_dir;
+    uint8_t lock_led_actions;
 } control_t;
 
 typedef struct BP_LIST_T {

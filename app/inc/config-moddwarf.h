@@ -179,7 +179,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define SYSTEM_SERIAL               2
 
 // define how many bytes will be allocated to rx/tx buffers
-#define SYSTEM_COMM_RX_BUFF_SIZE    1024
+#define SYSTEM_COMM_RX_BUFF_SIZE    4096
 #define SYSTEM_COMM_TX_BUFF_SIZE    512
 
 //// Command line interface configurations

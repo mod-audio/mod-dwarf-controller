@@ -276,7 +276,7 @@ static void set_alternated_led_list_colour(control_t *control)
 
 static void foot_control_print(control_t *control)
 {
-	uint8_t i;
+    uint8_t i;
 
     if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
@@ -384,7 +384,7 @@ static void foot_control_print(control_t *control)
 // control assigned to foot
 static void foot_control_add(control_t *control)
 {
-	// checks the actuator id
+    // checks the actuator id
     if (control->hw_id >= MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT)
         return;
 
@@ -401,15 +401,13 @@ static void foot_control_add(control_t *control)
     //dont set ui when not in control mode
     if (naveg_get_current_mode() != MODE_CONTROL)
     {
-    	NM_set_foot_led(control, LED_STORE_STATE);
-		return;
+        CM_set_foot_led(control, LED_STORE_STATE);
+        return;
     }
 
-	foot_control_print(control);
-	NM_set_foot_led(control, LED_UPDATE);
+    foot_control_print(control);
+    CM_set_foot_led(control, LED_UPDATE);
 }
-
-
 
 // control removed from foot
 static void foot_control_rm(uint8_t hw_id)
@@ -451,7 +449,7 @@ static void foot_control_rm(uint8_t hw_id)
             }
             else
             {
-            	ledz_set_state(led, LED_OFF, LED_STORE_STATE);
+                ledz_set_state(led, LED_OFF, LED_STORE_STATE);
             }
         }
     }
@@ -1031,8 +1029,8 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
             else
             {
                 led->led_state.color = ENUMERATED_COLOR;
-				led->led_state.brightness = 0.1;
-				ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED, LED_UPDATE);
             }
         }
 
@@ -1435,8 +1433,12 @@ void CM_set_state(void)
     CM_set_leds();
 }
 
-void NM_set_foot_led(control_t *control, uint8_t update_led)
+void CM_set_foot_led(control_t *control, uint8_t update_led)
 {
+    //widgets do nothing
+    if (control->lock_led_actions)
+        return;
+
     ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
 
     if (ledz_color_valid(MAX_COLOR_ID + control->hw_id-ENCODERS_COUNT+1))

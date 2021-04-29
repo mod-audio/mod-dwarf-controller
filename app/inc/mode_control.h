@@ -72,7 +72,7 @@ void CM_load_next_page();
 void CM_load_next_encoder_page(uint8_t button);
 void CM_print_screen(void);
 void CM_set_state(void);
-void NM_set_foot_led(control_t *control, uint8_t update_led);
+void CM_set_foot_led(control_t *control, uint8_t update_led);
 void CM_set_leds(void);
 void CM_print_control_overlay(control_t *control, uint16_t overlay_time);
 void CM_set_pages_available(uint8_t page_toggles[8]);
