@@ -252,14 +252,12 @@ static void displays_task(void *pvParameters)
 {
     UNUSED_PARAM(pvParameters);
 
-    uint8_t i = 0;
     uint32_t count = 0;
 
     while (1)
     {
         // update GLCD
-        glcd_update(hardware_glcds(i));
-        if (++i == GLCD_COUNT) i = 0;
+        glcd_update(hardware_glcds(0));
 
         if (TM_need_update_menu())
         {

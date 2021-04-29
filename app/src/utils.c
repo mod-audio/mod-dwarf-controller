@@ -378,8 +378,10 @@ char *str_duplicate(const char *str)
 {
     if (!str) return NULL;
 
-    char *copy = MALLOC(strlen(str) + 1);
-    if (copy) strcpy(copy, str);
+    uint16_t str_len = strlen(str);
+    char *copy = (char *) MALLOC((str_len + 1)* sizeof(char));
+    if (copy) memcpy(copy, str, str_len);
+    copy[str_len] = '\0';
 
     return copy;
 }

@@ -84,8 +84,7 @@ typedef struct BAR_T {
     uint8_t color;
     uint8_t width, height;
     int32_t step, steps;
-    uint8_t has_unit;
-    const char *value, *unit;
+    const char *value;
 } bar_t;
 
 typedef struct MENU_BAR_T {

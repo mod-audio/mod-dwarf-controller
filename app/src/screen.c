@@ -359,13 +359,14 @@ void screen_encoder(control_t *control, uint8_t encoder)
         char_cnt_name = 8;
     }
 
-    char title_str_bfr[char_cnt_name+1];
-    memset(title_str_bfr, 0, (char_cnt_name+1)*sizeof(char));
+    char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
     strncpy(title_str_bfr, control->label, char_cnt_name);
-    title_str_bfr[char_cnt_name] = 0;
+    title_str_bfr[char_cnt_name] = '\0';
 
     //allign to middle, (full width / 2) - (text width / 2)
     glcd_text(display, (encoder_x + 18 - 2*char_cnt_name), encoder_y, title_str_bfr, Terminal3x5, GLCD_BLACK);
+
+    FREE(title_str_bfr);
 
     // list type control
     if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
@@ -450,15 +451,28 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
         bar.value = str_bfr;
 
+        widget_bar_encoder(display, &bar);
+
         //check what to do with the unit
-        bar.has_unit = 0;
         if (strcmp("", control->unit) != 0)
         {
-            bar.has_unit = 1;
-            bar.unit = control->unit;
-        }
+            uint8_t char_cnt_unit = strlen(control->unit);
 
-        widget_bar_encoder(display, &bar);
+            if (char_cnt_unit > 7)
+            {
+                //limit string
+                char_cnt_unit = 7;
+            }
+
+            char *unit_str_bfr = (char *) MALLOC((char_cnt_unit + 1) * sizeof(char));
+            strncpy(unit_str_bfr, control->unit, char_cnt_unit);
+            unit_str_bfr[char_cnt_unit] = '\0';
+
+            glcd_text(display, (encoder_x + 18 - 2*char_cnt_unit), encoder_y + 12 + 7, unit_str_bfr, Terminal3x5, GLCD_BLACK);
+
+            FREE(unit_str_bfr);
+            return;
+        }
     }
 }
 

@@ -1308,6 +1308,21 @@ void CM_draw_foots(void)
     }
 }
 
+void CM_draw_foot(uint8_t foot_id)
+{
+    // checks the function assigned to foot and update the footer
+    if (g_foots[foot_id])
+    {
+        //prevent toggling of pressed light
+        g_foots[foot_id]->scroll_dir = 2;
+        foot_control_print(g_foots[foot_id]);
+    }
+    else
+    {
+        screen_footer(foot_id, NULL, NULL, 0);
+    }
+}
+
 void CM_load_next_page()
 {
     uint8_t pagefound = 0;

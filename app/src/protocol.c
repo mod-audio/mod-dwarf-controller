@@ -426,7 +426,7 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
 
     uint8_t hw_id = atoi(proto->list[2]);
 
-    //error, no led for actuator
+    //error, no valid actuator
     if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
     {
         protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
@@ -443,13 +443,14 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
     }
 
     FREE(control->label);
-
     control->label = str_duplicate(proto->list[3]);
 
     if (naveg_get_current_mode() == MODE_CONTROL)
     {
-        CM_draw_foots();
-        CM_draw_encoders();
+        if (hw_id < ENCODERS_COUNT)
+            screen_encoder(control, hw_id);
+        else
+            CM_draw_foot(hw_id - ENCODERS_COUNT);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
@@ -462,8 +463,8 @@ void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
 
     uint8_t hw_id = atoi(proto->list[2]);
 
-    //error, no led for actuator
-    if (hw_id > ENCODERS_COUNT + MAX_FOOT_ASSIGNMENTS)
+    //error, we dont change units of foots
+    if (hw_id > ENCODERS_COUNT)
     {
         protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
         return;
@@ -479,13 +480,11 @@ void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
     }
 
     FREE(control->unit);
-
     control->unit = str_duplicate(proto->list[3]);
 
     if (naveg_get_current_mode() == MODE_CONTROL)
     {
-        CM_draw_foots();
-        CM_draw_encoders();
+        screen_encoder(control, hw_id);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
