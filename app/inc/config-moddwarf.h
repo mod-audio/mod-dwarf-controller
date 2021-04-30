@@ -396,6 +396,28 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7
 
+/*
+********************************
+ Widget LED colours definitions
+********************************
+*/
+
+//TODO, MOVE SOMEWHERE? 
+//DEFINES SHOULD BE THE SAME FOR ALL DEVICES!
+
+#define WIDGET_LED0_COLOR               {0,   0,     0}
+#define WIDGET_LED1_COLOR               {100, 0,     0}
+#define WIDGET_LED2_COLOR               {0,   100,   0}
+#define WIDGET_LED3_COLOR               {0,   0,   100}
+#define WIDGET_LED4_COLOR               {100, 0,   100}
+#define WIDGET_LED5_COLOR               {0,   100, 100}
+#define WIDGET_LED6_COLOR               {100, 100,   0}
+#define WIDGET_LED7_COLOR               {100, 100, 100}
+
+/*
+********************************
+*/
+
 //// Tap Tempo
 // defines the time that the led will stay turned on (in milliseconds)
 #define TAP_TEMPO_TIME_ON       100

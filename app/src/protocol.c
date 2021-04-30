@@ -300,6 +300,7 @@ void protocol_init(void)
     protocol_add_command(CMD_PING, cb_ping);
     protocol_add_command(CMD_SAY, cb_say);
     protocol_add_command(CMD_LED, cb_led);
+    protocol_add_command(CMD_DISP_BRIGHTNESS, cb_disp_brightness);
     protocol_add_command(CMD_GLCD_TEXT, cb_glcd_text);
     protocol_add_command(CMD_GLCD_DIALOG, cb_glcd_dialog);
     protocol_add_command(CMD_GLCD_DRAW, cb_glcd_draw);
@@ -365,6 +366,15 @@ void cb_led(uint8_t serial_id, proto_t *proto)
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
         ledz_set_state(led, LED_BLINK, LED_UPDATE);
     }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_disp_brightness(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    hardware_glcd_brightness(atoi(proto->list[1]));
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
