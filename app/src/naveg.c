@@ -1022,6 +1022,8 @@ uint8_t naveg_dialog(char *msg)
     g_device_booted = true;
     g_device_mode = MODE_SELFTEST;
 
+    hardware_glcd_brightness(MAX_BRIGHTNESS);
+
     g_dialog_active = 1;
 
     if (xSemaphoreTake(g_dialog_sem, portMAX_DELAY) == pdTRUE)
