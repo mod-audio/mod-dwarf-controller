@@ -448,7 +448,7 @@ void system_inp_0_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -482,6 +482,8 @@ void system_inp_0_volume_cb(void *arg, int event)
         q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
         val_buffer[q] = 0;
 
+        sys_comm_set_response_cb(NULL, NULL);
+        ui_comm_webgui_set_response_cb(NULL, NULL);
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
@@ -502,7 +504,7 @@ void system_inp_1_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -554,7 +556,7 @@ void system_inp_2_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -606,7 +608,7 @@ void system_outp_0_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -660,7 +662,7 @@ void system_outp_1_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -712,7 +714,7 @@ void system_outp_2_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
@@ -764,7 +766,7 @@ void system_hp_volume_cb(void *arg, int event)
     char val_buffer[20];
     uint8_t q=0;
 
-    if ((event == MENU_EV_ENTER) || (event == MENU_EV_NONE))
+    if (event == MENU_EV_NONE)
     {
         sys_comm_set_response_cb(recieve_sys_value, item);
 
