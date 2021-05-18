@@ -844,10 +844,12 @@ void CM_inc_control(uint8_t encoder)
         else 
         {
             // increments the step
-            if (control->step < (control->steps - 1))
+            if ((control->step < (control->steps - 1)) && (control->step < (control->scale_points_count - 1)))
                 control->step++;
             else
+            {
                 return; 
+            }
         }
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
