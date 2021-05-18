@@ -243,6 +243,8 @@ static void append_sys_value_popup(void *data, menu_item_t *item)
         return;
 
     char resp[LINE_BUFFER_SIZE];
+
+    memset(resp, 0, LINE_BUFFER_SIZE*sizeof(char));
             
     strncpy(resp, values[2], sizeof(resp)-1);
 

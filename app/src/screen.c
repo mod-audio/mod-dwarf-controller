@@ -1353,12 +1353,14 @@ void screen_control_overlay(control_t *control)
     uint8_t foot_val = control->value;
     if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
     {
-        static char *labels_list[10];
+        uint8_t scalepoint_count_local = control->scale_points_count > 64 ? 64 : control->scale_points_count;
 
-        uint8_t q;
-        for (q = 0; (q < control->scale_points_count); q++)
+        char **labels_list = MALLOC(sizeof(char*) * scalepoint_count_local);
+
+        uint8_t i;
+        for (i = 0; i < scalepoint_count_local; i++)
         {
-            labels_list[q] = control->scale_points[q]->label;
+            labels_list[i] = control->scale_points[i]->label;
         }
 
         //trigger list overlay widget
@@ -1379,6 +1381,8 @@ void screen_control_overlay(control_t *control)
         list.line_bottom_margin = 1;
         list.text_left_margin = 0;
         widget_listbox_overlay(display, &list);
+
+        FREE(labels_list);
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
     {
