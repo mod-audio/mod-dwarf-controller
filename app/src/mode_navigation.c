@@ -974,6 +974,10 @@ void NM_set_leds(void)
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(4);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(5);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
         case PEDALBOARD_LIST:
@@ -985,6 +989,8 @@ void NM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
             led_state.color = TRIGGER_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.brightness = 0.1;
@@ -1007,6 +1013,11 @@ void NM_set_leds(void)
         case SNAPSHOT_LIST:
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(4);
+            led_state.color = TRIGGER_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.brightness = 0.1;

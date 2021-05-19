@@ -806,22 +806,16 @@ void screen_bank_list(bp_list_t *list)
     glcd_rect_invert(display, 41, 0, 44, 9);
 
     //print the 3 buttons
-    //draw the first box, back
+    //draw the first box, enter bank
     glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
 
-    //draw the second box, TODO Builder MODE
-    /*box_2.x = 56;
-    box_2.y = DISPLAY_HEIGHT - 7;
-    box_2.text = "COPY";*/
-    glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+    //draw the second box
+    glcd_text(display, 56, DISPLAY_HEIGHT - 7, "COPY", Terminal3x5, GLCD_BLACK);
 
-    //draw the third box, save PB
-    /*box_3.x = 92;
-    box_3.y = DISPLAY_HEIGHT - 7;
-    box_3.text = "NEW";*/
-    glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+    //draw the third box, new bank
+    glcd_text(display, 92, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
 
-    // draws the list
+    // draws the list, check if there are items to avoid a crash
     if (list)
     {
         uint8_t count = strarr_length(list->names);
@@ -841,10 +835,6 @@ void screen_bank_list(bp_list_t *list)
         list_box.text_left_margin = 7;
         widget_banks_listbox(display, &list_box);
     }
-    else
-    {
-        //todo launch quick overlay
-    }
 }
 
 void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
@@ -855,7 +845,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
 
     screen_clear();
 
-    // draws the list
+    // draws the list, check if there are items to avoid a crash
     if (list)
     {
         char str_bfr[18];
@@ -916,42 +906,21 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         
         uint8_t x;
         char *text;
-        if (pb_ss_toggle)
-        {
-            /*box_1.x = 18;
-            box_1.text = "RENAME";*/
+        if (pb_ss_toggle) {
             x = 28;
             text = "-";
         }
-        else
-        {
+        else {
             x = 16;
             text = "< BANKS";
         }
         glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
         //draw the second box
-        if (!pb_ss_toggle)
-        {
-            x = 56;
-            text = "SAVE";
-        }
-        else
-        {
-            x = 62;
-            text = "-";
-        }
-        glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
+        glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
 
-        //draw the third box, save PB
-        /*box_3.x = 86;
-        box_3.y = DISPLAY_HEIGHT - 7;
-        box_3.text = "DELETE";*/
-        glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
-    }
-    else
-    {
-        //todo launch quick overlay
+        //draw the third box
+        glcd_text(display, 86, DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
     }
 }
 
