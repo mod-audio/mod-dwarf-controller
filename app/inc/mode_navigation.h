@@ -61,6 +61,8 @@ void NM_init(void);
 void NM_clear(void);
 void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, char *pedalboard_uid, char **pedalboards_list);
 void NM_enter(void);
+void NM_encoder_hold(uint8_t encoder);
+void NM_encoder_released(uint8_t encoder);
 uint8_t NM_up(void);
 uint8_t NM_down(void);
 void NM_set_banks(bp_list_t *bp_list);

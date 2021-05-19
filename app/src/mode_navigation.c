@@ -602,6 +602,28 @@ void NM_enter(void)
     NM_set_leds();
 }
 
+void NM_encoder_hold(uint8_t encoder)
+{
+    //we only suport reordering on the left encoder
+    if (encoder != 0)
+        return;
+
+    //trigger 'item grab mode'
+    //this mode will be detected by NM_up and NM_down
+    //these will not preform their normal actions, but instead keep indexes to be send with CMD_PEDALBOARD_CHANGE_INDEX and CMD_SNAPSHOT_CHANGE_INDEX
+}
+
+void NM_encoder_released(uint8_t encoder)
+{
+    //we only suport reordering on the left encoder
+    if (encoder != 0)
+        return;
+
+    //dissable 'item grab mode'
+    //send CMD_PEDALBOARD_CHANGE_INDEX and CMD_SNAPSHOT_CHANGE_INDEX
+    //catch the resonse from mod-ui and reprint the list in question
+}
+
 uint8_t NM_up(void)
 {
     bp_list_t *bp_list = 0;

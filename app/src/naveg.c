@@ -393,12 +393,24 @@ void naveg_enc_released(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
-    g_encoders_pressed[encoder] = 0;
+
+    if (g_device_mode != MODE_NAVIGATION)
+        g_encoders_pressed[encoder] = 0;
+    else
+        NM_encoder_released(encoder);
 }
 
 void naveg_enc_hold(uint8_t encoder)
 {
-    g_encoders_pressed[encoder] = 1;
+    if (!g_initialized) return;
+
+    // checks the foot id
+    if (encoder >= ENCODERS_COUNT) return;
+
+    if (g_device_mode != MODE_NAVIGATION)
+        g_encoders_pressed[encoder] = 1;
+    else
+        NM_encoder_hold(encoder);
 
     if (g_self_test_mode)
         naveg_enc_enter(encoder);
