@@ -35,8 +35,8 @@
 ************************************************************************************************************************
 */
 
-enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
-
+enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST, LIST_POPUP};
+enum {SAVE_PB_POPUP, SAVE_SS_POPUP, DELETE_PB_POPUP, DELETE_SS_POPUP, SAVE_PB_WITH_SS_POPUP};
 /*
 ************************************************************************************************************************
 *           GLOBAL VARIABLES

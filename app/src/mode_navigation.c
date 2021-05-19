@@ -67,7 +67,7 @@ static uint16_t g_current_pedalboard, g_bp_first, g_current_snapshot;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static int16_t g_current_bank, g_force_update_pedalboard;
 static uint8_t g_snapshots_loaded = 0;
-static uint8_t g_current_list = PEDALBOARD_LIST;
+static uint8_t g_current_list = PEDALBOARD_LIST, g_current_popup_msg;
 
 /*
 ************************************************************************************************************************
@@ -1055,25 +1055,125 @@ void NM_button_pressed(uint8_t button)
                     g_current_list = BANKS_LIST;
                 break;
 
+                //not used
                 case SNAPSHOT_LIST:
+                break;
+
+                case LIST_POPUP:
+                    switch(g_current_popup_msg)
+                    {
+                        case SAVE_PB_POPUP:
+                            g_current_popup_msg = SAVE_PB_WITH_SS_POPUP;
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                            //send save pb with ss
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case SAVE_SS_POPUP:
+                            //send save current ss
+
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+
+                        case DELETE_PB_POPUP:
+                            //send delete current pb
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case DELETE_SS_POPUP:
+                            //send delete current ss
+
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+                    }
                 break;
             }
         break;
 
         case 1:
-            if (g_current_list == PEDALBOARD_LIST)
+            switch(g_current_list)
             {
-                //save PB
-                ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
-                ui_comm_webgui_wait_response();
+                case BANKS_LIST:
+                    //copy bank. give renaming widget with current bank name + '(1)' filled in
+                break;
 
-                //also give quick overlay
-                give_attention_popup(PEDALBOARD_SAVED_TXT, NM_print_prev_screen);
-                return;
+                case PEDALBOARD_LIST:
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = SAVE_PB_POPUP;
+                break;
+
+                case SNAPSHOT_LIST:
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = SAVE_SS_POPUP;
+                break;
+
+
+                case LIST_POPUP:
+                    switch(g_current_popup_msg)
+                    {
+                        case SAVE_PB_POPUP:
+                        case SAVE_SS_POPUP:
+                            //open renaming widget, for save ass
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                        case DELETE_PB_POPUP:
+                        case DELETE_SS_POPUP:
+                            //not in use
+                        break;
+                    }
+
+                break;
             }
         break;
 
         case 2:
+            switch(g_current_list)
+            {
+                case BANKS_LIST:
+                    //new bank. give renaming widget with blank string
+                break;
+
+                case PEDALBOARD_LIST:
+                    //give popup, delete pb?
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = DELETE_PB_POPUP;
+                break;
+
+                case SNAPSHOT_LIST:
+                    //give popup, delete ss?
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = DELETE_SS_POPUP;
+                break;
+
+                case LIST_POPUP:
+                    //cancel action, back to main list
+                    switch(g_current_popup_msg)
+                    {
+                        case DELETE_PB_POPUP:
+                        case SAVE_PB_POPUP:
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case DELETE_SS_POPUP:
+                        case SAVE_SS_POPUP:
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                            //send save pb without ss
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                    }
+
+                break;
+            }
         break;
     } 
 
