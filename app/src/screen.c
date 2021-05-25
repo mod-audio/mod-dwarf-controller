@@ -837,7 +837,7 @@ void screen_bank_list(bp_list_t *list)
     }
 }
 
-void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
+void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, int8_t hold_item_index, const char *hold_item_label)
 {
     listbox_t list_box;
 
@@ -899,7 +899,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle)
         else
             list_box.name = "SNAPSHOTS";
 
-        widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
+        widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
 
         //print the 3 buttons
         //draw the first box, back

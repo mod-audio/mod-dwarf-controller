@@ -590,20 +590,30 @@ static void control_set(uint8_t id, control_t *control)
             }
             else 
             {
-                // decrements the step
-                if (control->step > 2)
+
+                //we are at the end of our list ask for more data
+                if (control->scale_points_flag & (FLAG_SCALEPOINT_PAGINATED | FLAG_SCALEPOINT_WRAP_AROUND))
                 {
+                    // decrements the step
+                    if (control->step > 2)
+                    {
+                        control->step--;
+                        control->scale_point_index--;
+                    }
+                    else
+                    {
+                        //request new data, a new control we be assigned after
+                        request_control_page(control, 0);
+    
+                        //since a new control is assigned we can return
+                        return;
+                    }
+                }
+                else if (control->step > 0)
+                {
+                    // decrements the step
                     control->step--;
                     control->scale_point_index--;
-                }
-                //we are at the end of our list ask for more data
-                else if (control->scale_points_flag & (FLAG_SCALEPOINT_PAGINATED | FLAG_SCALEPOINT_WRAP_AROUND))
-                {
-                    //request new data, a new control we be assigned after
-                    request_control_page(control, 0);
-    
-                    //since a new control is assigned we can return
-                    return;
                 }
                 else return;
             }

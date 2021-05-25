@@ -480,7 +480,8 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
     }
 }
 
-void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
+void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle,
+                                int8_t hold_item_index, const char *hold_item_label)
 {
     //draw the title line around it
     glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
@@ -512,9 +513,17 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-9, 12, ((6*char_cnt_name) +13), 9);
 
     //draw the list
+
+    //upper item
     if (listbox->hover > 0)
     {
-        uint8_t line_length = strlen(listbox->list[listbox->hover-1]);
+        uint8_t item_index; 
+        if (hold_item_index == listbox->hover-1)
+            item_index = listbox->hover-2;
+        else
+            item_index = listbox->hover-1;
+
+        uint8_t line_length = strlen(listbox->list[item_index]);
 
         if (line_length > 15)
             line_length = 15;
@@ -524,9 +533,9 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         //commented out code is allignment to the middle
         uint8_t item_x = 7;//(DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
-        if (listbox->selected == listbox->hover-1)
+        if (listbox->selected == item_index)
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+            strncpy(item_str_bfr, listbox->list[item_index], line_length);
             item_str_bfr[line_length] = '\0';
 
             //draw indicator
@@ -534,7 +543,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         }
         else
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover-1], line_length);
+            strncpy(item_str_bfr, listbox->list[item_index], line_length);
             item_str_bfr[line_length] = '\0';
         }
 
@@ -542,9 +551,16 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         FREE(item_str_bfr);
     }
 
+    //down item
     if (listbox->hover < (listbox->count - 1))
     {
-        uint8_t line_length = strlen(listbox->list[listbox->hover+1]);
+        uint8_t item_index; 
+        if ((hold_item_index == listbox->hover) || (hold_item_index == -1))
+            item_index = listbox->hover+1;
+        else
+            item_index = listbox->hover;
+
+        uint8_t line_length = strlen(listbox->list[item_index]);
 
         if (line_length > 15)
             line_length = 15;
@@ -554,9 +570,9 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         //commented out code is allignment to the middle
         uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
-        if (listbox->selected == listbox->hover+1)
+        if (listbox->selected == item_index)
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+            strncpy(item_str_bfr, listbox->list[item_index], line_length);
             item_str_bfr[line_length] = '\0';
 
             //draw indicator
@@ -564,7 +580,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         }
         else
         {
-            strncpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+            strncpy(item_str_bfr, listbox->list[item_index], line_length);
             item_str_bfr[line_length] = '\0';
         }
 
@@ -572,34 +588,72 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         FREE(item_str_bfr);
     }
 
-    uint8_t line_length = strlen(listbox->list[listbox->hover]);
-
-    if (line_length > 15)
-        line_length = 15;
-
-    char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
-
-    //commented out code is allignment to the middle
-    uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
-        
-    if (listbox->selected == listbox->hover)
+    //middle item
+    if (hold_item_index != -1)
     {
-        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
-        item_str_bfr[line_length] = '\0';
+        uint8_t line_length = strlen(hold_item_label);
 
-        //draw indicator
-        icon_pb_selected(display, item_x-5, listbox->y + 23);
+        if (line_length > 15)
+            line_length = 15;
+
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+
+        //commented out code is allignment to the middle
+        uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        
+        if (listbox->selected == hold_item_index)
+        {
+            strncpy(item_str_bfr, hold_item_label, line_length);
+            item_str_bfr[line_length] = '\0';
+
+            //draw indicator
+            icon_pb_selected(display, item_x-5, listbox->y + 23);
+        }
+        else
+        {
+            strncpy(item_str_bfr, hold_item_label, line_length);
+            item_str_bfr[line_length] = '\0';
+        }
+
+        glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
+        glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
+
+        //TODO indicate we are in grab mode
+
+        FREE(item_str_bfr);
     }
     else
     {
-        strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
-        item_str_bfr[line_length] = '\0';
+        uint8_t line_length = strlen(listbox->list[listbox->hover]);
+
+        if (line_length > 15)
+            line_length = 15;
+
+        char *item_str_bfr = (char *) MALLOC((line_length + 1) * sizeof(char));
+
+        //commented out code is allignment to the middle
+        uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
+        
+        if (listbox->selected == listbox->hover)
+        {
+            strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+            item_str_bfr[line_length] = '\0';
+
+            //draw indicator
+            icon_pb_selected(display, item_x-5, listbox->y + 23);
+        }
+        else
+        {
+            strncpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+            item_str_bfr[line_length] = '\0';
+        }
+
+        glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
+        glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
+        FREE(item_str_bfr);
     }
 
-    glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
-    glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
     FREE(title_str_bfr);
-    FREE(item_str_bfr);
 }
 
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)
