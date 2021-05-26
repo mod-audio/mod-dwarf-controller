@@ -400,7 +400,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
         FREE(labels_list);
     }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    else if ((control->properties & FLAG_CONTROL_TRIGGER) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -413,7 +413,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
-    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
+    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;

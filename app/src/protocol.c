@@ -521,6 +521,7 @@ void cb_change_assigment_value(uint8_t serial_id, proto_t *proto)
 
 void cb_change_widget_indicator(uint8_t serial_id, proto_t *proto)
 {
+    ledz_on(hardware_leds(6), RED);
     if (serial_id != SYSTEM_SERIAL)
         return;
 
