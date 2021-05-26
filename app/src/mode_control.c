@@ -428,6 +428,14 @@ static void foot_control_rm(uint8_t hw_id)
         // checks if effect_instance and symbol match
         if (hw_id == g_foots[i]->hw_id)
         {
+            //if color was taken by hmi_widgets, invalid so normal leds work again
+            if (ledz_color_valid(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1))
+            {
+                g_foots[i]->lock_led_actions = 0;
+                int8_t value[3] = {-1, -1, -1};
+                ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
+            }
+
             // remove the control
             data_free_control(g_foots[i]);
             g_foots[i] = NULL;
@@ -1024,7 +1032,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
     {
         ledz_t *led = hardware_leds(foot);
         //check if we use the release action for this actuator
-        if (g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER))
+        if ((g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER)) && !g_foots[foot]->lock_led_actions)
         {
             led->led_state.color = TRIGGER_COLOR;
             led->led_state.brightness = 0.1;
