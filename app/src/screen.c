@@ -709,9 +709,6 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
             icon_footswitch_groups(display, DISPLAY_WIDTH-16, foot_y+1);
 
             FREE(group_str_bfr);
-
-            //FIXME some pixels dissapair sometimes, workaround
-            //glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
         }
         else
         {
