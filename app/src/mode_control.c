@@ -398,6 +398,10 @@ static void foot_control_add(control_t *control)
     // stores the foot
     g_foots[control->hw_id - ENCODERS_COUNT] = control;
 
+    //check if we need to change widget:
+    if (g_foots[control->hw_id - ENCODERS_COUNT]->properties & FLAG_CONTROL_REVERSE)
+        screen_group_foots(1);
+
     //dont set ui when not in control mode
     if (naveg_get_current_mode() != MODE_CONTROL)
     {
@@ -428,6 +432,10 @@ static void foot_control_rm(uint8_t hw_id)
         // checks if effect_instance and symbol match
         if (hw_id == g_foots[i]->hw_id)
         {
+            //check if we need to change widget:
+            if (g_foots[i]->properties & FLAG_CONTROL_REVERSE)
+                screen_group_foots(0);
+
             // remove the control
             data_free_control(g_foots[i]);
             g_foots[i] = NULL;

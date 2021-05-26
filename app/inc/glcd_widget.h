@@ -159,13 +159,14 @@ void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm);
 void widget_tuner(glcd_t *display, tuner_t *tuner);
 void widget_popup(glcd_t *display, popup_t *popup);
 
-//icons
+//icons. TODO its more efficient to make bitmaps of these
 void icon_snapshot(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pedalboard(glcd_t *display, uint8_t x, uint8_t y);
 void icon_overlay(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pb_selected(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y);
+void icon_footswitch_groups(glcd_t *display, uint8_t x, uint8_t y);
 
 /*
 ************************************************************************************************************************

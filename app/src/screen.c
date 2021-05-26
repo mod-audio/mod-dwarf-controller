@@ -51,7 +51,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 static tuner_t g_tuner = {0, NULL, 0, 1};
 static bool g_hide_non_assigned_actuators = 0;
 static bool g_control_mode_header = 0;
-
+static bool g_foots_grouped = 0;
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -296,6 +296,11 @@ void screen_set_hide_non_assigned_actuators(uint8_t hide)
 void screen_set_control_mode_header(uint8_t toggle)
 {
     g_control_mode_header = toggle;
+}
+
+void screen_group_foots(uint8_t toggle)
+{
+    g_foots_grouped = toggle;
 }
 
 void screen_encoder(control_t *control, uint8_t encoder)
@@ -600,13 +605,25 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         break;
     }
 
-    // clear the footer area
-    glcd_rect_fill(display, foot_x, foot_y, 50, 10, GLCD_WHITE);
+    if (g_foots_grouped)
+    {
+        glcd_rect_fill(display, 24, foot_y, 87, 10, GLCD_WHITE);
+        glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
+        glcd_vline(display, 24, foot_y, 10, GLCD_BLACK);
+    }
+    else
+    {
+        // clear the footer area
+        if (foot_id == 0)
+            glcd_rect_fill(display, foot_x, foot_y, 53, 10, GLCD_WHITE);
+        else
+            glcd_rect_fill(display, foot_x, foot_y, 50, 10, GLCD_WHITE);
 
-    //draw the footer box
-    glcd_hline(display, foot_x, foot_y, 50, GLCD_BLACK);
-    glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
-    glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
+        //draw the footer box
+        glcd_hline(display, foot_x, foot_y, 50, GLCD_BLACK);
+        glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
+        glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
+    }
 
     if (name == NULL || value == NULL)
     {
@@ -655,44 +672,81 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
         FREE(title_str_bfr);
     }
-    else 
+    else
     {
         uint8_t char_cnt_name = strlen(name);
         uint8_t char_cnt_value = strlen(value);
 
-        if ((char_cnt_value + char_cnt_name) > 7)
+        if (g_foots_grouped)
         {
-            //both bigger then the limmit
-            if ((char_cnt_value > 4) && (char_cnt_name > 3))
-            {
-                char_cnt_name = 3;
-                char_cnt_value = 4;
+            //limit the strings for the screen properly
+            if ((char_cnt_value + char_cnt_name) > 13) {
+                //both bigger then the limmit
+                if ((char_cnt_value > 7) && (char_cnt_name > 6)) {
+                    char_cnt_name = 6;
+                    char_cnt_value = 7;
+                }
+                else if (char_cnt_value > 7) {
+                    if ((13 - char_cnt_name) < char_cnt_value)
+                        char_cnt_value = 13 - char_cnt_name;
+                }
+                else if (char_cnt_name > 6) {
+                    if ((13 - char_cnt_value) < char_cnt_name)
+                        char_cnt_name = 13 - char_cnt_value;
+                }
             }
-            else if (char_cnt_value > 4)
-            {
-                char_cnt_value = 7 - char_cnt_name;
-            }
-            else if (char_cnt_name > 3)
-            {
-                char_cnt_name = 7 - char_cnt_value;
-            }
+
+            char *group_str_bfr = (char *) MALLOC((char_cnt_name + char_cnt_value + 2) * sizeof(char));
+            memset(group_str_bfr, 0, (char_cnt_name + char_cnt_value + 2) * sizeof(char));
+
+            strncpy(group_str_bfr, name, char_cnt_name);
+            strcat(group_str_bfr, ":");
+            strncat(group_str_bfr, value, char_cnt_value);
+            group_str_bfr[char_cnt_name + char_cnt_value + 1] = '\0';
+            glcd_text(display, 27, foot_y + 2, group_str_bfr, Terminal5x7, GLCD_BLACK);
+
+            //group icon
+            icon_footswitch_groups(display, DISPLAY_WIDTH-16, foot_y+1);
+
+            FREE(group_str_bfr);
+
+            //FIXME some pixels dissapair sometimes, workaround
+            //glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
         }
+        else
+        {
+            if ((char_cnt_value + char_cnt_name) > 7) {
+                //both bigger then the limmit
+                if ((char_cnt_value > 4) && (char_cnt_name > 3)) {
+                    char_cnt_name = 3;
+                    char_cnt_value = 4;
+                }
+                else if (char_cnt_value > 4) {
+                    char_cnt_value = 7 - char_cnt_name;
+                }
+                else if (char_cnt_name > 3) {
+                    char_cnt_name = 7 - char_cnt_value;
+                }
+            }
 
-        char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
-        char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
+            char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            memset(title_str_bfr, 0, (char_cnt_name + 1) * sizeof(char));
+            memset(value_str_bfr, 0, (char_cnt_value + 1) * sizeof(char));
 
-        //draw name
-        strncpy(title_str_bfr, name, char_cnt_name);
-        title_str_bfr[char_cnt_name] = '\0';
-        glcd_text(display, foot_x + 2, foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
+            //draw name
+            strncpy(title_str_bfr, name, char_cnt_name);
+            title_str_bfr[char_cnt_name] = '\0';
+            glcd_text(display, foot_x + 2, foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
 
-        // draws the value field
-        strncpy(value_str_bfr, value, char_cnt_value);
-        value_str_bfr[char_cnt_value] = '\0';
-        glcd_text(display, foot_x + (50 - ((strlen(value_str_bfr)) * 6)), foot_y + 2, value_str_bfr, Terminal5x7, GLCD_BLACK);
-
-        FREE(title_str_bfr);
-        FREE(value_str_bfr);
+            // draws the value field
+            strncpy(value_str_bfr, value, char_cnt_value);
+            value_str_bfr[char_cnt_value] = '\0';
+            glcd_text(display, foot_x + (50 - ((strlen(value_str_bfr)) * 6)), foot_y + 2, value_str_bfr, Terminal5x7, GLCD_BLACK);
+        
+            FREE(title_str_bfr);
+            FREE(value_str_bfr);
+        }
     }
     
 }

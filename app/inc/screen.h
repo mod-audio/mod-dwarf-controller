@@ -64,6 +64,7 @@
 void screen_clear(void);
 void screen_set_hide_non_assigned_actuators(uint8_t hide);
 void screen_set_control_mode_header(uint8_t toggle);
+void screen_group_foots(uint8_t toggle);
 void screen_encoder(control_t *control, uint8_t encoder);
 void screen_encoder_container(uint8_t current_encoder_page);
 void screen_page_index(uint8_t current, uint8_t available);
