@@ -104,6 +104,9 @@ control_t *data_parse_control(char **data)
     control->scale_points = NULL;
     //always off unless we have widgets
     control->lock_led_actions = 0;
+    //can only be set by widget
+    control->value_string = NULL;
+    control->screen_indicator_widget_val = -1;
 
     // checks the memory allocation
     if (!control->label || !control->unit)
@@ -149,6 +152,9 @@ void data_free_control(control_t *control)
 
     FREE(control->label);
     FREE(control->unit);
+
+    if (control->value_string)
+        FREE(control->value_string);
 
     if (control->scale_points)
     {
