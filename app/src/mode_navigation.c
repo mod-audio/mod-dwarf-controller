@@ -528,6 +528,9 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
 void NM_enter(void)
 {
+    if (g_item_grabbed != NO_GRAB_ITEM)
+        return;
+
     const char *title;
 
     if (!g_banks)
@@ -618,7 +621,7 @@ void NM_encoder_hold(uint8_t encoder)
     //these will not preform their normal actions, but instead keep indexes to be send when released
     uint8_t char_cnt_name = 0;
     if (g_current_list == PEDALBOARD_LIST) {
-        g_item_grabbed = g_pedalboards->hover;
+        g_item_grabbed = g_pedalboards->hover - g_pedalboards->page_min;
         char_cnt_name = strlen(g_pedalboards->names[g_item_grabbed]);
 
         if (char_cnt_name > 16)
@@ -644,14 +647,15 @@ void NM_encoder_hold(uint8_t encoder)
 void NM_encoder_released(uint8_t encoder)
 {
     //we only suport reordering on the left encoder
-    if (encoder != 0)
+    if ((encoder != 0) || (g_item_grabbed == NO_GRAB_ITEM))
         return;
 
     //dissable 'item grab mode'
     g_item_grabbed = NO_GRAB_ITEM;
 
     //free string in mem
-    FREE(g_grabbed_item_label);
+    if (g_grabbed_item_label)
+        FREE(g_grabbed_item_label);
 
     //send CMD_PEDALBOARD_CHANGE_INDEX or CMD_SNAPSHOT_CHANGE_INDEX
 

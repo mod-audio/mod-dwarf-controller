@@ -481,7 +481,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
 }
 
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle,
-                                int8_t hold_item_index, const char *hold_item_label)
+                               int8_t hold_item_index, const char *hold_item_label)
 {
     //draw the title line around it
     glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);

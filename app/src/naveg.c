@@ -393,7 +393,6 @@ void naveg_enc_released(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
-
     if (g_device_mode != MODE_NAVIGATION)
         g_encoders_pressed[encoder] = 0;
     else
