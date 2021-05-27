@@ -838,7 +838,7 @@ void cb_pages_available(uint8_t serial_id, proto_t *proto)
     pages_toggles[6] = atoi(proto->list[7]);
     pages_toggles[7] = atoi(proto->list[8]);
 
-    CM_set_pages_available(pages_toggles);
-
     protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    CM_set_pages_available(pages_toggles);
 }
