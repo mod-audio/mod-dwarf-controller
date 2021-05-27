@@ -607,7 +607,7 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
     if (g_foots_grouped)
     {
-        glcd_rect_fill(display, 24, foot_y, 87, 10, GLCD_WHITE);
+        glcd_rect_fill(display, 24, foot_y, 102, 10, GLCD_WHITE);
         glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
         glcd_vline(display, 24, foot_y, 10, GLCD_BLACK);
     }
@@ -680,19 +680,19 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         if (g_foots_grouped)
         {
             //limit the strings for the screen properly
-            if ((char_cnt_value + char_cnt_name) > 13) {
+            if ((char_cnt_value + char_cnt_name) > 14) {
                 //both bigger then the limmit
-                if ((char_cnt_value > 7) && (char_cnt_name > 6)) {
-                    char_cnt_name = 6;
+                if ((char_cnt_value > 7) && (char_cnt_name > 7)) {
+                    char_cnt_name = 7;
                     char_cnt_value = 7;
                 }
                 else if (char_cnt_value > 7) {
-                    if ((13 - char_cnt_name) < char_cnt_value)
-                        char_cnt_value = 13 - char_cnt_name;
+                    if ((14 - char_cnt_name) < char_cnt_value)
+                        char_cnt_value = 14 - char_cnt_name;
                 }
-                else if (char_cnt_name > 6) {
-                    if ((13 - char_cnt_value) < char_cnt_name)
-                        char_cnt_name = 13 - char_cnt_value;
+                else if (char_cnt_name > 7) {
+                    if ((14 - char_cnt_value) < char_cnt_name)
+                        char_cnt_name = 14 - char_cnt_value;
                 }
             }
 
@@ -703,10 +703,10 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
             strcat(group_str_bfr, ":");
             strncat(group_str_bfr, value, char_cnt_value);
             group_str_bfr[char_cnt_name + char_cnt_value + 1] = '\0';
-            glcd_text(display, 27, foot_y + 2, group_str_bfr, Terminal5x7, GLCD_BLACK);
+            glcd_text(display, 26, foot_y + 2, group_str_bfr, Terminal5x7, GLCD_BLACK);
 
             //group icon
-            icon_footswitch_groups(display, DISPLAY_WIDTH-16, foot_y+1);
+            icon_footswitch_groups(display, DISPLAY_WIDTH-12, foot_y+1);
 
             FREE(group_str_bfr);
         }
