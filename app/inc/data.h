@@ -49,7 +49,7 @@ typedef struct SCALE_POINT_T {
 
 typedef struct CONTROL_T {
     uint8_t hw_id;
-    char *label, *unit;
+    char *label, *unit, *value_string;
     uint16_t properties;
     float value, minimum, maximum;
     int32_t step, steps;
@@ -58,6 +58,7 @@ typedef struct CONTROL_T {
     uint16_t scale_point_index;
     uint8_t scroll_dir;
     uint8_t lock_led_actions;
+    float screen_indicator_widget_val;
 } control_t;
 
 typedef struct BP_LIST_T {

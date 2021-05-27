@@ -405,7 +405,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
         FREE(labels_list);
     }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    else if ((control->properties & FLAG_CONTROL_TRIGGER) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -418,7 +418,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
-    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
+    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -439,24 +439,51 @@ void screen_encoder(control_t *control, uint8_t encoder)
         bar.width = 35;
         bar.height = 6;
         bar.color = GLCD_BLACK;
-        bar.step = control->step;
-        bar.steps = control->steps - 1;
+        if (control->screen_indicator_widget_val == -1) {
+            bar.step = control->step;
+            bar.steps = control->steps - 1;
+        }
+        else {
+            bar.step = control->screen_indicator_widget_val * 100;
+            bar.steps = 100;
+        }
 
-        char str_bfr[15] = {0};
-        if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
-            int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
-        else if ((control->value > 99.99) || (control->value < -99.99))
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
-        else if ((control->value > 9.99) || (control->value < -9.99))
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
+        if (!control->value_string)
+        {
+            char str_bfr[15] = {0};
+
+            if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
+                int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
+            else if ((control->value > 99.99) || (control->value < -99.99))
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
+            else if ((control->value > 9.99) || (control->value < -9.99))
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
+            else
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
+
+            str_bfr[14] = 0;
+
+            bar.value = str_bfr;
+
+            widget_bar_encoder(display, &bar);
+        }
         else
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
+        {
+            //draw the value string
+            uint8_t char_cnt_value = strlen(control->value_string);
 
-        str_bfr[14] = 0;
+            if (char_cnt_value > 8)
+                char_cnt_value = 8;
 
-        bar.value = str_bfr;
+            char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            strncpy(value_str_bfr, control->value_string, char_cnt_value);
+            value_str_bfr[char_cnt_value] = '\0';
+            bar.value = value_str_bfr;
 
-        widget_bar_encoder(display, &bar);
+            widget_bar_encoder(display, &bar);
+
+            FREE(value_str_bfr);
+        }
 
         //check what to do with the unit
         if (strcmp("", control->unit) != 0)
