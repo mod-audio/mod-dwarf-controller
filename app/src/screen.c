@@ -632,7 +632,7 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         break;
     }
 
-    if (g_foots_grouped)
+    if (g_foots_grouped && (naveg_get_current_mode() == MODE_CONTROL))
     {
         glcd_rect_fill(display, 24, foot_y, 102, 10, GLCD_WHITE);
         glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
@@ -704,7 +704,7 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         uint8_t char_cnt_name = strlen(name);
         uint8_t char_cnt_value = strlen(value);
 
-        if (g_foots_grouped)
+        if (g_foots_grouped && (naveg_get_current_mode() == MODE_CONTROL))
         {
             //limit the strings for the screen properly
             if ((char_cnt_value + char_cnt_name) > 14) {
