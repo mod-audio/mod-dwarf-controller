@@ -1784,3 +1784,303 @@ void system_shift_mode_cb(void *arg, int event)
         case 1: item->data.unit_text = "Latching"; break;
     }
 }
+
+void system_noisegate_channel_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_NG_CHANNEL, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = 1.0f;
+
+        item->data.min = 0.0f;
+        item->data.max = 3.0f;
+        item->data.step = 1.0f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_NG_CHANNEL, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    switch ((int)item->data.value)
+    {
+        case 0: item->data.unit_text = "None"; break;
+        case 1: item->data.unit_text = "Input 1"; break;
+        case 2: item->data.unit_text = "Input 2"; break;
+        case 3: item->data.unit_text = "Input 1 & 2"; break;
+    }
+}
+
+void system_noisegate_thres_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = -60.0f;
+
+        item->data.min = -80.0f;
+        item->data.max = -10.0f;
+        item->data.step = 0.1f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    static char str_bfr[10] = {};
+    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
+    strcat(str_bfr, " dB");
+    item->data.unit_text = str_bfr;
+}
+
+void system_noisegate_decay_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_NG_DECAY, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = 10.0f;
+
+        item->data.min = 1.0f;
+        item->data.max = 200.0f;
+        item->data.step = 1.0f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_NG_DECAY, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    static char str_bfr[10] = {};
+    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
+    strcat(str_bfr, " ms");
+    item->data.unit_text = str_bfr;
+}
+
+void system_comp_mode_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_COMP_MODE, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = 1.0f;
+
+        item->data.min = 0.0f;
+        item->data.max = 3.0f;
+        item->data.step = 1.0f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_COMP_MODE, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    switch ((int)item->data.value)
+    {
+        case 0: item->data.unit_text = "Off"; break;
+        case 1: item->data.unit_text = "Light Comp"; break;
+        case 2: item->data.unit_text = "Mild Comp"; break;
+        case 3: item->data.unit_text = "heavy Comp"; break;
+    }
+}
+
+void system_comp_release_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_COMP_RELEASE, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = 100.0f;
+
+        item->data.min = 50.0f;
+        item->data.max = 1000.0f;
+        item->data.step = 1.0f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_COMP_RELEASE, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    static char str_bfr[10] = {};
+    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
+    strcat(str_bfr, " ms");
+    item->data.unit_text = str_bfr;
+}
+
+void system_comp_pb_vol_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    char val_buffer[20];
+    uint8_t q = 0;
+
+    if (event == MENU_EV_NONE)
+    {
+        //sys_comm_set_response_cb(recieve_sys_value, item);
+        
+        //sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
+        //sys_comm_wait_response();
+
+        //TMP remove when callbacks work
+        item->data.value = 0.0f;
+
+        item->data.min = -30.0f;
+        item->data.max = 30.0f;
+        item->data.step = 0.1f;
+    }
+    else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
+    {
+        if (event == MENU_EV_UP)
+            item->data.value += item->data.step;
+        else
+            item->data.value -= item->data.step;
+
+        if (item->data.value > item->data.max)
+            item->data.value = item->data.max;
+        if (item->data.value < item->data.min)
+            item->data.value = item->data.min;
+
+        // insert the value on buffer
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        val_buffer[q] = 0;
+
+        sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
+        sys_comm_wait_response();
+
+        item->data.step = 1.0f;
+    }
+
+    static char str_bfr[10] = {};
+    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
+    strcat(str_bfr, " dB");
+    item->data.unit_text = str_bfr;
+}

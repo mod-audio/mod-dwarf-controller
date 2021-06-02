@@ -238,6 +238,14 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define HEADPHONE_VOLUME_ID     HEADPHONE_ID+1
 
+#define NOISEGATE_CHANNEL_ID	NOISE_GATE_ID+1
+#define NOISEGATE_THRES_ID		NOISE_GATE_ID+2
+#define NOISEGATE_DECAY_ID		NOISE_GATE_ID+3
+
+#define COMPRESSOR_MODE_ID		COMPRESSOR_ID+1
+#define COMPRESSOR_RELEASE_ID	COMPRESSOR_ID+2
+#define COMPRESSOR_PB_VOL_ID	COMPRESSOR_ID+3
+
 #define CLOCK_SOURCE_ID         SYNC_ID+1
 #define SEND_CLOCK_ID           SYNC_ID+2
 
@@ -285,6 +293,14 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb     , 0},  \
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                        , 0},  \
     {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_hp_volume_cb         , 0},  \
+	{"NOISE GATE",                    	MENU_MAIN,      NOISE_GATE_ID,          ROOT_ID,            NULL                        , 0},  \
+    {"INPUT CHANNEL",                   MENU_LIST,      NOISEGATE_CHANNEL_ID,   NOISE_GATE_ID,      system_noisegate_channel_cb , 0},  \
+    {"NOISEGATE THRESHOLD",             MENU_BAR,       NOISEGATE_THRES_ID,     NOISE_GATE_ID,      system_noisegate_thres_cb   , 0},  \
+    {"NOISEGATE DECAY",                 MENU_BAR,       NOISEGATE_DECAY_ID,     NOISE_GATE_ID,      system_noisegate_decay_cb   , 0},  \
+	{"COMPRESSOR",                    	MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                        , 0},  \
+    {"COMPRESSOR MODE",                MENU_LIST,      COMPRESSOR_MODE_ID,   	COMPRESSOR_ID,      system_comp_mode_cb 		, 0},  \
+    {"COMPRESSOR RELEASE",              MENU_BAR,       COMPRESSOR_RELEASE_ID,  COMPRESSOR_ID,      system_comp_release_cb   	, 0},  \
+    {"PEDALBOARD VOLUME",               MENU_BAR,       COMPRESSOR_PB_VOL_ID,   COMPRESSOR_ID,      system_comp_pb_vol_cb   	, 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                        , 0},  \
     {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb          , 0},  \
     {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb         , 0},  \
