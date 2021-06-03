@@ -171,6 +171,16 @@ void restore_led_states(void)
 
 static void load_control_page(uint8_t page)
 {
+    //first notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
+    sys_comm_wait_response();
+
+    //now notify mod-ui
     char buffer[30];
 
     hardware_set_overlay_timeout(0, NULL);
@@ -180,7 +190,7 @@ static void load_control_page(uint8_t page)
     i += int_to_str(page, &buffer[i], sizeof(buffer) - i, 0);
 
     //clear controls
-    uint8_t q;
+    uint8_t q = 0;
     for (q = 0; q < TOTAL_CONTROL_ACTUATORS; q++)
     {
         CM_remove_control(q);
@@ -1425,6 +1435,15 @@ void CM_load_next_encoder_page(uint8_t button)
     uint8_t i = 0;
 
     g_current_encoder_page = button;
+
+    //first notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(g_current_encoder_page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
+    sys_comm_wait_response();
 
     hardware_set_overlay_timeout(0, NULL);
     g_current_overlay_actuator = -1;
