@@ -149,8 +149,9 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox);
 void widget_banks_listbox(glcd_t *display, listbox_t *listbox);
 void widget_listbox2(glcd_t *display, listbox_t *listbox);
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox);
-void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle,
-                                int8_t hold_item_index, const char *hold_item_label);
+void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle);
+void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, 
+                                       uint8_t toggle, int8_t hold_item_index, const char *hold_item_label);
 void widget_foot_overlay(glcd_t *display, overlay_t *overlay);
 void widget_list_value(glcd_t *display, listbox_t *listbox);
 void widget_bar_encoder(glcd_t *display, bar_t *bar);

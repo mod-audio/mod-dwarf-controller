@@ -899,7 +899,8 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         else
             list_box.name = "SNAPSHOTS";
 
-        widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
+        //widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
+        widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
 
         //print the 3 buttons
         //draw the first box, back
