@@ -2047,7 +2047,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
     {
         //sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
+        //sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, NULL);
         //sys_comm_wait_response();
 
         //TMP remove when callbacks work
@@ -2073,7 +2073,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
         q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
         val_buffer[q] = 0;
 
-        sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
+        sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
         sys_comm_wait_response();
 
         item->data.step = 1.0f;
