@@ -35,6 +35,8 @@
 #define PB_MODE 0
 #define SS_MODE 1
 
+#define NO_GRAB_ITEM -1
+
 /*
 ************************************************************************************************************************
 *           LOCAL CONSTANTS
@@ -67,7 +69,9 @@ static uint16_t g_current_pedalboard, g_bp_first, g_current_snapshot;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
 static int16_t g_current_bank, g_force_update_pedalboard;
 static uint8_t g_snapshots_loaded = 0;
-static uint8_t g_current_list = PEDALBOARD_LIST;
+static uint8_t g_current_list = PEDALBOARD_LIST, g_current_popup_msg;
+static int8_t g_item_grabbed = NO_GRAB_ITEM;
+static char *g_grabbed_item_label;
 
 /*
 ************************************************************************************************************************
@@ -524,6 +528,9 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
 void NM_enter(void)
 {
+    if (g_item_grabbed != NO_GRAB_ITEM)
+        return;
+
     const char *title;
 
     if (!g_banks)
@@ -593,13 +600,69 @@ void NM_enter(void)
         return;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, g_pedalboards, PB_MODE);
+        screen_pbss_list(title, g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, g_snapshots, SS_MODE);
+        screen_pbss_list(title, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
     else
         screen_bank_list(g_banks);
 
     NM_set_leds();
+}
+
+void NM_encoder_hold(uint8_t encoder)
+{
+    //we only suport reordering on the left encoder
+    if (encoder != 0)
+        return;
+
+    //trigger 'item grab mode'
+    //save the name to use later when in other subpage of list
+    //this mode will be detected by NM_up and NM_down
+    //these will not preform their normal actions, but instead keep indexes to be send when released
+    uint8_t char_cnt_name = 0;
+    if (g_current_list == PEDALBOARD_LIST) {
+        g_item_grabbed = g_pedalboards->hover - g_pedalboards->page_min;
+        char_cnt_name = strlen(g_pedalboards->names[g_item_grabbed]);
+
+        if (char_cnt_name > 16)
+            char_cnt_name = 16;
+
+        g_grabbed_item_label = (char *) MALLOC((char_cnt_name+1) * sizeof(char));
+        strncpy(g_grabbed_item_label, g_pedalboards->names[g_item_grabbed], char_cnt_name);
+    }
+    else if (g_current_list == SNAPSHOT_LIST) {
+        g_item_grabbed = g_snapshots->hover;
+        char_cnt_name = strlen(g_snapshots->names[g_item_grabbed]);
+
+        if (char_cnt_name > 16)
+            char_cnt_name = 16;
+
+        g_grabbed_item_label = (char *) MALLOC((char_cnt_name+1) * sizeof(char));
+        strncpy(g_grabbed_item_label, g_snapshots->names[g_item_grabbed], char_cnt_name);
+    }
+
+    g_grabbed_item_label[char_cnt_name] = '\0';
+}
+
+void NM_encoder_released(uint8_t encoder)
+{
+    //we only suport reordering on the left encoder
+    if ((encoder != 0) || (g_item_grabbed == NO_GRAB_ITEM))
+        return;
+
+    //dissable 'item grab mode'
+    g_item_grabbed = NO_GRAB_ITEM;
+
+    //free string in mem
+    if (g_grabbed_item_label)
+        FREE(g_grabbed_item_label);
+
+    //send CMD_PEDALBOARD_CHANGE_INDEX or CMD_SNAPSHOT_CHANGE_INDEX
+
+    //catch the resonse from mod-ui
+
+    //reprint screen
+    NM_print_screen();
 }
 
 uint8_t NM_up(void)
@@ -725,9 +788,9 @@ uint8_t NM_up(void)
     else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, bp_list, PB_MODE);
+        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, bp_list, SS_MODE);
+        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label);
     else 
         screen_bank_list(bp_list);
 
@@ -852,9 +915,9 @@ uint8_t NM_down(void)
     else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, bp_list, PB_MODE);
+        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, bp_list, SS_MODE);
+        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label);
     else 
         screen_bank_list(bp_list);
 
@@ -916,7 +979,7 @@ void NM_print_screen(void)
         case PEDALBOARD_LIST:
             request_banks_list(PAGE_DIR_INIT);
             request_pedalboards(PAGE_DIR_INIT, g_current_bank);
-            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
+            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
 
         case SNAPSHOT_LIST:
@@ -926,7 +989,7 @@ void NM_print_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
     }
 
@@ -942,7 +1005,7 @@ void NM_print_prev_screen(void)
         break;
 
         case PEDALBOARD_LIST:
-            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
+            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
 
         case SNAPSHOT_LIST:
@@ -950,7 +1013,7 @@ void NM_print_prev_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
     }
 }
@@ -974,6 +1037,10 @@ void NM_set_leds(void)
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(4);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(5);
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
         case PEDALBOARD_LIST:
@@ -985,6 +1052,9 @@ void NM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
             led_state.color = TRIGGER_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led_state.color = TOGGLED_COLOR;
+            led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.brightness = 0.1;
@@ -1007,6 +1077,11 @@ void NM_set_leds(void)
         case SNAPSHOT_LIST:
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(4);
+            led_state.color = TRIGGER_COLOR;
+            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.brightness = 0.1;
@@ -1044,25 +1119,125 @@ void NM_button_pressed(uint8_t button)
                     g_current_list = BANKS_LIST;
                 break;
 
+                //not used
                 case SNAPSHOT_LIST:
+                break;
+
+                case LIST_POPUP:
+                    switch(g_current_popup_msg)
+                    {
+                        case SAVE_PB_POPUP:
+                            g_current_popup_msg = SAVE_PB_WITH_SS_POPUP;
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                            //send save pb with ss
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case SAVE_SS_POPUP:
+                            //send save current ss
+
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+
+                        case DELETE_PB_POPUP:
+                            //send delete current pb
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case DELETE_SS_POPUP:
+                            //send delete current ss
+
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+                    }
                 break;
             }
         break;
 
         case 1:
-            if (g_current_list == PEDALBOARD_LIST)
+            switch(g_current_list)
             {
-                //save PB
-                ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
-                ui_comm_webgui_wait_response();
+                case BANKS_LIST:
+                    //copy bank. give renaming widget with current bank name + '(1)' filled in
+                break;
 
-                //also give quick overlay
-                give_attention_popup(PEDALBOARD_SAVED_TXT, NM_print_prev_screen);
-                return;
+                case PEDALBOARD_LIST:
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = SAVE_PB_POPUP;
+                break;
+
+                case SNAPSHOT_LIST:
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = SAVE_SS_POPUP;
+                break;
+
+
+                case LIST_POPUP:
+                    switch(g_current_popup_msg)
+                    {
+                        case SAVE_PB_POPUP:
+                        case SAVE_SS_POPUP:
+                            //open renaming widget, for save ass
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                        case DELETE_PB_POPUP:
+                        case DELETE_SS_POPUP:
+                            //not in use
+                        break;
+                    }
+
+                break;
             }
         break;
 
         case 2:
+            switch(g_current_list)
+            {
+                case BANKS_LIST:
+                    //new bank. give renaming widget with blank string
+                break;
+
+                case PEDALBOARD_LIST:
+                    //give popup, delete pb?
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = DELETE_PB_POPUP;
+                break;
+
+                case SNAPSHOT_LIST:
+                    //give popup, delete ss?
+                    g_current_list = LIST_POPUP;
+                    g_current_popup_msg = DELETE_SS_POPUP;
+                break;
+
+                case LIST_POPUP:
+                    //cancel action, back to main list
+                    switch(g_current_popup_msg)
+                    {
+                        case DELETE_PB_POPUP:
+                        case SAVE_PB_POPUP:
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                        case DELETE_SS_POPUP:
+                        case SAVE_SS_POPUP:
+                            g_current_list = SNAPSHOT_LIST;
+                        break;
+
+                        case SAVE_PB_WITH_SS_POPUP:
+                            //send save pb without ss
+
+                            g_current_list = PEDALBOARD_LIST;
+                        break;
+
+                    }
+
+                break;
+            }
         break;
     } 
 
@@ -1125,13 +1300,13 @@ void NM_toggle_pb_ss(void)
         }
 
         //display them
-        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE);
+        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
 
         g_current_list = SNAPSHOT_LIST;
     }
     else
     {
-        screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE);
+        screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
 
         g_current_list = PEDALBOARD_LIST;
     }

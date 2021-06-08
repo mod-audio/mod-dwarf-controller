@@ -150,6 +150,8 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox);
 void widget_listbox2(glcd_t *display, listbox_t *listbox);
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox);
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle);
+void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, 
+                                       uint8_t toggle, int8_t hold_item_index, const char *hold_item_label);
 void widget_foot_overlay(glcd_t *display, overlay_t *overlay);
 void widget_list_value(glcd_t *display, listbox_t *listbox);
 void widget_bar_encoder(glcd_t *display, bar_t *bar);
@@ -166,6 +168,7 @@ void icon_overlay(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pb_selected(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y);
+void icon_pb_grabbed(glcd_t *display, uint8_t x, uint8_t y, uint8_t flip);
 void icon_footswitch_groups(glcd_t *display, uint8_t x, uint8_t y);
 
 /*

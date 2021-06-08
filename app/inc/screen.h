@@ -72,7 +72,7 @@ void screen_tittle(const void *data, uint8_t update, int8_t pb_ss);
 void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t property);
 void screen_tool(uint8_t tool, uint8_t display_id);
 void screen_bank_list(bp_list_t *list);
-void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle);
+void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, int8_t hold_item_index, const char *hold_item_label);
 void screen_system_menu(menu_item_t *item);
 void screen_tool_control_page(node_t *node);
 void screen_toggle_tuner(float frequency, char *note, int8_t cents);

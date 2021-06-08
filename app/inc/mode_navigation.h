@@ -35,8 +35,8 @@
 ************************************************************************************************************************
 */
 
-enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
-
+enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST, LIST_POPUP};
+enum {SAVE_PB_POPUP, SAVE_SS_POPUP, DELETE_PB_POPUP, DELETE_SS_POPUP, SAVE_PB_WITH_SS_POPUP};
 /*
 ************************************************************************************************************************
 *           GLOBAL VARIABLES
@@ -61,6 +61,8 @@ void NM_init(void);
 void NM_clear(void);
 void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, char *pedalboard_uid, char **pedalboards_list);
 void NM_enter(void);
+void NM_encoder_hold(uint8_t encoder);
+void NM_encoder_released(uint8_t encoder);
 uint8_t NM_up(void);
 uint8_t NM_down(void);
 void NM_set_banks(bp_list_t *bp_list);
