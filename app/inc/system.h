@@ -95,6 +95,14 @@ void system_hide_actuator_cb(void *arg, int event);
 void system_usb_mode_cb(void *arg, int event);
 void system_shift_mode_cb(void *arg, int event);
 
+//system plugins
+void system_noisegate_channel_cb(void *arg, int event);
+void system_noisegate_thres_cb(void *arg, int event);
+void system_noisegate_decay_cb(void *arg, int event);
+void system_comp_mode_cb(void *arg, int event);
+void system_comp_release_cb(void *arg, int event);
+void system_comp_pb_vol_cb(void *arg, int event);
+
 /*
 ************************************************************************************************************************
 *           CONFIGURATION ERRORS

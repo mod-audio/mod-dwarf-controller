@@ -343,12 +343,28 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     else
         item = g_current_item;
 
-    if ( (item->desc->id == INP_1_GAIN_ID) || (item->desc->id == INP_2_GAIN_ID) || (item->desc->id == INP_STEREO_LINK) || \
-         (item->desc->id == OUTP_1_GAIN_ID) || (item->desc->id == OUTP_2_GAIN_ID) || (item->desc->id == OUTP_STEREO_LINK) || \
-         (item->desc->id == HEADPHONE_VOLUME_ID))
+    switch (item->desc->id)
     {
-        if (g_encoders_pressed[encoder])
-            item->data.step = 10;
+        case INP_1_GAIN_ID:
+        case INP_2_GAIN_ID:
+        case INP_STEREO_LINK:
+        case OUTP_1_GAIN_ID:
+        case OUTP_2_GAIN_ID:
+        case OUTP_STEREO_LINK:
+        case HEADPHONE_VOLUME_ID:
+        case NOISEGATE_THRES_ID:
+        case NOISEGATE_DECAY_ID:
+        case COMPRESSOR_RELEASE_ID:
+        case COMPRESSOR_PB_VOL_ID:
+
+            if (g_encoders_pressed[encoder])
+                item->data.step = 10;
+
+        break;
+
+        default:
+            item->data.step = 1;
+        break;
     }
 
     if (action == MENU_EV_ENTER)
