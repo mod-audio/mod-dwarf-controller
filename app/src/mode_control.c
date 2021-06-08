@@ -169,6 +169,45 @@ void restore_led_states(void)
     }
 }
 
+static void load_control_page(uint8_t page)
+{
+    //first notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
+    sys_comm_wait_response();
+
+    //now notify mod-ui
+    char buffer[30];
+
+    hardware_set_overlay_timeout(0, NULL);
+    g_current_overlay_actuator = -1;
+
+    uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
+    i += int_to_str(page, &buffer[i], sizeof(buffer) - i, 0);
+
+    //clear controls
+    uint8_t q = 0;
+    for (q = 0; q < TOTAL_CONTROL_ACTUATORS; q++)
+    {
+        CM_remove_control(q);
+    }
+
+    g_current_encoder_page = 0;
+
+    CM_set_state();
+
+    //clear actuator queue
+    reset_queue();
+
+    ui_comm_webgui_clear();
+
+    ui_comm_webgui_send(buffer, i);
+}
+
 // control assigned to display
 static void encoder_control_add(control_t *control)
 {
@@ -398,6 +437,10 @@ static void foot_control_add(control_t *control)
     // stores the foot
     g_foots[control->hw_id - ENCODERS_COUNT] = control;
 
+    //check if we need to change widget:
+    if (g_foots[control->hw_id - ENCODERS_COUNT]->properties & FLAG_CONTROL_REVERSE)
+        screen_group_foots(1);
+
     //dont set ui when not in control mode
     if (naveg_get_current_mode() != MODE_CONTROL)
     {
@@ -428,6 +471,18 @@ static void foot_control_rm(uint8_t hw_id)
         // checks if effect_instance and symbol match
         if (hw_id == g_foots[i]->hw_id)
         {
+            //check if we need to change widget:
+            if (g_foots[i]->properties & FLAG_CONTROL_REVERSE)
+                screen_group_foots(0);
+
+            //if color was taken by hmi_widgets, invalid so normal leds work again
+            if (ledz_color_valid(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1))
+            {
+                g_foots[i]->lock_led_actions = 0;
+                int8_t value[3] = {-1, -1, -1};
+                ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
+            }
+
             // remove the control
             data_free_control(g_foots[i]);
             g_foots[i] = NULL;
@@ -1024,7 +1079,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
     {
         ledz_t *led = hardware_leds(foot);
         //check if we use the release action for this actuator
-        if (g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER))
+        if ((g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER)) && !g_foots[foot]->lock_led_actions)
         {
             led->led_state.color = TRIGGER_COLOR;
             led->led_state.brightness = 0.1;
@@ -1335,7 +1390,6 @@ void CM_load_next_page()
 {
     uint8_t pagefound = 0;
     uint8_t j = g_current_foot_control_page;
-    char buffer[30];
 
     while (!pagefound)
     {
@@ -1366,31 +1420,7 @@ void CM_load_next_page()
         return;
     }
 
-    hardware_set_overlay_timeout(0, NULL);
-    g_current_overlay_actuator = -1;
-
-    uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
-    i += int_to_str(g_current_foot_control_page, &buffer[i], sizeof(buffer) - i, 0);
-
-    //clear controls            
-    uint8_t q;
-    for (q = 0; q < TOTAL_CONTROL_ACTUATORS; q++)
-    {
-        CM_remove_control(q);
-    }
-
-    g_current_encoder_page = 0;
-
-    CM_set_state();
-
-    //clear actuator queue
-    reset_queue();
-
-    ui_comm_webgui_clear();
-
-    ui_comm_webgui_send(buffer, i);
-
-    ui_comm_webgui_wait_response();
+    load_control_page(g_current_foot_control_page);
 }
 
 void CM_reset_page(void)
@@ -1405,6 +1435,15 @@ void CM_load_next_encoder_page(uint8_t button)
     uint8_t i = 0;
 
     g_current_encoder_page = button;
+
+    //first notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(g_current_encoder_page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
+    sys_comm_wait_response();
 
     hardware_set_overlay_timeout(0, NULL);
     g_current_overlay_actuator = -1;
@@ -1612,6 +1651,29 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     }
 
     g_available_foot_pages = pages_available;
+
+    //our current page is not available anymore, so count down
+    if (!g_fs_page_available[g_current_foot_control_page])
+    {
+        uint8_t pagefound = 0;
+        uint8_t j = 8;
+        while (!pagefound)
+        {
+            j--;
+
+            //only 1 page
+            if (j == 0)
+                pagefound = 1;
+
+            //page found
+            if (g_fs_page_available[j])
+                pagefound = 1;
+        }
+
+        g_current_foot_control_page = j;
+
+        load_control_page(g_current_foot_control_page);
+    }
 
     if  (naveg_get_current_mode() == MODE_CONTROL)
         screen_page_index(g_current_foot_control_page, g_available_foot_pages);

@@ -324,6 +324,8 @@ void protocol_init(void)
     protocol_add_command(CMD_SYS_CHANGE_LED, cb_change_assigned_led);
     protocol_add_command(CMD_SYS_CHANGE_NAME, cb_change_assigment_name);
     protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
+    protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
+    protocol_add_command(CMD_SYS_CHANGE_WIDGET_INDICATOR, cb_change_widget_indicator);
 }
 
 /*
@@ -476,6 +478,75 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
             screen_encoder(control, hw_id);
         else
             CM_draw_foot(hw_id - ENCODERS_COUNT);
+    }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_assigment_value(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    //error, we dont change value of foots
+    if (hw_id > ENCODERS_COUNT)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    if (control->value_string)
+        FREE(control->value_string);
+
+    control->value_string = str_duplicate(proto->list[3]);
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        screen_encoder(control, hw_id);
+    }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_widget_indicator(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    //error, we dont have an indicator on foots
+    if (hw_id > ENCODERS_COUNT)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    control->screen_indicator_widget_val = atof(proto->list[3]);
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        screen_encoder(control, hw_id);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
@@ -767,7 +838,7 @@ void cb_pages_available(uint8_t serial_id, proto_t *proto)
     pages_toggles[6] = atoi(proto->list[7]);
     pages_toggles[7] = atoi(proto->list[8]);
 
-    CM_set_pages_available(pages_toggles);
-
     protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    CM_set_pages_available(pages_toggles);
 }

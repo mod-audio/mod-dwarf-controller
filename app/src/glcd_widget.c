@@ -1385,3 +1385,42 @@ void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y)
     glcd_rect(display, x+1, y+1, 1, 3, GLCD_BLACK);
     glcd_rect(display, x+2, y+2, 1, 1, GLCD_BLACK);
 }
+
+//TODO transfer to bitmask
+void icon_footswitch_groups(glcd_t *display, uint8_t x, uint8_t y)
+{
+    // clears the icon area
+    glcd_rect_fill(display, x, y-1, 12, 10, GLCD_WHITE);
+
+    // draws the icon
+    //upper part
+    glcd_rect_fill(display, x, y-1, 12, 4, GLCD_BLACK);
+
+    //arrows, left
+    glcd_rect(display, x, y+3, 3, 1, GLCD_BLACK);
+    glcd_rect(display, x, y+4, 2, 1, GLCD_BLACK);
+    glcd_rect(display, x, y+5, 1, 1, GLCD_BLACK);
+
+    //middle
+    glcd_rect(display, x+4, y+3, 2, 1, GLCD_BLACK);
+    glcd_rect(display, x+5, y+4, 2, 1, GLCD_BLACK);
+    glcd_rect(display, x+6, y+5, 2, 1, GLCD_BLACK);
+
+
+    //right
+    glcd_rect(display, x+11, y+3, 1, 1, GLCD_BLACK);
+    glcd_rect(display, x+10, y+4, 2, 1, GLCD_BLACK);
+    glcd_rect(display, x+9,  y+5, 3, 1, GLCD_BLACK);
+
+    //part under arrows
+    glcd_rect_fill(display, x, y+6, 12, 3, GLCD_BLACK);
+
+    //uncomment below to not have the arrows filled in
+    //inside down
+    //glcd_rect(display, x+7, y+3, 3, 1, GLCD_BLACK);
+    //glcd_rect(display, x+8, y+4, 1, 1, GLCD_BLACK);
+    //inside up
+    //glcd_rect(display, x+3, y+4, 1, 1, GLCD_BLACK);
+    //glcd_rect(display, x+2, y+5, 3, 1, GLCD_BLACK);
+
+}

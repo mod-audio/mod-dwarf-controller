@@ -51,7 +51,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 static tuner_t g_tuner = {0, NULL, 0, 1};
 static bool g_hide_non_assigned_actuators = 0;
 static bool g_control_mode_header = 0;
-
+static bool g_foots_grouped = 0;
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -298,6 +298,11 @@ void screen_set_control_mode_header(uint8_t toggle)
     g_control_mode_header = toggle;
 }
 
+void screen_group_foots(uint8_t toggle)
+{
+    g_foots_grouped = toggle;
+}
+
 void screen_encoder(control_t *control, uint8_t encoder)
 {    
     glcd_t *display = hardware_glcds(0);
@@ -400,7 +405,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
         FREE(labels_list);
     }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
+    else if ((control->properties & FLAG_CONTROL_TRIGGER) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -413,7 +418,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
-    else if (control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS))
+    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (control->screen_indicator_widget_val == -1))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -434,24 +439,51 @@ void screen_encoder(control_t *control, uint8_t encoder)
         bar.width = 35;
         bar.height = 6;
         bar.color = GLCD_BLACK;
-        bar.step = control->step;
-        bar.steps = control->steps - 1;
+        if (control->screen_indicator_widget_val == -1) {
+            bar.step = control->step;
+            bar.steps = control->steps - 1;
+        }
+        else {
+            bar.step = control->screen_indicator_widget_val * 100;
+            bar.steps = 100;
+        }
 
-        char str_bfr[15] = {0};
-        if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
-            int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
-        else if ((control->value > 99.99) || (control->value < -99.99))
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
-        else if ((control->value > 9.99) || (control->value < -9.99))
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
+        if (!control->value_string)
+        {
+            char str_bfr[15] = {0};
+
+            if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
+                int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
+            else if ((control->value > 99.99) || (control->value < -99.99))
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
+            else if ((control->value > 9.99) || (control->value < -9.99))
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
+            else
+                float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
+
+            str_bfr[14] = 0;
+
+            bar.value = str_bfr;
+
+            widget_bar_encoder(display, &bar);
+        }
         else
-            float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
+        {
+            //draw the value string
+            uint8_t char_cnt_value = strlen(control->value_string);
 
-        str_bfr[14] = 0;
+            if (char_cnt_value > 8)
+                char_cnt_value = 8;
 
-        bar.value = str_bfr;
+            char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            strncpy(value_str_bfr, control->value_string, char_cnt_value);
+            value_str_bfr[char_cnt_value] = '\0';
+            bar.value = value_str_bfr;
 
-        widget_bar_encoder(display, &bar);
+            widget_bar_encoder(display, &bar);
+
+            FREE(value_str_bfr);
+        }
 
         //check what to do with the unit
         if (strcmp("", control->unit) != 0)
@@ -600,13 +632,25 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         break;
     }
 
-    // clear the footer area
-    glcd_rect_fill(display, foot_x, foot_y, 50, 10, GLCD_WHITE);
+    if (g_foots_grouped && (naveg_get_current_mode() == MODE_CONTROL))
+    {
+        glcd_rect_fill(display, 24, foot_y, 102, 10, GLCD_WHITE);
+        glcd_hline(display, 24, foot_y, 104, GLCD_BLACK);
+        glcd_vline(display, 24, foot_y, 10, GLCD_BLACK);
+    }
+    else
+    {
+        // clear the footer area
+        if (foot_id == 0)
+            glcd_rect_fill(display, foot_x, foot_y, 53, 10, GLCD_WHITE);
+        else
+            glcd_rect_fill(display, foot_x, foot_y, 50, 10, GLCD_WHITE);
 
-    //draw the footer box
-    glcd_hline(display, foot_x, foot_y, 50, GLCD_BLACK);
-    glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
-    glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
+        //draw the footer box
+        glcd_hline(display, foot_x, foot_y, 50, GLCD_BLACK);
+        glcd_vline(display, foot_x, foot_y, 10, GLCD_BLACK);
+        glcd_vline(display, foot_x+50, foot_y, 10, GLCD_BLACK);
+    }
 
     if (name == NULL || value == NULL)
     {
@@ -655,44 +699,78 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
 
         FREE(title_str_bfr);
     }
-    else 
+    else
     {
         uint8_t char_cnt_name = strlen(name);
         uint8_t char_cnt_value = strlen(value);
 
-        if ((char_cnt_value + char_cnt_name) > 7)
+        if (g_foots_grouped && (naveg_get_current_mode() == MODE_CONTROL))
         {
-            //both bigger then the limmit
-            if ((char_cnt_value > 4) && (char_cnt_name > 3))
-            {
-                char_cnt_name = 3;
-                char_cnt_value = 4;
+            //limit the strings for the screen properly
+            if ((char_cnt_value + char_cnt_name) > 14) {
+                //both bigger then the limmit
+                if ((char_cnt_value > 7) && (char_cnt_name > 7)) {
+                    char_cnt_name = 7;
+                    char_cnt_value = 7;
+                }
+                else if (char_cnt_value > 7) {
+                    if ((14 - char_cnt_name) < char_cnt_value)
+                        char_cnt_value = 14 - char_cnt_name;
+                }
+                else if (char_cnt_name > 7) {
+                    if ((14 - char_cnt_value) < char_cnt_name)
+                        char_cnt_name = 14 - char_cnt_value;
+                }
             }
-            else if (char_cnt_value > 4)
-            {
-                char_cnt_value = 7 - char_cnt_name;
-            }
-            else if (char_cnt_name > 3)
-            {
-                char_cnt_name = 7 - char_cnt_value;
-            }
+
+            char *group_str_bfr = (char *) MALLOC((char_cnt_name + char_cnt_value + 2) * sizeof(char));
+            memset(group_str_bfr, 0, (char_cnt_name + char_cnt_value + 2) * sizeof(char));
+
+            strncpy(group_str_bfr, name, char_cnt_name);
+            strcat(group_str_bfr, ":");
+            strncat(group_str_bfr, value, char_cnt_value);
+            group_str_bfr[char_cnt_name + char_cnt_value + 1] = '\0';
+            glcd_text(display, 26, foot_y + 2, group_str_bfr, Terminal5x7, GLCD_BLACK);
+
+            //group icon
+            icon_footswitch_groups(display, DISPLAY_WIDTH-12, foot_y+1);
+
+            FREE(group_str_bfr);
         }
+        else
+        {
+            if ((char_cnt_value + char_cnt_name) > 7) {
+                //both bigger then the limmit
+                if ((char_cnt_value > 4) && (char_cnt_name > 3)) {
+                    char_cnt_name = 3;
+                    char_cnt_value = 4;
+                }
+                else if (char_cnt_value > 4) {
+                    char_cnt_value = 7 - char_cnt_name;
+                }
+                else if (char_cnt_name > 3) {
+                    char_cnt_name = 7 - char_cnt_value;
+                }
+            }
 
-        char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
-        char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
+            char *value_str_bfr = (char *) MALLOC((char_cnt_value + 1) * sizeof(char));
+            memset(title_str_bfr, 0, (char_cnt_name + 1) * sizeof(char));
+            memset(value_str_bfr, 0, (char_cnt_value + 1) * sizeof(char));
 
-        //draw name
-        strncpy(title_str_bfr, name, char_cnt_name);
-        title_str_bfr[char_cnt_name] = '\0';
-        glcd_text(display, foot_x + 2, foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
+            //draw name
+            strncpy(title_str_bfr, name, char_cnt_name);
+            title_str_bfr[char_cnt_name] = '\0';
+            glcd_text(display, foot_x + 2, foot_y + 2, title_str_bfr, Terminal5x7, GLCD_BLACK);
 
-        // draws the value field
-        strncpy(value_str_bfr, value, char_cnt_value);
-        value_str_bfr[char_cnt_value] = '\0';
-        glcd_text(display, foot_x + (50 - ((strlen(value_str_bfr)) * 6)), foot_y + 2, value_str_bfr, Terminal5x7, GLCD_BLACK);
-
-        FREE(title_str_bfr);
-        FREE(value_str_bfr);
+            // draws the value field
+            strncpy(value_str_bfr, value, char_cnt_value);
+            value_str_bfr[char_cnt_value] = '\0';
+            glcd_text(display, foot_x + (50 - ((strlen(value_str_bfr)) * 6)), foot_y + 2, value_str_bfr, Terminal5x7, GLCD_BLACK);
+        
+            FREE(title_str_bfr);
+            FREE(value_str_bfr);
+        }
     }
     
 }
