@@ -168,6 +168,7 @@ void icon_overlay(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pb_selected(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y);
+void icon_pb_grabbed(glcd_t *display, uint8_t x, uint8_t y, uint8_t flip);
 
 /*
 ************************************************************************************************************************
