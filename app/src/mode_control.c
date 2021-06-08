@@ -171,7 +171,7 @@ void restore_led_states(void)
 
 static void load_control_page(uint8_t page)
 {
-    //first notify host
+/*    //first notify host
     char val_buffer[20] = {0};
     sys_comm_set_response_cb(NULL, NULL);
 
@@ -179,7 +179,7 @@ static void load_control_page(uint8_t page)
 
     sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
     sys_comm_wait_response();
-
+*/
     //now notify mod-ui
     char buffer[30];
 
@@ -1436,7 +1436,7 @@ void CM_load_next_encoder_page(uint8_t button)
 
     g_current_encoder_page = button;
 
-    //first notify host
+ /*   //first notify host
     char val_buffer[20] = {0};
     sys_comm_set_response_cb(NULL, NULL);
 
@@ -1444,7 +1444,7 @@ void CM_load_next_encoder_page(uint8_t button)
 
     sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
     sys_comm_wait_response();
-
+*/
     hardware_set_overlay_timeout(0, NULL);
     g_current_overlay_actuator = -1;
 
