@@ -317,10 +317,9 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
             g_beats_per_minute = value;
             //check if we need to update leds/display
             if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
-                ledz_on(hardware_leds(6), RED);
                 menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
                 tempo_item->data.value = g_beats_per_minute;
-                
+
                 static char str_bfr[12] = {};
                 int_to_str(g_beats_per_minute, str_bfr, 4, 0);
                 strcat(str_bfr, " BPM");
