@@ -36,7 +36,12 @@ typedef enum {TEXT_SINGLE_LINE, TEXT_MULTI_LINES} text_mode_t;
 
 typedef enum {OK_ONLY, OK_CANCEL, CANCEL_ONLY, YES_NO, EMPTY_POPUP} popup_type_t;
 
-
+typedef enum {
+    LIST_DEFAULT,
+    LIST_BEGINNING_BOX,
+    LIST_BEGINNING_BOX_SELECTED,
+    LIST_CHECKBOXES
+} list_types_t;
 /*
 ************************************************************************************************************************
 *           CONFIGURATION DEFINES
@@ -61,7 +66,7 @@ typedef struct TEXTBOX_T {
 } textbox_t;
 
 typedef struct LISTBOX_T {
-    uint8_t x, y, width, height, color;
+    uint8_t x, y, width, height, color, type;
     int16_t hover, selected, count;
     char** list;
     const uint8_t *font, *font_highlight;
@@ -171,6 +176,7 @@ void icon_pb_selected(glcd_t *display, uint8_t x, uint8_t y);
 void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y);
 void icon_pb_grabbed(glcd_t *display, uint8_t x, uint8_t y, uint8_t flip);
 void icon_footswitch_groups(glcd_t *display, uint8_t x, uint8_t y);
+void icon_pb_checkbox(glcd_t *display, uint8_t x, uint8_t y, uint8_t selected);
 
 /*
 ************************************************************************************************************************

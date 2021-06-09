@@ -75,7 +75,7 @@ typedef struct CONTROL_T {
 } control_t;
 
 typedef struct BP_LIST_T {
-    char **names, **uids;
+    char **names, **uids, **selected_pb_uids;
     int32_t hover, selected;
     uint16_t page_min, page_max, menu_max;
 } bp_list_t;

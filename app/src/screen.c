@@ -906,6 +906,7 @@ void screen_bank_list(bp_list_t *list, list_types_t type)
         list_box.count = count;
         list_box.list = list->names;
         list_box.font = Terminal3x5;
+        list_box.type = type;
         list_box.line_space = 2;
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
@@ -926,6 +927,12 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
     // draws the list, check if there are items to avoid a crash
     if (list)
     {
+        //(ab)use bank function
+        if (type == LIST_CHECKBOXES) {
+            screen_bank_list(list, type);
+            return;
+        }
+
         char str_bfr[18];
         uint8_t char_cnt = strlen(title);
         if (char_cnt > 17)

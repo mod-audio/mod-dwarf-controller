@@ -73,6 +73,7 @@ static uint8_t g_current_list = PEDALBOARD_LIST, g_current_popup_msg;
 static int8_t g_item_grabbed = NO_GRAB_ITEM;
 static char *g_grabbed_item_label;
 static list_types_t g_banks_list_mode, g_pb_list_mode, g_ss_list_mode;
+static char** g_pb_uids_to_add_to_bank;
 
 /*
 ************************************************************************************************************************
@@ -439,6 +440,49 @@ static void send_load_snapshot(const char *snapshot_uid)
     ui_comm_webgui_wait_response();
 }
 
+static void enter_bank(void)
+{
+    const char *title = 0;
+
+    g_current_bank = g_banks->hover;
+
+    //make sure that we request the right page if we have a selected pedalboard
+    if (g_current_bank == g_banks->selected)
+        g_pedalboards->hover = g_current_pedalboard;
+
+    //index is relevent in our array so - page_min
+    request_pedalboards(PAGE_DIR_INIT, atoi(g_banks->uids[g_banks->hover - g_banks->page_min]));
+
+    // if reach here, received the pedalboards list
+    g_current_list = PEDALBOARD_LIST;
+    //index is relevent in our array so - page_min
+    title = g_banks->names[g_banks->hover - g_banks->page_min];
+    g_bp_first = 1;
+
+    //check if we need to display the selected item or out of bounds
+    if (g_current_bank == g_banks->selected) {
+        g_pedalboards->selected = g_current_pedalboard;
+        g_pedalboards->hover = g_current_pedalboard;
+        if (g_pb_list_mode != LIST_CHECKBOXES)
+            g_pb_list_mode = LIST_DEFAULT;
+    }
+    else {
+        g_pedalboards->selected = g_pedalboards->menu_max + 1;
+        g_pedalboards->hover = 0;
+        
+        if (g_pb_list_mode != LIST_CHECKBOXES)
+            g_pb_list_mode = LIST_BEGINNING_BOX;
+    }
+
+    if (g_current_list == PEDALBOARD_LIST)
+        screen_pbss_list(title, g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
+    else if (g_current_list == SNAPSHOT_LIST)
+        screen_pbss_list(title, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
+    else
+        screen_bank_list(g_banks, g_banks_list_mode);
+
+    NM_set_leds();
+}
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -536,41 +580,39 @@ void NM_enter(void)
     if (g_item_grabbed != NO_GRAB_ITEM)
         return;
 
-    const char *title;
+    const char *title = 0;
 
     if (!g_banks)
         return;
 
-    if (g_current_list == BANKS_LIST)
+    //check if we need to trigger 'add pb to bank' mode
+    if (g_pb_list_mode == LIST_BEGINNING_BOX_SELECTED) 
     {
-        g_current_bank = g_banks->hover;
+        //switch list modes
+        g_banks_list_mode = LIST_CHECKBOXES;
+        g_pb_list_mode = LIST_CHECKBOXES;
         
-        //make sure that we request the right page if we have a selected pedalboard
-        if (g_current_bank == g_banks->selected)
-            g_pedalboards->hover = g_current_pedalboard;
+        //we always start from banks
+        g_current_list = BANKS_LIST;
 
-        //index is relevent in our array so - page_min
-        request_pedalboards(PAGE_DIR_INIT, atoi(g_banks->uids[g_banks->hover - g_banks->page_min]));
+        //(the bank to add pb's to is now saved as g_current_bank, as it was the last entered bank)
 
-        // if reach here, received the pedalboards list
-        g_current_list = PEDALBOARD_LIST;
-        //index is relevent in our array so - page_min
-        title = g_banks->names[g_banks->hover - g_banks->page_min];
-        g_bp_first = 1;
+        //allocate memory for the UID's, support 50 at once for now
+        g_pb_uids_to_add_to_bank = (char **) MALLOC(sizeof(char *) * 50);
 
-        //check if we need to display the selected item or out of bounds
-        if (g_current_bank == g_banks->selected)
-        {
-            g_pedalboards->selected = g_current_pedalboard;
-            g_pedalboards->hover = g_current_pedalboard;
-            g_pb_list_mode = LIST_DEFAULT;
-        }
-        else 
-        {
-            g_pedalboards->selected = g_pedalboards->menu_max + 1;
-            g_pedalboards->hover = 0;
-            g_pb_list_mode = LIST_BEGINNING_BOX;
-        }
+        NM_print_screen();
+    }
+    //check if we need to add a full bank to a new one
+    else if (g_banks_list_mode == LIST_CHECKBOXES) {
+
+    }
+    //check if we need to add a pb to a bank
+    else if (g_pb_list_mode == LIST_CHECKBOXES) {
+
+    }
+    else if (g_current_list == BANKS_LIST) {
+        enter_bank();
+        return;
     }
     else if (g_current_list == PEDALBOARD_LIST)
     {
@@ -727,7 +769,6 @@ uint8_t NM_up(void)
             if (g_pedalboards->hover <= 0)
             {
                 if ((g_item_grabbed == NO_GRAB_ITEM) && (g_pb_list_mode != LIST_CHECKBOXES)) {
-                    //g_pedalboards->hover = -1;
                     g_pb_list_mode = LIST_BEGINNING_BOX_SELECTED;
                     g_pedalboards->hover = -1;
                     bp_list = g_pedalboards;
@@ -744,9 +785,9 @@ uint8_t NM_up(void)
                 bp_list = g_pedalboards;
                 title = g_banks->names[g_banks->hover - g_banks->page_min];
 
-                if (g_pedalboards->hover == 0)
+                if ((g_pedalboards->hover == 0) && (g_pb_list_mode != LIST_CHECKBOXES))
                     g_pb_list_mode = LIST_BEGINNING_BOX;
-                else
+                else if (g_pb_list_mode != LIST_CHECKBOXES)
                     g_pb_list_mode = LIST_DEFAULT;
             }
         }
@@ -899,9 +940,9 @@ uint8_t NM_down(void)
             }
         }
 
-        if (g_pedalboards->hover == 0)
+        if ((g_pedalboards->hover == 0) && (g_pb_list_mode != LIST_CHECKBOXES))
             g_pb_list_mode = LIST_BEGINNING_BOX;
-        else
+        else if (g_pb_list_mode != LIST_CHECKBOXES)
             g_pb_list_mode = LIST_DEFAULT;
     }
     else if (g_current_list == SNAPSHOT_LIST)
@@ -1140,7 +1181,7 @@ void NM_button_pressed(uint8_t button)
             switch(g_current_list)
             {
                 case BANKS_LIST:
-                    NM_enter();
+                    enter_bank();
                 break;
 
                 case PEDALBOARD_LIST:

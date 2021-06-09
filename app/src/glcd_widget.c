@@ -491,12 +491,25 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
             banks_list.y = y_line;
             widget_textbox(display, &banks_list);
 
-            if ((first_line + i) == listbox->selected)
-            {
-                if (i == focus)
-                    icon_bank_selected(display, listbox->x+1, y_line+1);
-                else
-                    icon_bank_selected(display, listbox->x+1, y_line);
+            if (listbox->type == LIST_DEFAULT) {
+                if ((first_line + i) == listbox->selected) {
+                    if (i == focus)
+                        icon_bank_selected(display, listbox->x+1, y_line+1);
+                    else
+                        icon_bank_selected(display, listbox->x+1, y_line);
+                }
+            }
+            else if (listbox->type == LIST_CHECKBOXES) {
+                //TMP TESTING
+                static uint8_t selected = 0;
+                //if list in list with uirs, selected
+                //else
+                    if (i == focus)
+                        icon_pb_checkbox(display, listbox->x+1, y_line+2, selected);
+                    else
+                        icon_pb_checkbox(display, listbox->x+1, y_line+1, selected);
+
+                selected = 1 - selected;
             }
 
             if (i == focus)
@@ -1409,6 +1422,18 @@ void icon_bank_selected(glcd_t *display, uint8_t x, uint8_t y)
     glcd_rect(display, x, y, 1, 5, GLCD_BLACK);
     glcd_rect(display, x+1, y+1, 1, 3, GLCD_BLACK);
     glcd_rect(display, x+2, y+2, 1, 1, GLCD_BLACK);
+}
+
+void icon_pb_checkbox(glcd_t *display, uint8_t x, uint8_t y, uint8_t selected)
+{
+    // clears the icon area
+    glcd_rect_fill(display, x, y, 3, 3, GLCD_WHITE);
+
+    // draws the icon
+    if (selected)
+        glcd_rect_fill(display, x, y, 3, 3, GLCD_BLACK);
+    else
+        glcd_rect(display, x, y, 3, 3, GLCD_BLACK);
 }
 
 //TODO transfer to bitmask
