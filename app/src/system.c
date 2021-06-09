@@ -303,13 +303,30 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         //play status
         case MENU_ID_PLAY_STATUS:
             g_play_status = value;
+            //check if we need to update leds/display
+            if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
+                ledz_on(hardware_leds(6), RED);
+                menu_item_t *play_item = TM_get_menu_item_by_ID(PLAY_ID);
+                play_item->data.value = g_beats_per_minute;
+                TM_print_tool();
+                TM_set_leds();
+            }
         break;
         //global tempo
         case MENU_ID_TEMPO:
             g_beats_per_minute = value;
             //check if we need to update leds/display
-            if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC))
-            {
+            if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
+                menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
+                tempo_item->data.value = g_beats_per_minute;
+
+                static char str_bfr[12] = {};
+                int_to_str(g_beats_per_minute, str_bfr, 4, 0);
+                strcat(str_bfr, " BPM");
+                tempo_item->data.unit_text = str_bfr;
+
+                tempo_item = TM_get_menu_item_by_ID(TAP_ID);
+                tempo_item->data.value = g_beats_per_minute;
                 TM_print_tool();
                 TM_set_leds();
             }
@@ -317,6 +334,13 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         //global tempo status
         case MENU_ID_BEATS_PER_BAR:
             g_beats_per_bar = value;
+            //check if we need to update leds/display
+            if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
+                menu_item_t *bar_item = TM_get_menu_item_by_ID(BPB_ID);
+                bar_item->data.value = g_beats_per_bar;
+                TM_print_tool();
+                TM_set_leds();
+            }
         break;
         //tuner mute
         case MENU_ID_TUNER_MUTE: 
@@ -333,6 +357,13 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         //MIDI clock source
         case MENU_ID_MIDI_CLK_SOURCE: 
             g_MIDI_clk_src = value;
+            //check if we need to update leds/display
+            if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
+                menu_item_t *clk_source_item = TM_get_menu_item_by_ID(CLOCK_SOURCE_ID_2);
+                clk_source_item->data.value = g_MIDI_clk_src;
+                TM_print_tool();
+                TM_set_leds();
+            }
         break;
         //send midi clock
         case MENU_ID_MIDI_CLK_SEND: 
