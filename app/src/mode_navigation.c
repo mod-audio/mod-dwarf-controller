@@ -72,6 +72,7 @@ static uint8_t g_snapshots_loaded = 0;
 static uint8_t g_current_list = PEDALBOARD_LIST, g_current_popup_msg;
 static int8_t g_item_grabbed = NO_GRAB_ITEM;
 static char *g_grabbed_item_label;
+static list_types_t g_banks_list_mode, g_pb_list_mode, g_ss_list_mode;
 
 /*
 ************************************************************************************************************************
@@ -450,6 +451,10 @@ void NM_init(void)
     g_pedalboards = NULL;
     g_snapshots = NULL;
 
+    g_banks_list_mode = LIST_DEFAULT;
+    g_pb_list_mode = LIST_DEFAULT;
+    g_ss_list_mode = LIST_DEFAULT;
+
     // initializes the bank functions
     uint8_t i;
     for (i = 0; i < BANK_FUNC_COUNT; i++)
@@ -558,11 +563,13 @@ void NM_enter(void)
         {
             g_pedalboards->selected = g_current_pedalboard;
             g_pedalboards->hover = g_current_pedalboard;
+            g_pb_list_mode = LIST_DEFAULT;
         }
         else 
         {
             g_pedalboards->selected = g_pedalboards->menu_max + 1;
             g_pedalboards->hover = 0;
+            g_pb_list_mode = LIST_BEGINNING_BOX;
         }
     }
     else if (g_current_list == PEDALBOARD_LIST)
@@ -600,11 +607,11 @@ void NM_enter(void)
         return;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
     else
-        screen_bank_list(g_banks);
+        screen_bank_list(g_banks, g_banks_list_mode);
 
     NM_set_leds();
 }
@@ -717,7 +724,18 @@ uint8_t NM_up(void)
         if(g_pedalboards->page_min == 0) 
         {
             //check if we are not already at the end
-            if (g_pedalboards->hover == 0) return 0;
+            if (g_pedalboards->hover <= 0)
+            {
+                if ((g_item_grabbed == NO_GRAB_ITEM) && (g_pb_list_mode != LIST_CHECKBOXES)) {
+                    //g_pedalboards->hover = -1;
+                    g_pb_list_mode = LIST_BEGINNING_BOX_SELECTED;
+                    g_pedalboards->hover = -1;
+                    bp_list = g_pedalboards;
+                    title = g_banks->names[g_banks->hover - g_banks->page_min];
+                    screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
+                }
+                return 0;
+            }
             else 
             {
                 //go down till the end
@@ -725,6 +743,11 @@ uint8_t NM_up(void)
                 g_pedalboards->hover--;
                 bp_list = g_pedalboards;
                 title = g_banks->names[g_banks->hover - g_banks->page_min];
+
+                if (g_pedalboards->hover == 0)
+                    g_pb_list_mode = LIST_BEGINNING_BOX;
+                else
+                    g_pb_list_mode = LIST_DEFAULT;
             }
         }
         else
@@ -788,11 +811,11 @@ uint8_t NM_up(void)
     else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
     else 
-        screen_bank_list(bp_list);
+        screen_bank_list(bp_list, g_banks_list_mode);
 
     return 1;
 }
@@ -875,6 +898,11 @@ uint8_t NM_down(void)
                 title = g_banks->names[g_banks->hover - g_banks->page_min];
             }
         }
+
+        if (g_pedalboards->hover == 0)
+            g_pb_list_mode = LIST_BEGINNING_BOX;
+        else
+            g_pb_list_mode = LIST_DEFAULT;
     }
     else if (g_current_list == SNAPSHOT_LIST)
     {
@@ -915,11 +943,11 @@ uint8_t NM_down(void)
     else return 0;
 
     if (g_current_list == PEDALBOARD_LIST)
-        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, bp_list, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
     else if (g_current_list == SNAPSHOT_LIST)
-        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(title, bp_list, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
     else 
-        screen_bank_list(bp_list);
+        screen_bank_list(bp_list, g_banks_list_mode);
 
     return 1;
 }
@@ -973,13 +1001,13 @@ void NM_print_screen(void)
     switch(g_current_list)
     {
         case BANKS_LIST:
-            screen_bank_list(g_banks);
+            screen_bank_list(g_banks, g_banks_list_mode);
         break;
 
         case PEDALBOARD_LIST:
             request_banks_list(PAGE_DIR_INIT);
             request_pedalboards(PAGE_DIR_INIT, g_current_bank);
-            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
         break;
 
         case SNAPSHOT_LIST:
@@ -989,7 +1017,7 @@ void NM_print_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
         break;
     }
 
@@ -1001,11 +1029,11 @@ void NM_print_prev_screen(void)
     switch(g_current_list)
     {
         case BANKS_LIST:
-            screen_bank_list(g_banks);
+            screen_bank_list(g_banks, g_banks_list_mode);
         break;
 
         case PEDALBOARD_LIST:
-            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
         break;
 
         case SNAPSHOT_LIST:
@@ -1013,7 +1041,7 @@ void NM_print_prev_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
         break;
     }
 }
@@ -1300,16 +1328,21 @@ void NM_toggle_pb_ss(void)
         }
 
         //display them
-        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label, g_pb_list_mode);
 
         g_current_list = SNAPSHOT_LIST;
     }
     else
     {
-        screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(g_banks->names[g_current_bank], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label, g_ss_list_mode);
 
         g_current_list = PEDALBOARD_LIST;
     }
 
     NM_set_leds();
+}
+
+uint16_t NM_get_current_bank(void)
+{
+    return g_current_bank;
 }

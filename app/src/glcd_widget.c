@@ -538,7 +538,13 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     }
 
     if (listbox->hover < (listbox->count - 1)) {
-        uint8_t line_length = strlen(listbox->list[listbox->hover+1]);
+        uint8_t item_id = 0;
+        if (listbox->hover == -1)
+            item_id = listbox->hover + 2;
+        else
+            item_id = listbox->hover + 1;
+
+        uint8_t line_length = strlen(listbox->list[item_id]);
 
         if (line_length > 15)
             line_length = 15;
@@ -546,17 +552,23 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
         //commented out code is allignment to the middle
         uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
-        memcpy(item_str_bfr, listbox->list[listbox->hover+1], line_length);
+        memcpy(item_str_bfr, listbox->list[item_id], line_length);
         item_str_bfr[line_length] = '\0';
 
         //draw indicator
-        if (listbox->selected == listbox->hover+1)
+        if (listbox->selected == item_id)
             icon_pb_selected(display, item_x-5, listbox->y + 33);
 
         glcd_text(display, item_x, listbox->y + 32, item_str_bfr, listbox->font, listbox->color);
     }
-
-    uint8_t line_length = strlen(listbox->list[listbox->hover]);
+    
+    uint8_t item_id = 0;
+    if (listbox->hover == -1)
+        item_id = listbox->hover + 1;
+    else
+        item_id = listbox->hover;
+    
+    uint8_t line_length = strlen(listbox->list[item_id]);
 
     if (line_length > 15)
         line_length = 15;
@@ -564,15 +576,18 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     //commented out code is allignment to the middle
     uint8_t item_x = 7;// (DISPLAY_WIDTH / 2) - ((line_length * 8) / 2);
 
-    memcpy(item_str_bfr, listbox->list[listbox->hover], line_length);
+    memcpy(item_str_bfr, listbox->list[item_id], line_length);
     item_str_bfr[line_length] = '\0';
 
     //draw indicator
-    if (listbox->selected == listbox->hover)
+    if (listbox->selected == item_id)
         icon_pb_selected(display, item_x-5, listbox->y + 23);
 
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
-    glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
+
+    if (listbox->hover != -1)
+        glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
+    
     FREE(item_str_bfr);
 }
 
@@ -660,6 +675,16 @@ void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, cons
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
     FREE(item_str_bfr);
+}
+
+void widget_add_pb_button(glcd_t *display, uint8_t x, uint8_t y, uint8_t invert)
+{
+    glcd_text(display, x + 3, y+2, "add pb to bank", Terminal3x5, GLCD_BLACK);
+
+    glcd_rect(display, x, y, 61, 9, GLCD_BLACK);
+
+    if (invert)
+        glcd_rect_invert(display, x+1, y + 1, 59, 7);
 }
 
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox)

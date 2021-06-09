@@ -14,6 +14,7 @@
 #include "images.h"
 #include "protocol.h"
 #include "mode_tools.h"
+#include "mode_navigation.h"
 #include <string.h>
 
 /*
@@ -21,8 +22,6 @@
 *           LOCAL DEFINES
 ************************************************************************************************************************
 */
-
-enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST};
 
 /*
 ************************************************************************************************************************
@@ -848,7 +847,7 @@ void screen_tittle(const void *data, uint8_t update, int8_t pb_ss)
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 }
 
-void screen_bank_list(bp_list_t *list)
+void screen_bank_list(bp_list_t *list, list_types_t type)
 {
     listbox_t list_box = {};
 
@@ -915,7 +914,8 @@ void screen_bank_list(bp_list_t *list)
     }
 }
 
-void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, int8_t hold_item_index, const char *hold_item_label)
+void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, int8_t hold_item_index, 
+                      const char *hold_item_label, list_types_t type)
 {
     listbox_t list_box;
 
@@ -981,6 +981,12 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
             widget_listbox_pedalboard_draging(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
         else
             widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
+
+        //if we are in pb mode, and at the top of the list, display the 'add pb to bank' button
+        if ((((type == LIST_BEGINNING_BOX) || (type == LIST_BEGINNING_BOX_SELECTED))
+            && (!pb_ss_toggle)) && (NM_get_current_bank() != 0)) {
+            widget_add_pb_button(display, 31, 22, (type == LIST_BEGINNING_BOX_SELECTED)?1:0);
+        }
 
         //print the 3 buttons
         //draw the first box, back
