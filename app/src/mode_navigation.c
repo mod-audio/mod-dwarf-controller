@@ -469,7 +469,7 @@ static void enter_bank(void)
     else {
         g_pedalboards->selected = g_pedalboards->menu_max + 1;
         g_pedalboards->hover = 0;
-        
+
         if (g_pb_list_mode != LIST_CHECKBOXES)
             g_pb_list_mode = LIST_BEGINNING_BOX;
     }
@@ -586,7 +586,7 @@ void NM_enter(void)
         return;
 
     //check if we need to trigger 'add pb to bank' mode
-    if (g_pb_list_mode == LIST_BEGINNING_BOX_SELECTED) 
+    if (g_pb_list_mode == LIST_BEGINNING_BOX_SELECTED)
     {
         //switch list modes
         g_banks_list_mode = LIST_CHECKBOXES;
