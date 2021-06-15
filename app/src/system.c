@@ -211,14 +211,22 @@ static void recieve_bluetooth_info(void *data, menu_item_t *item)
         return;
 
     char resp[LINE_BUFFER_SIZE];
-            
     strncpy(resp, values[2], sizeof(resp)-1);
+
+    //merge all arguments, do not split by space for this specific case
+    if (values[3]) {
+        uint8_t i;
+        for (i = 3; values[i]; i++) {
+            strcat(resp, " ");
+            strcat(resp, values[i]);
+        }
+    }
+
     char **items = strarr_split(resp, '|');;
 
     if (items)
     {
-        static char buffer[120];
-        memset(buffer, 0, sizeof buffer);
+        char *buffer = (char *) MALLOC(150 * sizeof(char));
 
         strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
         strcat(buffer, "\n\nSTATUS: ");
@@ -231,6 +239,7 @@ static void recieve_bluetooth_info(void *data, menu_item_t *item)
         item->data.popup_content = buffer;
 
         FREE(items);
+        FREE(buffer);
     }
 }
 
