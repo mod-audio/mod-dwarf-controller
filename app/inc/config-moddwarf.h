@@ -480,7 +480,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
-#define DEFAULT_DISPLAY_BRIGHTNESS         2
+#define DEFAULT_DISPLAY_BRIGHTNESS         MAX_BRIGHTNESS
 #define DEFAULT_LED_BRIGHTNESS             2
 #define DEFAULT_SL_INPUT                   0
 #define DEFAULT_SL_OUTPUT                  0
