@@ -398,7 +398,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
 
                     TM_set_leds();
 
-                    if ((item->desc->id == UPDATE_ID) || (item->desc->id == BLUETOOTH_ID) || (item->desc->id == INFO_ID))
+                    if ((item->desc->id == UPDATE_ID) || (item->desc->id == BLUETOOTH_ID))
                     {
                         if (item->desc->action_cb)
                             item->desc->action_cb(item, action);
@@ -411,6 +411,15 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
 
                         TM_print_tool();
                         TM_set_leds();
+                    }
+                    else if (item->desc->id == INFO_ID)
+                    {
+                        //go back to main menu
+                        g_current_item = g_current_menu->data;
+
+                        TM_print_tool();
+                        TM_set_leds();
+                        return;
                     }
                 }
                 else
