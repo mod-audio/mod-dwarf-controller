@@ -1825,13 +1825,10 @@ void system_noisegate_channel_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_NG_CHANNEL, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = 1.0f;
+        sys_comm_send(CMD_SYS_NG_CHANNEL, NULL);
+        sys_comm_wait_response();
 
         item->data.min = 0.0f;
         item->data.max = 3.0f;
@@ -1850,7 +1847,7 @@ void system_noisegate_channel_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_NG_CHANNEL, val_buffer);
@@ -1877,13 +1874,10 @@ void system_noisegate_thres_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = -60.0f;
+        sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
+        sys_comm_wait_response();
 
         item->data.min = -80.0f;
         item->data.max = -10.0f;
@@ -1902,7 +1896,7 @@ void system_noisegate_thres_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
@@ -1926,13 +1920,10 @@ void system_noisegate_decay_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_NG_DECAY, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = 10.0f;
+        sys_comm_send(CMD_SYS_NG_DECAY, NULL);
+        sys_comm_wait_response();
 
         item->data.min = 1.0f;
         item->data.max = 200.0f;
@@ -1951,7 +1942,7 @@ void system_noisegate_decay_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_NG_DECAY, val_buffer);
@@ -1975,13 +1966,10 @@ void system_comp_mode_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_COMP_MODE, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = 1.0f;
+        sys_comm_send(CMD_SYS_COMP_MODE, NULL);
+        sys_comm_wait_response();
 
         item->data.min = 0.0f;
         item->data.max = 3.0f;
@@ -2000,7 +1988,7 @@ void system_comp_mode_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_COMP_MODE, val_buffer);
@@ -2027,13 +2015,10 @@ void system_comp_release_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_COMP_RELEASE, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = 100.0f;
+        sys_comm_send(CMD_SYS_COMP_RELEASE, NULL);
+        sys_comm_wait_response();
 
         item->data.min = 50.0f;
         item->data.max = 1000.0f;
@@ -2052,7 +2037,7 @@ void system_comp_release_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_COMP_RELEASE, val_buffer);
@@ -2076,13 +2061,10 @@ void system_comp_pb_vol_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //sys_comm_set_response_cb(recieve_sys_value, item);
+        sys_comm_set_response_cb(recieve_sys_value, item);
         
-        //sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, NULL);
-        //sys_comm_wait_response();
-
-        //TMP remove when callbacks work
-        item->data.value = 0.0f;
+        sys_comm_send(CMD_SYS_COMP_PEDALBOARD_GAIN, NULL);
+        sys_comm_wait_response();
 
         item->data.min = -30.0f;
         item->data.max = 30.0f;
@@ -2101,10 +2083,10 @@ void system_comp_pb_vol_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
         val_buffer[q] = 0;
 
-        sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
+        sys_comm_send(CMD_SYS_COMP_PEDALBOARD_GAIN, val_buffer);
         sys_comm_wait_response();
 
         item->data.step = 1.0f;
