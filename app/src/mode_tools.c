@@ -48,6 +48,8 @@ static menu_desc_t g_menu_desc[] = {
     {NULL, 0, -1, -1, NULL, 0}
 };
 
+//as there are some popup items directly linked to menu items, they are not handled by the popup mode
+//TODO, change var names to clearly indicate this
 static const menu_popup_t g_menu_popups[] = {
     POPUP_CONTENT
     {-1, NULL, NULL}
@@ -273,12 +275,12 @@ static void menu_enter(uint8_t encoder)
                 if (item->data.popup_active)
                 {
                     item->data.popup_active = 0;
-                    g_popup_active = 0;
+                    g_menu_popup_active = 0;
                 }
                 else
                 {
                     item->data.popup_active = 1;
-                    g_popup_active = 1;
+                    g_menu_popup_active = 1;
                     g_popup_encoder = encoder;
                 }
             }
@@ -392,7 +394,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                 if (item->data.popup_active)
                 {
                     item->data.popup_active = 0;
-                    g_popup_active = 0;
+                    g_menu_popup_active = 0;
 
                     TM_set_leds();
 
@@ -414,7 +416,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                 else
                 {
                     item->data.popup_active = 1;
-                    g_popup_active = 1;
+                    g_menu_popup_active = 1;
                     g_popup_encoder = encoder;
 
                     TM_set_leds();
@@ -1061,7 +1063,7 @@ void TM_set_leds(void)
     led_state_t led_state = {};
     ledz_t *led;
 
-    if (g_popup_active)
+    if (g_menu_popup_active)
     {
         switch (g_current_item->desc->type)
         {

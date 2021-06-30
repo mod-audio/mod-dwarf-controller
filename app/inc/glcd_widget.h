@@ -36,12 +36,6 @@ typedef enum {TEXT_SINGLE_LINE, TEXT_MULTI_LINES} text_mode_t;
 
 typedef enum {OK_ONLY, OK_CANCEL, CANCEL_ONLY, YES_NO, EMPTY_POPUP} popup_type_t;
 
-typedef enum {
-    LIST_DEFAULT,
-    LIST_BEGINNING_BOX,
-    LIST_BEGINNING_BOX_SELECTED,
-    LIST_CHECKBOXES
-} list_types_t;
 /*
 ************************************************************************************************************************
 *           CONFIGURATION DEFINES
@@ -67,12 +61,13 @@ typedef struct TEXTBOX_T {
 
 typedef struct LISTBOX_T {
     uint8_t x, y, width, height, color, type;
-    int16_t hover, selected, count;
-    char** list;
+    int16_t hover, selected, count, selected_count, page_min_offset;
+    char **list;
     const uint8_t *font, *font_highlight;
     uint8_t line_space, line_top_margin, line_bottom_margin;
     uint8_t text_left_margin;
     uint8_t direction;
+    uint16_t *selected_ids;
     const char *name;
 } listbox_t;
 

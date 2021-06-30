@@ -198,7 +198,7 @@ static void recieve_sys_value(void *data, menu_item_t *item)
     char **values = data;
 
     //protocol ok
-    if (atof(values[1]) == 0)
+    if (atoi(values[1]) == 0)
         item->data.value = atof(values[2]);
 }
 

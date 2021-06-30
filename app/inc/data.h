@@ -40,8 +40,6 @@ typedef enum {
 
 enum {MENU_EV_ENTER, MENU_EV_UP, MENU_EV_DOWN, MENU_EV_NONE};
 
-
-
 /*
 ************************************************************************************************************************
 *           CONFIGURATION DEFINES
@@ -75,9 +73,12 @@ typedef struct CONTROL_T {
 } control_t;
 
 typedef struct BP_LIST_T {
-    char **names, **uids, **selected_pb_uids;
+    char **names, **uids;
+    uint16_t *selected_pb_uids;
+    uint8_t selected_count;
     int32_t hover, selected;
     uint16_t page_min, page_max, menu_max;
+    uint8_t list_mode;
 } bp_list_t;
 
 typedef struct BANK_CONFIG_T {
@@ -117,6 +118,15 @@ typedef struct MENU_POPUP_T {
     char *popup_header;
     char *popup_content;
 } menu_popup_t;
+
+typedef struct SYSTEM_POPUP_T {
+    char *title;
+    char *popup_text;
+    char *btn1_txt, *btn2_txt, *btn3_txt;
+    uint8_t button_value;
+    const uint8_t button_max, has_naming_input;
+    char *input_name;
+} system_popup_t;
 
 /*
 ************************************************************************************************************************

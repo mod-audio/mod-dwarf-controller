@@ -7,8 +7,10 @@
 
 #include "glcd_widget.h"
 #include "utils.h"
+#include "mode_navigation.h"
 #include "mod-protocol.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -433,6 +435,34 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
 
     glcd_rect_fill(display, listbox->x, listbox->y, listbox->width, listbox->height-3, ~listbox->color);
 
+    // title line separator
+    glcd_hline(display, 0, 4, DISPLAY_WIDTH, GLCD_BLACK);
+    glcd_vline(display, 0, 4, 3, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 4, 3, GLCD_BLACK);
+
+    uint8_t name_lenght = strlen(listbox->name);
+
+    if (name_lenght > 16)
+        name_lenght = 16;
+
+    char *title_str_bfr = (char *) MALLOC(17 * sizeof(char));
+    memcpy(title_str_bfr,listbox->name, name_lenght);
+    title_str_bfr[name_lenght] = '\0';
+
+    //clear title area
+    glcd_rect_fill(display, (DISPLAY_WIDTH/2) - 3*name_lenght -9, 0, name_lenght*6+12, 9, GLCD_WHITE);
+
+    glcd_text(display, (DISPLAY_WIDTH/2) - 3*name_lenght + 3, 1, title_str_bfr, Terminal5x7, listbox->color);
+
+    // draws the title
+    if (!strcmp("BANKS", listbox->name))
+        icon_bank(display, (DISPLAY_WIDTH/2) - 3*name_lenght -8, 1);
+    else
+        icon_pedalboard(display, (DISPLAY_WIDTH/2) - 3*name_lenght -8, 1);
+
+    //invert title area
+    glcd_rect_invert(display, (DISPLAY_WIDTH/2) - 3*name_lenght -9, 0, name_lenght*6+12, 9);
+
     font_height = listbox->font[FONT_HEIGHT];
     max_lines = listbox->height / (font_height + listbox->line_space);
 
@@ -491,7 +521,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
             banks_list.y = y_line;
             widget_textbox(display, &banks_list);
 
-            if (listbox->type == LIST_DEFAULT) {
+            if (listbox->type == BANKS_LIST) {
                 if ((first_line + i) == listbox->selected) {
                     if (i == focus)
                         icon_bank_selected(display, listbox->x+1, y_line+1);
@@ -499,17 +529,41 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                         icon_bank_selected(display, listbox->x+1, y_line);
                 }
             }
-            else if (listbox->type == LIST_CHECKBOXES) {
-                //TMP TESTING
-                static uint8_t selected = 0;
-                //if list in list with uirs, selected
-                //else
+            else {
+                uint8_t selected = 0;
+
+                uint8_t j;
+                if ((listbox->type == BANK_LIST_CHECKBOXES_ENGAGED) || (listbox->type == PB_LIST_CHECKBOXES_ENGAGED)) {
+                    for (j = 0; j < listbox->selected_count; j++) {
+                        if (listbox->type == BANK_LIST_CHECKBOXES_ENGAGED) {
+                            if (first_line + i + listbox->page_min_offset == listbox->selected_ids[j]) {
+                                selected = 1;
+                                continue;
+                            }
+                        }
+                        else if (listbox->type == PB_LIST_CHECKBOXES_ENGAGED) {
+                                if (first_line + i + 1 + listbox->page_min_offset == listbox->selected_ids[j]) {
+                                selected = 1;
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                if (!strcmp("BANKS", listbox->name)) {
+                    if (first_line + i != 0){
+                        if (i == focus)
+                            icon_pb_checkbox(display, listbox->x+1, y_line+2, selected);
+                        else
+                            icon_pb_checkbox(display, listbox->x+1, y_line+1, selected);
+                    }
+                }
+                else {
                     if (i == focus)
                         icon_pb_checkbox(display, listbox->x+1, y_line+2, selected);
                     else
                         icon_pb_checkbox(display, listbox->x+1, y_line+1, selected);
-
-                selected = 1 - selected;
+                }
             }
 
             if (i == focus)
@@ -521,6 +575,8 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                 y_line += font_height + listbox->line_space;
         }
     }
+
+    FREE(title_str_bfr);
 }
 
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
@@ -683,7 +739,7 @@ void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, cons
 
     //draw drag indicator
     icon_pb_grabbed(display, item_x-5, listbox->y + 22, 0);
-    icon_pb_grabbed(display, DISPLAY_WIDTH-6, listbox->y + 22, 1);
+    icon_pb_grabbed(display, DISPLAY_WIDTH-7, listbox->y + 22, 1);
 
     glcd_text(display, item_x, listbox->y + 22, item_str_bfr, listbox->font, listbox->color);
     glcd_rect_invert(display, listbox->x+1, listbox->y + 21, listbox->width-2, 10);
@@ -1401,12 +1457,12 @@ void icon_pb_grabbed(glcd_t *display, uint8_t x, uint8_t y, uint8_t flip)
 
     // draws the icon
     if (flip){
-        glcd_rect_fill(display, x+5, y, 1, 7, GLCD_BLACK);
+        glcd_rect_fill(display, x+2, y, 2, 7, GLCD_BLACK);
         glcd_rect_fill(display, x, y, 4, 1, GLCD_BLACK);
         glcd_rect_fill(display, x, y+7, 4, 1, GLCD_BLACK); 
     }
     else{
-        glcd_rect_fill(display, x, y, 1, 7, GLCD_BLACK);
+        glcd_rect_fill(display, x, y, 2, 7, GLCD_BLACK);
         glcd_rect_fill(display, x, y, 4, 1, GLCD_BLACK);
         glcd_rect_fill(display, x, y+7, 4, 1, GLCD_BLACK);       
     }

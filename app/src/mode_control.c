@@ -288,7 +288,7 @@ static void encoder_control_rm(uint8_t hw_id)
 
     if ((!g_controls[hw_id]) && (naveg_get_current_mode() == MODE_CONTROL))
     {
-        if (hardware_get_overlay_counter()  == 0)
+        if (hardware_get_overlay_counter() == 0)
             screen_encoder(NULL, hw_id);
         return;
     }
@@ -299,7 +299,7 @@ static void encoder_control_rm(uint8_t hw_id)
     {
         data_free_control(control);
         g_controls[hw_id] = NULL;
-        if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter()  == 0))
+        if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter() == 0))
             screen_encoder(NULL, hw_id);
     }
 }

@@ -28,6 +28,8 @@
 ************************************************************************************************************************
 */
 
+//flag to indicate we are adding banks, not pbs
+#define ADD_FULL_BANKS -1
 
 /*
 ************************************************************************************************************************
@@ -35,8 +37,11 @@
 ************************************************************************************************************************
 */
 
-enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST, LIST_POPUP};
-enum {SAVE_PB_POPUP, SAVE_SS_POPUP, DELETE_PB_POPUP, DELETE_SS_POPUP, SAVE_PB_WITH_SS_POPUP};
+//list modes
+enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST, LIST_POPUP, PB_LIST_BEGINNING_BOX,
+	  PB_LIST_BEGINNING_BOX_SELECTED, BANK_LIST_CHECKBOXES, BANK_LIST_CHECKBOXES_ENGAGED,
+	  PB_LIST_CHECKBOXES, PB_LIST_CHECKBOXES_ENGAGED};
+
 /*
 ************************************************************************************************************************
 *           GLOBAL VARIABLES
@@ -79,7 +84,8 @@ void NM_button_pressed(uint8_t button);
 void NM_change_pbss(uint8_t next_prev, uint8_t pressed);
 void NM_toggle_pb_ss(void);
 void NM_load_selected(void);
-uint16_t NM_get_current_bank(void);
+uint16_t NM_get_current_selected(uint8_t list_type);
+uint16_t NM_get_current_hover(uint8_t list_type);
 
 /*
 ************************************************************************************************************************

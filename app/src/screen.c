@@ -287,6 +287,11 @@ void screen_clear(void)
     glcd_clear(hardware_glcds(0), GLCD_WHITE);
 }
 
+void screen_force_update(void)
+{
+    glcd_update(hardware_glcds(0));
+}
+
 void screen_set_hide_non_assigned_actuators(uint8_t hide)
 {
     g_hide_non_assigned_actuators = hide;
@@ -847,56 +852,64 @@ void screen_tittle(const void *data, uint8_t update, int8_t pb_ss)
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 }
 
-void screen_bank_list(bp_list_t *list, list_types_t type)
+void screen_bank_list(bp_list_t *list, const char *name)
 {
     listbox_t list_box = {};
 
     glcd_t *display = hardware_glcds(0);
-
+    uint8_t type = NM_get_current_list();
     screen_clear();
 
     //print outlines
     print_menu_outlines();
 
-    // title line separator
-    glcd_hline(display, 0, 4, DISPLAY_WIDTH, GLCD_BLACK);
-    glcd_vline(display, 0, 4, 3, GLCD_BLACK);
-    glcd_vline(display, DISPLAY_WIDTH-1, 4, 3, GLCD_BLACK);
-
-    //clear title area
-    glcd_rect_fill(display, 41, 0, 44, 9, GLCD_WHITE);
-
-    // draws the title
-    textbox_t title_box = {};
-    title_box.color = GLCD_BLACK;
-    title_box.mode = TEXT_SINGLE_LINE;
-    title_box.font = Terminal5x7;
-    title_box.align = ALIGN_NONE_NONE;
-    title_box.text = "BANKS";
-    title_box.x = 54;
-    title_box.y = 1;
-    widget_textbox(display, &title_box);
-
-    icon_bank(display, 43, 1);
-
-    //invert title area
-    glcd_rect_invert(display, 41, 0, 44, 9);
-
     //print the 3 buttons
-    //draw the first box, enter bank
-    glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
+    switch (type) {
+        case BANKS_LIST:
+            //draw the first box, enter bank
+            glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
+            //draw the second box
+            glcd_text(display, 58, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
+            //draw the third box, new bank
+            if (list->hover == 0)
+                glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+            else
+                glcd_text(display, 86, DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
 
-    //draw the second box
-    glcd_text(display, 56, DISPLAY_HEIGHT - 7, "COPY", Terminal3x5, GLCD_BLACK);
+            list_box.selected_ids = NULL;
+        break;
 
-    //draw the third box, new bank
-    glcd_text(display, 92, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
+        case BANK_LIST_CHECKBOXES:
+            glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
+            list_box.selected_ids = NULL;
+        break;
+
+        case PB_LIST_CHECKBOXES:
+            glcd_text(display, 18, DISPLAY_HEIGHT - 7, "< BACK", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
+            list_box.selected_ids = NULL;
+        break;
+
+        case PB_LIST_CHECKBOXES_ENGAGED:
+        case BANK_LIST_CHECKBOXES_ENGAGED:
+            glcd_text(display, 24, DISPLAY_HEIGHT - 7, "ADD", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
+
+            list_box.selected_ids = list->selected_pb_uids;
+            list_box.selected_count = list->selected_count;
+        break;
+    }
 
     // draws the list, check if there are items to avoid a crash
     if (list)
     {
         uint8_t count = strarr_length(list->names);
         list_box.x = 1;
+        list_box.name = name;
         list_box.y = 11;
         list_box.width = DISPLAY_WIDTH-2;
         list_box.height = 39;
@@ -911,25 +924,26 @@ void screen_bank_list(bp_list_t *list, list_types_t type)
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
         list_box.text_left_margin = 7;
+        list_box.page_min_offset = list->page_min;
         widget_banks_listbox(display, &list_box);
     }
 }
 
 void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, int8_t hold_item_index, 
-                      const char *hold_item_label, list_types_t type)
+                      const char *hold_item_label)
 {
     listbox_t list_box;
 
     glcd_t *display = hardware_glcds(0);
-
+    uint8_t type = NM_get_current_list();
     screen_clear();
 
     // draws the list, check if there are items to avoid a crash
     if (list)
     {
         //(ab)use bank function
-        if (type == LIST_CHECKBOXES) {
-            screen_bank_list(list, type);
+        if ((type == PB_LIST_CHECKBOXES) || (type == PB_LIST_CHECKBOXES_ENGAGED)){
+            screen_bank_list(list, title);
             return;
         }
 
@@ -990,9 +1004,9 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
             widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
 
         //if we are in pb mode, and at the top of the list, display the 'add pb to bank' button
-        if ((((type == LIST_BEGINNING_BOX) || (type == LIST_BEGINNING_BOX_SELECTED))
-            && (!pb_ss_toggle)) && (NM_get_current_bank() != 0)) {
-            widget_add_pb_button(display, 31, 22, (type == LIST_BEGINNING_BOX_SELECTED)?1:0);
+        if ((((type == PB_LIST_BEGINNING_BOX) || (type == PB_LIST_BEGINNING_BOX_SELECTED))
+            && (!pb_ss_toggle)) && (NM_get_current_selected(BANKS_LIST) != 0)) {
+            widget_add_pb_button(display, 31, 22, (type == PB_LIST_BEGINNING_BOX_SELECTED)?1:0);
         }
 
         //print the 3 buttons
@@ -1014,7 +1028,10 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
 
         //draw the third box
-        glcd_text(display, 86, DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
+        if (NM_get_current_selected(BANKS_LIST))
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "REMOVE", Terminal3x5, GLCD_BLACK);
+        else
+            glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
     }
 }
 
@@ -1390,10 +1407,10 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
-    glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
-    glcd_text(display, 84, DISPLAY_HEIGHT - 7, "SAVE PB", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //print the 3 quick controls
     for (i = 0; i < 3; i++)
@@ -1497,6 +1514,49 @@ void screen_control_overlay(control_t *control)
         overlay.properties = control->properties;
         //trigger value overlay widget
         widget_foot_overlay(display, &overlay);
+    }
+}
+
+void screen_popup(system_popup_t *popup_data)
+{
+    glcd_t *display = hardware_glcds(0);
+
+    //clear screen
+    screen_clear();
+
+    //todo, check if we need to have this with or without text screen
+
+    //display the popup
+    popup_t popup = {};
+    popup.width = DISPLAY_WIDTH;
+    popup.height = DISPLAY_HEIGHT;
+    popup.font = Terminal3x5;
+    popup.type = EMPTY_POPUP;
+    popup.title = popup_data->title;
+    popup.content = popup_data->popup_text;
+    popup.button_selected = popup_data->button_value;
+    widget_popup(display, &popup);
+
+    //full buttons
+    glcd_text(display, 30 - (2*strlen(popup_data->btn1_txt)), DISPLAY_HEIGHT - 7, popup_data->btn1_txt, Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 64 - (2*strlen(popup_data->btn2_txt)), DISPLAY_HEIGHT - 7, popup_data->btn2_txt, Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 98 - (2*strlen(popup_data->btn3_txt)), DISPLAY_HEIGHT - 7, popup_data->btn3_txt, Terminal3x5, GLCD_BLACK);
+
+    switch (popup_data->button_value) {
+        case 0:
+            glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
+        break;
+
+        case 1:
+            if (popup_data->button_max == 2)
+                glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
+            else
+                glcd_rect_invert(display, 49, DISPLAY_HEIGHT - 8, 29, 7);
+        break;
+
+        case 2:
+            glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
+        break;
     }
 }
 

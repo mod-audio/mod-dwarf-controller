@@ -47,7 +47,7 @@ enum {UI_DISCONNECTED, UI_CONNECTED};
 */
 
 //device modes
-enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT, MODE_SELFTEST};
+enum{MODE_CONTROL, MODE_NAVIGATION, MODE_TOOL_FOOT, MODE_TOOL_MENU, MODE_BUILDER, MODE_SHIFT, MODE_SELFTEST, MODE_POPUP};
 
 //different tool modes
 enum{TOOL_MENU, TOOL_FOOT, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
@@ -58,7 +58,7 @@ enum{TOOL_MENU, TOOL_FOOT, TOOL_TUNER, TOOL_SYNC, TOOL_BYPASS};
 ************************************************************************************************************************
 */
 bool g_device_booted; 
-bool g_popup_active;
+bool g_menu_popup_active;
 
 uint8_t g_encoders_pressed[ENCODERS_COUNT];
 uint8_t g_popup_encoder;
@@ -104,6 +104,7 @@ void naveg_release_dialog_semaphore(void);
 void naveg_trigger_mode_change(uint8_t mode);
 void naveg_print_shift_screen(void);
 void naveg_set_shift_mode(uint8_t mode);
+void naveg_trigger_popup(int8_t popup_id);
 
 /*
 ************************************************************************************************************************

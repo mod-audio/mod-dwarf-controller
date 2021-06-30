@@ -15,6 +15,7 @@
 #include "protocol.h"
 #include "mode_control.h"
 #include "mode_navigation.h"
+#include "mode_popup.h"
 #include "mode_tools.h"
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +58,7 @@ static xSemaphoreHandle g_dialog_sem;
 static uint8_t g_dialog_active = 0;
 
 // only enabled after "boot" command received
-bool g_popup_active = false;
+bool g_menu_popup_active = false;
 uint8_t g_encoders_pressed[ENCODERS_COUNT] = {};
 
 static uint8_t g_device_mode, g_prev_device_mode, g_prev_shift_device_mode;
@@ -125,7 +126,7 @@ void enter_shift_menu(void)
         return;
     }
 
-    if (g_popup_active || !g_device_booted) return;
+    if (g_menu_popup_active || !g_device_booted) return;;
 
     hardware_set_overlay_timeout(0, NULL);
 
@@ -152,10 +153,10 @@ void enter_shift_menu(void)
         led_state.color = TOGGLED_COLOR;
 
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-    led = hardware_leds(5);
+    led = hardware_leds(4);
     led_state.color = ENUMERATED_COLOR;
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-    led = hardware_leds(4);
+    led = hardware_leds(5);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
 
     if (!g_self_test_mode)
@@ -164,7 +165,7 @@ void enter_shift_menu(void)
 
 void exit_shift_menu(void)
 {
-    if (g_popup_active || !g_device_booted) return;
+    if (g_menu_popup_active || !g_device_booted) return;
 
     hardware_set_overlay_timeout(0, NULL);
 
@@ -174,9 +175,6 @@ void exit_shift_menu(void)
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
         return;
-
-    //always a chance we changed gains, send save
-    system_save_gains_cb(NULL, MENU_EV_ENTER);
 
     //exit the shift menu, return to opperational mode
     switch(g_prev_shift_device_mode)
@@ -211,6 +209,39 @@ void exit_shift_menu(void)
     }
 }
 
+void exit_popup(void)
+{
+    if (g_menu_popup_active || !g_device_booted) return;
+
+    //exit the shift menu, return to opperational mode
+    switch(g_device_mode)
+    {
+        case MODE_CONTROL:
+            CM_set_state();
+        break;
+
+        case MODE_NAVIGATION:
+            NM_print_prev_screen();
+        break;
+
+        //not used, in case this happens, print control vieuw
+        case MODE_SHIFT:
+            exit_shift_menu();
+        break;
+
+        case MODE_TOOL_MENU:
+        case MODE_SELFTEST:
+        case MODE_TOOL_FOOT:
+            g_device_mode = MODE_CONTROL;
+            CM_set_state();
+        break;
+
+        case MODE_BUILDER:
+            //not defined yet
+        break;
+    }
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -232,6 +263,9 @@ void naveg_init(void)
 
     //init tool mode
     TM_init();
+
+    //init popups
+    PM_init();
 
     g_device_mode = MODE_CONTROL;
     g_prev_device_mode = MODE_CONTROL;
@@ -304,7 +338,7 @@ void naveg_ui_connection(uint8_t status)
 
         NM_clear();
     }
-    
+
     //if we where in some menu's, we might need to exit them
     switch(g_device_mode)
     {
@@ -383,6 +417,10 @@ void naveg_enc_enter(uint8_t encoder)
                 ui_comm_webgui_send(buffer, i);
             }
         break;
+
+        case MODE_POPUP:
+            PM_enter();
+        break;
     }
 }
 
@@ -430,11 +468,8 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            if (encoder == 0)
-            {
-                //pass to navigation code
-                NM_down();
-            }
+            //pass to navigation code
+            NM_down();
         break;
 
         case MODE_TOOL_FOOT:
@@ -499,6 +534,10 @@ void naveg_enc_down(uint8_t encoder)
                 ui_comm_webgui_send(buffer, i);
             }
         break;
+
+        case MODE_POPUP:
+            PM_down();
+        break;
     }
 }
 
@@ -517,11 +556,8 @@ void naveg_enc_up(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            if (encoder == 0)
-            {
-                //pass to navigation code
-                NM_up();
-            }
+            //pass to navigation code
+            NM_up();
         break;
 
         case MODE_TOOL_FOOT:
@@ -586,12 +622,16 @@ void naveg_enc_up(uint8_t encoder)
                 ui_comm_webgui_send(buffer, i);
             }
         break;
+
+        case MODE_POPUP:
+            PM_up();
+        break;
     }
 }
 
 void naveg_foot_change(uint8_t foot, uint8_t pressed)
 {
-    if (!g_initialized || g_popup_active) return;
+    if (!g_initialized || g_menu_popup_active) return;
 
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
@@ -657,6 +697,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             }
         break;
 
+        case MODE_POPUP:
         case MODE_TOOL_MENU:
             //no foots used
         break;
@@ -687,7 +728,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
-    if ((g_popup_active) || (g_device_mode == MODE_SELFTEST)) return;
+    if ((g_menu_popup_active) || (g_device_mode == MODE_SELFTEST)) return;
 
     hardware_set_overlay_timeout(0, NULL);
 
@@ -710,7 +751,7 @@ void naveg_foot_double_press(uint8_t foot)
                 //enter navigation mode
                 if (g_ui_connected)
                 {
-                    give_attention_popup("\nPlease disconnect   the Web-ui to enter navigation mode", CM_print_screen);
+                    PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", CM_print_screen);
                     return;
                 }
 
@@ -732,7 +773,7 @@ void naveg_foot_double_press(uint8_t foot)
             case MODE_TOOL_FOOT:
                 if (g_ui_connected)
                 {
-                    give_attention_popup("\nPlease disconnect   the Web-ui to enter navigation mode", TM_print_tool);
+                    PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", TM_print_tool);
                     return;
                 }
 
@@ -747,7 +788,7 @@ void naveg_foot_double_press(uint8_t foot)
             case MODE_TOOL_MENU:
                 if (g_ui_connected)
                 {
-                    give_attention_popup("\nPlease disconnect   the Web-ui to enter navigation mode", TM_print_tool);
+                    PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", TM_print_tool);
                     return;
                 }
 
@@ -761,18 +802,17 @@ void naveg_foot_double_press(uint8_t foot)
                 //not defined yet
             break;
 
+            case MODE_SELFTEST:
+            case MODE_POPUP:
             case MODE_SHIFT:
                 //block action
                 return;
-            break;
-
-            case MODE_SELFTEST:
-                //not used
             break;
         } 
     }
 
     //tool mode
+    //TODO, handle this in a switch
     else if (foot == 2)
     {
         if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION)|| (g_device_mode == MODE_TOOL_MENU))
@@ -820,7 +860,7 @@ void naveg_button_pressed(uint8_t button)
 
     if (!g_initialized) return;
 
-    if (g_popup_active)
+    if (g_menu_popup_active)
     {
         //do same actions as encoders would do, but with enter
         //left = down + enter
@@ -908,17 +948,13 @@ void naveg_button_pressed(uint8_t button)
                         ledz_off(hardware_leds(6), WHITE);
                 break;
 
-                //enter builder mode
+                //save pedalboard
                 case 1:
+                    naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
                 break;
 
-                //send save pb command
+                //TODO enter builder mode
                 case 2:
-                    ui_comm_webgui_send(CMD_PEDALBOARD_SAVE, strlen(CMD_PEDALBOARD_SAVE));
-                    ui_comm_webgui_wait_response();
-
-                    //also give quick overlay
-                    give_attention_popup(PEDALBOARD_SAVED_TXT, naveg_print_shift_screen);
                 break;
             }
         break;
@@ -942,13 +978,21 @@ void naveg_button_pressed(uint8_t button)
                 return;
             }
         break;
+
+        case MODE_POPUP:
+            PM_button_pressed(button);
+        break;
     }
 }
 
 void naveg_button_released(uint8_t button)
 {
+    //action not in use
     (void) button;
-    if (!g_initialized || g_popup_active) return;
+    return;
+/*
+    (void) button;
+    if (!g_initialized) return;
 
     switch(g_device_mode)
     {
@@ -973,16 +1017,23 @@ void naveg_button_released(uint8_t button)
             //not used
         break;
     }
+*/
 }
 
 //used for the shift button
 void naveg_shift_pressed()
 {
+    //cant enter shift menu from popup
+    if (g_device_mode == MODE_POPUP)
+        return;
+
     if (g_shift_latching)
     {
         if (shift_mode_active)
         {
             shift_mode_active = false;
+            //always a chance we changed gains, send save
+            system_save_gains_cb(NULL, MENU_EV_ENTER);
             exit_shift_menu();
         }
         else
@@ -997,8 +1048,15 @@ void naveg_shift_pressed()
 
 void naveg_shift_releaed()
 {
-    if (!g_shift_latching)
+    //cant enter shift menu from popup
+    if (g_device_mode == MODE_POPUP)
+        return;
+
+    if (!g_shift_latching) {
+        //always a chance we changed gains, send save
+        system_save_gains_cb(NULL, MENU_EV_ENTER);
         exit_shift_menu();
+    }
 }
 
 uint8_t naveg_dialog_status(void)
@@ -1101,4 +1159,24 @@ void naveg_print_shift_screen(void)
 void naveg_set_shift_mode(uint8_t mode)
 {
     g_shift_latching = mode;
+}
+
+void naveg_trigger_popup(int8_t popup_id)
+{
+    static uint8_t prev_mode = 0;
+
+    //trigger popup
+    if (popup_id != -1) {
+        if (g_device_mode != MODE_POPUP) {
+            prev_mode = g_device_mode;
+            g_device_mode = MODE_POPUP;
+        }
+
+        PM_launch_popup(popup_id);
+    }
+    //close popup
+    else {
+        g_device_mode = prev_mode;
+        exit_popup();
+    }
 }
