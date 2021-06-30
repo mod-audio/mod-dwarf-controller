@@ -472,7 +472,7 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
     FREE(control->label);
     control->label = str_duplicate(proto->list[3]);
 
-    if (naveg_get_current_mode() == MODE_CONTROL)
+    if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter() == 0))
     {
         if (hw_id < ENCODERS_COUNT)
             screen_encoder(control, hw_id);
@@ -511,7 +511,7 @@ void cb_change_assigment_value(uint8_t serial_id, proto_t *proto)
 
     control->value_string = str_duplicate(proto->list[3]);
 
-    if (naveg_get_current_mode() == MODE_CONTROL)
+    if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter() == 0))
     {
         screen_encoder(control, hw_id);
     }
@@ -544,7 +544,7 @@ void cb_change_widget_indicator(uint8_t serial_id, proto_t *proto)
 
     control->screen_indicator_widget_val = atof(proto->list[3]);
 
-    if (naveg_get_current_mode() == MODE_CONTROL)
+    if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter() == 0))
     {
         screen_encoder(control, hw_id);
     }
@@ -578,7 +578,7 @@ void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto)
     FREE(control->unit);
     control->unit = str_duplicate(proto->list[3]);
 
-    if (naveg_get_current_mode() == MODE_CONTROL)
+    if ((naveg_get_current_mode() == MODE_CONTROL) && (hardware_get_overlay_counter() == 0))
     {
         screen_encoder(control, hw_id);
     }
