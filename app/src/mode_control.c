@@ -409,7 +409,7 @@ static void foot_control_print(control_t *control)
         if (naveg_get_current_mode() == MODE_CONTROL)
         {
             //if screen overlay active, update that
-            if (hardware_get_overlay_counter() || !control->scroll_dir)
+            if ((hardware_get_overlay_counter() || !control->scroll_dir) && (g_current_overlay_actuator == control->hw_id))
             {
                 CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
             }
@@ -495,18 +495,15 @@ static void foot_control_rm(uint8_t hw_id)
             {
                 ledz_set_state(led, LED_OFF, LED_UPDATE);
                 
-                if (g_current_overlay_actuator != g_foots[i]->hw_id)
-                    screen_footer(i, NULL, NULL, 0);
-                else
-                {
+                if (g_current_overlay_actuator == hw_id) {
                     hardware_set_overlay_timeout(0, CM_print_screen);
                     CM_print_screen();
                 }
+                else
+                    screen_footer(i, NULL, NULL, 0);
             }
             else
-            {
                 ledz_set_state(led, LED_OFF, LED_STORE_STATE);
-            }
         }
     }
 }
