@@ -326,6 +326,7 @@ void protocol_init(void)
     protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
     protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
     protocol_add_command(CMD_SYS_CHANGE_WIDGET_INDICATOR, cb_change_widget_indicator);
+    protocol_add_command(CMD_RESET_EEPROM, cb_clear_eeprom);
 }
 
 /*
@@ -841,4 +842,18 @@ void cb_pages_available(uint8_t serial_id, proto_t *proto)
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
     CM_set_pages_available(pages_toggles);
+}
+
+void cb_clear_eeprom(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    //lock actuators and clear tx buffer
+    ui_comm_webgui_clear_tx_buffer();
+
+    hardware_reset_eeprom();
+
+    //!! THIS NEEDS AN HMI RESET TO TAKE PROPER EFFECT
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
 }
