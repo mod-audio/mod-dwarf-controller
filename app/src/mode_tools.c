@@ -360,7 +360,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
         case COMPRESSOR_PB_VOL_ID:
 
             if (g_encoders_pressed[encoder])
-                item->data.step = 10;
+                item->data.step = item->data.step * 10;
 
         break;
 
@@ -780,9 +780,7 @@ void TM_up(uint8_t encoder)
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
 
             if (g_encoders_pressed[encoder])
-                tempo_item->data.step = 10;
-            else
-                tempo_item->data.step = 1;
+                tempo_item->data.step = tempo_item->data.step * 10;
 
             system_tempo_cb(tempo_item, MENU_EV_DOWN);
             system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);
@@ -832,9 +830,7 @@ void TM_down(uint8_t encoder)
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
 
             if (g_encoders_pressed[encoder])
-                tempo_item->data.step = 10;
-            else
-                tempo_item->data.step = 1;
+                tempo_item->data.step = tempo_item->data.step * 10;
 
             system_tempo_cb(tempo_item, MENU_EV_UP);
             system_update_menu_value(MENU_ID_TEMPO, tempo_item->data.value);

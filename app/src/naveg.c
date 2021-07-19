@@ -496,13 +496,8 @@ void naveg_enc_down(uint8_t encoder)
             
             menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
 
-            if (item->desc->type == MENU_BAR)
-            {
-                if (g_encoders_pressed[encoder])
-                    item->data.step = 10;
-                else
-                    item->data.step = 1;
-            }
+            if ((item->desc->type == MENU_BAR) && (g_encoders_pressed[encoder]))
+                item->data.step = item->data.step * 10;
 
             item->desc->action_cb(item, MENU_EV_UP);
 
@@ -584,13 +579,8 @@ void naveg_enc_up(uint8_t encoder)
             
             menu_item_t *item = TM_get_menu_item_by_ID(system_get_shift_item(read_buffer));
 
-            if (item->desc->type == MENU_BAR)
-            {
-                if (g_encoders_pressed[encoder])
-                    item->data.step = 10;
-                else
-                    item->data.step = 1;
-            }
+            if ((item->desc->type == MENU_BAR) && (g_encoders_pressed[encoder]))
+                item->data.step = item->data.step * 10;
 
             item->desc->action_cb(item, MENU_EV_DOWN);
 
