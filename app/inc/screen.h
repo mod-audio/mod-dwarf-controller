@@ -20,6 +20,7 @@
 #include "data.h"
 #include "node.h"
 #include "glcd_widget.h"
+#include "mode_popup.h"
 
 /*
 ************************************************************************************************************************
@@ -79,14 +80,15 @@ void screen_system_menu(menu_item_t *item);
 void screen_tool_control_page(node_t *node);
 void screen_toggle_tuner(float frequency, char *note, int8_t cents);
 void screen_image(uint8_t display, const uint8_t *image);
-void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids);
+void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connection);
 void screen_menu_page(node_t *node);
 void screen_control_overlay(control_t *control);
 void screen_msg_overlay(char *message);
 void screen_popup(system_popup_t *popup_data);
+void screen_keyboard(system_popup_t *popup_data, uint8_t keyboard_index);
 void screen_update_tuner(float frequency, char *note, int8_t cents);
 void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode);
-void screen_text_box(uint8_t display, uint8_t x, uint8_t y, const char *text);
+void screen_text_box(uint8_t x, uint8_t y, const char *text);
 
 /*
 ************************************************************************************************************************

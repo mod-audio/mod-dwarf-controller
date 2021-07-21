@@ -37,7 +37,7 @@
 
 static system_popup_t g_global_popups[] = {
     SYSTEM_POPUPS
-    {NULL, NULL, NULL, NULL, NULL, 0, 0, 0, NULL}
+    {0, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, NULL}
 };
 
 /*
@@ -60,7 +60,10 @@ static system_popup_t g_global_popups[] = {
 ************************************************************************************************************************
 */
 
-uint8_t g_current_popup_id;
+static uint8_t g_current_popup_id, g_prev_popup_id;
+static uint8_t g_keyboard_toggled = 0;
+static uint8_t g_keyboard_index = 0;
+static char* g_current_name_input;
 
 /*
 ************************************************************************************************************************
@@ -86,6 +89,44 @@ static void exit_popup(void)
     naveg_trigger_popup(-1);
 }
 
+//resets the naming widget to only include spaces
+void reset_naming_widget_name(void)
+{
+    strcpy(g_current_name_input, "                 ");
+    g_current_name_input[18] = 0;
+}
+
+//copy a name to the naming widget, but add spaces till the end of the box
+void copy_name_to_naming_widget(char *source_to_copy)
+{
+    uint8_t source_length = 0;
+    source_length = strlen(source_to_copy);
+
+    if (source_length > 17)
+        source_length = 17;
+
+    strcpy(g_current_name_input, source_to_copy);
+
+    uint8_t i;
+    for (i = source_length; i < 18; i++) {
+        strcat(g_current_name_input, " ");
+    }
+
+    g_current_name_input[18] = 0;
+}
+
+//check all spaces at the end of a name, we dont send that to mod-ui
+void turnicate_naming_widget_spaces(void)
+{
+    uint8_t i;
+    for (i = 17; i > 0; i--) {
+        if (g_current_name_input[i] != ' ') {
+            g_current_name_input[i+1] = 0;
+            break;
+        }
+    }
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -94,14 +135,38 @@ static void exit_popup(void)
 
 void PM_init(void)
 {
-    //init popup fields
+    //allocate memory for name
+    g_current_name_input = (char *) MALLOC((19) * sizeof(char));
+
+    reset_naming_widget_name();
 }
 
-void PM_enter(void)
+void PM_enter(uint8_t encoder)
 {
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
+        switch (encoder)
+        {
+            case 0:
+            break;
 
+            case 1:
+                if (g_keyboard_toggled){
+                    g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                    if (g_global_popups[g_current_popup_id].cursor_index < 18)
+                        g_global_popups[g_current_popup_id].cursor_index++;
+                }
+                else {
+                    g_keyboard_toggled = 1;
+                    g_keyboard_index = 0;
+                }
+
+                PM_print_screen();
+            break;
+
+            case 2:
+            break;
+        }
     }
     //pass to button pressed
     else {
@@ -112,25 +177,108 @@ void PM_enter(void)
     }
 }
 
-void PM_up(void)
+void PM_up(uint8_t encoder)
 {
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
+        switch (encoder)
+        {
+            case 0:
+                if (g_global_popups[g_current_popup_id].cursor_index > 0)
+                    g_global_popups[g_current_popup_id].cursor_index--;
 
-    }
-    else if (g_global_popups[g_current_popup_id].button_value < g_global_popups[g_current_popup_id].button_max){
-        g_global_popups[g_current_popup_id].button_value++;
-    }
-}
+                PM_print_screen();
+            break;
 
-void PM_down(void)
-{
-    //check if naming
-    if (g_global_popups[g_current_popup_id].has_naming_input) {
+            case 1:
+                if (!g_keyboard_toggled) {
+                    g_keyboard_toggled = 1;
+                    g_keyboard_index = 0;
+                }
+                else if (g_keyboard_index > 0){
+                    g_keyboard_index--;
+                    g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                }
+                else {
+                    g_keyboard_index = 59;
+                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                }
 
+                PM_print_screen();
+            break;
+
+            case 2:
+            //TODO WE MIGHT NOT ADD THIS FEATURE
+                if (g_keyboard_toggled) {
+                    //check where we are
+                    if (g_keyboard_index < 15)
+                        g_keyboard_index += 45;
+                    else
+                        g_keyboard_index -= 15;
+
+                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                    PM_print_screen();
+                }
+            break;
+        }
     }
     else if (g_global_popups[g_current_popup_id].button_value > 0){
         g_global_popups[g_current_popup_id].button_value--;
+        PM_print_screen();
+    }
+}
+
+void PM_down(uint8_t encoder)
+{
+    //check if naming
+    if (g_global_popups[g_current_popup_id].has_naming_input) {
+        switch (encoder)
+        {
+            case 0:
+                if (g_global_popups[g_current_popup_id].cursor_index < 18) {
+                    g_global_popups[g_current_popup_id].cursor_index++;
+
+                    if (g_global_popups[g_current_popup_id].cursor_index > strlen(g_global_popups[g_current_popup_id].input_name))
+                        strcat(g_global_popups[g_current_popup_id].input_name, " ");
+                }
+
+                PM_print_screen();
+            break;
+
+            case 1:
+                if (!g_keyboard_toggled) {
+                    g_keyboard_toggled = 1;
+                }
+                else if (g_keyboard_index < 59) {
+                    g_keyboard_index++;
+                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                }
+                else {
+                    g_keyboard_index = 0;
+                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                }
+
+                PM_print_screen();
+            break;
+
+            case 2:
+            //TODO WE MIGHT NOT ADD THIS FEATURE
+                if (g_keyboard_toggled) {
+                    //check where we are
+                    if (g_keyboard_index > 44)
+                        g_keyboard_index -= 45;
+                    else
+                        g_keyboard_index += 15;
+
+                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                    PM_print_screen();
+                }
+            break;
+        }
+    }
+    else if (g_global_popups[g_current_popup_id].button_value < g_global_popups[g_current_popup_id].button_max-1){
+        g_global_popups[g_current_popup_id].button_value++;
+        PM_print_screen();
     }
 }
 
@@ -142,7 +290,10 @@ void PM_set_state(void)
 
 void PM_print_screen(void)
 {
-    screen_popup(&g_global_popups[g_current_popup_id]);
+    if (g_keyboard_toggled)
+        screen_keyboard(&g_global_popups[g_current_popup_id], g_keyboard_index);
+    else
+        screen_popup(&g_global_popups[g_current_popup_id]);
 }
 
 void PM_set_leds(void)
@@ -185,11 +336,11 @@ void PM_set_leds(void)
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            led_state.color = TOGGLED_COLOR;
             //clear
             led = hardware_leds(4);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             //cancel
-            led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
@@ -199,17 +350,6 @@ void PM_set_leds(void)
         case POPUP_DELETE_BANK_ID:
         case POPUP_REMOVE_SS_ID:
         case POPUP_REMOVE_PB_ID:
-            //confirm
-            led = hardware_leds(3);
-            led_state.color = TRIGGER_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            //cancel
-            led_state.color = TOGGLED_COLOR;
-            led = hardware_leds(5);
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-        break;
-
-
             //confirm
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
@@ -239,8 +379,6 @@ void PM_button_pressed(uint8_t button)
                     //change popup id
                     g_current_popup_id = POPUP_SAVE_PB_ID;
 
-                    //copy current name to name field
-
                     PM_launch_popup(g_current_popup_id);
                 break;
 
@@ -248,8 +386,6 @@ void PM_button_pressed(uint8_t button)
                 case 1:
                     //change popup id
                     g_current_popup_id = POPUP_SAVE_SS_ID;
-
-                    //copy current name to name field
 
                     PM_launch_popup(g_current_popup_id);
                 break;
@@ -267,6 +403,15 @@ void PM_button_pressed(uint8_t button)
             {
                 //send save
                 case 0:
+                    //check if only spaces, if so, ask for cancel
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                 ")){
+                        g_keyboard_toggled = 0;
+                        g_prev_popup_id = g_current_popup_id;
+                        g_current_popup_id = POPUP_EMPTY_NAME_ID;
+                        PM_launch_popup(POPUP_EMPTY_NAME_ID);
+                        return;
+                    }
+
                     //send save to webui
 
                     //get response back
@@ -280,6 +425,82 @@ void PM_button_pressed(uint8_t button)
                 //clear name
                 case 1:
                     //clear name
+                    g_global_popups[g_current_popup_id].cursor_index = 0;
+                    reset_naming_widget_name();
+                    PM_print_screen();
+                break;
+
+                //cancel, or delete
+                case 2:
+                    if (g_keyboard_toggled){
+                        g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(59);
+                        if (g_global_popups[g_current_popup_id].cursor_index > 0)
+                            g_global_popups[g_current_popup_id].cursor_index--;
+
+                        PM_print_screen();
+                    }
+                    else {
+                        naveg_trigger_popup(-1);
+                        g_keyboard_toggled = 0;
+                        g_keyboard_index = 0;
+                    }
+                break;
+            }
+        break;
+
+        case POPUP_NEW_BANK_ID:
+            switch(button)
+            {
+                case 0:
+                    //check if only spaces, if so, ask for cancel
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                 ")){
+                        g_keyboard_toggled = 0;
+                        g_prev_popup_id = g_current_popup_id;
+                        g_current_popup_id = POPUP_EMPTY_NAME_ID;
+                        PM_launch_popup(POPUP_EMPTY_NAME_ID);
+                        return;
+                    }
+
+                    //send save to webui
+
+                    //get response back
+
+                    //if already in use, overwrite popup
+
+                    //else
+                        PM_launch_attention_overlay("bank creation sucsesfull", exit_popup);
+                break;
+
+                case 1:
+                    //clear name
+                    g_global_popups[g_current_popup_id].cursor_index = 0;
+                    reset_naming_widget_name();
+                    PM_print_screen();
+                break;
+
+                case 2:
+                    if (g_keyboard_toggled){
+                        g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(59);
+                        if (g_global_popups[g_current_popup_id].cursor_index > 0)
+                            g_global_popups[g_current_popup_id].cursor_index--;
+
+                        PM_print_screen();
+                    }
+                    else {
+                        naveg_trigger_popup(-1);
+                        g_keyboard_toggled = 0;
+                        g_keyboard_index = 0;
+                    }
+                break;
+            }
+        break;
+
+        case POPUP_EMPTY_NAME_ID:
+            switch(button)
+            {
+                case 0:
+                    g_current_popup_id = g_prev_popup_id;
+                    PM_launch_popup(g_current_popup_id);
                 break;
 
                 //cancel
@@ -360,30 +581,6 @@ void PM_button_pressed(uint8_t button)
                 break;
             } 
         break;
-
-        case POPUP_NEW_BANK_ID:
-            switch(button)
-            {
-                case 0:
-                    //send save to webui
-
-                    //get response back
-
-                    //if already in use, overwrite popup
-
-                    //else 
-                        PM_launch_attention_overlay("bank creation sucsesfull", exit_popup);
-                break;
-
-                case 1:
-                    //clear name
-                break;
-
-                case 2:
-                    naveg_trigger_popup(-1);
-                break;
-            } 
-        break;
     }
 
 }
@@ -392,6 +589,40 @@ void PM_launch_popup(uint8_t popup_id)
 {
     //change current popup id and print it
     g_current_popup_id = popup_id;
+
+    //fetch the needed things
+    if (g_global_popups[g_current_popup_id].has_naming_input) {
+
+        g_global_popups[g_current_popup_id].cursor_index = 0;
+        g_keyboard_toggled = 0;
+
+        switch (g_current_popup_id) {
+            case POPUP_SAVE_PB_ID:
+                copy_name_to_naming_widget(NM_get_current_name(PEDALBOARD_LIST));
+            break;
+
+            case POPUP_SAVE_SS_ID:
+                copy_name_to_naming_widget(NM_get_current_name(SNAPSHOT_LIST));
+            break;
+
+            case POPUP_NEW_BANK_ID:
+                reset_naming_widget_name();
+            break;
+        }
+
+        g_global_popups[g_current_popup_id].input_name = g_current_name_input;
+
+        //check cursor
+        uint8_t i;
+        for (i = 17; i > 0; i--) {
+            if (g_current_name_input[i] != ' ') {
+                break;
+            }
+        }
+    }
+    else
+        g_keyboard_toggled = 0;
+
     PM_set_state();
 }
 
@@ -400,4 +631,9 @@ void PM_launch_attention_overlay(char *message, void (*timeout_cb))
     screen_msg_overlay(message);
 
     hardware_set_overlay_timeout(MSG_TIMEOUT, timeout_cb);
+}
+
+uint8_t PM_get_current_popup(void)
+{
+    return g_current_popup_id;
 }

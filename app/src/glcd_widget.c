@@ -1237,8 +1237,8 @@ void widget_popup(glcd_t *display, popup_t *popup)
     glcd_rect_fill(display, popup->x, popup->y, popup->width, popup->height, GLCD_WHITE);
 
     // draws the contour
-    glcd_vline(display, 0, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
-    glcd_vline(display, DISPLAY_WIDTH-1, 7, DISPLAY_HEIGHT - 11, GLCD_BLACK);
+    glcd_vline(display, 0, 9, DISPLAY_HEIGHT - 13, GLCD_BLACK);
+    glcd_vline(display, DISPLAY_WIDTH-1, 9, DISPLAY_HEIGHT - 13, GLCD_BLACK);
     glcd_hline(display, 0, DISPLAY_HEIGHT - 5, 14, GLCD_BLACK);
     glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
     glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
@@ -1252,18 +1252,18 @@ void widget_popup(glcd_t *display, popup_t *popup)
     title.color = GLCD_BLACK;
     title.mode = TEXT_SINGLE_LINE;
     title.align = ALIGN_CENTER_TOP;
-    title.font = popup->font;
+    title.font = Terminal5x7;
     title.top_margin = 1;
     title.bottom_margin = 0;
     title.left_margin = 0;
     title.right_margin = 0;
-    title.height = 5;
+    title.height = 7;
     title.width = DISPLAY_WIDTH;
     title.text = popup->title;
     widget_textbox(display, &title);
 
     // draws the title background
-    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
 
     // draws the content
     textbox_t content;
@@ -1276,7 +1276,7 @@ void widget_popup(glcd_t *display, popup_t *popup)
     content.right_margin = 0;
     content.font = popup->font;
     content.x = popup->x + 4;
-    content.y = popup->y + popup->font[FONT_HEIGHT] + 3;
+    content.y = popup->y + popup->font[FONT_HEIGHT] + 5;
     content.width = popup->width - 4;
     content.height = ((popup->font[FONT_HEIGHT]+1) * 8); // FIXME: need be relative to popup height
     content.text = popup->content;
@@ -1529,4 +1529,18 @@ void icon_footswitch_groups(glcd_t *display, uint8_t x, uint8_t y)
     //glcd_rect(display, x+3, y+4, 1, 1, GLCD_BLACK);
     //glcd_rect(display, x+2, y+5, 3, 1, GLCD_BLACK);
 
+}
+
+void icon_keyboard_invert(glcd_t *display, uint8_t char_index)
+{
+    uint8_t x = 4, y = 26;
+
+    uint8_t row = char_index / 15;
+    uint8_t colum = (char_index % 15) / 5;
+
+    x += ((char_index % 15) * 7) + (colum * 7) + ((colum==2)?1:0);
+
+    y += (row * 7);
+
+    glcd_rect_invert(display, x, y, 7, 7);
 }

@@ -135,6 +135,11 @@ void deselect_item(char *item_str);
 
 // converts string to hex: returns the number of elements copied to array
 uint16_t str_to_hex(const char *str, uint8_t *array, uint16_t array_size);
+
+//used for keyboard widget mapping
+uint8_t char_to_keyboard_index(char character);
+char keyboard_index_to_char(uint8_t index);
+
 /*
 ************************************************************************************************************************
 *           CONFIGURATION ERRORS

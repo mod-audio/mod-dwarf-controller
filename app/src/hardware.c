@@ -326,6 +326,9 @@ void write_shift_defaults()
     EEPROM_Write(0, SHIFT_ITEM_ADRESS + 1, &write_buffer, MODE_8_BIT, 1);
     write_buffer = DEFAULT_SHIFT_3_ITEM;
     EEPROM_Write(0, SHIFT_ITEM_ADRESS + 2, &write_buffer, MODE_8_BIT, 1);
+
+    write_buffer = DEFAULT_SHIFT_MODE;
+    EEPROM_Write(0, SHIFT_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }
 
 void check_eeprom_defaults(uint16_t current_version)
@@ -339,6 +342,7 @@ void check_eeprom_defaults(uint16_t current_version)
             case 0:
                 write_o_settings_defaults();
                 write_led_defaults();
+                write_shift_defaults();
             break;
 
             //selectable shift items got introduced

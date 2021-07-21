@@ -142,7 +142,7 @@ void enter_shift_menu(void)
     g_device_mode = MODE_SHIFT;
 
     //print shift screen
-    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0]);
+    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0], g_ui_connected);
 
     //toggle the LED's
     ledz_t *led = hardware_leds(3);
@@ -153,9 +153,15 @@ void enter_shift_menu(void)
         led_state.color = TOGGLED_COLOR;
 
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-    led = hardware_leds(4);
+
     led_state.color = ENUMERATED_COLOR;
-    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    led = hardware_leds(4);
+
+    if (g_ui_connected)
+        set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+    else
+        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
     led = hardware_leds(5);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
 
@@ -186,7 +192,7 @@ void exit_shift_menu(void)
 
         case MODE_NAVIGATION:
             g_device_mode = MODE_NAVIGATION;
-            NM_print_screen();
+            NM_toggle_mode();
         break;
 
         case MODE_TOOL_FOOT:
@@ -346,6 +352,17 @@ void naveg_ui_connection(uint8_t status)
             //no action needed
         break;
 
+        case MODE_POPUP:
+            //we want to make assumtions in the future
+            switch (PM_get_current_popup()) {
+                default:
+                    //enter control mode
+                    g_device_mode = MODE_CONTROL;
+                    CM_set_state();
+                break;
+            }
+        break;
+
         case MODE_NAVIGATION:
             //enter control mode
             g_device_mode = MODE_CONTROL;
@@ -419,7 +436,7 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_POPUP:
-            PM_enter();
+            PM_enter(encoder);
         break;
     }
 }
@@ -506,7 +523,7 @@ void naveg_enc_down(uint8_t encoder)
 
             item->desc->action_cb(item, MENU_EV_UP);
 
-            screen_shift_overlay(-1, NULL);
+            screen_shift_overlay(-1, NULL, g_ui_connected);
         break;
 
         case MODE_BUILDER:
@@ -536,7 +553,7 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_POPUP:
-            PM_down();
+            PM_down(encoder);
         break;
     }
 }
@@ -594,7 +611,7 @@ void naveg_enc_up(uint8_t encoder)
 
             item->desc->action_cb(item, MENU_EV_DOWN);
 
-            screen_shift_overlay(-1, NULL);
+            screen_shift_overlay(-1, NULL, g_ui_connected);
         break;
 
         case MODE_BUILDER:
@@ -624,7 +641,7 @@ void naveg_enc_up(uint8_t encoder)
         break;
 
         case MODE_POPUP:
-            PM_up();
+            PM_up(encoder);
         break;
     }
 }
@@ -757,7 +774,7 @@ void naveg_foot_double_press(uint8_t foot)
 
                 g_prev_device_mode = MODE_CONTROL;
                 g_device_mode = MODE_NAVIGATION;
-                NM_print_screen();
+                NM_toggle_mode();
             break;
 
             case MODE_NAVIGATION:;
@@ -780,7 +797,7 @@ void naveg_foot_double_press(uint8_t foot)
                 g_prev_device_mode = MODE_TOOL_FOOT;
                 //we enter the prev mode
                 g_device_mode = MODE_NAVIGATION;
-                NM_print_screen();
+                NM_toggle_mode();
 
                 TM_turn_off_tuner();
             break;
@@ -795,7 +812,7 @@ void naveg_foot_double_press(uint8_t foot)
                 g_prev_device_mode = MODE_TOOL_MENU;
                 //we enter the prev mode
                 g_device_mode = MODE_NAVIGATION;
-                NM_print_screen();
+                NM_toggle_mode();
             break;
 
             case MODE_BUILDER:
@@ -837,13 +854,9 @@ void naveg_foot_double_press(uint8_t foot)
             else 
             {
                 if (g_ui_connected) return;
-
-				//reset nav mode if nececary
-      			if (NM_get_current_list() == BANKS_LIST)
-      			    NM_set_current_list(PEDALBOARD_LIST);
                 
                 g_device_mode = MODE_NAVIGATION;
-                NM_print_screen();
+                NM_toggle_mode();
             }
             g_prev_device_mode = MODE_TOOL_FOOT;
         }
@@ -925,7 +938,7 @@ void naveg_button_pressed(uint8_t button)
 
                             case MODE_NAVIGATION:
                                 g_device_mode = MODE_NAVIGATION;
-                                NM_print_screen();
+                                NM_toggle_mode();
                             break;
 
                             case MODE_TOOL_FOOT:
@@ -950,7 +963,8 @@ void naveg_button_pressed(uint8_t button)
 
                 //save pedalboard
                 case 1:
-                    naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
+                    if (!g_ui_connected)
+                        naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
                 break;
 
                 //TODO enter builder mode
@@ -1133,7 +1147,7 @@ void naveg_trigger_mode_change(uint8_t mode)
         break;
 
         case MODE_NAVIGATION:
-            NM_print_screen();
+            NM_toggle_mode();
         break;
 
         case MODE_TOOL_MENU:
@@ -1153,7 +1167,7 @@ void naveg_trigger_mode_change(uint8_t mode)
 
 void naveg_print_shift_screen(void)
 {
-    screen_shift_overlay(g_prev_shift_device_mode, NULL);
+    screen_shift_overlay(g_prev_shift_device_mode, NULL, g_ui_connected);
 }
 
 void naveg_set_shift_mode(uint8_t mode)
@@ -1176,7 +1190,10 @@ void naveg_trigger_popup(int8_t popup_id)
     }
     //close popup
     else {
-        g_device_mode = prev_mode;
+        if (prev_mode == MODE_SHIFT)
+            g_device_mode = MODE_CONTROL;
+        else
+            g_device_mode = prev_mode;
         exit_popup();
     }
 }

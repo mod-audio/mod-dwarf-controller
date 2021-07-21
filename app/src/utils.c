@@ -851,3 +851,298 @@ uint16_t str_to_hex(const char *str, uint8_t *array, uint16_t array_size)
 
     return count;
 }
+
+uint8_t char_to_keyboard_index(char character)
+{
+    //first get ascii index
+    uint8_t char_as_int = (int) character;
+
+    //devide index (character, number, speccial)
+
+    //chars, small
+    if  ((char_as_int > 60) && ((char_as_int < 123))) {
+        return char_as_int - 60;
+    }
+    //chars big
+    else if ((char_as_int > 40) && ((char_as_int < 91))) {
+        return char_as_int - 40;
+    }
+    //numbers
+    else if ((char_as_int > 47) && ((char_as_int < 58))) {
+        return char_as_int + 30 - 47;
+    }
+    //other chars, we read them manually
+    else {
+        switch (char_as_int)
+        {
+            //!
+            case 33:
+                return 55;
+            break;
+
+            //&
+            case 38:
+                return 58;
+            break;
+
+            //(
+            case 40:
+                return 45;
+            break;
+
+            //)
+            case 41:
+                return 46;
+            break;
+
+            //+
+            case 43:
+                return 40;
+            break;
+
+            //,
+            case 44:
+                return 28;
+            break;
+
+            //-
+            case 45:
+                return 41;
+            break;
+
+            //.
+            case 46:
+                return 26;
+            break;
+
+            ///
+            case 47:
+                return 53;
+            break;
+
+            //:
+            case 58:
+                return 27;
+            break;
+
+            //;
+            case 59:
+                return 29;
+            break;
+
+            //<
+            case 60:
+                return 43;
+            break;
+
+            //=
+            case 61:
+                return 42;
+            break;
+
+            //>
+            case 62:
+                return 44;
+            break;
+
+            //?
+            case 63:
+                return 56;
+            break;
+
+            //[
+            case 91:
+                return 47;
+            break;
+
+            /* \ */
+            case 92:
+                return 54;
+            break;
+
+            //]
+            case 93:
+                return 48;
+            break;
+
+            //^
+            case 94:
+                return 57;
+            break;
+
+            //_
+            case 95:
+                return 52;
+            break;
+
+            //{
+            case 123:
+                return 50;
+            break;
+
+            //|
+            case 124:
+                return 49;
+            break;
+
+            //}
+            case 125:
+                return 51;
+            break;
+
+            // (space)
+            case 32:
+                return 59;
+            break;
+
+            //error, do space
+            default:
+                return 59;
+            break;
+        }
+    }
+}
+
+char keyboard_index_to_char(uint8_t index)
+{
+    //first get ascii index
+    uint8_t character = 32;
+
+    //devide index (character, number, speccial)
+
+    //chars
+    if  (index < 26) {
+        character = index + 65;
+    }
+    //numbers
+    else if ((index >= 30) && ((index < 40))) {
+        character = index + 18;
+    }
+    //other chars, we read them manually
+    else {
+        switch (index)
+        {
+            //!
+            case 55:
+                character = 33;
+            break;
+
+            //&
+            case 58:
+                character = 38;
+            break;
+
+            //(
+            case 45:
+                character = 40;
+            break;
+
+            //)
+            case 46:
+                character = 41;
+            break;
+
+            //+
+            case 40:
+                character = 43;
+            break;
+
+            //,
+            case 28:
+                character = 44;
+            break;
+
+            //-
+            case 41:
+                character = 45;
+            break;
+
+            //.
+            case 26:
+                character = 46;
+            break;
+
+            ///
+            case 53:
+                character = 47;
+            break;
+
+            //:
+            case 27:
+                character = 58;
+            break;
+
+            //;
+            case 29:
+                character = 59;
+            break;
+
+            //<
+            case 43:
+                character = 60;
+            break;
+
+            //=
+            case 42:
+                character = 61;
+            break;
+
+            //>
+            case 44:
+                character = 62;
+            break;
+
+            //?
+            case 56:
+                character = 63;
+            break;
+
+            //[
+            case 47:
+                character = 91;
+            break;
+
+            /* \ */
+            case 54:
+                character = 92;
+            break;
+
+            //]
+            case 48:
+                character = 93;
+            break;
+
+            //^
+            case 57:
+                character = 94;
+            break;
+
+            //_
+            case 52:
+                character = 95;
+            break;
+
+            //{
+            case 50:
+                character = 123;
+            break;
+
+            //|
+            case 49:
+                character = 124;
+            break;
+
+            //}
+            case 51:
+                character = 125;
+            break;
+
+            // (space)
+            case 59:
+                character = 32;
+            break;
+        }
+    }
+
+    return (char) character;
+}

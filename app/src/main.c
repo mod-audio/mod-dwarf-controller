@@ -486,6 +486,7 @@ void reset_queue(void)
 void HardFault_Handler(void)
 {
     ledz_on(hardware_leds(0), MAGENTA);
+    hardware_glcd_brightness(MAX_BRIGHTNESS);
     while (1);
 }
 

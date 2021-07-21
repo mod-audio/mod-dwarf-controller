@@ -1451,6 +1451,7 @@ void CM_load_next_encoder_page(uint8_t button)
     g_current_overlay_actuator = -1;
 
     screen_encoder_container(g_current_encoder_page); 
+    set_encoder_pages_led_state();
 
     //clear controls            
     uint8_t q;
@@ -1464,17 +1465,17 @@ void CM_load_next_encoder_page(uint8_t button)
 
         i += int_to_str(g_current_encoder_page, &buffer[i], sizeof(buffer) - i, 0);
 
-        CM_remove_control(q);
+        control_t *control = g_controls[q];
+
+        if (control) {
+            data_free_control(control);
+            g_controls[q] = NULL;
+        }
 
         ui_comm_webgui_send(buffer, i);
 
         ui_comm_webgui_wait_response();
     }
-
-    //update LED's
-    set_encoder_pages_led_state();
-
-    CM_print_screen();  
 }
 
 void CM_set_state(void)

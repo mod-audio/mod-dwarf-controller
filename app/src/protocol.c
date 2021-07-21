@@ -597,7 +597,7 @@ void cb_glcd_text(uint8_t serial_id, proto_t *proto)
 
     if (glcd_id >= GLCD_COUNT) return;
 
-    screen_text_box(glcd_id, x, y, proto->list[4]);
+    screen_text_box(x, y, proto->list[4]);
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 

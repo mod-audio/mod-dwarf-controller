@@ -1027,8 +1027,8 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         //draw the second box
         glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
 
-        //draw the third box
-        if (NM_get_current_selected(BANKS_LIST))
+        //draw the third box, we can remove any pb or ss, except from the all-pb bank
+        if ((NM_get_current_selected(BANKS_LIST)) || NM_get_current_list() == SNAPSHOT_LIST)
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "REMOVE", Terminal3x5, GLCD_BLACK);
         else
             glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
@@ -1346,7 +1346,7 @@ void screen_image(uint8_t display, const uint8_t *image)
     glcd_draw_image(display_img, 0, 0, image, GLCD_BLACK);
 }
 
-void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
+void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connection)
 {
     static uint8_t previous_mode;
     static int16_t last_item_ids[3] = {-1};
@@ -1407,7 +1407,10 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids)
     glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
     //draw the second box, TODO Builder MODE
-    glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
+    if (!ui_connection)
+        glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
+    else
+        glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //draw the third box, save PB
     glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
@@ -1524,8 +1527,6 @@ void screen_popup(system_popup_t *popup_data)
     //clear screen
     screen_clear();
 
-    //todo, check if we need to have this with or without text screen
-
     //display the popup
     popup_t popup = {};
     popup.width = DISPLAY_WIDTH;
@@ -1542,22 +1543,78 @@ void screen_popup(system_popup_t *popup_data)
     glcd_text(display, 64 - (2*strlen(popup_data->btn2_txt)), DISPLAY_HEIGHT - 7, popup_data->btn2_txt, Terminal3x5, GLCD_BLACK);
     glcd_text(display, 98 - (2*strlen(popup_data->btn3_txt)), DISPLAY_HEIGHT - 7, popup_data->btn3_txt, Terminal3x5, GLCD_BLACK);
 
-    switch (popup_data->button_value) {
-        case 0:
-            glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
-        break;
+    //when we have a naming widget, we can not use the encoders to trigger the button actions, so dont print
+    //we do need to print the naming box and name
+    if (popup_data->has_naming_input) {
+        //box
+        glcd_rect(display, 4, 11, DISPLAY_WIDTH - 8, 14, GLCD_BLACK);
 
-        case 1:
-            if (popup_data->button_max == 2)
+        //text
+        glcd_text(display, 8, 14, popup_data->input_name, Terminal5x7, GLCD_BLACK);
+
+        //cursor
+        glcd_rect(display, 8 + (6*popup_data->cursor_index), 22, 5, 1, GLCD_BLACK);
+    }
+    else {
+        switch (popup_data->button_value) {
+            case 0:
+                glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 29, 7);
+            break;
+            case 1:
+                if (popup_data->button_max == 2)
+                    glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
+                else
+                    glcd_rect_invert(display, 49, DISPLAY_HEIGHT - 8, 29, 7);
+            break;
+            case 2:
                 glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
-            else
-                glcd_rect_invert(display, 49, DISPLAY_HEIGHT - 8, 29, 7);
+            break;
+        }
+    }
+}
+
+void screen_keyboard(system_popup_t *popup_data, uint8_t keyboard_index)
+{
+    glcd_t *display = hardware_glcds(0);
+
+    //clear screen
+    screen_clear();
+
+    screen_image(0, MDW_Naming_Widget_withButtonsandSpace);
+
+    glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
+
+    //draw the tittle
+    switch(popup_data->id){
+        case POPUP_SAVE_PB_ID:
+            glcd_text(display, 20, 1, "SAVE PEDALBOARD", Terminal5x7, GLCD_BLACK);
         break;
 
-        case 2:
-            glcd_rect_invert(display, 83, DISPLAY_HEIGHT - 8, 29, 7);
+        case POPUP_SAVE_SS_ID:
+            glcd_text(display, 26, 1, "SAVE SNAPSHOT", Terminal5x7, GLCD_BLACK);
+        break;
+
+        case POPUP_NEW_BANK_ID:
+            glcd_text(display, 32, 1, "CREATE BANK", Terminal5x7, GLCD_BLACK);
         break;
     }
+
+    // draws the title background
+    glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
+
+    //draw the highlighted char
+    icon_keyboard_invert(display, keyboard_index);
+
+    //draw the current name
+    glcd_text(display, 8, 14, popup_data->input_name, Terminal5x7, GLCD_BLACK);
+
+    //draw the current cursor
+    glcd_rect(display, 8 + (6*popup_data->cursor_index), 22, 5, 1, GLCD_BLACK);
+
+    //draw the buttons
+    glcd_text(display, 30 - (2*strlen("DONE")), DISPLAY_HEIGHT - 7, "DONE", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 64 - (2*strlen("CLEAR")), DISPLAY_HEIGHT - 7, "CLEAR", Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 98 - (2*strlen("DELETE")), DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
 }
 
 void screen_msg_overlay(char *message)
@@ -1594,9 +1651,9 @@ void screen_msg_overlay(char *message)
     widget_textbox(display, &text_box);
 }
 
-void screen_text_box(uint8_t display, uint8_t x, uint8_t y, const char *text)
+void screen_text_box(uint8_t x, uint8_t y, const char *text)
 {
-    glcd_t *hardware_display = hardware_glcds(display);
+    glcd_t *hardware_display = hardware_glcds(0);
 
     textbox_t text_box;
     text_box.color = GLCD_BLACK;
