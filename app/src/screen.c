@@ -151,8 +151,6 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
         glcd_text(display, (item_x + 17 - 2*strlen(first_line)), item_y+3, first_line, Terminal3x5, GLCD_BLACK);
     }
 
-    char str_bfr[6];
-    uint8_t char_cnt_name = 0;
     switch(item_child->desc->type)
     {
         case MENU_FOOT:
@@ -184,16 +182,50 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 
             if (item_child->data.unit_text)
             {
-                char_cnt_name = strlen(item_child->data.unit_text);
-                if (char_cnt_name > 7)
-                {
-                    char_cnt_name = 7;
-                }
-                memset(str_bfr, 0, (char_cnt_name+1)*sizeof(char));
-                strncpy(str_bfr, item_child->data.unit_text, char_cnt_name);
+                char bfr_upper_line[7] = {};
+                char bfr_lower_line[7] = {};
 
-                str_bfr[char_cnt_name] = 0;
-                glcd_text(display, (item_x + 19 - char_cnt_name*2), item_y+(tool_mode?22:30), str_bfr, Terminal3x5, GLCD_BLACK);
+                uint8_t q, p = 0, line = 0;
+                for (q = 0; q < 15; q++) {
+                    if (item_child->data.unit_text[q] != 0) {
+                        if (line) {
+                            bfr_lower_line[p] = item_child->data.unit_text[q];
+                            p++;
+                        }
+                        else {
+                            if (item_child->data.unit_text[q] ==  ' ') {
+                                bfr_upper_line[q] = 0;
+                                line = 1;
+                            }
+                            else
+                                bfr_upper_line[q] = item_child->data.unit_text[q];
+                        }
+                    }
+                    else
+                        break;
+                }
+                bfr_lower_line[p] = 0;
+
+                //check if we have 2 lines
+                if (bfr_lower_line[0] != 0) {
+                    //we dont have this in tool mode, so join the strings
+                    if (tool_mode) {
+                        char str_bfr[14] = {};
+                        strcat(str_bfr, bfr_upper_line);
+                        strcat(str_bfr, " ");
+                        strcat(str_bfr, bfr_lower_line);
+                        glcd_text(display, (item_x + 19 - 2*strlen(str_bfr)), item_y+22, str_bfr, Terminal3x5, GLCD_BLACK);
+                    }
+                    else {
+                        glcd_text(display, (item_x + 19 - 2*strlen(bfr_upper_line)), item_y+(tool_mode?22:27), bfr_upper_line, Terminal3x5, GLCD_BLACK);
+                        glcd_text(display, (item_x + 19 - 2*strlen(bfr_lower_line)), item_y+(tool_mode?22:33), bfr_lower_line, Terminal3x5, GLCD_BLACK);
+                    }
+                }
+                else {
+                    glcd_text(display, (item_x + 19 - 2*strlen(bfr_upper_line)), item_y+(tool_mode?22:30), bfr_upper_line, Terminal3x5, GLCD_BLACK);
+                }
+
+                print_menu_outlines();
             }
         break;
 
@@ -1170,9 +1202,6 @@ void screen_menu_page(node_t *node)
     //invert the title area
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 7);
 
-    //draw the outlines
-    print_menu_outlines();
-
     //print the 3 buttons
     //draw the first box, back
     glcd_text(display, 18, DISPLAY_HEIGHT - 7, "< BACK", Terminal3x5, GLCD_BLACK);
@@ -1246,6 +1275,9 @@ void screen_menu_page(node_t *node)
         }
         else
             child_nodes = child_nodes->next; 
+
+        //draw the outlines
+        print_menu_outlines();
     }
 }
 

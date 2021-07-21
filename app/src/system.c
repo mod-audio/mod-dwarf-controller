@@ -500,7 +500,6 @@ void system_inp_0_volume_cb(void *arg, int event)
 
         item->data.min = 0.0f;
         item->data.max = 74.0f;
-        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -535,6 +534,8 @@ void system_inp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1.0f;
 }
 
 void system_inp_1_volume_cb(void *arg, int event)
@@ -556,7 +557,6 @@ void system_inp_1_volume_cb(void *arg, int event)
 
         item->data.min = 0.0f;
         item->data.max = 74.0f;
-        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -587,6 +587,8 @@ void system_inp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1.0f;
 }
 
 void system_inp_2_volume_cb(void *arg, int event)
@@ -608,7 +610,6 @@ void system_inp_2_volume_cb(void *arg, int event)
 
         item->data.min = 0.0f;
         item->data.max = 74.0f;
-        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -639,6 +640,8 @@ void system_inp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1.0f;
 }
 
 void system_outp_0_volume_cb(void *arg, int event)
@@ -660,7 +663,6 @@ void system_outp_0_volume_cb(void *arg, int event)
 
         item->data.min = -60.0f;
         item->data.max = 0.0f;
-        item->data.step = 2.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -693,6 +695,8 @@ void system_outp_0_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 2.0f;
 }
 
 void system_outp_1_volume_cb(void *arg, int event)
@@ -714,7 +718,6 @@ void system_outp_1_volume_cb(void *arg, int event)
 
         item->data.min = -60.0f;
         item->data.max = 0.0f;
-        item->data.step = 2.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -745,6 +748,8 @@ void system_outp_1_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 2.0f;
 }
 
 void system_outp_2_volume_cb(void *arg, int event)
@@ -766,7 +771,6 @@ void system_outp_2_volume_cb(void *arg, int event)
 
         item->data.min = -60.0f;
         item->data.max = 0.0f;
-        item->data.step = 2.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -797,6 +801,8 @@ void system_outp_2_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 2.0f;
 }
 
 void system_hp_volume_cb(void *arg, int event)
@@ -815,7 +821,6 @@ void system_hp_volume_cb(void *arg, int event)
 
         item->data.min = -33.0f;
         item->data.max = 12.0f;
-        item->data.step = 3.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -844,6 +849,8 @@ void system_hp_volume_cb(void *arg, int event)
     int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 3.0f;
 }
 
 void system_display_brightness_cb(void *arg, int event)
@@ -881,7 +888,6 @@ void system_display_brightness_cb(void *arg, int event)
         item->data.value = g_display_brightness;
         item->data.min = 0;
         item->data.max = 4;
-        item->data.step = 1;
     }
 
     if (item->data.value != g_display_brightness)
@@ -899,6 +905,8 @@ void system_display_brightness_cb(void *arg, int event)
     int_to_str((g_display_brightness * 25), str_bfr, 4, 0);
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 void system_display_contrast_cb(void *arg, int event)
@@ -931,7 +939,6 @@ void system_display_contrast_cb(void *arg, int event)
         item->data.value = g_display_contrast;
         item->data.min = DISPLAY_CONTRAST_MIN;
         item->data.max = DISPLAY_CONTRAST_MAX;
-        item->data.step = 1;
     }
 
     if (item->data.value != g_display_contrast)
@@ -950,6 +957,8 @@ void system_display_contrast_cb(void *arg, int event)
 
     strcat(str_bfr, "%");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 void system_hide_actuator_cb(void *arg, int event)
@@ -1074,7 +1083,6 @@ void system_ss_prog_change_cb (void *arg, int event)
         item->data.value = g_snapshot_prog_change;
         item->data.min = 0;
         item->data.max = 16;
-        item->data.step = 1;
     }
     else if (event == MENU_EV_UP)
     {
@@ -1094,6 +1102,8 @@ void system_ss_prog_change_cb (void *arg, int event)
     //a value of 0 means we turn off
     if (g_snapshot_prog_change == 0) strcpy(str_bfr, "OFF");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 void system_pb_prog_change_cb(void *arg, int event)
@@ -1110,7 +1120,6 @@ void system_pb_prog_change_cb(void *arg, int event)
         item->data.value = g_pedalboard_prog_change;
         item->data.min = 0;
         item->data.max = 16;
-        item->data.step = 1;
     }
     else if (event == MENU_EV_UP)
     {
@@ -1130,6 +1139,8 @@ void system_pb_prog_change_cb(void *arg, int event)
     //a value of 0 means we turn off
     if (g_pedalboard_prog_change == 0) strcpy(str_bfr, "OFF");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 //USER PROFILE X (loading)
@@ -1163,7 +1174,6 @@ void system_load_pro_cb(void *arg, int event)
         item->data.selected = g_current_profile;
         item->data.min = 1;
         item->data.max = 4;
-        item->data.step = 1;
         item->data.list_count = 2;
         item->data.hover = 1;
     }
@@ -1176,6 +1186,8 @@ void system_load_pro_cb(void *arg, int event)
         case 3: item->data.unit_text = "[C]"; break;
         case 4: item->data.unit_text = "[D]"; break;
     }
+
+    item->data.step = 1;
 }
 
 //OVERWRITE CURRENT PROFILE
@@ -1204,7 +1216,6 @@ void system_save_pro_cb(void *arg, int event)
         item->data.selected = 1;
         item->data.min = 1;
         item->data.max = 4;
-        item->data.step = 1;
         item->data.list_count = 2;
         item->data.hover = 1;
     }
@@ -1217,6 +1228,8 @@ void system_save_pro_cb(void *arg, int event)
         case 3: item->data.unit_text = "[C]"; break;
         case 4: item->data.unit_text = "[D]"; break;
     }
+
+    item->data.step = 1;
 }
 
 void system_shift_item_cb(void *arg, int event)
@@ -1258,7 +1271,6 @@ void system_shift_item_cb(void *arg, int event)
         item->data.value = g_shift_item[shift_item_id];
         item->data.min = 0;
         item->data.max = SHIFT_MENU_ITEMS_COUNT-1;
-        item->data.step = 1;
     }
 
     if (item->data.value != g_shift_item[shift_item_id])
@@ -1274,6 +1286,8 @@ void system_shift_item_cb(void *arg, int event)
 
     //add item to text
     item->data.unit_text = TM_get_menu_item_by_ID(SHIFT_ITEM_IDS[(int)item->data.value])->name;
+
+    item->data.step = 1;
 }
 
 void system_default_tool_cb(void *arg, int event)
@@ -1314,7 +1328,6 @@ void system_default_tool_cb(void *arg, int event)
         item->data.value = g_default_tool;
         item->data.min = 0;
         item->data.max = FOOT_TOOL_AMOUNT;
-        item->data.step = 1;
     }
 
     if (event != MENU_EV_NONE)
@@ -1333,6 +1346,8 @@ void system_default_tool_cb(void *arg, int event)
         case 0: item->data.unit_text = "TUNER"; break;
         case 1: item->data.unit_text = "TEMPO"; break;
     }
+
+    item->data.step = 1;
 }
 
 /*
@@ -1408,7 +1423,6 @@ void system_control_header_cb(void *arg, int event)
         item->data.value = g_control_header;
         item->data.min = 0;
         item->data.max = 1;
-        item->data.step = 1;
     }
 
     if (item->data.value != g_control_header)
@@ -1426,6 +1440,8 @@ void system_control_header_cb(void *arg, int event)
         item->data.unit_text = "Snapshot name";
     else
         item->data.unit_text = "Pedalboard name";
+
+    item->data.step = 1;
 }
 
 //Callbacks below are not part of the device menu
@@ -1510,7 +1526,6 @@ void system_tempo_cb (void *arg, int event)
         item->data.value = g_beats_per_minute;
         item->data.min = 20;
         item->data.max = 280;
-        item->data.step = 1;
     }
     //scrolling up/down
     else if ((event == MENU_EV_UP) && (g_MIDI_clk_src != 1))
@@ -1542,6 +1557,8 @@ void system_tempo_cb (void *arg, int event)
     int_to_str(g_beats_per_minute, str_bfr, 4, 0);
     strcat(str_bfr, " BPM");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 void system_bpb_cb (void *arg, int event)
@@ -1553,7 +1570,6 @@ void system_bpb_cb (void *arg, int event)
         item->data.value = g_beats_per_bar;
         item->data.min = 1;
         item->data.max = 16;
-        item->data.step = 1;
     }
     //scrolling up/down
     else if (event == MENU_EV_UP)
@@ -1578,6 +1594,8 @@ void system_bpb_cb (void *arg, int event)
     int_to_str(g_beats_per_bar, str_bfr, 4, 0);
     strcat(str_bfr, "/4");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 void system_taptempo_cb (void *arg, int event)
@@ -1590,7 +1608,6 @@ void system_taptempo_cb (void *arg, int event)
         item->data.value = g_beats_per_minute;
         item->data.min = 20;
         item->data.max = 280;
-        item->data.step = 1;
 
         // calculates the maximum tap tempo value
         uint32_t max = (uint32_t)(convert_to_ms("bpm", item->data.min) + 0.5);
@@ -1645,6 +1662,8 @@ void system_taptempo_cb (void *arg, int event)
     static char str_bfr[12] = {};
     int_to_str(g_beats_per_minute, str_bfr, 4, 0);
     item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
 }
 
 /*
@@ -1724,7 +1743,6 @@ void system_usb_mode_cb(void *arg, int event)
         item->data.selected = g_usb_mode;
         item->data.min = 0;
         item->data.max = 2;
-        item->data.step = 1;
         item->data.list_count = 2;
         item->data.hover = 1;
     }
@@ -1764,6 +1782,8 @@ void system_usb_mode_cb(void *arg, int event)
         case 1: item->data.unit_text = "NET+MIDI"; break;
         case 2: item->data.unit_text = "NET+MIDI (WINDOWS)"; break;
     }
+
+    item->data.step = 1;
 }
 
 void system_shift_mode_cb(void *arg, int event)
@@ -1804,7 +1824,6 @@ void system_shift_mode_cb(void *arg, int event)
         item->data.value = g_shift_mode;
         item->data.min = 0;
         item->data.max = 1;
-        item->data.step = 1;
     }
 
     if (event != MENU_EV_NONE)
@@ -1823,6 +1842,8 @@ void system_shift_mode_cb(void *arg, int event)
         case 0: item->data.unit_text = "Momentary"; break;
         case 1: item->data.unit_text = "Latching"; break;
     }
+
+    item->data.step = 1;
 }
 
 void system_noisegate_channel_cb(void *arg, int event)
@@ -1841,7 +1862,6 @@ void system_noisegate_channel_cb(void *arg, int event)
 
         item->data.min = 0.0f;
         item->data.max = 3.0f;
-        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -1861,8 +1881,6 @@ void system_noisegate_channel_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_NG_CHANNEL, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     switch ((int)item->data.value)
@@ -1872,6 +1890,8 @@ void system_noisegate_channel_cb(void *arg, int event)
         case 2: item->data.unit_text = "Input 2"; break;
         case 3: item->data.unit_text = "Input 1 & 2"; break;
     }
+
+    item->data.step = 1.0f;
 }
 
 void system_noisegate_thres_cb(void *arg, int event)
@@ -1890,7 +1910,6 @@ void system_noisegate_thres_cb(void *arg, int event)
 
         item->data.min = -80.0f;
         item->data.max = -10.0f;
-        item->data.step = 0.1f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -1910,14 +1929,14 @@ void system_noisegate_thres_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
-    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
+    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 0.3f;
 }
 
 void system_noisegate_decay_cb(void *arg, int event)
@@ -1935,8 +1954,7 @@ void system_noisegate_decay_cb(void *arg, int event)
         sys_comm_wait_response();
 
         item->data.min = 1.0f;
-        item->data.max = 200.0f;
-        item->data.step = 1.0f;
+        item->data.max = 500.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -1956,14 +1974,14 @@ void system_noisegate_decay_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_NG_DECAY, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
     int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, " ms");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 2.0f;
 }
 
 void system_comp_mode_cb(void *arg, int event)
@@ -1982,7 +2000,6 @@ void system_comp_mode_cb(void *arg, int event)
 
         item->data.min = 0.0f;
         item->data.max = 3.0f;
-        item->data.step = 1.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -2002,8 +2019,6 @@ void system_comp_mode_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_COMP_MODE, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     switch ((int)item->data.value)
@@ -2013,6 +2028,8 @@ void system_comp_mode_cb(void *arg, int event)
         case 2: item->data.unit_text = "Mild Comp"; break;
         case 3: item->data.unit_text = "heavy Comp"; break;
     }
+
+    item->data.step = 1.0f;
 }
 
 void system_comp_release_cb(void *arg, int event)
@@ -2030,8 +2047,7 @@ void system_comp_release_cb(void *arg, int event)
         sys_comm_wait_response();
 
         item->data.min = 50.0f;
-        item->data.max = 1000.0f;
-        item->data.step = 1.0f;
+        item->data.max = 500.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -2051,14 +2067,14 @@ void system_comp_release_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_COMP_RELEASE, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
     int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
     strcat(str_bfr, " ms");
     item->data.unit_text = str_bfr;
+
+    item->data.step = 2.0f;
 }
 
 void system_comp_pb_vol_cb(void *arg, int event)
@@ -2075,9 +2091,8 @@ void system_comp_pb_vol_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_COMP_PEDALBOARD_GAIN, NULL);
         sys_comm_wait_response();
 
-        item->data.min = -30.0f;
-        item->data.max = 30.0f;
-        item->data.step = 0.1f;
+        item->data.min = -80.0f;
+        item->data.max = 10.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -2097,12 +2112,17 @@ void system_comp_pb_vol_cb(void *arg, int event)
 
         sys_comm_send(CMD_SYS_COMP_PEDALBOARD_GAIN, val_buffer);
         sys_comm_wait_response();
-
-        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
-    int_to_str((int)item->data.value, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, " dB");
+    if (item->data.value != -80.0) {
+        float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
+        strcat(str_bfr, " dB");
+    }
+    else
+        strcpy(str_bfr, "-INF DB");
+
     item->data.unit_text = str_bfr;
+
+    item->data.step = 0.45f;
 }
