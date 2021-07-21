@@ -958,7 +958,7 @@ uint8_t NM_up(void)
 
         case PB_LIST_BEGINNING_BOX:
             if (g_item_grabbed != NO_GRAB_ITEM)
-                return;
+                return 0;
 
             g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
             g_pedalboards->hover = -1;
