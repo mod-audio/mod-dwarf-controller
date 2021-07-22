@@ -92,7 +92,7 @@ static void exit_popup(void)
 //resets the naming widget to only include spaces
 void reset_naming_widget_name(void)
 {
-    strcpy(g_current_name_input, "                 ");
+    strcpy(g_current_name_input, "                  ");
     g_current_name_input[18] = 0;
 }
 
@@ -108,7 +108,7 @@ void copy_name_to_naming_widget(char *source_to_copy)
     strcpy(g_current_name_input, source_to_copy);
 
     uint8_t i;
-    for (i = source_length; i < 18; i++) {
+    for (i = source_length-1; i < 18; i++) {
         strcat(g_current_name_input, " ");
     }
 
@@ -120,11 +120,11 @@ void turnicate_naming_widget_spaces(void)
 {
     uint8_t i;
     for (i = 17; i > 0; i--) {
-        if (g_current_name_input[i] != ' ') {
-            g_current_name_input[i+1] = 0;
+        if (g_current_name_input[i] != ' ')
             break;
-        }
     }
+
+    g_current_name_input[i+1] = 0;
 }
 
 /*
@@ -150,6 +150,7 @@ void PM_enter(uint8_t encoder)
             case 0:
             break;
 
+            case 2:
             case 1:
                 if (g_keyboard_toggled){
                     g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
@@ -162,9 +163,6 @@ void PM_enter(uint8_t encoder)
                 }
 
                 PM_print_screen();
-            break;
-
-            case 2:
             break;
         }
     }
@@ -209,7 +207,10 @@ void PM_up(uint8_t encoder)
 
             case 2:
             //TODO WE MIGHT NOT ADD THIS FEATURE
-                if (g_keyboard_toggled) {
+                if (!g_keyboard_toggled) {
+                    g_keyboard_toggled = 1;
+                }
+                else {
                     //check where we are
                     if (g_keyboard_index < 15)
                         g_keyboard_index += 45;
@@ -217,8 +218,8 @@ void PM_up(uint8_t encoder)
                         g_keyboard_index -= 15;
 
                     g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                    PM_print_screen();
                 }
+                PM_print_screen();
             break;
         }
     }
@@ -263,7 +264,10 @@ void PM_down(uint8_t encoder)
 
             case 2:
             //TODO WE MIGHT NOT ADD THIS FEATURE
-                if (g_keyboard_toggled) {
+                if (!g_keyboard_toggled) {
+                    g_keyboard_toggled = 1;
+                }
+                else {
                     //check where we are
                     if (g_keyboard_index > 44)
                         g_keyboard_index -= 45;
@@ -271,8 +275,8 @@ void PM_down(uint8_t encoder)
                         g_keyboard_index += 15;
 
                     g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                    PM_print_screen();
                 }
+                PM_print_screen();
             break;
         }
     }
@@ -412,13 +416,34 @@ void PM_button_pressed(uint8_t button)
                         return;
                     }
 
+                    //TODO we should catch the response to see if we have a duplicate name
+                    ui_comm_webgui_set_response_cb(NULL, NULL);
+
+                    //remove spaces at the end
+                    turnicate_naming_widget_spaces();
+
                     //send save to webui
+                    i = copy_command(buffer, (g_current_popup_id==POPUP_SAVE_SS_ID)?CMD_SNAPSHOT_SAVE_AS:CMD_PEDALBOARD_SAVE_AS);
 
-                    //get response back
+                    const char *p = g_current_name_input;
+                    // copy the pedalboard uid
+                    if (!*p)
+                        buffer[i++] = '0';
+                    else {
+                        while (*p) {
+                            buffer[i++] = *p;
+                            p++;
+                        }
+                    }
+                    buffer[i] = 0;
 
-                    //if already in use, overwrite popup
+                    // sends the data to GUI
+                    ui_comm_webgui_send(buffer, i);
 
-                    //else 
+                    // waits the pedalboards list be received
+                    ui_comm_webgui_wait_response();
+
+                    //TODO move this check to the callback and possibly give an extra popup
                         PM_launch_attention_overlay("save sucsesfull", exit_popup);
                 break;
 
@@ -461,13 +486,34 @@ void PM_button_pressed(uint8_t button)
                         return;
                     }
 
+                    //TODO we should catch the response to see if we have a duplicate name
+                    ui_comm_webgui_set_response_cb(NULL, NULL);
+
+                    //remove spaces at the end
+                    turnicate_naming_widget_spaces();
+
                     //send save to webui
+                    i = copy_command(buffer, CMD_BANK_NEW);
 
-                    //get response back
+                    const char *p = g_current_name_input;
+                    // copy the pedalboard uid
+                    if (!*p)
+                        buffer[i++] = '0';
+                    else {
+                        while (*p) {
+                            buffer[i++] = *p;
+                            p++;
+                        }
+                    }
+                    buffer[i] = 0;
 
-                    //if already in use, overwrite popup
+                    // sends the data to GUI
+                    ui_comm_webgui_send(buffer, i);
 
-                    //else
+                    // waits the pedalboards list be received
+                    ui_comm_webgui_wait_response();
+
+                    //TODO move this check to the callback and possibly give an extra popup
                         PM_launch_attention_overlay("bank creation sucsesfull", exit_popup);
                 break;
 
@@ -531,6 +577,8 @@ void PM_button_pressed(uint8_t button)
                         break;
                         case POPUP_REMOVE_PB_ID:
                             i = copy_command(buffer, CMD_PEDALBOARD_DELETE);
+                            i += int_to_str(NM_get_current_selected(BANKS_LIST), &buffer[i], sizeof(buffer) - i, 0);
+                            buffer[i++] = ' ';
                             i += int_to_str(NM_get_current_hover(PEDALBOARD_LIST), &buffer[i], sizeof(buffer) - i, 0);
                         break;
                     }
