@@ -385,7 +385,7 @@ void check_eeprom_defaults(uint16_t current_version)
         write_shift_defaults();
     }
 
-    //update the version 
+    //update the version
     uint16_t write_buffer_version = EEPROM_CURRENT_VERSION;
     EEPROM_Write(0, EEPROM_VERSION_ADRESS, &write_buffer_version, MODE_16_BIT, 1);
 }
@@ -804,6 +804,18 @@ void *hardware_actuators(uint8_t actuator_id)
 uint32_t hardware_timestamp(void)
 {
     return g_counter;
+}
+
+void hardware_reset_eeprom(void)
+{
+    //write all settings
+    write_o_settings_defaults();
+    write_led_defaults();
+    write_shift_defaults();
+
+    //update the version
+    uint16_t write_buffer_version = EEPROM_CURRENT_VERSION;
+    EEPROM_Write(0, EEPROM_VERSION_ADRESS, &write_buffer_version, MODE_16_BIT, 1);
 }
 
 void hardware_coreboard_power(uint8_t state)

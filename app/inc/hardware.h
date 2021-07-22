@@ -91,6 +91,8 @@ ledz_t *hardware_leds(uint8_t led_id);
 void *hardware_actuators(uint8_t actuator_id);
 // returns the timestamp (a variable increment in each millisecond)
 uint32_t hardware_timestamp(void);
+//reset the eeprom memory to defaults
+void hardware_reset_eeprom(void);
 // turn on/off coreboard
 void hardware_coreboard_power(uint8_t state);
 //set timer for overlays
