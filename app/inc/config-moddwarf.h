@@ -216,7 +216,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define MIDI_ID             (7 * 10)
 #define USER_PROFILE_ID     (8 * 10)
 #define DISPLAY_SETTINGS    (9 * 10)
-#define BEHAVIOR_SET_ID     (10 * 10)
+#define SYSTEM_SET_ID       (10 * 10)
 #define BLUETOOTH_ID        (11 * 10)
 #define INFO_ID             (12 * 10)
 #define SERVICES_ID         (13 * 10)
@@ -227,6 +227,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define TUNER_ID            (18 * 10)
 #define SHIFT_ITEMS_ID      (19 * 10)
 #define APPEARANCE_SET_ID   (20 * 10)
+#define CONTROLLER_SET_ID   (21 * 10)
 
 #define INP_STEREO_LINK         AUDIO_INP_ID+1
 #define INP_1_GAIN_ID           AUDIO_INP_ID+2
@@ -258,10 +259,12 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DISPLAY_BRIGHTNESS_ID   DISPLAY_SETTINGS+1
 #define DISPLAY_CONTRAST_ID     DISPLAY_SETTINGS+2
 
-#define DEFAULT_TOOL_ID         BEHAVIOR_SET_ID+1
-#define KNOB_LIST_ID            BEHAVIOR_SET_ID+2
-#define MENU_BUTTON_TOGGLE_ID   BEHAVIOR_SET_ID+3
-#define USB_MODE_ID             BEHAVIOR_SET_ID+4
+#define DEFAULT_TOOL_ID         CONTROLLER_SET_ID+1
+#define KNOB_LIST_ID            CONTROLLER_SET_ID+2
+#define MENU_BUTTON_TOGGLE_ID   CONTROLLER_SET_ID+3
+
+#define USB_MODE_ID             SYSTEM_SET_ID+1
+#define NOSIE_REMOVAL_ID        SYSTEM_SET_ID+2
 
 #define CONTROL_HEADER_ID       APPEARANCE_SET_ID+1
 #define UNASSIGNED_ACTUATRS_ID  APPEARANCE_SET_ID+2
@@ -310,16 +313,18 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
     {"LOAD PROFILE",                    MENU_CLICK_LIST,LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
     {"SAVE PROFILE AS",                 MENU_CLICK_LIST,SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
-    {"DISPLAY SETTINGS",                MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
+    {"DISPLAY",                         MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DISPLAY_SETTINGS,   system_display_brightness_cb, 0},  \
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DISPLAY_SETTINGS,   system_display_contrast_cb  , 0},  \
-    {"BEHAVIOR SETTINGS",               MENU_MAIN,      BEHAVIOR_SET_ID,        ROOT_ID,            NULL                        , 0},  \
-    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        BEHAVIOR_SET_ID,    system_default_tool_cb      , 0},  \
-    {"MENU BUTTON MODE",                MENU_LIST,      MENU_BUTTON_TOGGLE_ID,  BEHAVIOR_SET_ID,    system_shift_mode_cb        , 0},  \
-    {"USB-B MODE",                      MENU_CLICK_LIST,USB_MODE_ID,            BEHAVIOR_SET_ID,    system_usb_mode_cb          , 0},  \
-    {"APPEARANCE SETTINGS",             MENU_MAIN,      APPEARANCE_SET_ID,      ROOT_ID,            NULL                        , 0},  \
+    {"APPEARANCE",                      MENU_MAIN,      APPEARANCE_SET_ID,      ROOT_ID,            NULL                        , 0},  \
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      APPEARANCE_SET_ID,  system_control_header_cb    , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, APPEARANCE_SET_ID,  system_hide_actuator_cb     , 0},  \
+    {"SYSTEM BEHAVIOR",                 MENU_MAIN,      SYSTEM_SET_ID,          ROOT_ID,            NULL                        , 0},  \
+    {"USB-B MODE",                      MENU_CLICK_LIST,USB_MODE_ID,            SYSTEM_SET_ID,      system_usb_mode_cb          , 0},  \
+    {"COMPENSATE GND LOOP",             MENU_CLICK_LIST,NOSIE_REMOVAL_ID,       SYSTEM_SET_ID,      system_noise_removal_cb     , 0},  \
+    {"CONTROLLER BEHAVIOR",             MENU_MAIN,      CONTROLLER_SET_ID,      ROOT_ID,            NULL                        , 0},  \
+    {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        CONTROLLER_SET_ID,  system_default_tool_cb      , 0},  \
+    {"MENU BUTTON MODE",                MENU_LIST,      MENU_BUTTON_TOGGLE_ID,  CONTROLLER_SET_ID,  system_shift_mode_cb        , 0},  \
     {"MENU ITEMS",                      MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
@@ -342,6 +347,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {USER_PROFILE_ID+1, "LOAD USER PROFILE", "\n\n\nload user profile "}, \
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "\n\nsave current settings as user profile "}, \
     {USB_MODE_ID, "Change USB mode", "\n\nChanging USB modes requires a device reboot\n\nreboot now?"},  \
+    {NOSIE_REMOVAL_ID, "Ground loop compensation", "enabling this feature reduces the amount of noise generated by ground loops\n\nthis comes at the cost of some cpu"},  \
     {BLUETOOTH_ID, "Enable Bluetooth", "\nEnable Bluetooth discovery\nmode for 2 minutes?"},  \
     {INFO_ID, "Device Info", "\nCurrent Release:\n"},  \
     {UPDATE_ID, "Start System Upgrade", "\n\nTo start the system upgrade\nprocess, press and hold down\nfootswitch A and select ok."}, \

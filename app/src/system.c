@@ -107,6 +107,7 @@ int8_t g_default_tool = -1;
 int8_t g_list_mode = -1;
 int8_t g_control_header = -1;
 int8_t g_usb_mode = -1;
+int8_t g_noise_removal_mode = -1;
 int8_t g_shift_mode = -1;
 
 /*
@@ -1843,6 +1844,7 @@ void system_shift_mode_cb(void *arg, int event)
         case 1: item->data.unit_text = "Latching"; break;
     }
 
+
     item->data.step = 1;
 }
 
@@ -2125,4 +2127,59 @@ void system_comp_pb_vol_cb(void *arg, int event)
     item->data.unit_text = str_bfr;
 
     item->data.step = 0.45f;
+}
+
+void system_noise_removal_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    //first time, fetch value
+    if (g_noise_removal_mode == -1)
+    {
+        sys_comm_set_response_cb(recieve_sys_value, item);
+
+        sys_comm_send(CMD_SYS_NOISE_REMOVAL, NULL);
+        sys_comm_wait_response();
+
+        g_noise_removal_mode = item->data.value;
+        item->data.selected = g_noise_removal_mode;
+        item->data.min = 0;
+        item->data.max = 1;
+        item->data.step = 1;
+        item->data.list_count = 2;
+        item->data.hover = 1;
+    }
+
+    //if clicked and YES was selected from the pop-up
+    if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
+    {
+        g_noise_removal_mode = item->data.value;
+        item->data.selected = g_noise_removal_mode;
+
+        //set the value
+        char str_buf[8];
+        int_to_str(item->data.value, str_buf, 4, 0);
+        str_buf[1] = 0;
+
+        //send value
+        sys_comm_send(CMD_SYS_NOISE_REMOVAL, str_buf);
+        sys_comm_wait_response();
+    }
+
+    if (item->data.popup_active)
+        return;
+
+    if (event == MENU_EV_NONE)
+        item->data.value = g_noise_removal_mode;
+
+    if ((event == MENU_EV_UP) && (item->data.value < item->data.max))
+        item->data.value++;
+    else if ((event == MENU_EV_DOWN) && (item->data.value > item->data.min))
+        item->data.value--;
+
+    switch ((int)item->data.value)
+    {
+        case 0: item->data.unit_text = "OFF"; break;
+        case 1: item->data.unit_text = "ON"; break;
+    }
 }
