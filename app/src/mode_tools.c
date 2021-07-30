@@ -427,6 +427,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                     item->data.popup_active = 1;
                     g_menu_popup_active = 1;
                     g_popup_encoder = encoder;
+                    item->data.hover = 1;
 
                     TM_set_leds();
                 }

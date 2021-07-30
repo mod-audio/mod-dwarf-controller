@@ -2165,6 +2165,11 @@ void system_noise_removal_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_NOISE_REMOVAL, str_buf);
         sys_comm_wait_response();
     }
+    //cancel, reset widget
+    else if ((event == MENU_EV_ENTER) && (item->data.hover == 1)) {
+        item->data.selected = g_noise_removal_mode;
+        item->data.value = g_noise_removal_mode;
+    }
 
     if (item->data.popup_active)
         return;
