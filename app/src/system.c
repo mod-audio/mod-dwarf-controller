@@ -1926,19 +1926,19 @@ void system_noisegate_thres_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 2);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_NG_THRESHOLD, val_buffer);
         sys_comm_wait_response();
     }
 
-    static char str_bfr[10] = {};
+    static char str_bfr[20] = {};
     float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
-    item->data.step = 0.3f;
+    item->data.step = 0.5f;
 }
 
 void system_noisegate_decay_cb(void *arg, int event)
@@ -2094,7 +2094,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
         sys_comm_wait_response();
 
         item->data.min = -80.0f;
-        item->data.max = 10.0f;
+        item->data.max = 20.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -2109,7 +2109,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
             item->data.value = item->data.min;
 
         // insert the value on buffer
-        q += int_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 0);
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 2);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_COMP_PEDALBOARD_GAIN, val_buffer);
@@ -2126,7 +2126,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
 
     item->data.unit_text = str_bfr;
 
-    item->data.step = 0.45f;
+    item->data.step = 0.5f;
 }
 
 void system_noise_removal_cb(void *arg, int event)
