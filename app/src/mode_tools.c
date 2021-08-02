@@ -356,6 +356,10 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
         i = 0;
         while (g_menu_popups[i].popup_content)
         {
+            //we only display a popup when the value is changed
+            if ((item->desc->type == MENU_CLICK_LIST) && ((int)item->data.value == item->data.selected) && !item->data.popup_active)
+                return;
+
             if (item->desc->id == g_menu_popups[i].menu_id)
             {
                 if (item->desc->parent_id == USER_PROFILE_ID)
@@ -392,7 +396,6 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         g_current_item = g_current_menu->data;
 
                         TM_print_tool();
-                        TM_set_leds();
                     }
                     else if (item->desc->id == INFO_ID)
                     {
@@ -400,9 +403,10 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         g_current_item = g_current_menu->data;
 
                         TM_print_tool();
-                        TM_set_leds();
                         return;
                     }
+
+                    TM_print_tool();
                 }
                 else
                 {
@@ -435,7 +439,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
            item->data.hover--;
     }
 
-    if (item->desc->action_cb)        
+    if (item->desc->action_cb && !item->data.popup_active)
         item->desc->action_cb(item, action);
 
     if ((item->desc->id != ROOT_ID) && (item->desc->id != UPDATE_ID) && (item->desc->id != DIALOG_ID) && (item->desc->id != BLUETOOTH_ID) && (item->desc->id != INFO_ID))
