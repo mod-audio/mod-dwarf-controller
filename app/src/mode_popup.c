@@ -445,6 +445,11 @@ void PM_button_pressed(uint8_t button)
 
                     //TODO move this check to the callback and possibly give an extra popup
                         PM_launch_attention_overlay("save sucsesfull", exit_popup);
+
+                        //now reload the list page
+
+                        //set this as the active pb / ss
+
                 break;
 
                 //clear name

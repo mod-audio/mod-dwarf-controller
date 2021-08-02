@@ -838,7 +838,7 @@ void NM_encoder_released(uint8_t encoder)
         i = copy_command(buffer, CMD_REORDER_PBS_IN_BANK);
         i += int_to_str(g_banks->hover, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
-        i += int_to_str(g_item_grabbed_uid, &buffer[i], sizeof(buffer) - i, 0);
+        i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_pedalboards->hover, &buffer[i], sizeof(buffer) - i, 0);
     }
@@ -846,7 +846,7 @@ void NM_encoder_released(uint8_t encoder)
         i = copy_command(buffer, CMD_REORDER_PBS_IN_BANK);
         i += int_to_str(g_pedalboards->hover, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
-        i += int_to_str(g_item_grabbed_uid, &buffer[i], sizeof(buffer) - i, 0);
+        i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
     }
