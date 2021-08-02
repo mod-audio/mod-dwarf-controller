@@ -147,6 +147,7 @@ void widget_textbox(glcd_t *display, textbox_t *textbox);
 void widget_listbox(glcd_t *display, listbox_t *listbox);
 void widget_menu_listbox(glcd_t *display, listbox_t *listbox);
 void widget_banks_listbox(glcd_t *display, listbox_t *listbox);
+void widget_pb_ss_title(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle);
 void widget_listbox2(glcd_t *display, listbox_t *listbox);
 void widget_listbox_overlay(glcd_t *display, listbox_t *listbox);
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle);

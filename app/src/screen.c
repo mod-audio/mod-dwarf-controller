@@ -1009,17 +1009,15 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
         glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
 
-        const uint8_t *title_font = Terminal5x7;
         uint8_t count = strarr_length(list->names);
+
+        const uint8_t *title_font = Terminal5x7;
         list_box.x = 0;
         list_box.y = 11;
         list_box.width = DISPLAY_WIDTH;
         list_box.height = 45;
         list_box.color = GLCD_BLACK;
-        list_box.hover = list->hover - list->page_min;
-        list_box.selected = list->selected - list->page_min;
         list_box.count = count;
-        list_box.list = list->names;
         list_box.font = Terminal7x8;
         list_box.line_space = 4;
         list_box.line_top_margin = 1;
@@ -1030,10 +1028,20 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         else
             list_box.name = "SNAPSHOTS";
 
-        if (hold_item_index != -1)
-            widget_listbox_pedalboard_draging(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
-        else
-            widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
+        if (count != 0) {
+            list_box.hover = list->hover - list->page_min;
+            list_box.selected = list->selected - list->page_min;
+            list_box.list = list->names;
+
+            if (hold_item_index != -1)
+                widget_listbox_pedalboard_draging(display, &list_box, title_font, pb_ss_toggle, hold_item_index, hold_item_label);
+            else
+                widget_listbox_pedalboard(display, &list_box, title_font, pb_ss_toggle);
+        }
+        else {
+            //finish drawing some stuff
+            widget_pb_ss_title(display, &list_box, title_font, pb_ss_toggle);
+        }
 
         //if we are in pb mode, and at the top of the list, display the 'add pb to bank' button
         if ((((type == PB_LIST_BEGINNING_BOX) || (type == PB_LIST_BEGINNING_BOX_SELECTED))

@@ -103,37 +103,6 @@ static uint8_t get_text_width(const char *text, const uint8_t *font)
     return text_width;
 }
 
-static void draw_pb_ss_title(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
-{
-    //draw the title line around it
-    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
-
-    //create title string
-    uint8_t char_cnt_name = strlen(listbox->name);
-    if (char_cnt_name > 16)
-        char_cnt_name = 16;
-    char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
-    strncpy(title_str_bfr, listbox->name, char_cnt_name);
-    title_str_bfr[char_cnt_name] = '\0';
-
-    //clear the name area
-    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-9, 12, ((6*char_cnt_name) +13), 9, ~listbox->color);
-
-    //draw the title
-    glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 4, listbox->y+2, title_str_bfr, title_font, listbox->color);
-
-    //draw the icon before
-    if (!toggle)
-        icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -7, listbox->y+2);
-    else 
-        icon_snapshot(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -7, listbox->y+2);
-    
-    // invert the name area
-    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-9, 12, ((6*char_cnt_name) +13), 9);
-
-    FREE(title_str_bfr);
-}
-
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -579,9 +548,40 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
     FREE(title_str_bfr);
 }
 
+void widget_pb_ss_title(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
+{
+    //draw the title line around it
+    glcd_hline(display, listbox->x, listbox->y+5, DISPLAY_WIDTH, GLCD_BLACK);
+
+    //create title string
+    uint8_t char_cnt_name = strlen(listbox->name);
+    if (char_cnt_name > 16)
+        char_cnt_name = 16;
+    char *title_str_bfr = (char *) MALLOC((char_cnt_name + 1) * sizeof(char));
+    strncpy(title_str_bfr, listbox->name, char_cnt_name);
+    title_str_bfr[char_cnt_name] = '\0';
+
+    //clear the name area
+    glcd_rect_fill(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-9, 12, ((6*char_cnt_name) +13), 9, ~listbox->color);
+
+    //draw the title
+    glcd_text(display,  ((DISPLAY_WIDTH) /2) - char_cnt_name*3 + 4, listbox->y+2, title_str_bfr, title_font, listbox->color);
+
+    //draw the icon before
+    if (!toggle)
+        icon_pedalboard(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -7, listbox->y+2);
+    else
+        icon_snapshot(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3 -7, listbox->y+2);
+
+    // invert the name area
+    glcd_rect_invert(display, ((DISPLAY_WIDTH) /2) - char_cnt_name*3-9, 12, ((6*char_cnt_name) +13), 9);
+
+    FREE(title_str_bfr);
+}
+
 void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle)
 {
-    draw_pb_ss_title(display, listbox, title_font, toggle);
+    widget_pb_ss_title(display, listbox, title_font, toggle);
 
     //create a buffer, max line length is 15
     char *item_str_bfr = (char *) MALLOC(16 * sizeof(char));
@@ -663,7 +663,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
 void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle,
                                int8_t hold_item_index, const char *hold_item_label)
 {
-    draw_pb_ss_title(display, listbox, title_font, toggle);
+    widget_pb_ss_title(display, listbox, title_font, toggle);
 
     //draw the list
     //create a buffer, max line length is 15

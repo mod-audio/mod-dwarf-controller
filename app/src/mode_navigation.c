@@ -587,6 +587,8 @@ static void enter_bank(void)
     // if reach here, received the pedalboards list
     if (g_current_list == BANK_LIST_CHECKBOXES)
         g_current_list = PB_LIST_CHECKBOXES;
+    else if (g_pedalboards->page_max == 0)
+        g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
     else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
         g_current_list = PB_LIST_BEGINNING_BOX;
     else
@@ -746,7 +748,7 @@ void NM_enter(void)
             g_current_list = BANK_LIST_CHECKBOXES;
 
             //save the bank we are editing
-            g_current_add_bank = g_current_bank;
+            g_current_add_bank = g_banks->hover;
 
             //allocate memory for the UID's
             g_uids_to_add_to_bank = (uint16_t *) MALLOC(sizeof(uint16_t *) * 120);
@@ -1017,7 +1019,7 @@ uint8_t NM_down(void)
             //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
             if(g_pedalboards->page_max == g_pedalboards->menu_max) {
                 //check if we are not already at the end
-                if (g_pedalboards->hover >= g_pedalboards->menu_max - 1)
+                if ((g_pedalboards->hover >= g_pedalboards->menu_max - 1) || g_pedalboards->page_max == 0)
                     return 0;
                 //we still have items in our list
                 else
@@ -1079,6 +1081,9 @@ uint8_t NM_down(void)
         break;
 
         case PB_LIST_BEGINNING_BOX_SELECTED:
+            if (g_pedalboards->page_max == 0)
+                return 0;
+
             g_pedalboards->hover = 0;
             g_current_list = PB_LIST_BEGINNING_BOX;
             NM_print_screen();
@@ -1182,7 +1187,9 @@ void NM_print_screen(void)
             request_banks_list(PAGE_DIR_INIT);
             request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
 
-            if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
+            if (g_pedalboards->page_max == 0)
+                g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+            else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
                 g_current_list = PB_LIST_BEGINNING_BOX;
         //fall-through
         case PB_LIST_CHECKBOXES:

@@ -245,10 +245,6 @@ void data_free_banks_list(bp_list_t *bp_list)
 
 bp_list_t *data_parse_pedalboards_list(char **list_data, uint32_t list_count)
 {
-    if (!list_data || list_count == 0 || (list_count % 2)) return NULL;
-
-    list_count = (list_count / 2);
-
     // create an array of banks
     bp_list_t *bp_list = (bp_list_t *) MALLOC(sizeof(bp_list_t));
     if (!bp_list) goto error;
@@ -256,26 +252,31 @@ bp_list_t *data_parse_pedalboards_list(char **list_data, uint32_t list_count)
     // clear allocated memory
     memset(bp_list, 0, sizeof(bp_list_t));
 
-    // allocate string arrays
-    const size_t list_size = sizeof(char *) * (list_count + 1);
-
-    if ((bp_list->names = (char **) MALLOC(list_size)))
-        memset(bp_list->names, 0, list_size);
-
-    if ((bp_list->uids = (char **) MALLOC(list_size)))
-        memset(bp_list->uids, 0, list_size);
-
-    // check memory allocation
-    if (!bp_list->names || !bp_list->uids) goto error;
-
-    // fill the bp_list struct
-    for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 2, j++)
+    if (list_data || list_count != 0 || !(list_count % 2))
     {
-        bp_list->names[j] = str_duplicate(list_data[i]);
-        bp_list->uids[j] = str_duplicate(list_data[i + 1]);
+        list_count = (list_count / 2);
+
+        // allocate string arrays
+        const size_t list_size = sizeof(char *) * (list_count + 1);
+
+        if ((bp_list->names = (char **) MALLOC(list_size)))
+            memset(bp_list->names, 0, list_size);
+
+        if ((bp_list->uids = (char **) MALLOC(list_size)))
+            memset(bp_list->uids, 0, list_size);
 
         // check memory allocation
-        if (!bp_list->names[j] || !bp_list->uids[j]) goto error;
+        if (!bp_list->names || !bp_list->uids) goto error;
+
+        // fill the bp_list struct
+        for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 2, j++)
+        {
+            bp_list->names[j] = str_duplicate(list_data[i]);
+            bp_list->uids[j] = str_duplicate(list_data[i + 1]);
+
+            // check memory allocation
+            if (!bp_list->names[j] || !bp_list->uids[j]) goto error;
+        }
     }
 
     return bp_list;
