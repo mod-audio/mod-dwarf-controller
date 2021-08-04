@@ -1383,8 +1383,13 @@ void NM_set_leds(void)
             led = hardware_leds(4);
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
             led = hardware_leds(5);
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            //block removing the last snapshot
+            if (g_snapshots->menu_max >= 2)
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            else
+                ledz_off(led, TRIGGER_COLOR);
 
             led_state.brightness = 0.1;
 
@@ -1514,6 +1519,9 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case SNAPSHOT_LIST:
+                    //block removing the last snapshot
+                    if (g_snapshots->menu_max <= 1)
+                        return;
                     //give popup, delete ss?
                     naveg_trigger_popup(POPUP_REMOVE_SS_ID);
                 break;
@@ -1664,6 +1672,26 @@ void NM_set_last_selected(uint8_t list_type)
     }
 }
 
+void NM_set_selected_index(uint8_t list_type, uint16_t index)
+{
+    switch(list_type) {
+        case PEDALBOARD_LIST:
+            g_current_pedalboard = index;
+            g_pedalboards->selected = index;
+            g_pedalboards->hover = index;
+        break;
+
+        case SNAPSHOT_LIST:
+            g_current_snapshot = index;
+            g_snapshots->selected = index;
+            g_snapshots->hover = index;
+        break;
+
+        case BANKS_LIST:
+        break;
+    }
+}
+
 uint16_t NM_get_current_hover(uint8_t list_type)
 {
     switch(list_type) {
@@ -1677,6 +1705,25 @@ uint16_t NM_get_current_hover(uint8_t list_type)
 
         case BANKS_LIST:
             return g_banks->hover;
+        break;
+    }
+
+    return 0;
+}
+
+uint16_t NM_get_list_count(uint8_t list_type)
+{
+    switch(list_type) {
+        case PEDALBOARD_LIST:
+            return g_pedalboards->menu_max;
+        break;
+
+        case SNAPSHOT_LIST:
+            return g_snapshots->menu_max;
+        break;
+
+        case BANKS_LIST:
+            return g_banks->menu_max;
         break;
     }
 

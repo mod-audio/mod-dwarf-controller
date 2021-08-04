@@ -414,7 +414,7 @@ void PM_button_pressed(uint8_t button)
                 //send save
                 case 0:
                     //check if only spaces, if so, ask for cancel
-                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                 ")){
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                  ")){
                         g_keyboard_toggled = 0;
                         g_prev_popup_id = g_current_popup_id;
                         g_current_popup_id = POPUP_EMPTY_NAME_ID;
@@ -512,7 +512,7 @@ void PM_button_pressed(uint8_t button)
             {
                 case 0:
                     //check if only spaces, if so, ask for cancel
-                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                 ")){
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                  ")){
                         g_keyboard_toggled = 0;
                         g_prev_popup_id = g_current_popup_id;
                         g_current_popup_id = POPUP_EMPTY_NAME_ID;
@@ -603,20 +603,38 @@ void PM_button_pressed(uint8_t button)
                         case POPUP_DELETE_BANK_ID:
                             i = copy_command(buffer, CMD_BANK_DELETE);
                             i += int_to_str(NM_get_current_hover(BANKS_LIST), &buffer[i], sizeof(buffer) - i, 0);
+
+                            ui_comm_webgui_send(buffer, i);
+                            ui_comm_webgui_wait_response();
+                            NM_update_lists(BANKS_LIST);
                         break;
                         case POPUP_REMOVE_SS_ID:
                             i = copy_command(buffer, CMD_SNAPSHOT_DELETE);
                             i += int_to_str(NM_get_current_hover(SNAPSHOT_LIST), &buffer[i], sizeof(buffer) - i, 0);
+
+                            ui_comm_webgui_send(buffer, i);
+                            ui_comm_webgui_wait_response();
+                            NM_update_lists(SNAPSHOT_LIST);
+
+                            ////we removed the selected item, set the index out of bounds
+                            //if (NM_get_current_selected(SNAPSHOT_LIST) == NM_get_current_hover(SNAPSHOT_LIST))
+                            //    NM_set_selected_index(SNAPSHOT_LIST, );
                         break;
                         case POPUP_REMOVE_PB_ID:
                             i = copy_command(buffer, CMD_PEDALBOARD_DELETE);
                             i += int_to_str(NM_get_current_selected(BANKS_LIST), &buffer[i], sizeof(buffer) - i, 0);
                             buffer[i++] = ' ';
                             i += int_to_str(NM_get_current_hover(PEDALBOARD_LIST), &buffer[i], sizeof(buffer) - i, 0);
+
+                            ui_comm_webgui_send(buffer, i);
+                            ui_comm_webgui_wait_response();
+                            NM_update_lists(PEDALBOARD_LIST);
+
+                            //we removed the selected item, set the index out of bounds
+                            //if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
+                            //    NM_set_selected_index(PEDALBOARD_LIST, );
                         break;
                     }
-                    
-                    ui_comm_webgui_send(buffer, i);
 
                     //delete sucsesfull overlay
                     if (g_current_popup_id == POPUP_REMOVE_PB_ID)
