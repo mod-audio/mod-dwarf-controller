@@ -70,7 +70,7 @@ void screen_group_foots(uint8_t toggle);
 void screen_encoder(control_t *control, uint8_t encoder);
 void screen_encoder_container(uint8_t current_encoder_page);
 void screen_page_index(uint8_t current, uint8_t available);
-void screen_tittle(const void *data, uint8_t update, int8_t pb_ss);
+void screen_tittle(int8_t pb_ss);
 void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t property);
 void screen_tool(uint8_t tool, uint8_t display_id);
 void screen_bank_list(bp_list_t *list, const char *name);

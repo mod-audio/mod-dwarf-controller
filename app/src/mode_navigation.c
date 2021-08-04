@@ -74,7 +74,8 @@ static uint16_t* g_uids_to_add_to_bank;
 static uint8_t g_current_list = PEDALBOARD_LIST, g_snapshots_loaded = 0;;
 static int8_t g_item_grabbed = NO_GRAB_ITEM;
 static uint16_t g_item_grabbed_uid;
-
+static char* g_pedalboard_name = NULL;
+static char* g_snapshot_name = NULL;
 
 
 /*
@@ -625,6 +626,13 @@ void NM_init(void)
         g_bank_functions[i].function = BANK_FUNC_NONE;
         g_bank_functions[i].hw_id = 0xFF;
     }
+
+    //init the default names
+    g_pedalboard_name = (char *) MALLOC(20 * sizeof(char));
+    strcpy(g_pedalboard_name, "DEFAULT");
+
+    g_snapshot_name = (char *) MALLOC(20 * sizeof(char));
+    strcpy(g_snapshot_name, "DEFAULT");
 }
 
 void NM_clear(void)
@@ -1675,25 +1683,36 @@ uint16_t NM_get_current_hover(uint8_t list_type)
     return 0;
 }
 
-char* NM_get_current_name(uint8_t list_type)
+void NM_save_pbss_name(const void *data, uint8_t pb_ss_toggle)
 {
-    switch(list_type) {
-        case PEDALBOARD_LIST:
-            return g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min];
-        break;
+    const char **name_list = (const char**)data;
 
-        case SNAPSHOT_LIST:
-            if (!g_snapshots_loaded) {
-                request_snapshots(PAGE_DIR_INIT);
-            }
+    // get first list name, copy it to our string buffer
+    const char *name_string = *name_list;
+    strncpy((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name), name_string, 19);
+    (pb_ss_toggle ? g_snapshot_name : g_pedalboard_name)[19] = 0; // strncpy might not have final null byte
 
-            return g_snapshots->names[g_current_snapshot - g_snapshots->page_min];
-        break;
+    // go to next name in list
+    name_string = *(++name_list);
 
-        case BANKS_LIST:
-            return g_banks->names[g_banks->selected - g_banks->page_min];
-        break;
+    while (name_string && ((strlen((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name)) + strlen(name_string) + 1) < 19))
+    {
+        strcat((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name), " ");
+        strcat((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name), name_string);
+        name_string = *(++name_list);
     }
 
-    return 0;
+    (pb_ss_toggle ? g_snapshot_name : g_pedalboard_name)[19] = 0;
+
+    screen_tittle(pb_ss_toggle);
+}
+
+char* NM_get_pbss_name(uint8_t pb_ss_toggle)
+{
+    if (pb_ss_toggle) {
+        return g_snapshot_name;
+    }
+    else {
+        return g_pedalboard_name;
+    }
 }

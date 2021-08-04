@@ -1619,7 +1619,7 @@ void CM_print_screen(void)
 
     screen_clear();
 
-    screen_tittle(NULL, 0, -1);
+    screen_tittle(-1);
 
     //update screen
     screen_page_index(g_current_foot_control_page, g_available_foot_pages);

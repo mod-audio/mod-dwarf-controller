@@ -677,11 +677,11 @@ void PM_launch_popup(uint8_t popup_id)
 
         switch (g_current_popup_id) {
             case POPUP_SAVE_PB_ID:
-                copy_name_to_naming_widget(NM_get_current_name(PEDALBOARD_LIST));
+                copy_name_to_naming_widget(NM_get_pbss_name(0));
             break;
 
             case POPUP_SAVE_SS_ID:
-                copy_name_to_naming_widget(NM_get_current_name(SNAPSHOT_LIST));
+                copy_name_to_naming_widget(NM_get_pbss_name(1));
             break;
 
             case POPUP_NEW_BANK_ID:

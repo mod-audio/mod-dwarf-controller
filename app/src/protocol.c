@@ -804,7 +804,7 @@ void cb_pedalboard_name(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    screen_tittle(&proto->list[1], 1, 0);
+    NM_save_pbss_name(&proto->list[1], 0);
 
     //stop the loading leds from fading
     //this is done here as its one of the last messages from MOD-UI
@@ -820,7 +820,9 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    screen_tittle(&proto->list[1], 1, 1);
+    //todo catch argument 1 which is snapshot ID
+
+    NM_save_pbss_name(&proto->list[2], 1);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }

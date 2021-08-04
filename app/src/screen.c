@@ -811,58 +811,12 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
     
 }
 
-void screen_tittle(const void *data, uint8_t update, int8_t pb_ss)
+void screen_tittle(int8_t pb_ss)
 {
-    static char* pedalboard_name = NULL;
-    static char* snapshot_name = NULL;
-    static uint8_t char_cnt_pb = 0;
-    static uint8_t char_cnt_ss = 0;
     glcd_t *display = hardware_glcds(0);
 
     if (pb_ss == -1)
         pb_ss = g_control_mode_header;
-
-    if (pedalboard_name == NULL)
-    {
-        //should only run once, no need to clear
-        pedalboard_name = (char *) MALLOC(20 * sizeof(char));
-        strcpy(pedalboard_name, "DEFAULT");
-        char_cnt_pb = 7;
-    }
-
-    if (snapshot_name == NULL)
-    {
-        //should only run once, no need to clear
-        snapshot_name = (char *) MALLOC(20 * sizeof(char));
-        strcpy(snapshot_name, "DEFAULT");
-        char_cnt_ss = 7;
-    }
-
-    if (update)
-    {
-        const char **name_list = (const char**)data;
-
-        // get first list name, copy it to our string buffer
-        const char *name_string = *name_list;
-        strncpy((pb_ss?snapshot_name:pedalboard_name), name_string, 19);
-        (pb_ss?snapshot_name:pedalboard_name)[19] = 0; // strncpy might not have final null byte
-
-        // go to next name in list
-        name_string = *(++name_list);
-
-        while (name_string && ((strlen((pb_ss?snapshot_name:pedalboard_name)) + strlen(name_string) + 1) < 19))
-        {
-            strcat((pb_ss?snapshot_name:pedalboard_name), " ");
-            strcat((pb_ss?snapshot_name:pedalboard_name), name_string);
-            name_string = *(++name_list);
-            (pb_ss?char_cnt_ss++:char_cnt_pb++);
-        }
-        (pb_ss?snapshot_name:pedalboard_name)[19] = 0;
-        if (pb_ss)
-            char_cnt_ss = strlen((pb_ss?snapshot_name:pedalboard_name));
-        else
-            char_cnt_pb = strlen((pb_ss?snapshot_name:pedalboard_name));
-    }
 
     //we dont display inside a menu
     if (naveg_get_current_mode() != MODE_CONTROL) return;
@@ -870,15 +824,18 @@ void screen_tittle(const void *data, uint8_t update, int8_t pb_ss)
     //we dont display a not selected mode
     if (g_control_mode_header != pb_ss) return;
 
+    char* name = NM_get_pbss_name(pb_ss);
+    uint8_t name_len = strlen(name);
+
     // clear the name area
     glcd_rect_fill(display, 0, 0, DISPLAY_WIDTH, 9, GLCD_WHITE);
 
-    glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7), 1, (pb_ss?snapshot_name:pedalboard_name), Terminal5x7, GLCD_BLACK);
+    glcd_text(display, ((DISPLAY_WIDTH / 2) - (3*name_len) + 7), 1, name, Terminal5x7, GLCD_BLACK);
 
     if (pb_ss)
-        icon_snapshot(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7) - 11, 1);
+        icon_snapshot(display, ((DISPLAY_WIDTH / 2) - (3*name_len) + 7 ) - 11, 1);
     else
-        icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*(pb_ss?char_cnt_ss:char_cnt_pb)) + 7) - 11, 1);
+        icon_pedalboard(display, ((DISPLAY_WIDTH / 2) - (3*name_len) + 7) - 11, 1);
 
     //invert the top bar
     glcd_rect_invert(display, 0, 0, DISPLAY_WIDTH, 9);
