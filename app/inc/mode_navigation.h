@@ -77,6 +77,7 @@ bp_list_t *NM_get_pedalboards(void);
 void NM_set_current_list(uint8_t list_type);
 uint8_t NM_get_current_list(void);
 void NM_toggle_mode(void);
+void NM_update_lists(uint8_t list_type);
 void NM_print_screen();
 void NM_print_prev_screen(void);
 void NM_set_leds(void);
@@ -85,6 +86,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed);
 void NM_toggle_pb_ss(void);
 void NM_load_selected(void);
 uint16_t NM_get_current_selected(uint8_t list_type);
+void NM_set_last_selected(uint8_t list_type);
 uint16_t NM_get_current_hover(uint8_t list_type);
 char* NM_get_current_name(uint8_t list_type);
 

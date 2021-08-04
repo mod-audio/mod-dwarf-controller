@@ -64,6 +64,7 @@ static uint8_t g_current_popup_id, g_prev_popup_id;
 static uint8_t g_keyboard_toggled = 0;
 static uint8_t g_keyboard_index = 0;
 static char* g_current_name_input;
+static uint8_t g_list_update_needed;
 
 /*
 ************************************************************************************************************************
@@ -125,6 +126,17 @@ void turnicate_naming_widget_spaces(void)
     }
 
     g_current_name_input[i+1] = 0;
+}
+
+void retrieve_save_response(void *data, menu_item_t *item)
+{
+    (void) item;
+    char **list = data;
+
+    //name does not yet exist
+    if (atoi(list[1]) == 0){
+        g_list_update_needed = 1;
+    }
 }
 
 /*
@@ -380,18 +392,12 @@ void PM_button_pressed(uint8_t button)
             {
                 //save pedalboard
                 case 0:
-                    //change popup id
-                    g_current_popup_id = POPUP_SAVE_PB_ID;
-
-                    PM_launch_popup(g_current_popup_id);
+                    PM_launch_popup(POPUP_SAVE_PB_ID);
                 break;
 
                 //save snapshot
                 case 1:
-                    //change popup id
-                    g_current_popup_id = POPUP_SAVE_SS_ID;
-
-                    PM_launch_popup(g_current_popup_id);
+                    PM_launch_popup(POPUP_SAVE_SS_ID);
                 break;
 
                 //cancel
@@ -417,7 +423,10 @@ void PM_button_pressed(uint8_t button)
                     }
 
                     //TODO we should catch the response to see if we have a duplicate name
-                    ui_comm_webgui_set_response_cb(NULL, NULL);
+                    if (g_current_popup_id==POPUP_SAVE_SS_ID)
+                        ui_comm_webgui_set_response_cb(retrieve_save_response, NULL);
+                    else
+                        ui_comm_webgui_set_response_cb(retrieve_save_response, NULL);
 
                     //remove spaces at the end
                     turnicate_naming_widget_spaces();
@@ -443,13 +452,33 @@ void PM_button_pressed(uint8_t button)
                     // waits the pedalboards list be received
                     ui_comm_webgui_wait_response();
 
-                    //TODO move this check to the callback and possibly give an extra popup
-                        PM_launch_attention_overlay("save sucsesfull", exit_popup);
+                    if (g_list_update_needed) {
+                        if (g_current_popup_id==POPUP_SAVE_SS_ID) {
+                            //set last item as active
+                            NM_set_last_selected(SNAPSHOT_LIST);
 
-                        //now reload the list page
+                            //update list items
+                            NM_update_lists(SNAPSHOT_LIST);
 
-                        //set this as the active pb / ss
+                            //save sucsesfull message
+                            PM_launch_attention_overlay("snapshot save sucsesfull", exit_popup);
+                        }
+                        else {
+                            //set last item as active
+                            NM_set_last_selected(PEDALBOARD_LIST);
 
+                            //update list items
+                            NM_update_lists(PEDALBOARD_LIST);
+
+                            //save sucsesfull message
+                            PM_launch_attention_overlay("pedalboard save sucsesfull", exit_popup);
+                        }
+                        g_list_update_needed =0;
+                    }
+                    else {
+                        //we need to set the overwrite popup now
+                        PM_launch_popup((g_current_popup_id==POPUP_SAVE_SS_ID)?POPUP_OVERWRITE_SS_ID:POPUP_OVERWRITE_PB_ID);
+                    }
                 break;
 
                 //clear name
@@ -550,8 +579,7 @@ void PM_button_pressed(uint8_t button)
             switch(button)
             {
                 case 0:
-                    g_current_popup_id = g_prev_popup_id;
-                    PM_launch_popup(g_current_popup_id);
+                    PM_launch_popup(g_prev_popup_id);
                 break;
 
                 //cancel
@@ -615,11 +643,9 @@ void PM_button_pressed(uint8_t button)
                     //send overwrite msg
                     if (g_current_popup_id == POPUP_OVERWRITE_SS_ID) {
                         i = copy_command(buffer, CMD_SNAPSHOTS_SAVE);
-                        i += int_to_str(NM_get_current_selected(SNAPSHOT_LIST), &buffer[i], sizeof(buffer) - i, 0);
                     }
                     else {
                        i = copy_command(buffer, CMD_PEDALBOARD_SAVE);
-                       i += int_to_str(NM_get_current_selected(PEDALBOARD_LIST), &buffer[i], sizeof(buffer) - i, 0);
                     }
 
                     ui_comm_webgui_send(buffer, i);

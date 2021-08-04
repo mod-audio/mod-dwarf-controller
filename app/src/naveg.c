@@ -1170,7 +1170,7 @@ void naveg_trigger_popup(int8_t popup_id)
     static uint8_t prev_mode = 0;
 
     //trigger popup
-    if (popup_id != -1) {
+    if (popup_id >= 0) {
         if (g_device_mode != MODE_POPUP) {
             prev_mode = g_device_mode;
             g_device_mode = MODE_POPUP;
@@ -1184,6 +1184,7 @@ void naveg_trigger_popup(int8_t popup_id)
             g_device_mode = MODE_CONTROL;
         else
             g_device_mode = prev_mode;
+
         exit_popup();
     }
 }

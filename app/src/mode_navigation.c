@@ -1170,6 +1170,37 @@ void NM_toggle_mode(void)
     NM_print_screen();
 }
 
+void NM_update_lists(uint8_t list_type)
+{
+    switch(list_type)
+    {
+        case BANK_LIST_CHECKBOXES:
+        case BANK_LIST_CHECKBOXES_ENGAGED:
+        case BANKS_LIST:
+        break;
+
+            case PB_LIST_CHECKBOXES:
+        case PB_LIST_CHECKBOXES_ENGAGED:
+        case PEDALBOARD_LIST:
+        case PB_LIST_BEGINNING_BOX_SELECTED:
+        case PB_LIST_BEGINNING_BOX:
+            request_banks_list(PAGE_DIR_INIT);
+            request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
+
+            if (g_pedalboards->page_max == 0)
+                g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+            else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
+                g_current_list = PB_LIST_BEGINNING_BOX;
+        break;
+
+        case SNAPSHOT_LIST:
+            request_snapshots(PAGE_DIR_INIT);
+        break;
+    }
+
+    NM_set_leds();
+}
+
 void NM_print_screen(void)
 {
     switch(g_current_list)
@@ -1590,6 +1621,39 @@ uint16_t NM_get_current_selected(uint8_t list_type)
     }
 
     return 0;
+}
+
+void NM_set_last_selected(uint8_t list_type)
+{
+    static char str_bfr[8] = {};
+
+    switch(list_type) {
+        case PEDALBOARD_LIST:;
+            uint16_t pedalboard_to_load = g_pedalboards->menu_max;
+            int_to_str(pedalboard_to_load, str_bfr, 8, 0);
+
+            send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), str_bfr);
+
+            g_current_pedalboard = pedalboard_to_load;
+            g_pedalboards->selected = pedalboard_to_load;
+            g_pedalboards->hover = pedalboard_to_load;
+        break;
+
+        case SNAPSHOT_LIST:;
+            uint16_t snapshot_to_load = g_snapshots->menu_max;
+            int_to_str(snapshot_to_load, str_bfr, 8, 0);
+
+            send_load_snapshot(str_bfr);
+
+            g_current_snapshot = snapshot_to_load;
+            g_snapshots->selected = snapshot_to_load;
+            g_snapshots->hover = snapshot_to_load;
+        break;
+
+        case BANKS_LIST:
+            //return g_banks->selected;
+        break;
+    }
 }
 
 uint16_t NM_get_current_hover(uint8_t list_type)
