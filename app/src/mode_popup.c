@@ -631,8 +631,10 @@ void PM_button_pressed(uint8_t button)
                             NM_update_lists(PEDALBOARD_LIST);
 
                             //we removed the selected item, set the index out of bounds
-                            //if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
-                            //    NM_set_selected_index(PEDALBOARD_LIST, );
+                            if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
+                                NM_set_selected_index(PEDALBOARD_LIST, -1);
+                            else
+                                NM_set_selected_index(PEDALBOARD_LIST, -2);
                         break;
                     }
 

@@ -1243,7 +1243,7 @@ void NM_print_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_pedalboard_name, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
     }
 
@@ -1269,7 +1269,7 @@ void NM_print_prev_screen(void)
                 return;
 
             //display them
-            screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_pedalboard_name, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
     }
 
@@ -1600,7 +1600,7 @@ void NM_toggle_pb_ss(void)
         g_current_list = SNAPSHOT_LIST;
 
         //display them
-        screen_pbss_list(g_pedalboards->names[g_current_pedalboard - g_pedalboards->page_min], g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
+        screen_pbss_list(g_pedalboard_name, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
     }
     else
     {
@@ -1672,19 +1672,44 @@ void NM_set_last_selected(uint8_t list_type)
     }
 }
 
-void NM_set_selected_index(uint8_t list_type, uint16_t index)
+void NM_set_selected_index(uint8_t list_type, int16_t index)
 {
     switch(list_type) {
         case PEDALBOARD_LIST:
-            g_current_pedalboard = index;
-            g_pedalboards->selected = index;
-            g_pedalboards->hover = index;
+            if (index < 0) {
+                if (index == -1) {
+                    g_pedalboards->selected = g_pedalboards->menu_max + 1;
+
+                    if (g_pedalboards->hover > 0)
+                        g_pedalboards->hover--;
+                }
+
+                if (g_pedalboards->hover == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX;
+
+                if (g_pedalboards->menu_max == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+            }
+            else {
+                g_current_pedalboard = index;
+                g_pedalboards->selected = index;
+                g_pedalboards->hover = index;
+            }
         break;
 
         case SNAPSHOT_LIST:
-            g_current_snapshot = index;
-            g_snapshots->selected = index;
-            g_snapshots->hover = index;
+            if (index < 0) {
+                if (g_current_snapshot > 1) {
+                    g_current_snapshot--;
+                    g_snapshots->selected--;
+                    g_snapshots->hover--;
+                }
+            }
+            else {
+                g_current_snapshot = index;
+                g_snapshots->selected = index;
+                g_snapshots->hover = index;
+            }
         break;
 
         case BANKS_LIST:

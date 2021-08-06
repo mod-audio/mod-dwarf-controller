@@ -87,7 +87,7 @@ void NM_toggle_pb_ss(void);
 void NM_load_selected(void);
 uint16_t NM_get_current_selected(uint8_t list_type);
 void NM_set_last_selected(uint8_t list_type);
-void NM_set_selected_index(uint8_t list_type, uint16_t index);
+void NM_set_selected_index(uint8_t list_type, int16_t index);
 uint16_t NM_get_current_hover(uint8_t list_type);
 uint16_t NM_get_list_count(uint8_t list_type);
 void NM_save_pbss_name(const void *data, uint8_t pb_ss_toggle);
