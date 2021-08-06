@@ -597,7 +597,7 @@ void screen_encoder_container(uint8_t current_encoder_page)
     glcd_t *display = hardware_glcds(0);
 
     //clear the part
-    glcd_rect_fill(display, 0, 13, DISPLAY_WIDTH, 34, GLCD_WHITE);
+    glcd_rect_fill(display, 0, 12, DISPLAY_WIDTH, 35, GLCD_WHITE);
     //clear the part of the small boxes below
     glcd_rect_fill(display, 31, 46, 66, 5, GLCD_WHITE);
 
