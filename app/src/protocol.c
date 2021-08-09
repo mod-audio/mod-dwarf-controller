@@ -820,7 +820,7 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    //todo catch argument 1 which is snapshot ID
+    NM_set_selected_index(SNAPSHOT_LIST, atoi(proto->list[1]));
 
     NM_save_pbss_name(&proto->list[2], 1);
 

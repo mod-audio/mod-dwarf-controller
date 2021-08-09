@@ -1701,14 +1701,20 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
             if (index < 0) {
                 if (g_current_snapshot > 1) {
                     g_current_snapshot--;
-                    g_snapshots->selected--;
-                    g_snapshots->hover--;
+
+                    if (g_snapshots) {
+                        g_snapshots->selected--;
+                        g_snapshots->hover--;
+                    }
                 }
             }
             else {
                 g_current_snapshot = index;
-                g_snapshots->selected = index;
-                g_snapshots->hover = index;
+
+                if (g_snapshots) {
+                    g_snapshots->selected = index;
+                    g_snapshots->hover = index;
+                }
             }
         break;
 
