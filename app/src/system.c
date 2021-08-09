@@ -430,6 +430,9 @@ void system_info_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
     item->data.hover = 0;
+    item->data.min = 0;
+    item->data.max = 0;
+    item->data.list_count = 0;
 
     if (event == MENU_EV_ENTER)
     {
@@ -1752,6 +1755,7 @@ void system_usb_mode_cb(void *arg, int event)
     if ((event == MENU_EV_ENTER) && (item->data.hover == 0))
     {
         g_usb_mode = item->data.value;
+        item->data.selected = g_usb_mode;
 
         //set the value
         char str_buf[8];
@@ -1764,6 +1768,11 @@ void system_usb_mode_cb(void *arg, int event)
 
         //tell the system to reboot
         sys_comm_send(CMD_SYS_REBOOT, NULL);
+    }
+    //cancel, reset widget
+    else if ((event == MENU_EV_ENTER) && (item->data.hover == 1)) {
+        item->data.selected = g_usb_mode;
+        item->data.value = g_usb_mode;
     }
 
     if (item->data.popup_active)

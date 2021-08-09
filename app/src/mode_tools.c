@@ -1157,7 +1157,7 @@ void TM_set_leds(void)
 
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
-            else if (g_current_item->desc->type == MENU_ROOT)
+            else
             {
                 led = hardware_leds(3);
                 led_state.color = WHITE;

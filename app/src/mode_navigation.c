@@ -844,13 +844,29 @@ void NM_encoder_released(uint8_t encoder)
     char buffer[30];
     uint8_t i = 0;
 
-    if (g_current_list == PEDALBOARD_LIST) {
+    if (g_current_list != SNAPSHOT_LIST) {
         i = copy_command(buffer, CMD_REORDER_PBS_IN_BANK);
         i += int_to_str(g_banks->hover, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_pedalboards->hover, &buffer[i], sizeof(buffer) - i, 0);
+
+        //did we pass the selected item, if so we need to change that index
+        if (g_banks->hover == g_current_bank) {
+            if (g_item_grabbed_uid - 1 == g_pedalboards->selected) {
+                g_pedalboards->selected = g_pedalboards->hover;
+                g_current_pedalboard = g_pedalboards->selected;
+            }
+            else if (((g_item_grabbed_uid - 1) >= g_pedalboards->selected) && (g_pedalboards->hover <= g_pedalboards->selected)) {
+                g_pedalboards->selected++;
+                g_current_pedalboard = g_pedalboards->selected;
+            }
+            else if (((g_item_grabbed_uid - 1) <= g_pedalboards->selected) && (g_pedalboards->hover >= g_pedalboards->selected))  {
+                g_pedalboards->selected--;
+                g_current_pedalboard = g_pedalboards->selected;
+            }
+        }
     }
     else {
         i = copy_command(buffer, CMD_REORDER_SSS_IN_PB);
@@ -859,6 +875,20 @@ void NM_encoder_released(uint8_t encoder)
         i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
+
+        //did we pass the selected item, if so we need to change that index
+        if (g_item_grabbed_uid - 1 == g_snapshots->selected) {
+            g_snapshots->selected = g_snapshots->hover;
+            g_current_snapshot = g_snapshots->selected;
+        }
+        else if (((g_item_grabbed_uid - 1) >= g_snapshots->selected) && (g_snapshots->hover <= g_snapshots->selected)) {
+            g_snapshots->selected++;
+            g_current_snapshot = g_snapshots->selected;
+        }
+        else if (((g_item_grabbed_uid - 1) <= g_snapshots->selected) && (g_snapshots->hover >= g_snapshots->selected))  {
+            g_snapshots->selected--;
+            g_current_snapshot = g_snapshots->selected;
+        }
     }
 
     ui_comm_webgui_send(buffer, i);
@@ -1146,7 +1176,7 @@ uint8_t NM_get_current_list(void)
 
 void NM_toggle_mode(void)
 {
-     switch(g_current_list)
+    switch(g_current_list)
     {
         case BANKS_LIST:
         case BANK_LIST_CHECKBOXES:
@@ -1384,6 +1414,7 @@ void NM_set_leds(void)
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
+            led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             //block removing the last snapshot
             if (g_snapshots->menu_max >= 2)
