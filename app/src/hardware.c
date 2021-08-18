@@ -218,6 +218,9 @@ static const uint8_t *LED_COLORS[]  = {
 #ifdef DEFAULT_TEMO_COLOR
     (const uint8_t []) DEFAULT_TEMO_COLOR,
 #endif
+#ifdef DEFAULT_BANK_COLOR
+    (const uint8_t []) DEFAULT_BANK_COLOR,
+#endif
 };
 
 /*
@@ -272,25 +275,20 @@ static uint8_t trigger_overlay_callback = 0;
 
 void write_led_defaults()
 {
-    uint8_t eeprom_index, eeprom_page;
-    uint8_t i = 0;
-    uint8_t j=0;
+    uint16_t i, j, eeprom_index, eeprom_page;
     uint8_t write_buffer = 0;
 
     eeprom_page = LED_COLOR_EEMPROM_PAGE;
     eeprom_index = 0;
 
-    for (i=0; i < MAX_COLOR_ID; i++)
-    {   
+    for (i=0; i < MAX_COLOR_ID; i++) {
         //second eeprom page
-        if (eeprom_index > 20)
-        {
+        if (eeprom_index > 20) {
             eeprom_page++;
             eeprom_index = 0;
         }
 
-        for (j=0; j<3; j++)
-        {
+        for (j=0; j < 3; j++) {
             write_buffer = LED_COLORS[i][j];
             EEPROM_Write(eeprom_page, (LED_COLOR_ADRESS_START + (eeprom_index*3) + j), &write_buffer, MODE_8_BIT, 1);    
         }

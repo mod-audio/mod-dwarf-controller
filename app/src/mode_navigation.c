@@ -97,39 +97,6 @@ static char* g_snapshot_name = NULL;
 ************************************************************************************************************************
 */
 
-/*
-//use to parse commands to mod-ui
-static void send_navigation_command(char *cmd, void *data, uint8_t arguments_count)
-{
-    // sets the response callback
-    ui_comm_webgui_set_response_cb(NULL, NULL);
-
-    char buffer[40];
-    memset(buffer, 0, 20);
-    uint8_t i;
-
-    uint8_t *arguments = data;
-
-    i = copy_command(buffer, cmd);
-
-    uint8_t j;
-    for (j=0; j < arguments_count; j++) {
-        // inserts one space
-        if (j != 0)
-            buffer[i++] = ' ';
-
-        // insert the data in the buffer
-        i += int_to_str(arguments[j], &buffer[i], sizeof(buffer) - i, 0);
-    }
-
-    // sends the data to GUI
-    ui_comm_webgui_send(buffer, i);
-
-    // waits the pedalboards list be received
-    ui_comm_webgui_wait_response();
-}
-*/
-
 static void parse_banks_list(void *data, menu_item_t *item)
 {
     (void) item;
@@ -1399,7 +1366,7 @@ void NM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led = hardware_leds(3);
-            led_state.color = FS_PAGE_COLOR_5;
+            led_state.color = BANK_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
             led_state.color = TRIGGER_COLOR;

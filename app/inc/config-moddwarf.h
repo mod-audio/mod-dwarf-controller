@@ -385,7 +385,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define FS_SS_MENU_COLOR          25
 #define TUNER_COLOR               26
 #define TEMPO_COLOR               27
-#define MAX_COLOR_ID              28
+#define BANK_COLOR                28
+#define MAX_COLOR_ID              29
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
 #define DEFAULT_TRIGGER_COLOR             {80,80,80}
@@ -415,6 +416,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_FS_SS_MENU                {0,80,80}
 #define DEFAULT_TUNER_COLOR               {0,0,80}
 #define DEFAULT_TEMO_COLOR                {0,80,0}
+#define DEFAULT_BANK_COLOR                {40,50,100}
 
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7
@@ -512,7 +514,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             5L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                0
+#define FORCE_WRITE_EEPROM                1
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)
