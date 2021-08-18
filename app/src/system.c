@@ -1906,7 +1906,7 @@ void system_noisegate_channel_cb(void *arg, int event)
         case 0: item->data.unit_text = "None"; break;
         case 1: item->data.unit_text = "Input 1"; break;
         case 2: item->data.unit_text = "Input 2"; break;
-        case 3: item->data.unit_text = "Input 1 & 2"; break;
+        case 3: item->data.unit_text = "Stereo"; break;
     }
 
     item->data.step = 1.0f;
