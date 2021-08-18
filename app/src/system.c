@@ -23,6 +23,7 @@
 #include "ui_comm.h"
 #include "sys_comm.h"
 #include "mode_tools.h"
+#include "mode_control.h"
 #include "naveg.h"
 
 /*
@@ -102,6 +103,7 @@ uint8_t g_tuner_input = 0;
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;
 int8_t g_actuator_hide = -1;
+int8_t g_click_list = -1;
 int8_t g_shift_item[3] = {-1, -1, -1};
 int8_t g_default_tool = -1;
 int8_t g_list_mode = -1;
@@ -1022,6 +1024,55 @@ void system_hide_actuator_cb(void *arg, int event)
     item->data.value = g_actuator_hide;
 }
 
+void system_click_list_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+
+    if (g_click_list == -1)
+    {
+        //read EEPROM
+        uint8_t read_buffer = 0;
+        EEPROM_Read(0, CLICK_LIST_ADRESS, &read_buffer, MODE_8_BIT, 1);
+
+        g_click_list = read_buffer;
+        CM_set_list_behaviour(g_click_list);
+
+        if (!item) return;
+    }
+
+    if (event == MENU_EV_ENTER)
+    {
+        if (g_click_list == 0) g_click_list = 1;
+        else g_click_list = 0;
+
+        //also write to EEPROM
+        uint8_t write_buffer = g_click_list;
+        EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    }
+    else if (event == MENU_EV_UP)
+    {
+        g_click_list = 1;
+
+        //also write to EEPROM
+        uint8_t write_buffer = g_click_list;
+        EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        g_click_list = 0;
+
+        //also write to EEPROM
+        uint8_t write_buffer = g_click_list;
+        EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+    }
+
+    //write to mode_control.c
+    CM_set_list_behaviour(g_click_list);
+
+    item->data.unit_text = g_click_list ? "Click" : "Direct";
+    item->data.value = g_click_list;
+}
+
 void system_midi_src_cb (void *arg, int event)
 {
     menu_item_t *item = arg;
@@ -1353,50 +1404,6 @@ void system_default_tool_cb(void *arg, int event)
 
     item->data.step = 1;
 }
-
-/*
-void system_list_mode_cb(void *arg, int event)
-{
-    menu_item_t *item = arg;
-
-    if (g_list_mode == -1)
-    {
-        //read EEPROM
-        uint8_t read_buffer = 0;
-        EEPROM_Read(0, LIST_MODE_ADRESS, &read_buffer, MODE_8_BIT, 1);
-
-        g_list_mode = read_buffer;
-    }
-
-    if (event == MENU_EV_ENTER)
-        g_list_mode = !g_list_mode;
-    else if (event == MENU_EV_UP)
-        g_list_mode = 1;
-    else if (event == MENU_EV_DOWN)
-        g_list_mode = 0;
-    else if (event == MENU_EV_NONE)
-    {
-        //only display value
-        item->data.value = g_list_mode;
-        item->data.min = 0;
-        item->data.max = 1;
-        item->data.step = 1;
-    }
-
-    //hardware_glcd_brightness(g_display_brightness); 
-
-    //also write to EEPROM
-    if 
-    uint8_t write_buffer = g_list_mode;
-    EEPROM_Write(0, LIST_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
-
-    item->data.value = g_list_mode;
-
-    if (g_list_mode)
-        item->data.unit_text = "Click to load";
-    else
-        item->data.unit_text = "load on select";
-}*/
 
 void system_control_header_cb(void *arg, int event)
 {

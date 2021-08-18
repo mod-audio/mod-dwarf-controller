@@ -325,6 +325,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"CONTROLLER BEHAVIOR",             MENU_MAIN,      CONTROLLER_SET_ID,      ROOT_ID,            NULL                        , 0},  \
     {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        CONTROLLER_SET_ID,  system_default_tool_cb      , 0},  \
     {"MENU BUTTON MODE",                MENU_LIST,      MENU_BUTTON_TOGGLE_ID,  CONTROLLER_SET_ID,  system_shift_mode_cb        , 0},  \
+    {"LIST BEHAVIOR",                   MENU_LIST,      KNOB_LIST_ID,           CONTROLLER_SET_ID,  system_click_list_cb        , 0},  \
     {"MENU ITEMS",                      MENU_MAIN,      SHIFT_ITEMS_ID,         ROOT_ID,            NULL                        , 0},  \
     {"ITEM 1",                          MENU_LIST,      SHIFT_ITEM_1_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
     {"ITEM 2",                          MENU_LIST,      SHIFT_ITEM_2_ID,        SHIFT_ITEMS_ID,     system_shift_item_cb        , 0},  \
@@ -483,6 +484,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define LIST_MODE_ADRESS                   9
 #define CONTROL_HEADER_ADRESS              10
 #define SHIFT_MODE_ADRESS                  11
+#define CLICK_LIST_ADRESS                  12
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
@@ -497,6 +499,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_LIST_MODE                  0
 #define DEFAULT_CONTROL_HEADER             0
 #define DEFAULT_SHIFT_MODE                 1
+#define DEFAULT_CLICK_LIST                 0
 
 //memory used for LED value's
 #define LED_COLOR_EEMPROM_PAGE             2
@@ -506,7 +509,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_VERSION_ADRESS              62
 
 //for version control, when increasing they ALWAYS need to be bigger then the previous value
-#define EEPROM_CURRENT_VERSION             4L
+#define EEPROM_CURRENT_VERSION             5L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
 #define FORCE_WRITE_EEPROM                0

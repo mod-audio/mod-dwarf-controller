@@ -66,11 +66,18 @@ typedef struct CONTROL_T {
     int32_t step, steps;
     uint8_t scale_points_count, scale_points_flag;
     scale_point_t **scale_points;
-    uint16_t scale_point_index;
+    int16_t scale_point_index;
     uint8_t scroll_dir;
     uint8_t lock_led_actions;
     float screen_indicator_widget_val;
 } control_t;
+
+typedef struct LIST_CLONE_T {
+    int8_t hw_id;
+    int32_t step;
+    uint8_t scale_points_count, scale_point_index;
+    scale_point_t **scale_points;
+} list_clone_t;
 
 typedef struct BP_LIST_T {
     char **names, **uids;

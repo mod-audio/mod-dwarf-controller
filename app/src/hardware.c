@@ -316,6 +316,9 @@ void write_o_settings_defaults()
     
     write_buffer = DEFAULT_SL_OUTPUT;
     EEPROM_Write(0, SL_OUTPUT_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    write_buffer = DEFAULT_CLICK_LIST;
+    EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }
 
 void write_shift_defaults()
@@ -333,6 +336,8 @@ void write_shift_defaults()
 
 void check_eeprom_defaults(uint16_t current_version)
 {
+    uint8_t write_buffer;
+
     //if not force update, and not downgrading, check defaults
     if ((!FORCE_WRITE_EEPROM) && (current_version < EEPROM_CURRENT_VERSION))
     {
@@ -357,8 +362,16 @@ void check_eeprom_defaults(uint16_t current_version)
 
             //added selectable shift button mode, and new colours
             case 3:;
-                uint8_t write_buffer = DEFAULT_SHIFT_MODE;
+                write_buffer = DEFAULT_SHIFT_MODE;
                 EEPROM_Write(0, SHIFT_MODE_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+                write_led_defaults();
+            break;
+
+            //added selectable list behaviour + new colors
+            case 4:;
+                write_buffer = DEFAULT_CLICK_LIST;
+                EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
                 write_led_defaults();
             break;

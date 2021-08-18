@@ -72,6 +72,7 @@ struct TAP_TEMPO_T {
 */
 
 static control_t *g_controls[ENCODERS_COUNT], *g_foots[MAX_FOOT_ASSIGNMENTS];
+static list_clone_t g_list_clone[ENCODERS_COUNT];
 
 uint8_t g_scroll_dir = 1;
 
@@ -80,7 +81,7 @@ static uint8_t g_current_encoder_page = 0;
 static uint8_t g_fs_page_available[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static uint8_t g_available_foot_pages = 0;
 static int8_t g_current_overlay_actuator = -1;
-
+static bool g_list_click = 0;
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -112,13 +113,13 @@ static void step_to_value(control_t *control)
     // about the calculation: http://lv2plug.in/ns/ext/port-props/#rangeSteps
 
     float p_step = ((float) control->step) / ((float) (control->steps - 1));
-    if (control->properties & FLAG_CONTROL_LOGARITHMIC)
-    {
-        control->value = control->minimum * pow(control->maximum / control->minimum, p_step);
-    }
-    else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+    if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
     {
         control->value = control->scale_points[control->step]->value;
+    }
+    else if (control->properties & FLAG_CONTROL_LOGARITHMIC)
+    {
+        control->value = control->minimum * pow(control->maximum / control->minimum, p_step);
     }
     else if (!(control->properties & (FLAG_CONTROL_TRIGGER | FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)))
     {
@@ -127,6 +128,117 @@ static void step_to_value(control_t *control)
 
     if (control->value > control->maximum) control->value = control->maximum;
     if (control->value < control->minimum) control->value = control->minimum;
+}
+
+static void reset_list_encoders(void)
+{
+    uint8_t q, i;
+    for (q = 0; q < ENCODERS_COUNT; q++) {
+        control_t *control = g_controls[q];
+
+        //do we even have a control
+        if (!control)
+            continue;
+
+        //is there even a list control to check?
+        if (!(control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)))
+            continue;
+
+        //are the values out of sync?
+        if (control->scale_point_index == g_list_clone[control->hw_id].scale_point_index)
+            continue;
+
+        //clear old list, free memory
+        if (control->scale_points)
+        {
+            for (i = 0; i < control->scale_points_count; i++) {
+                if (control->scale_points[i]) {
+                    FREE(control->scale_points[i]->label);
+                    FREE(control->scale_points[i]);
+                }
+            }
+
+            FREE(control->scale_points);
+        }
+
+        //restore list from the local clone
+        control->scale_points_count = g_list_clone[control->hw_id].scale_points_count;
+
+        control->scale_points = (scale_point_t **) MALLOC(sizeof(scale_point_t*) * control->scale_points_count);
+
+        // initializes the scale points pointers
+        for (i = 0; i < control->scale_points_count; i++) control->scale_points[i] = NULL;
+
+        for (i = 0; i < control->scale_points_count; i++) {
+            control->scale_points[i] = (scale_point_t *) MALLOC(sizeof(scale_point_t));
+            control->scale_points[i]->label = str_duplicate(g_list_clone[control->hw_id].scale_points[i]->label);
+            control->scale_points[i]->value = g_list_clone[control->hw_id].scale_points[i]->value;
+        }
+
+        control->step = g_list_clone[control->hw_id].step;
+        control->scale_point_index = g_list_clone[control->hw_id].scale_point_index;
+    }
+}
+
+static void clone_list_encoders(control_t *control)
+{
+    uint8_t i;
+
+    //if already a list, free memory
+    if (g_list_clone[control->hw_id].hw_id != -1) {
+        for (i = 0; i < g_list_clone[control->hw_id].scale_points_count; i++)
+        {
+            if (g_list_clone[control->hw_id].scale_points[i])
+            {
+                FREE(g_list_clone[control->hw_id].scale_points[i]->label);
+                FREE(g_list_clone[control->hw_id].scale_points[i]);
+            }
+        }
+
+        FREE(g_list_clone[control->hw_id].scale_points);
+    }
+
+    //check if we need to clone this encoder (scalepoints)
+    if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) {
+        g_list_clone[control->hw_id].scale_points_count = control->scale_points_count;
+
+        g_list_clone[control->hw_id].scale_points = (scale_point_t **) MALLOC(sizeof(scale_point_t*) * control->scale_points_count);
+
+        // initializes the scale points pointers
+        for (i = 0; i < control->scale_points_count; i++) g_list_clone[control->hw_id].scale_points[i] = NULL;
+
+        for (i = 0; i < control->scale_points_count; i++) {
+            g_list_clone[control->hw_id].scale_points[i] = (scale_point_t *) MALLOC(sizeof(scale_point_t));
+            g_list_clone[control->hw_id].scale_points[i]->label = str_duplicate(control->scale_points[i]->label);
+            g_list_clone[control->hw_id].scale_points[i]->value = control->scale_points[i]->value;
+        }
+
+        g_list_clone[control->hw_id].hw_id = control->hw_id;
+        g_list_clone[control->hw_id].step = control->step;
+        g_list_clone[control->hw_id].scale_point_index = control->scale_point_index;
+    }
+}
+
+static void send_control_set(control_t *control)
+{
+    char buffer[128];
+    uint8_t i;
+
+    i = copy_command(buffer, CMD_CONTROL_SET);
+
+    // insert the hw_id on buffer
+    i += int_to_str(control->hw_id, &buffer[i], sizeof(buffer) - i, 0);
+    buffer[i++] = ' ';
+
+    // insert the value on buffer
+    i += float_to_str(control->value, &buffer[i], sizeof(buffer) - i, 3);
+    buffer[i] = 0;
+
+    // sends the data to GUI
+    ui_comm_webgui_send(buffer, i);
+
+    //wait for a response from mod-ui
+    ui_comm_webgui_wait_response();
 }
 
 void set_footswitch_pages_led_state(void)
@@ -171,7 +283,7 @@ void restore_led_states(void)
 
 static void load_control_page(uint8_t page)
 {
-/*    //first notify host
+    //first notify host
     char val_buffer[20] = {0};
     sys_comm_set_response_cb(NULL, NULL);
 
@@ -179,7 +291,7 @@ static void load_control_page(uint8_t page)
 
     sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
     sys_comm_wait_response();
-*/
+
     //now notify mod-ui
     char buffer[30];
 
@@ -220,7 +332,23 @@ static void encoder_control_add(control_t *control)
     // assign the new control
     g_controls[control->hw_id] = control;
 
-    if (control->properties & FLAG_CONTROL_LOGARITHMIC)
+    if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+    {
+        control->step = 0;
+        uint8_t i;
+        for (i = 0; i < control->scale_points_count; i++)
+        {
+            if (control->value == control->scale_points[i]->value)
+            {
+                control->step = i;
+                break;
+            }
+        }
+
+        clone_list_encoders(control);
+
+    }
+    else if (control->properties & FLAG_CONTROL_LOGARITHMIC)
     {
         if (control->minimum == 0.0)
             control->minimum = FLT_MIN;
@@ -233,21 +361,6 @@ static void encoder_control_add(control_t *control)
 
         control->step =
             (control->steps - 1) * log(control->value / control->minimum) / log(control->maximum / control->minimum);
-    }
-    else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
-    {
-        control->step = 0;
-        uint8_t i;
-        //control->scroll_dir = g_scroll_dir;
-        for (i = 0; i < control->scale_points_count; i++)
-        {
-            if (control->value == control->scale_points[i]->value)
-            {
-                control->step = i;
-                break;
-            }
-        }
-        control->steps = control->scale_points_count;
     }
     else if (control->properties & FLAG_CONTROL_INTEGER)
     {
@@ -404,7 +517,6 @@ static void foot_control_print(control_t *control)
                 break;
             }
         }
-        control->steps = control->scale_points_count;
 
         if (naveg_get_current_mode() == MODE_CONTROL)
         {
@@ -496,7 +608,7 @@ static void foot_control_rm(uint8_t hw_id)
                 ledz_set_state(led, LED_OFF, LED_UPDATE);
                 
                 if (g_current_overlay_actuator == hw_id) {
-                    hardware_set_overlay_timeout(0, CM_print_screen);
+                    hardware_set_overlay_timeout(0, NULL);
                     CM_print_screen();
                 }
                 else
@@ -515,7 +627,15 @@ static void parse_control_page(void *data, menu_item_t *item)
 
     control_t *control = data_parse_control(&list[1]);
 
-    CM_add_control(control, 0);
+    // first tries remove the control
+    CM_remove_control(control->hw_id);
+
+    control->scroll_dir = 0;
+
+    if (control->hw_id < ENCODERS_COUNT)
+        g_controls[control->hw_id] = control;
+    else
+        g_foots[control->hw_id - ENCODERS_COUNT] = control;
 }
 
 static void request_control_page(control_t *control, uint8_t dir)
@@ -526,11 +646,12 @@ static void request_control_page(control_t *control, uint8_t dir)
     char buffer[20];
     memset(buffer, 0, sizeof buffer);
     uint8_t i;
+    uint8_t hw_id = control->hw_id;
 
     i = copy_command(buffer, CMD_CONTROL_PAGE); 
 
     // insert the hw_id on buffer
-    i += int_to_str(control->hw_id, &buffer[i], sizeof(buffer) - i, 0);
+    i += int_to_str(hw_id, &buffer[i], sizeof(buffer) - i, 0);
 
     // inserts one space
     buffer[i++] = ' ';
@@ -543,11 +664,71 @@ static void request_control_page(control_t *control, uint8_t dir)
     // insert the direction on buffer
     i += int_to_str(bitmask, &buffer[i], sizeof(buffer) - i, 0);
 
+    // inserts one space
+    buffer[i++] = ' ';
+
+    if (dir) control->scale_point_index++;
+    else control->scale_point_index--;
+
+    // insert the index on buffer
+    i += int_to_str(control->scale_point_index, &buffer[i], sizeof(buffer) - i, 0);
+
+    uint16_t current_index = control->scale_point_index;
+    uint16_t current_step = control->step;
+
     // sends the data to GUI
     ui_comm_webgui_send(buffer, i);
 
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
+
+    //encoder
+    if (hw_id < ENCODERS_COUNT) {
+        g_controls[hw_id]->scale_point_index = current_index;
+        g_controls[hw_id]->step = current_step;
+
+        //also set the control if needed
+        if (!g_list_click) {
+            step_to_value(g_controls[hw_id]);
+            send_control_set(g_controls[hw_id]);
+
+            //in case the user switches modes
+            clone_list_encoders(g_controls[hw_id]);
+        }
+
+        //if screen overlay active, update that
+        if ((hardware_get_overlay_counter() || !g_controls[hw_id]->scroll_dir) && (g_current_overlay_actuator == g_controls[hw_id]->hw_id)) {
+            CM_print_control_overlay(g_controls[hw_id], ENCODER_LIST_TIMEOUT);
+            return;
+        }
+
+        // update the control screen
+        if (g_current_overlay_actuator == -1)
+            screen_encoder(g_controls[hw_id], hw_id);
+    }
+    //foot
+    else {
+        g_foots[hw_id - ENCODERS_COUNT]->scale_point_index = current_index;
+        g_foots[hw_id - ENCODERS_COUNT]->step = current_step;
+
+        step_to_value(g_foots[hw_id - ENCODERS_COUNT]);
+        send_control_set(g_foots[hw_id - ENCODERS_COUNT]);
+
+        //check if we need to change widget:
+        if ((g_foots[hw_id - ENCODERS_COUNT]->properties & FLAG_CONTROL_REVERSE) &&
+            !(g_foots[hw_id - ENCODERS_COUNT]->properties & FLAG_CONTROL_MOMENTARY))
+            screen_group_foots(1);
+
+        //dont set ui when not in control mode
+        if (naveg_get_current_mode() != MODE_CONTROL) {
+            CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_STORE_STATE);
+            return;
+        }
+
+        foot_control_print(g_foots[hw_id - ENCODERS_COUNT]);
+        CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_UPDATE);
+        CM_print_control_overlay(g_foots[hw_id - ENCODERS_COUNT], FOOT_CONTROLS_TIMEOUT);
+    }
 }
 
 static void control_set(uint8_t id, control_t *control)
@@ -569,106 +750,68 @@ static void control_set(uint8_t id, control_t *control)
         }
         //footswitch (need to check for pages here)
         else if ((ENCODERS_COUNT <= control->hw_id) && ( control->hw_id < MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT))
-        {            
+        {
+            //take care of led
             uint8_t trigger_led_change = 0;
             ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
-
-            // updates the led
             //check if its assigned to a trigger and if the button is released
-            if ((control->scroll_dir) || (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR))
-            {
+            if ((control->scroll_dir) || (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)) {
                 if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-                {
                     trigger_led_change = 1;
-                }
-                else
-                {
+                else {
                     led->led_state.color = ENUMERATED_COLOR;
                     ledz_set_state(led, LED_ON, LED_UPDATE);
                 }
             }
-            else
-            {
+            else {
                 led->led_state.brightness = 0.1;
                 ledz_set_state(led, LED_DIMMED, LED_UPDATE);
             }
 
-            if (!(control->properties & FLAG_CONTROL_REVERSE))
-            {
-                // increments the step
-                if (control->step < (control->steps - 1))
-                {
-                    if ((control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) && (control->step < (control->steps - 1)))
-                    {
-                        //request new data, a new control we be assigned after
-                        request_control_page(control, 1);
-
-                        //since a new control is assigned we can return
-                        return;
-                    }
-
-                    control->step++;
-                    control->scale_point_index++;
-                }
-                //if we are reaching the end of the control
-                else if (control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE)
-                {
+            //are we going up or down in the list?
+            //up
+            if (!(control->properties & FLAG_CONTROL_REVERSE)) {
+                //are we about to reach the end of a control
+                if (control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE) {
                     //we wrap around so the step becomes 0 again
-                    if (control->scale_points_flag & FLAG_SCALEPOINT_WRAP_AROUND)
-                    {
-                        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)
-                        {
+                    if (control->scale_point_index >= (control->steps - 1)) {
+                        if (control->scale_points_flag & (FLAG_SCALEPOINT_WRAP_AROUND)) {
+                            control->step = 0;
+                            control->scale_point_index = -1;
                             request_control_page(control, 1);
                             return;
                         }
                         else
-                        {
-                            control->step = 0;
-                            control->scale_point_index = 0;
-                        }
+                            return;
                     }
-                    //we are at max and dont wrap around
-                    else return; 
                 }
-                //we need to request a new page
-                else if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) 
-                {
+                //are we about to reach the end of a page
+                else if (((control->step >= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)) {
                     //request new data, a new control we be assigned after
                     request_control_page(control, 1);
-
-                    //since a new control is assigned we can return
                     return;
                 }
-                else return;
-            }
-            else 
-            {
 
-                //we are at the end of our list ask for more data
-                if (control->scale_points_flag & (FLAG_SCALEPOINT_PAGINATED | FLAG_SCALEPOINT_WRAP_AROUND))
-                {
-                    // decrements the step
-                    if (control->step > 2)
-                    {
-                        control->step--;
-                        control->scale_point_index--;
-                    }
-                    else
-                    {
-                        //request new data, a new control we be assigned after
-                        request_control_page(control, 0);
-    
-                        //since a new control is assigned we can return
+                //all good, just increment
+                control->step++;
+                control->scale_point_index++;
+            }
+            //down
+            else {
+                if (control->scale_point_index <= 2) {
+                    if (control->scale_point_index <= 0) {
                         return;
                     }
                 }
-                else if (control->step > 0)
-                {
-                    // decrements the step
-                    control->step--;
-                    control->scale_point_index--;
+                //are we about to reach the end of a page
+                else if (((control->step <= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)){
+                    //request new data, a new control we be assigned after
+                    request_control_page(control, 0);
+                    return;
                 }
-                else return;
+
+                control->step--;
+                control->scale_point_index--;
             }
 
             // updates the value and the screen
@@ -793,24 +936,9 @@ static void control_set(uint8_t id, control_t *control)
     if (ENCODERS_COUNT <= control->hw_id)
         CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
 
-    char buffer[128];
-    uint8_t i;
-
-    i = copy_command(buffer, CMD_CONTROL_SET);
-
-    // insert the hw_id on buffer
-    i += int_to_str(control->hw_id, &buffer[i], sizeof(buffer) - i, 0);
-    buffer[i++] = ' ';
-
-    // insert the value on buffer
-    i += float_to_str(control->value, &buffer[i], sizeof(buffer) - i, 3);
-    buffer[i] = 0;
-
-    // sends the data to GUI
-    ui_comm_webgui_send(buffer, i);
-
-    //wait for a response from mod-ui
-    ui_comm_webgui_wait_response();
+    if ((ENCODERS_COUNT <= control->hw_id) || !g_list_click) {
+        send_control_set(control);
+    }
 }
 
 /*
@@ -825,6 +953,7 @@ void CM_init(void)
 
     for (i = 0; i < ENCODERS_COUNT; i++)
     {
+        g_list_clone[i].hw_id = -1;
         g_controls[i] = NULL;
     }
 
@@ -840,6 +969,7 @@ void CM_init(void)
 
     system_hide_actuator_cb(NULL, MENU_EV_NONE);
     system_control_header_cb(NULL, MENU_EV_NONE);
+    system_click_list_cb(NULL, MENU_EV_NONE);
 }
 
 void CM_remove_control(uint8_t hw_id)
@@ -888,58 +1018,77 @@ void CM_inc_control(uint8_t encoder)
     //no control
     if (!control) return;
 
-    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))
-    {
+    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) {
         //prepare display overlay
         CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
 
-        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)
-        {
+        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) {
             // increments the step
-            if (control->step < (control->steps - 3))
+            if (control->step < (control->scale_points_count - 3)) {
+                if (control->scale_point_index >= control->scale_points_count-1)
+                    return;
+
                 control->step++;
+                control->scale_point_index++;
+            }
             //we are at the end of our list ask for more data
-            else
-            {
-                //request new data, a new control we be assigned after
-                request_control_page(control, 1);
+            else {
+                if ((control->scale_point_index >= control->steps - 3) ) {
+
+                    if (control->scale_point_index >= control->steps - 1)
+                        return;
+
+                    control->step++;
+                    control->scale_point_index++;
+
+                    if (!g_list_click) {
+                        // converts the step to absolute value
+                        step_to_value(control);
+
+                        //make sure to save this value, in case the user switches mode
+                        clone_list_encoders(control);
+                    }
+
+                    // applies the control value
+                    control_set(encoder, control);
+                }
+                else if (control->scale_point_index < control->steps - 1) {
+                    //request new data, a new control we be assigned after
+                    request_control_page(control, 1);
+                }
 
                 //since a new control is assigned we can return
                 return;
             }       
         }
-        else 
-        {
+        else  {
             // increments the step
-            if ((control->step < (control->steps - 1)) && (control->step < (control->scale_points_count - 1)))
+            if ((control->step < (control->steps - 1)) && (control->step < (control->scale_points_count - 1))) {
+                control->scale_point_index++;
                 control->step++;
+            }
             else
                 return; 
         }
     }
-    else if (control->properties & FLAG_CONTROL_TRIGGER)
-    {
+    else if (control->properties & FLAG_CONTROL_TRIGGER) {
         control->value = control->maximum;
     }
-    else if (control->properties & FLAG_CONTROL_TOGGLED)
-    {
+    else if (control->properties & FLAG_CONTROL_TOGGLED) {
         if (control->value == 1)
             return;
         else 
             control->value = 1;
     }
-    else if (control->properties & FLAG_CONTROL_BYPASS)
-    {
+    else if (control->properties & FLAG_CONTROL_BYPASS) {
         if (control->value == 0)
             return;
         else 
             control->value = 0;
     }
-    else
-    {
+    else {
         // increments the step
-        if (control->step < (control->steps - 1))
-        {
+        if (control->step < (control->steps - 1)) {
             if (g_encoders_pressed[encoder])
                 control->step+=10;
             else
@@ -951,8 +1100,14 @@ void CM_inc_control(uint8_t encoder)
         else
             return;
     }
-    // converts the step to absolute value
-    step_to_value(control);
+
+    if (!g_list_click) {
+        // converts the step to absolute value
+        step_to_value(control);
+
+        //make sure to save this value, in case the user switches mode
+        clone_list_encoders(control);
+    }
 
     // applies the control value
     control_set(encoder, control);
@@ -965,51 +1120,65 @@ void CM_dec_control(uint8_t encoder)
     //no control, return
     if (!control) return;
     
-    if  (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
-    {
+    if  (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))  {
         //prepare display overlay
         CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
 
-        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)
-        {
+        if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) {
             // decrements the step
-            if (control->step > 2)
+            if (control->step > 2) {
                 control->step--;
+                control->scale_point_index--;
+            }
             //we are at the end of our list ask for more data
-            else
-            {
-                //request new data, a new control we be assigned after
-                request_control_page(control, 0);
+            else {
+                if ((control->scale_point_index <= 2) && (control->scale_point_index > 0)) {
+                    control->step--;
+                    control->scale_point_index--;
+
+                    if (!g_list_click) {
+                        // converts the step to absolute value
+                        step_to_value(control);
+
+                        //make sure to save this value, in case the user switches mode
+                        clone_list_encoders(control);
+                    }
+
+                    // applies the control value
+                    control_set(encoder, control);
+                }
+                else if (control->scale_point_index > 0) {
+                    //request new data, a new control we be assigned after
+                    request_control_page(control, 0);
+                }
 
                 //since a new control is assigned we can return
                 return;
             }
         }
-        else 
-        {
+        else {
             // decrements the step
-            if (control->step > 0)
+            if (control->step > 0) {
+                control->scale_point_index--;
                 control->step--;
+            }
             else
                 return;
         }
     }
-    else if (control->properties & FLAG_CONTROL_TOGGLED)
-    {
+    else if (control->properties & FLAG_CONTROL_TOGGLED) {
         if (control->value == 0)
             return;
         else 
             control->value = 0;
     }
-    else if (control->properties & FLAG_CONTROL_BYPASS)
-    {
+    else if (control->properties & FLAG_CONTROL_BYPASS) {
         if (control->value == 1)
             return;
         else 
             control->value = 1;
     }
-    else
-    {
+    else {
         // decrements the step
         if (control->step > 0)
         {
@@ -1024,8 +1193,14 @@ void CM_dec_control(uint8_t encoder)
         else
             return;
     }
-    // converts the step to absolute value
-    step_to_value(control);
+
+    if (!g_list_click) {
+        // converts the step to absolute value
+        step_to_value(control);
+
+        //make sure to save this value, in case the user switches mode
+        clone_list_encoders(control);
+    }
 
     // applies the control value
     control_set(encoder, control);
@@ -1053,6 +1228,20 @@ void CM_toggle_control(uint8_t encoder)
         {
             CM_print_control_overlay(g_controls[encoder], ENCODER_LIST_TIMEOUT);
         }
+        //list click, change and set value, then close overlay
+        else if (g_list_click)
+        {
+            step_to_value(control);
+            send_control_set(control);
+
+            hardware_set_overlay_timeout(0, NULL);
+            g_current_overlay_actuator = -1;
+            CM_print_screen();
+
+            clone_list_encoders(control);
+
+            return;
+        }
         //overlay already active, close
         else
         {
@@ -1065,7 +1254,6 @@ void CM_toggle_control(uint8_t encoder)
     }
     else
         return;
-
 
     // applies the control value
     control_set(encoder, control);
@@ -1111,7 +1299,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
 
     g_foots[foot]->scroll_dir = value;
 
-    control_set(foot, g_foots[foot]);;
+    control_set(foot, g_foots[foot]);
 }
 
 void CM_set_control(uint8_t hw_id, float value)
@@ -1149,6 +1337,9 @@ void CM_set_control(uint8_t hw_id, float value)
         //encoder
         if (hw_id < ENCODERS_COUNT)
         {
+            if (control->properties & (FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION))  {
+                clone_list_encoders(control);
+            }
             screen_encoder(control, control->hw_id);
         }
         //button
@@ -1297,7 +1488,6 @@ void CM_set_control(uint8_t hw_id, float value)
                         break;
                     }
                 }
-                control->steps = control->scale_points_count;
 
                 // updates the footer
                 screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[i]->label, control->properties);
@@ -1433,10 +1623,21 @@ void CM_reset_page(void)
 
 void CM_load_next_encoder_page(uint8_t button)
 {
-    char buffer[30];
-    uint8_t i = 0;
+    hardware_set_overlay_timeout(0, NULL);
+    g_current_overlay_actuator = -1;
 
     g_current_encoder_page = button;
+    screen_encoder_container(g_current_encoder_page);
+
+    //clear controls
+    uint8_t q;
+    for (q = 0; q < ENCODERS_COUNT; q++)
+    {
+        CM_remove_control(q);
+    }
+
+    char buffer[30];
+    uint8_t i = 0;
 
     //first notify host
     char val_buffer[20] = {0};
@@ -1450,11 +1651,8 @@ void CM_load_next_encoder_page(uint8_t button)
     hardware_set_overlay_timeout(0, NULL);
     g_current_overlay_actuator = -1;
 
-    screen_encoder_container(g_current_encoder_page); 
     set_encoder_pages_led_state();
 
-    //clear controls            
-    uint8_t q;
     for (q = 0; q < ENCODERS_COUNT; q++)
     {
         i = copy_command(buffer, CMD_DWARF_CONTROL_SUBPAGE);
@@ -1464,13 +1662,6 @@ void CM_load_next_encoder_page(uint8_t button)
         buffer[i++] = ' ';
 
         i += int_to_str(g_current_encoder_page, &buffer[i], sizeof(buffer) - i, 0);
-
-        control_t *control = g_controls[q];
-
-        if (control) {
-            data_free_control(control);
-            g_controls[q] = NULL;
-        }
 
         ui_comm_webgui_send(buffer, i);
 
@@ -1603,6 +1794,14 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
     }
 }
 
+void CM_close_overlay(void)
+{
+    if (g_list_click)
+        reset_list_encoders();
+
+    CM_print_screen();
+}
+
 void CM_set_leds(void)
 {
     set_footswitch_pages_led_state();
@@ -1637,7 +1836,7 @@ void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
 
     screen_control_overlay(control);
 
-    hardware_set_overlay_timeout(overlay_time, CM_print_screen);
+    hardware_set_overlay_timeout(overlay_time, CM_close_overlay);
 }
 
 void CM_set_pages_available(uint8_t page_toggles[8])
@@ -1693,4 +1892,9 @@ void CM_reset_encoder_page(void)
         //update LED's
         set_encoder_pages_led_state();  
     }
+}
+
+void CM_set_list_behaviour(uint8_t click_list)
+{
+    g_list_click = click_list;
 }
