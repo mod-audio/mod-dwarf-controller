@@ -60,7 +60,7 @@
 // display backlight turn on definition
 #define ST7565P_BACKLIGHT_TURN_ON_WITH_ONE
 
-#define ST7565_DEFAULT_CONTRAST 0x17
+#define ST7565_DEFAULT_CONTRAST 0x1C
 #define DISPLAY_CONTRAST_MAX    0x38
 #define DISPLAY_CONTRAST_MIN    0x00
 /*

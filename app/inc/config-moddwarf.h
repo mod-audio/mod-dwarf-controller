@@ -514,7 +514,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             5L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                1
+#define FORCE_WRITE_EEPROM                0
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)
