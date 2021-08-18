@@ -56,25 +56,25 @@
 #define PBTN3_SAVE_SS           NAMING_WIDGET_BTN3
 
 #define POPUP_REMOVE_PB_ID      3
-#define POPUP_REMOVE_PB_MSG     "are you sure you wish\nto delete the current\npedalboard from this bank?"
+#define POPUP_REMOVE_PB_MSG     "\n\nare you sure you want\nto remove the selected\npedalboard from this bank?"
 #define PBTN1_REMOVE_PB         CONFIRM_CANCEL_BTN1
 #define PBTN2_REMOVE_PB         CONFIRM_CANCEL_BTN2
 #define PBTN3_REMOVE_PB         CONFIRM_CANCEL_BTN3
 
 #define POPUP_REMOVE_SS_ID      4
-#define POPUP_REMOVE_SS_MSG     "are you sure you wish\nto delete the current\nsnapshot?"
+#define POPUP_REMOVE_SS_MSG     "\n\nare you sure you want\nto delete the current\nsnapshot?"
 #define PBTN1_REMOVE_SS         CONFIRM_CANCEL_BTN1
 #define PBTN2_REMOVE_SS         CONFIRM_CANCEL_BTN2
 #define PBTN3_REMOVE_SS         CONFIRM_CANCEL_BTN3
 
 #define POPUP_OVERWRITE_PB_ID   5
-#define POPUP_OVERWRITE_PB_MSG  "are you sure you wish\nto overwrite the current\npedalboard?"
+#define POPUP_OVERWRITE_PB_MSG  "\n\nare you sure you want\nto overwrite the current\npedalboard?"
 #define PBTN1_OVERWRITE_PB      CONFIRM_CANCEL_BTN1
 #define PBTN2_OVERWRITE_PB      CONFIRM_CANCEL_BTN2
 #define PBTN3_OVERWRITE_PB      CONFIRM_CANCEL_BTN3
 
 #define POPUP_OVERWRITE_SS_ID   6
-#define POPUP_OVERWRITE_SS_MSG  "are you sure you wish\nto overwrite the current\nnapshot?"
+#define POPUP_OVERWRITE_SS_MSG  "\n\nare you sure you want\nto overwrite the current\nsnapshot?"
 #define PBTN1_OVERWRITE_SS      CONFIRM_CANCEL_BTN1
 #define PBTN2_OVERWRITE_SS      CONFIRM_CANCEL_BTN2
 #define PBTN3_OVERWRITE_SS      CONFIRM_CANCEL_BTN3
@@ -86,7 +86,7 @@
 #define PBTN3_NEW_BANK          NAMING_WIDGET_BTN3
 
 #define POPUP_DELETE_BANK_ID    8
-#define POPUP_DELETE_BANK_MSG   "are you sure you wish\nto delete this bank?"
+#define POPUP_DELETE_BANK_MSG   "\n\n\nare you sure you want\nto delete the selected bank?"
 #define PBTN1_DELETE_BANK       CONFIRM_CANCEL_BTN1
 #define PBTN2_DELETE_BANK       CONFIRM_CANCEL_BTN2
 #define PBTN3_DELETE_BANK       CONFIRM_CANCEL_BTN3

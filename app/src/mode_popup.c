@@ -460,8 +460,8 @@ void PM_button_pressed(uint8_t button)
                             //update list items
                             NM_update_lists(SNAPSHOT_LIST);
 
-                            //save sucsesfull message
-                            PM_launch_attention_overlay("snapshot save sucsesfull", exit_popup);
+                            //save successful message
+                            PM_launch_attention_overlay("\n\n\nsnapshot save successful", exit_popup);
                         }
                         else {
                             //set last item as active
@@ -470,8 +470,8 @@ void PM_button_pressed(uint8_t button)
                             //update list items
                             NM_update_lists(PEDALBOARD_LIST);
 
-                            //save sucsesfull message
-                            PM_launch_attention_overlay("pedalboard save sucsesfull", exit_popup);
+                            //save successful message
+                            PM_launch_attention_overlay("\n\n\npedalboard save successful", exit_popup);
                         }
                         g_list_update_needed =0;
                     }
@@ -548,7 +548,7 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_wait_response();
 
                     //TODO move this check to the callback and possibly give an extra popup
-                        PM_launch_attention_overlay("bank creation sucsesfull", exit_popup);
+                        PM_launch_attention_overlay("\n\n\nbank creation successful", exit_popup);
                 break;
 
                 case 1:
@@ -638,11 +638,11 @@ void PM_button_pressed(uint8_t button)
                         break;
                     }
 
-                    //delete sucsesfull overlay
+                    //delete successful overlay
                     if (g_current_popup_id == POPUP_REMOVE_PB_ID)
-                        PM_launch_attention_overlay("remove sucsesfull", exit_popup);
+                        PM_launch_attention_overlay("\n\n\nremove successful", exit_popup);
                     else
-                        PM_launch_attention_overlay("delete sucsesfull", exit_popup);
+                        PM_launch_attention_overlay("\n\n\ndelete successful", exit_popup);
                 break;
 
                 //cancel
@@ -670,8 +670,8 @@ void PM_button_pressed(uint8_t button)
 
                     ui_comm_webgui_send(buffer, i);
 
-                    //delete sucsesfull overlay
-                    PM_launch_attention_overlay("overwrite sucsesfull", exit_popup);
+                    //delete successful overlay
+                    PM_launch_attention_overlay("\n\n\noverwrite successful", exit_popup);
                 break;
 
                 //cancel

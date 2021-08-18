@@ -737,6 +737,9 @@ void NM_enter(void)
 
         case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
+            if (g_banks->hover == 0)
+                return;
+
             add_to_selected_uid(g_banks);
             NM_print_screen();
         break;
