@@ -544,11 +544,11 @@ void PM_button_pressed(uint8_t button)
                     // sends the data to GUI
                     ui_comm_webgui_send(buffer, i);
 
-                    // waits the pedalboards list be received
                     ui_comm_webgui_wait_response();
 
-                    //TODO move this check to the callback and possibly give an extra popup
-                        PM_launch_attention_overlay("\n\n\nbank creation successful", exit_popup);
+                    NM_enter_new_bank();
+
+                    PM_launch_attention_overlay("\n\n\nbank creation successful", exit_popup);
                 break;
 
                 case 1:

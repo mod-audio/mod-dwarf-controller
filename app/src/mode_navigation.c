@@ -550,7 +550,7 @@ static void enter_bank(void)
         g_pedalboards->hover = 0;
 
     //index is relevent in our array so - page_min
-    request_pedalboards(PAGE_DIR_INIT, atoi(g_banks->uids[g_banks->selected - g_banks->page_min]));
+    request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
 
     // if reach here, received the pedalboards list
     if (g_current_list == BANK_LIST_CHECKBOXES)
@@ -1185,6 +1185,7 @@ void NM_update_lists(uint8_t list_type)
         case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
         case BANKS_LIST:
+            request_banks_list(PAGE_DIR_INIT);
         break;
 
             case PB_LIST_CHECKBOXES:
@@ -1794,4 +1795,13 @@ char* NM_get_pbss_name(uint8_t pb_ss_toggle)
     else {
         return g_pedalboard_name;
     }
+}
+
+void NM_enter_new_bank(void)
+{
+    //set the hover
+    g_banks->hover = g_banks->menu_max;
+
+    //enter the bank
+    enter_bank();
 }

@@ -92,6 +92,7 @@ uint16_t NM_get_current_hover(uint8_t list_type);
 uint16_t NM_get_list_count(uint8_t list_type);
 void NM_save_pbss_name(const void *data, uint8_t pb_ss_toggle);
 char* NM_get_pbss_name(uint8_t pb_ss_toggle);
+void NM_enter_new_bank(void);
 
 /*
 ************************************************************************************************************************
