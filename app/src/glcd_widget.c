@@ -1486,8 +1486,13 @@ void icon_pb_checkbox(glcd_t *display, uint8_t x, uint8_t y, uint8_t selected)
     glcd_rect_fill(display, x, y, 3, 3, GLCD_WHITE);
 
     // draws the icon
-    if (selected)
-        glcd_rect_fill(display, x, y, 3, 3, GLCD_BLACK);
+    if (selected) {
+        glcd_rect(display, x, y, 1, 1, GLCD_BLACK);
+        glcd_rect(display, x+2, y, 1, 1, GLCD_BLACK);
+        glcd_rect(display, x, y+2, 1, 1, GLCD_BLACK);
+        glcd_rect(display, x+2, y+2, 1, 1, GLCD_BLACK);
+        glcd_rect(display, x+1, y+1, 1, 1, GLCD_BLACK);
+    }
     else
         glcd_rect(display, x, y, 3, 3, GLCD_BLACK);
 }
