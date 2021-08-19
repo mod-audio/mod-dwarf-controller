@@ -139,9 +139,12 @@ static void update_gain_item_value(uint8_t menu_id, float value)
 
     static char str_bfr[8] = {};
     float value_bfr = 0;
-    value_bfr = MAP(item->data.value, item->data.min, item->data.max, 0, 100); 
+    if ((menu_id == INP_1_GAIN_ID) || (menu_id == INP_2_GAIN_ID))
+        value_bfr = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    else
+        value_bfr = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
     int_to_str(value_bfr, str_bfr, 8, 0);
-    strcat(str_bfr, "%");
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 }
 
@@ -535,9 +538,9 @@ void system_inp_0_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -588,9 +591,9 @@ void system_inp_1_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -641,9 +644,9 @@ void system_inp_2_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -696,9 +699,9 @@ void system_outp_0_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 2.0f;
@@ -749,9 +752,9 @@ void system_outp_1_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 2.0f;
@@ -802,9 +805,9 @@ void system_outp_2_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
+    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 2.0f;
@@ -850,9 +853,8 @@ void system_hp_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, 0, 100);
-    int_to_str(scaled_val, str_bfr, sizeof(str_bfr), 0);
-    strcat(str_bfr, "%");
+    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
+    strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
     item->data.step = 3.0f;
