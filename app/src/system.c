@@ -139,11 +139,15 @@ static void update_gain_item_value(uint8_t menu_id, float value)
 
     static char str_bfr[8] = {};
     float value_bfr = 0;
-    if ((menu_id == INP_1_GAIN_ID) || (menu_id == INP_2_GAIN_ID))
+
+    if ((menu_id == INP_1_GAIN_ID) || (menu_id == INP_2_GAIN_ID)) {
         value_bfr = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
-    else
-        value_bfr = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
-    int_to_str(value_bfr, str_bfr, 8, 0);
+    }
+    else {
+        value_bfr = item->data.value;
+    }
+
+    float_to_str(value_bfr, str_bfr, 8, 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 }
@@ -656,7 +660,7 @@ void system_outp_0_volume_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    char val_buffer[20];
+    char val_buffer[30];
     uint8_t q;
 
     if (event == MENU_EV_NONE)
@@ -669,11 +673,14 @@ void system_outp_0_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -60.0f;
+        item->data.min = -127.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
+        if (item->data.value == 0.0)
+            item->data.step = 0.5;
+
         if (event == MENU_EV_UP)
             item->data.value += item->data.step;
         else
@@ -689,29 +696,28 @@ void system_outp_0_volume_cb(void *arg, int event)
         update_gain_item_value(OUTP_2_GAIN_ID, item->data.value);
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 2);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.step = 2.0f;
+        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
-    item->data.step = 2.0f;
+    item->data.step = 1.0f;
 }
 
 void system_outp_1_volume_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    char val_buffer[20];
+    char val_buffer[30];
     uint8_t q;
 
     if (event == MENU_EV_NONE)
@@ -724,11 +730,14 @@ void system_outp_1_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -60.0f;
+        item->data.min = -127.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
+        if (item->data.value == 0.0)
+            item->data.step = 0.5;
+
         if (event == MENU_EV_UP)
             item->data.value += item->data.step;
         else
@@ -742,29 +751,29 @@ void system_outp_1_volume_cb(void *arg, int event)
         q = copy_command(val_buffer, "1 2 ");
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 2);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.step = 2.0f;
+        item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    static char str_bfr[14] = {};
+    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
-    item->data.step = 2.0f;
+    item->data.step = 1.0f;
 }
 
 void system_outp_2_volume_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    char val_buffer[20];
+    char val_buffer[30];
     uint8_t q;
 
     if (event == MENU_EV_NONE)
@@ -777,11 +786,14 @@ void system_outp_2_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -60.0f;
+        item->data.min = -127.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
+        if (item->data.value == 0.0)
+            item->data.step = 0.5;
+
         if (event == MENU_EV_UP)
             item->data.value += item->data.step;
         else
@@ -795,22 +807,21 @@ void system_outp_2_volume_cb(void *arg, int event)
         q = copy_command(val_buffer, "1 1 ");
 
         // insert the value on buffer
-        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 1);
+        q += float_to_str(item->data.value, &val_buffer[q], sizeof(val_buffer) - q, 2);
         val_buffer[q] = 0;
 
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.step = 2.0f;
+        item->data.step = 1.0f;
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -127, 0);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
+    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
 
-    item->data.step = 2.0f;
+    item->data.step = 1.0f;
 }
 
 void system_hp_volume_cb(void *arg, int event)

@@ -686,6 +686,7 @@ void NM_enter(void)
         return;
 
     switch (g_current_list) {
+        case BANK_LIST_CHECKBOXES:
         case BANKS_LIST:
             enter_bank();
         break;
@@ -735,7 +736,6 @@ void NM_enter(void)
         return;
         break;
 
-        case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
             if (g_banks->hover == 0)
                 return;

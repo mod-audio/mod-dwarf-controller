@@ -117,7 +117,7 @@ void sys_comm_init(void)
 
 void sys_comm_send(const char *command, const char *arguments)
 {
-    char buffer[20];
+    char buffer[40];
     memset(buffer, 0, sizeof buffer);
 
     //copy command
