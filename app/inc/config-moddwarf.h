@@ -303,7 +303,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"OUTPUT PROCESSING",               MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                        , 0},  \
     {"COMPRESSOR MODE",                 MENU_LIST,      COMPRESSOR_MODE_ID,     COMPRESSOR_ID,      system_comp_mode_cb         , 0},  \
     {"COMPRESSOR RELEASE",              MENU_BAR,       COMPRESSOR_RELEASE_ID,  COMPRESSOR_ID,      system_comp_release_cb      , 0},  \
-    {"DIGITAL OUT GAIN",                MENU_BAR,       COMPRESSOR_PB_VOL_ID,   COMPRESSOR_ID,      system_comp_pb_vol_cb       , 0},  \
+    {"PEDALBOARD OUT GAIN",             MENU_BAR,       COMPRESSOR_PB_VOL_ID,   COMPRESSOR_ID,      system_comp_pb_vol_cb       , 0},  \
     {"SYNC",                            MENU_MAIN,      SYNC_ID,                ROOT_ID,            NULL                        , 0},  \
     {"CLOCK SOURCE",                    MENU_LIST,      CLOCK_SOURCE_ID,        SYNC_ID,            system_midi_src_cb          , 0},  \
     {"SEND CLOCK",                      MENU_TOGGLE,    SEND_CLOCK_ID,          SYNC_ID,            system_midi_send_cb         , 0},  \
