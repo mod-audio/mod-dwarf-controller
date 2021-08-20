@@ -772,13 +772,23 @@ static void control_set(uint8_t id, control_t *control)
             //up
             if (!(control->properties & FLAG_CONTROL_REVERSE)) {
                 //are we about to reach the end of a control
-                if (control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE) {
+                if ((control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE) || (control->scale_point_index >= (control->steps - 1))) {
                     //we wrap around so the step becomes 0 again
                     if (control->scale_point_index >= (control->steps - 1)) {
                         if (control->scale_points_flag & (FLAG_SCALEPOINT_WRAP_AROUND)) {
                             control->step = 0;
-                            control->scale_point_index = -1;
-                            request_control_page(control, 1);
+                            if (control->properties & FLAG_CONTROL_LOGARITHMIC) {
+                                control->scale_point_index = 0;
+                                step_to_value(control);
+                                send_control_set(control);
+                                foot_control_print(control);
+                                CM_set_foot_led(control, LED_UPDATE);
+                                CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
+                            }
+                            else {
+                                control->scale_point_index = -1;
+                                request_control_page(control, 1);
+                            }
                             return;
                         }
                         else
@@ -936,9 +946,11 @@ static void control_set(uint8_t id, control_t *control)
     if (ENCODERS_COUNT <= control->hw_id)
         CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
 
-    if ((ENCODERS_COUNT <= control->hw_id) || !g_list_click) {
-        send_control_set(control);
-    }
+    if (g_list_click && (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
+        && (control->hw_id < ENCODERS_COUNT))
+        return;
+
+    send_control_set(control);
 }
 
 /*
@@ -1101,7 +1113,7 @@ void CM_inc_control(uint8_t encoder)
             return;
     }
 
-    if (!g_list_click) {
+    if ((!g_list_click) || !(control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) ) {
         // converts the step to absolute value
         step_to_value(control);
 
@@ -1194,7 +1206,7 @@ void CM_dec_control(uint8_t encoder)
             return;
     }
 
-    if (!g_list_click) {
+    if ((!g_list_click) || !(control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) ) {
         // converts the step to absolute value
         step_to_value(control);
 
