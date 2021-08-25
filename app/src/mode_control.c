@@ -290,7 +290,6 @@ static void load_control_page(uint8_t page)
     int_to_str(page, val_buffer, sizeof(val_buffer), 0);
 
     sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
-    sys_comm_wait_response();
 
     //now notify mod-ui
     char buffer[30];
@@ -1870,27 +1869,23 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     if (!g_fs_page_available[g_current_foot_control_page])
     {
         uint8_t pagefound = 0;
-        uint8_t j = 8;
-        while (!pagefound)
+        uint8_t i;
+        for (i = 8; (i > 0) && !pagefound; i--)
         {
-            j--;
-
-            //only 1 page
-            if (j == 0)
-                pagefound = 1;
-
             //page found
-            if (g_fs_page_available[j])
+            if (g_fs_page_available[i])
                 pagefound = 1;
         }
 
-        g_current_foot_control_page = j;
+        g_current_foot_control_page = i;
 
         load_control_page(g_current_foot_control_page);
     }
 
-    if  (naveg_get_current_mode() == MODE_CONTROL)
+    if (naveg_get_current_mode() == MODE_CONTROL) {
         screen_page_index(g_current_foot_control_page, g_available_foot_pages);
+        set_encoder_pages_led_state();
+    }
 }
 
 void CM_reset_encoder_page(void)

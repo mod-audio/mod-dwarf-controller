@@ -325,7 +325,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
             //check if we need to update leds/display
             if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
                 menu_item_t *play_item = TM_get_menu_item_by_ID(PLAY_ID);
-                play_item->data.value = g_beats_per_minute;
+                play_item->data.value = g_play_status;
                 TM_print_tool();
                 TM_set_leds();
             }
