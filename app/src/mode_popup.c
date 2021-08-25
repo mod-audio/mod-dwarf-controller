@@ -548,7 +548,7 @@ void PM_button_pressed(uint8_t button)
 
                     NM_enter_new_bank();
 
-                    PM_launch_attention_overlay("\n\n\nbank creation successful", exit_popup);
+                    PM_launch_attention_overlay("\n\nbank creation\nsuccessful", exit_popup);
                 break;
 
                 case 1:
