@@ -764,6 +764,8 @@ void naveg_foot_double_press(uint8_t foot)
 
                 g_prev_device_mode = MODE_CONTROL;
                 g_device_mode = MODE_NAVIGATION;
+
+                NM_update_lists(NM_get_current_list());
                 NM_toggle_mode();
             break;
 
