@@ -561,7 +561,7 @@ void screen_page_index(uint8_t current, uint8_t available)
     glcd_t *display = hardware_glcds(0);
 
     //clear the part
-    glcd_rect_fill(display, 0, 51, 21, 13, GLCD_WHITE);
+    glcd_rect_fill(display, 0, 51, 24, 13, GLCD_WHITE);
 
     //draw the square
     glcd_hline(display, 0, 51, 21, GLCD_BLACK);

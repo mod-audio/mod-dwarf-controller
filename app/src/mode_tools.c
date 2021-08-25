@@ -1208,6 +1208,7 @@ menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
 void TM_turn_off_tuner(void)
 {
     ui_comm_webgui_send(CMD_TUNER_OFF, strlen(CMD_TUNER_OFF));
+    ui_comm_webgui_wait_response();
 
     //turn off all tools
     tools_off();
