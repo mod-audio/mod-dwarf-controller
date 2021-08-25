@@ -1298,7 +1298,10 @@ void NM_set_leds(void)
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            if (NM_get_current_hover(BANKS_LIST != 0))
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            else
+                set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -1492,8 +1495,10 @@ void NM_button_pressed(uint8_t button)
                 case BANK_LIST_CHECKBOXES_ENGAGED:
                 case PB_LIST_CHECKBOXES:
                 case PB_LIST_CHECKBOXES_ENGAGED:
-                    NM_enter();
-                    NM_print_screen();
+                    if (NM_get_current_hover(BANKS_LIST != 0)) {
+                        NM_enter();
+                        NM_print_screen();
+                    }
                 break;
             }
         break;
