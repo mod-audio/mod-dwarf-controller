@@ -628,6 +628,12 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
+
+                            //check if we deleted the last item, if so correct hover
+                            bp_list_t* pedalboards = NM_get_pedalboards();
+                            if (NM_get_current_hover(PEDALBOARD_LIST) == pedalboards->menu_max - 1)
+                                    pedalboards->hover--;
+
                             NM_update_lists(PEDALBOARD_LIST);
 
                             //we removed the selected item, set the index out of bounds
