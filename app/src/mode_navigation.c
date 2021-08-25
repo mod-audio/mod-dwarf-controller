@@ -1116,6 +1116,12 @@ bp_list_t *NM_get_banks(void)
     return g_banks;
 }
 
+bp_list_t *NM_get_snapshots(void)
+{
+    if (!g_initialized) return NULL;
+
+    return g_snapshots;
+}
 
 void NM_set_pedalboards(bp_list_t *bp_list)
 {

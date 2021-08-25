@@ -72,6 +72,7 @@ uint8_t NM_up(void);
 uint8_t NM_down(void);
 void NM_set_banks(bp_list_t *bp_list);
 bp_list_t *NM_get_banks(void);
+bp_list_t *NM_get_snapshots(void);
 void NM_set_pedalboards(bp_list_t *bp_list);
 bp_list_t *NM_get_pedalboards(void);
 void NM_set_current_list(uint8_t list_type);

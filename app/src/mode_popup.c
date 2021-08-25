@@ -612,6 +612,11 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
+
+                            bp_list_t* banks = NM_get_banks();
+                            if (NM_get_current_hover(BANKS_LIST) == banks->menu_max - 1)
+                                banks->hover = 0;
+
                             NM_update_lists(BANKS_LIST);
                         break;
                         case POPUP_REMOVE_SS_ID:
@@ -620,11 +625,12 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
-                            NM_update_lists(SNAPSHOT_LIST);
 
-                            ////we removed the selected item, set the index out of bounds
-                            //if (NM_get_current_selected(SNAPSHOT_LIST) == NM_get_current_hover(SNAPSHOT_LIST))
-                            //    NM_set_selected_index(SNAPSHOT_LIST, );
+                            bp_list_t* snapshots = NM_get_snapshots();
+                            if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
+                                snapshots->hover--;
+
+                            NM_update_lists(SNAPSHOT_LIST);
                         break;
                         case POPUP_REMOVE_PB_ID:
                             i = copy_command(buffer, CMD_PEDALBOARD_DELETE);
@@ -638,7 +644,7 @@ void PM_button_pressed(uint8_t button)
                             //check if we deleted the last item, if so correct hover
                             bp_list_t* pedalboards = NM_get_pedalboards();
                             if (NM_get_current_hover(PEDALBOARD_LIST) == pedalboards->menu_max - 1)
-                                    pedalboards->hover--;
+                                pedalboards->hover--;
 
                             NM_update_lists(PEDALBOARD_LIST);
 
