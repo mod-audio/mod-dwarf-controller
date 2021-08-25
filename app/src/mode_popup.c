@@ -385,6 +385,12 @@ void PM_button_pressed(uint8_t button)
     char buffer[30];
     uint8_t i = 0;
 
+    if (g_global_popups[g_current_popup_id].has_naming_input && g_keyboard_toggled) {
+        g_keyboard_toggled = 0;
+        PM_print_screen();
+        return;
+    }
+
     switch (g_current_popup_id)
     {
         case POPUP_SAVE_SELECT_ID:
