@@ -953,8 +953,8 @@ void naveg_button_pressed(uint8_t button)
 
                 //save pedalboard
                 case 1:
-                    if (!g_ui_connected)
-                        naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
+                    naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
+                    shift_mode_active = false;
                 break;
 
                 //TODO enter builder mode
