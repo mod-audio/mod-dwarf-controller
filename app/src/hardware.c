@@ -864,6 +864,11 @@ void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb
 void hardware_force_overlay_off(void)
 {
     g_overlay_counter = 0;
+
+    if (g_overlay_callback)
+        g_overlay_callback();
+
+    g_overlay_callback = NULL;
 }
 
 uint32_t hardware_get_overlay_counter(void)

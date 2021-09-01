@@ -294,7 +294,7 @@ static void load_control_page(uint8_t page)
     //now notify mod-ui
     char buffer[30];
 
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
     g_current_overlay_actuator = -1;
 
     uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
@@ -607,7 +607,7 @@ static void foot_control_rm(uint8_t hw_id)
                 ledz_set_state(led, LED_OFF, LED_UPDATE);
                 
                 if (g_current_overlay_actuator == hw_id) {
-                    hardware_set_overlay_timeout(0, NULL);
+                    hardware_force_overlay_off();
                     CM_print_screen();
                 }
                 else
@@ -838,7 +838,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_set_overlay_timeout(0, NULL);
+                hardware_force_overlay_off();
                 CM_print_screen();
             }
 
@@ -870,7 +870,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_set_overlay_timeout(0, NULL);
+                hardware_force_overlay_off();
                 CM_print_screen();
             }
 
@@ -933,7 +933,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_set_overlay_timeout(0, NULL);
+                hardware_force_overlay_off();
                 CM_print_screen();
             }
 
@@ -1245,7 +1245,7 @@ void CM_toggle_control(uint8_t encoder)
             step_to_value(control);
             send_control_set(control);
 
-            hardware_set_overlay_timeout(0, NULL);
+            hardware_force_overlay_off();
             g_current_overlay_actuator = -1;
             CM_print_screen();
 
@@ -1256,7 +1256,7 @@ void CM_toggle_control(uint8_t encoder)
         //overlay already active, close
         else
         {
-            hardware_set_overlay_timeout(0, NULL);
+            hardware_force_overlay_off();
             g_current_overlay_actuator = -1;
             CM_print_screen();
         }
@@ -1634,7 +1634,7 @@ void CM_reset_page(void)
 
 void CM_load_next_encoder_page(uint8_t button)
 {
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
     g_current_overlay_actuator = -1;
 
     g_current_encoder_page = button;
@@ -1659,7 +1659,7 @@ void CM_load_next_encoder_page(uint8_t button)
     sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
     sys_comm_wait_response();
 
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
     g_current_overlay_actuator = -1;
 
     set_encoder_pages_led_state();

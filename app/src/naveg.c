@@ -128,7 +128,7 @@ void enter_shift_menu(void)
 
     if (g_menu_popup_active || !g_device_booted) return;;
 
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
 
     //enter shift mode
     //save to return
@@ -173,7 +173,7 @@ void exit_shift_menu(void)
 {
     if (g_menu_popup_active || !g_device_booted) return;
 
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
 
     if (!g_self_test_mode)
         ledz_off(hardware_leds(6), WHITE);
@@ -655,7 +655,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             //footswitch used for pages
             if (foot == 2)
             {
-                hardware_set_overlay_timeout(0, NULL);
+                hardware_force_overlay_off();
 
                 if (pressed)
                     CM_load_next_page();
@@ -670,7 +670,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         case MODE_NAVIGATION:
             //no release action
             if (pressed)
-                hardware_set_overlay_timeout(0, NULL);
+                hardware_force_overlay_off();
 
             if ((foot == 2) && pressed)
             {
@@ -692,7 +692,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
                 return;
             }
 
-            hardware_set_overlay_timeout(0, NULL);
+            hardware_force_overlay_off();
 
             if (foot < 2)
             {
@@ -735,9 +735,13 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
-    if ((g_menu_popup_active) || (g_device_mode == MODE_SELFTEST)) return;
+    if (g_device_mode == MODE_SELFTEST)
+        return;
 
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
+
+    if (g_menu_popup_active)
+        return;
 
     //lock foots when double press, we dont want a release action here
     g_lock_release[foot] = 1;
@@ -861,7 +865,7 @@ void naveg_foot_double_press(uint8_t foot)
 //used fot the 3 encoder buttons
 void naveg_button_pressed(uint8_t button)
 {
-    hardware_set_overlay_timeout(0, NULL);
+    hardware_force_overlay_off();
 
     if (!g_initialized) return;
 
