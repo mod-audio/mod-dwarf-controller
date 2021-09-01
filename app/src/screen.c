@@ -871,9 +871,9 @@ void screen_bank_list(bp_list_t *list, const char *name)
         case BANK_LIST_CHECKBOXES:
             glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
             if (NM_get_current_hover(BANKS_LIST != 0))
-                glcd_text(display, 62, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
             else
-               glcd_text(display, 58, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+               glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
             list_box.selected_ids = NULL;
         break;
@@ -891,7 +891,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
             if (NM_get_current_hover(BANKS_LIST != 0))
                 glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
             else
-               glcd_text(display, 58, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+               glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
 
             list_box.selected_ids = list->selected_pb_uids;
