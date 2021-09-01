@@ -124,10 +124,10 @@ static void parse_banks_list(void *data, menu_item_t *item)
         g_banks->menu_max = (atoi(list[2]));
         g_banks->page_min = (atoi(list[3]));
         g_banks->page_max = (atoi(list[4]));
-    }
 
-    g_banks->hover = prev_hover;
-    g_banks->selected = prev_selected;
+        g_banks->hover = prev_hover;
+        g_banks->selected = prev_selected;
+    }
 
     NM_set_banks(g_banks);
 }
@@ -277,10 +277,10 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
         g_pedalboards->hover = prev_hover;
         g_pedalboards->selected = prev_selected;
         g_pedalboards->selected_count = prev_selected_count;
-    }
 
-    if (g_pedalboards->selected_count != 0)
-        g_pedalboards->selected_pb_uids = g_uids_to_add_to_bank;
+        if (g_pedalboards->selected_count != 0)
+            g_pedalboards->selected_pb_uids = g_uids_to_add_to_bank;
+    }
 }
 
 static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
@@ -490,12 +490,13 @@ static void exit_checkbox_mode(void)
     g_banks->selected_count = 0;
     g_pedalboards->selected_count = 0;
 
+    g_banks->hover = g_current_add_bank;
     g_banks->selected = g_current_add_bank;
     g_current_list = PB_LIST_BEGINNING_BOX;
 
     g_pedalboards->hover = 0;
 
-    request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
+    request_pedalboards(PAGE_DIR_INIT, g_banks->hover);
 
     NM_print_screen();
 }
@@ -526,7 +527,10 @@ static void parse_selected_uids(int8_t uid_count, int8_t bank_uid)
         buffer[i++] = ' ';
 
         //add the uid
-        i += int_to_str(g_uids_to_add_to_bank[j], &buffer[i], sizeof(buffer) - i, 0);
+        if (bank_uid != ADD_FULL_BANKS)
+            i += int_to_str(g_uids_to_add_to_bank[j]-1, &buffer[i], sizeof(buffer) - i, 0);
+        else
+            i += int_to_str(g_uids_to_add_to_bank[j], &buffer[i], sizeof(buffer) - i, 0);
     }
 
     // sends the data to GUI
@@ -1231,16 +1235,17 @@ void NM_print_screen(void)
         case PB_LIST_BEGINNING_BOX_SELECTED:
         case PB_LIST_BEGINNING_BOX:
             request_banks_list(PAGE_DIR_INIT);
-            request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
+            request_pedalboards(PAGE_DIR_INIT, g_banks->hover);
 
             if (g_pedalboards->page_max == 0)
                 g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-            else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
+            else if ((g_pedalboards->hover == 0) && (g_banks->hover != 0))
                 g_current_list = PB_LIST_BEGINNING_BOX;
+
         //fall-through
         case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
-            screen_pbss_list(g_banks->names[g_banks->selected - g_banks->page_min], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
+            screen_pbss_list(g_banks->names[g_banks->hover - g_banks->page_min], g_pedalboards, PB_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
 
         case SNAPSHOT_LIST:
@@ -1468,7 +1473,7 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case PB_LIST_CHECKBOXES_ENGAGED:
-                    parse_selected_uids(g_pedalboards->selected_count, g_current_bank);
+                    parse_selected_uids(g_pedalboards->selected_count, g_banks->hover);
                     NM_print_screen();
                 break;
 
@@ -1554,7 +1559,6 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_CHECKBOXES:
                 case PB_LIST_CHECKBOXES_ENGAGED:
                     exit_checkbox_mode();
-                    NM_print_screen();
                 break;
             }
         break;

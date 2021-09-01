@@ -294,7 +294,7 @@ static void load_control_page(uint8_t page)
     //now notify mod-ui
     char buffer[30];
 
-    hardware_force_overlay_off();
+    hardware_force_overlay_off(1);
     g_current_overlay_actuator = -1;
 
     uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
@@ -607,7 +607,7 @@ static void foot_control_rm(uint8_t hw_id)
                 ledz_set_state(led, LED_OFF, LED_UPDATE);
                 
                 if (g_current_overlay_actuator == hw_id) {
-                    hardware_force_overlay_off();
+                    hardware_force_overlay_off(0);
                     CM_print_screen();
                 }
                 else
@@ -838,7 +838,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_force_overlay_off();
+                hardware_force_overlay_off(0);
                 CM_print_screen();
             }
 
@@ -870,7 +870,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_force_overlay_off();
+                hardware_force_overlay_off(0);
                 CM_print_screen();
             }
 
@@ -933,7 +933,7 @@ static void control_set(uint8_t id, control_t *control)
         {
             if (g_current_overlay_actuator != -1)
             {
-                hardware_force_overlay_off();
+                hardware_force_overlay_off(0);
                 CM_print_screen();
             }
 
@@ -1115,7 +1115,9 @@ void CM_inc_control(uint8_t encoder)
     if ((!g_list_click) || !(control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) ) {
         // converts the step to absolute value
         step_to_value(control);
+    }
 
+    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) {
         //make sure to save this value, in case the user switches mode
         clone_list_encoders(control);
     }
@@ -1208,10 +1210,13 @@ void CM_dec_control(uint8_t encoder)
     if ((!g_list_click) || !(control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) ) {
         // converts the step to absolute value
         step_to_value(control);
+    }
 
+    if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) {
         //make sure to save this value, in case the user switches mode
         clone_list_encoders(control);
     }
+
 
     // applies the control value
     control_set(encoder, control);
@@ -1245,7 +1250,7 @@ void CM_toggle_control(uint8_t encoder)
             step_to_value(control);
             send_control_set(control);
 
-            hardware_force_overlay_off();
+            hardware_force_overlay_off(0);
             g_current_overlay_actuator = -1;
             CM_print_screen();
 
@@ -1256,7 +1261,7 @@ void CM_toggle_control(uint8_t encoder)
         //overlay already active, close
         else
         {
-            hardware_force_overlay_off();
+            hardware_force_overlay_off(0);
             g_current_overlay_actuator = -1;
             CM_print_screen();
         }
@@ -1634,7 +1639,7 @@ void CM_reset_page(void)
 
 void CM_load_next_encoder_page(uint8_t button)
 {
-    hardware_force_overlay_off();
+    hardware_force_overlay_off(1);
     g_current_overlay_actuator = -1;
 
     g_current_encoder_page = button;
@@ -1643,9 +1648,7 @@ void CM_load_next_encoder_page(uint8_t button)
     //clear controls
     uint8_t q;
     for (q = 0; q < ENCODERS_COUNT; q++)
-    {
         CM_remove_control(q);
-    }
 
     char buffer[30];
     uint8_t i = 0;
@@ -1659,10 +1662,11 @@ void CM_load_next_encoder_page(uint8_t button)
     sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
     sys_comm_wait_response();
 
-    hardware_force_overlay_off();
-    g_current_overlay_actuator = -1;
-
     set_encoder_pages_led_state();
+
+    //clear prev messages
+    reset_queue();
+    ui_comm_webgui_clear();
 
     for (q = 0; q < ENCODERS_COUNT; q++)
     {

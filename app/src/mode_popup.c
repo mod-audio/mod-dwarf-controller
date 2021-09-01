@@ -614,8 +614,8 @@ void PM_button_pressed(uint8_t button)
                             ui_comm_webgui_wait_response();
 
                             bp_list_t* banks = NM_get_banks();
-                            if (NM_get_current_hover(BANKS_LIST) == banks->menu_max - 1)
-                                banks->hover = 0;
+                            banks->hover = 0;
+                            banks->selected = 0;
 
                             NM_update_lists(BANKS_LIST);
                         break;

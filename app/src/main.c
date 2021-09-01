@@ -213,7 +213,6 @@ static void webgui_procotol_task(void *pvParameters)
         // parses the message
         if (msg_size > 0)
         {
-            //if parsing messages block the actuator messages.
             msg_t msg;
             msg.sender_id = WEBGUI_SERIAL;
             msg.data = (char *) g_comm_msg_buffer;

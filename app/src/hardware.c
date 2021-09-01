@@ -41,7 +41,7 @@
 // defines the heap size
 const HeapRegion_t xHeapRegions[] =
 {
-    { ( uint8_t * ) 0x10007000, 0x1000 },
+    { ( uint8_t * ) 0x10006000, 0x2000 },
     { ( uint8_t * ) 0x20000000, 0x8000 },
     { NULL, 0 } /* Terminates the array. */
 };
@@ -861,11 +861,11 @@ void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb
     g_overlay_counter = (overlay_time_in_ms / 10);
 }
 
-void hardware_force_overlay_off(void)
+void hardware_force_overlay_off(uint8_t avoid_callback)
 {
     g_overlay_counter = 0;
 
-    if (g_overlay_callback)
+    if (g_overlay_callback && !avoid_callback)
         g_overlay_callback();
 
     g_overlay_callback = NULL;

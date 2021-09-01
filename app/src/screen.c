@@ -185,20 +185,20 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 char bfr_upper_line[7] = {};
                 char bfr_lower_line[7] = {};
 
-                uint8_t q, p = 0, line = 0;
-                for (q = 0; q < 15; q++) {
-                    if (item_child->data.unit_text[q] != 0) {
-                        if (line) {
-                            bfr_lower_line[p] = item_child->data.unit_text[q];
-                            p++;
+                uint8_t t, r = 0, enter = 0;
+                for (t = 0; t < 15; t++) {
+                    if (item_child->data.unit_text[t] != 0) {
+                        if (enter) {
+                            bfr_lower_line[r] = item_child->data.unit_text[t];
+                            r++;
                         }
                         else {
                             if (item_child->data.unit_text[q] ==  ' ') {
-                                bfr_upper_line[q] = 0;
-                                line = 1;
+                                bfr_upper_line[t] = 0;
+                                enter = 1;
                             }
                             else
-                                bfr_upper_line[q] = item_child->data.unit_text[q];
+                                bfr_upper_line[t] = item_child->data.unit_text[t];
                         }
                     }
                     else

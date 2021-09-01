@@ -501,17 +501,17 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
             else {
                 uint8_t selected = 0;
 
-                uint8_t j;
+                uint8_t q;
                 if ((listbox->type == BANK_LIST_CHECKBOXES_ENGAGED) || (listbox->type == PB_LIST_CHECKBOXES_ENGAGED)) {
-                    for (j = 0; j < listbox->selected_count; j++) {
+                    for (q = 0; q < listbox->selected_count; q++) {
                         if (listbox->type == BANK_LIST_CHECKBOXES_ENGAGED) {
-                            if (first_line + i + listbox->page_min_offset == listbox->selected_ids[j]) {
+                            if (first_line + i + listbox->page_min_offset == listbox->selected_ids[q]) {
                                 selected = 1;
                                 continue;
                             }
                         }
                         else if (listbox->type == PB_LIST_CHECKBOXES_ENGAGED) {
-                                if (first_line + i + 1 + listbox->page_min_offset == listbox->selected_ids[j]) {
+                                if (first_line + i + 1 + listbox->page_min_offset == listbox->selected_ids[q]) {
                                 selected = 1;
                                 continue;
                             }
