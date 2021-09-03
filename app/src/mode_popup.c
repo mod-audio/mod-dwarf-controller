@@ -517,6 +517,12 @@ void PM_button_pressed(uint8_t button)
             switch(button)
             {
                 case 0:
+                    if (g_global_popups[g_current_popup_id].has_naming_input && g_keyboard_toggled) {
+                        g_keyboard_toggled = 0;
+                        PM_print_screen();
+                        return;
+                    }
+
                     //check if only spaces, if so, ask for cancel
                     if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                  ")){
                         g_keyboard_toggled = 0;
