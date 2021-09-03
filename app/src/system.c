@@ -1938,7 +1938,7 @@ void system_noisegate_thres_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_NG_THRESHOLD, NULL);
         sys_comm_wait_response();
 
-        item->data.min = -80.0f;
+        item->data.min = -70.0f;
         item->data.max = -10.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
