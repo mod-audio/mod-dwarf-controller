@@ -610,12 +610,18 @@ void PM_button_pressed(uint8_t button)
                             i = copy_command(buffer, CMD_BANK_DELETE);
                             i += int_to_str(NM_get_current_hover(BANKS_LIST), &buffer[i], sizeof(buffer) - i, 0);
 
+                            uint8_t change_selected = 0;
+                            if (NM_get_current_hover(BANKS_LIST) == NM_get_current_selected(BANKS_LIST))
+                                change_selected = 1;
+
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
 
                             bp_list_t* banks = NM_get_banks();
                             banks->hover = 0;
-                            banks->selected = 0;
+
+                            if (change_selected)
+                                banks->selected = 0;
 
                             NM_update_lists(BANKS_LIST);
                         break;
