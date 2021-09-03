@@ -193,7 +193,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                             r++;
                         }
                         else {
-                            if (item_child->data.unit_text[q] ==  ' ') {
+                            if (item_child->data.unit_text[t] ==  ' ') {
                                 bfr_upper_line[t] = 0;
                                 enter = 1;
                             }
@@ -204,7 +204,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                     else
                         break;
                 }
-                bfr_lower_line[p] = 0;
+                bfr_lower_line[r] = 0;
 
                 //check if we have 2 lines
                 if (bfr_lower_line[0] != 0) {
