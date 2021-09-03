@@ -612,7 +612,7 @@ void PM_button_pressed(uint8_t button)
 
                             uint8_t change_selected = 0;
                             if (NM_get_current_hover(BANKS_LIST) == NM_get_current_selected(BANKS_LIST))
-                                change_selected = 1;
+                                change_selected = NM_get_current_selected(BANKS_LIST);
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
@@ -620,8 +620,13 @@ void PM_button_pressed(uint8_t button)
                             bp_list_t* banks = NM_get_banks();
                             banks->hover = 0;
 
-                            if (change_selected)
-                                banks->selected = 0;
+                            if (change_selected != 0) {
+                                //was there a bank deleted before or after the selected?
+                                if (change_selected < banks->selected)
+                                    banks->selected = change_selected -1;
+                                else
+                                    banks->selected = change_selected;
+                            }
 
                             NM_update_lists(BANKS_LIST);
                         break;
