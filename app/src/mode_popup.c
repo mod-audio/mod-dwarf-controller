@@ -729,6 +729,7 @@ void PM_launch_popup(uint8_t popup_id)
 
         g_global_popups[g_current_popup_id].cursor_index = 0;
         g_keyboard_toggled = 0;
+        g_keyboard_index = 0;
 
         switch (g_current_popup_id) {
             case POPUP_SAVE_PB_ID:
