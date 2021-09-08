@@ -627,7 +627,21 @@ static void parse_control_page(void *data, menu_item_t *item)
     control_t *control = data_parse_control(&list[1]);
 
     // first tries remove the control
-    CM_remove_control(control->hw_id);
+    if (control->hw_id < 3)
+        encoder_control_rm(control->hw_id);
+    else {
+        uint8_t i;
+        uint8_t hw_id = control->hw_id;
+
+        for (i = 0; i < MAX_FOOT_ASSIGNMENTS; i++) {
+            // checks if effect_instance and symbol match
+            if (hw_id == g_foots[i]->hw_id) {
+                // remove the control
+                data_free_control(g_foots[i]);
+                g_foots[i] = NULL;
+            }
+        }
+    }
 
     control->scroll_dir = 0;
 
@@ -718,14 +732,7 @@ static void request_control_page(control_t *control, uint8_t dir)
             !(g_foots[hw_id - ENCODERS_COUNT]->properties & FLAG_CONTROL_MOMENTARY))
             screen_group_foots(1);
 
-        //dont set ui when not in control mode
-        if (naveg_get_current_mode() != MODE_CONTROL) {
-            CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_STORE_STATE);
-            return;
-        }
-
         foot_control_print(g_foots[hw_id - ENCODERS_COUNT]);
-        CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_UPDATE);
         CM_print_control_overlay(g_foots[hw_id - ENCODERS_COUNT], FOOT_CONTROLS_TIMEOUT);
     }
 }
