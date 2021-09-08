@@ -776,18 +776,22 @@ static void control_set(uint8_t id, control_t *control)
                     if (control->scale_point_index >= (control->steps - 1)) {
                         if (control->scale_points_flag & (FLAG_SCALEPOINT_WRAP_AROUND)) {
                             control->step = 0;
-                            if (control->properties & FLAG_CONTROL_LOGARITHMIC) {
-                                control->scale_point_index = 0;
-                                step_to_value(control);
-                                send_control_set(control);
-                                foot_control_print(control);
-                                CM_set_foot_led(control, LED_UPDATE);
-                                CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
-                            }
-                            else {
-                                control->scale_point_index = -1;
+
+                            step_to_value(control);
+                            send_control_set(control);
+
+                            //save before
+                            uint8_t id = control->hw_id;
+                            if (control->scale_points_flag & (FLAG_SCALEPOINT_PAGINATED))
                                 request_control_page(control, 1);
-                            }
+
+                            //fetch pointer again, becomes invalid by request_control_page
+                            control_t *updated_control = g_foots[id - ENCODERS_COUNT];
+                            updated_control->scale_point_index = 0;
+
+                            foot_control_print(updated_control);
+                            CM_set_foot_led(updated_control, LED_UPDATE);
+                            CM_print_control_overlay(updated_control, FOOT_CONTROLS_TIMEOUT);
                             return;
                         }
                         else
@@ -1074,7 +1078,7 @@ void CM_inc_control(uint8_t encoder)
         }
         else  {
             // increments the step
-            if ((control->step < (control->steps)) && (control->step < (control->scale_points_count))) {
+            if ((control->step < (control->steps -1)) && (control->step < (control->scale_points_count))) {
                 control->scale_point_index++;
                 control->step++;
             }
