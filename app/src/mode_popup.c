@@ -65,6 +65,7 @@ static uint8_t g_keyboard_toggled = 0;
 static uint8_t g_keyboard_index = 0;
 static char* g_current_name_input;
 static uint16_t g_change_selected = 0;
+static uint8_t g_post_callback_call = 0;
 
 /*
 ************************************************************************************************************************
@@ -93,23 +94,18 @@ void catch_ui_response(void *data, menu_item_t *item)
 {
     (void) item;
     char **response = data;
+    g_post_callback_call = 0;
+
+    if (atoi(response[1]) == 0){
+        g_post_callback_call = 1;
+        return;
+    }
 
     switch(g_current_popup_id)
     {
         case POPUP_SAVE_SS_ID:
-            //name does not yet exist
-            if (atoi(response[1]) == 0){
-                //set last item as active
-                NM_set_last_selected(PEDALBOARD_LIST);
-
-                //update list items
-                NM_update_lists(PEDALBOARD_LIST);
-
-                //save successful message
-                PM_launch_attention_overlay("\n\n\npedalboard save successful", exit_popup);
-            }
             //name already exist
-            else if (atoi(response[1]) == -2) {
+            if (atoi(response[1]) == -2) {
                 PM_launch_popup(POPUP_OVERWRITE_SS_ID);
             }
             else {
@@ -118,19 +114,8 @@ void catch_ui_response(void *data, menu_item_t *item)
         break;
 
         case POPUP_SAVE_PB_ID:
-            //name does not yet exist
-            if (atoi(response[1]) == 0){
-                //set last item as active
-                NM_set_last_selected(SNAPSHOT_LIST);
-
-                //update list items
-                NM_update_lists(SNAPSHOT_LIST);
-
-                //save successful message
-                PM_launch_attention_overlay("\n\n\nsnapshot save successful", exit_popup);
-            }
             //name already exist
-            else if (atoi(response[1]) == -2) {
+            if (atoi(response[1]) == -2) {
                 PM_launch_popup(POPUP_OVERWRITE_PB_ID);
             }
             else {
@@ -139,13 +124,8 @@ void catch_ui_response(void *data, menu_item_t *item)
         break;
 
         case POPUP_NEW_BANK_ID:
-            //name does not yet exist
-            if (atoi(response[1]) == 0){
-                NM_enter_new_bank();
-                PM_launch_attention_overlay("\n\nBank Creation\nsuccessful", exit_popup);
-            }
             //name already exist
-            else if (atoi(response[1]) == -2) {
+            if (atoi(response[1]) == -2) {
                 PM_launch_attention_overlay("\n\nCan't create bank\nName already exists", exit_popup);
             }
             else {
@@ -154,86 +134,23 @@ void catch_ui_response(void *data, menu_item_t *item)
         break;
 
         case POPUP_OVERWRITE_SS_ID:
-            if (atoi(response[1]) == 0){
-                //delete successful overlay
-                PM_launch_attention_overlay("\n\noverwrite snapshot\nsuccessful", exit_popup);
-            }
-            else {
-                //delete successful overlay
-                PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting snapshot", exit_popup);
-            }
+            PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting snapshot", exit_popup);
         break;
 
         case POPUP_OVERWRITE_PB_ID:
-            if (atoi(response[1]) == 0){
-                //delete successful overlay
-                PM_launch_attention_overlay("\n\noverwrite pedalboard\nsuccessful", exit_popup);
-            }
-            else {
-                //delete successful overlay
-                PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting pedalboard", exit_popup);
-            }
+            PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting pedalboard", exit_popup);
         break;
 
         case POPUP_DELETE_BANK_ID:
-            if (atoi(response[1]) != 0){
-                PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting pedalboard", exit_popup);
-            }
-            else {
-                PM_launch_attention_overlay("\n\n pedalboard\nsuccessful", exit_popup);
-
-                bp_list_t* banks = NM_get_banks();
-                banks->hover = 0;
-
-                if (g_change_selected != 0) {
-                    //was there a bank deleted before or after the selected?
-                    if (g_change_selected < banks->selected)
-                        banks->selected = g_change_selected -1;
-                    else
-                        banks->selected = g_change_selected;
-
-                    g_change_selected = 0;
-                }
-
-                NM_update_lists(BANKS_LIST);
-            }
+            PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting pedalboard", exit_popup);
         break;
 
         case POPUP_REMOVE_SS_ID:
-            if (atoi(response[1]) != 0){
-                PM_launch_attention_overlay("\n\nUnexpected error when\nremoving snapshot", exit_popup);
-            }
-            else {
-                PM_launch_attention_overlay("\n\nremoving snapshot\nsuccessful", exit_popup);
-
-                bp_list_t* snapshots = NM_get_snapshots();
-                if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
-                    snapshots->hover--;
-
-                NM_update_lists(SNAPSHOT_LIST);
-            }
+            PM_launch_attention_overlay("\n\nUnexpected error when\nremoving snapshot", exit_popup);
         break;
 
         case POPUP_REMOVE_PB_ID:
-            if (atoi(response[1]) != 0){
-                PM_launch_attention_overlay("\n\nUnexpected error when\nremoving pedalboard", exit_popup);
-            }
-            else {
-                PM_launch_attention_overlay("\n\nremoving pedalboard\nsuccessful", exit_popup);
-
-                //check if we deleted the last item, if so correct hover
-                bp_list_t* pedalboards = NM_get_pedalboards();
-                if (NM_get_current_hover(PEDALBOARD_LIST) == pedalboards->menu_max - 1)
-                    pedalboards->hover--;
-
-                NM_update_lists(PEDALBOARD_LIST);
-
-                //we removed the selected item, set the index out of bounds
-                if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
-                    NM_set_selected_index(PEDALBOARD_LIST, -1);
-                else
-                    NM_set_selected_index(PEDALBOARD_LIST, -2);
-            }
+            PM_launch_attention_overlay("\n\nUnexpected error when\nremoving pedalboard", exit_popup);
         break;
     }
 
@@ -566,10 +483,7 @@ void PM_button_pressed(uint8_t button)
                         return;
                     }
 
-                    if (g_current_popup_id==POPUP_SAVE_SS_ID)
-                        ui_comm_webgui_set_response_cb(catch_ui_response, NULL);
-                    else
-                        ui_comm_webgui_set_response_cb(catch_ui_response, NULL);
+                    ui_comm_webgui_set_response_cb(catch_ui_response, NULL);
 
                     //remove spaces at the end
                     turnicate_naming_widget_spaces();
@@ -594,6 +508,29 @@ void PM_button_pressed(uint8_t button)
 
                     // waits the pedalboards list be received
                     ui_comm_webgui_wait_response();
+
+                    if (g_post_callback_call) {
+                        if (g_current_popup_id==POPUP_SAVE_SS_ID){
+                            //set last item as active
+                            NM_set_last_selected(SNAPSHOT_LIST);
+
+                            //update list items
+                            NM_update_lists(SNAPSHOT_LIST);
+
+                            //save successful message
+                            PM_launch_attention_overlay("\n\n\nsnapshot save successful", exit_popup);
+                        }
+                        else {
+                            //set last item as active
+                            NM_set_last_selected(PEDALBOARD_LIST);
+
+                            //update list items
+                            NM_update_lists(PEDALBOARD_LIST);
+
+                            //save successful message
+                            PM_launch_attention_overlay("\n\n\npedalboard save successful", exit_popup);
+                        }
+                    }
                 break;
 
                 //clear name
@@ -666,6 +603,11 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_send(buffer, i);
 
                     ui_comm_webgui_wait_response();
+
+                    if (g_post_callback_call) {
+                        NM_enter_new_bank();
+                        PM_launch_attention_overlay("\n\nBank Creation\nsuccessful", exit_popup);
+                    }
                 break;
 
                 case 1:
@@ -727,6 +669,25 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
+
+                            if (g_post_callback_call) {
+                                PM_launch_attention_overlay("\n\nbank deletion\nsuccessful", exit_popup);
+
+                                bp_list_t* banks = NM_get_banks();
+                                banks->hover = 0;
+
+                                if (g_change_selected != 0) {
+                                    //was there a bank deleted before or after the selected?
+                                    if (g_change_selected < banks->selected)
+                                        banks->selected = g_change_selected -1;
+                                    else
+                                        banks->selected = g_change_selected;
+
+                                    g_change_selected = 0;
+                                }
+
+                                NM_update_lists(BANKS_LIST);
+                            }
                         break;
 
                         case POPUP_REMOVE_SS_ID:
@@ -735,6 +696,16 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
+
+                            if (g_post_callback_call) {
+                                PM_launch_attention_overlay("\n\nremoving snapshot\nsuccessful", exit_popup);
+
+                                bp_list_t* snapshots = NM_get_snapshots();
+                                if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
+                                    snapshots->hover--;
+
+                                NM_update_lists(SNAPSHOT_LIST);
+                            }
                         break;
 
                         case POPUP_REMOVE_PB_ID:
@@ -745,6 +716,23 @@ void PM_button_pressed(uint8_t button)
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
+
+                            if (g_post_callback_call) {
+                                PM_launch_attention_overlay("\n\nremoving pedalboard\nsuccessful", exit_popup);
+
+                                //check if we deleted the last item, if so correct hover
+                                bp_list_t* pedalboards = NM_get_pedalboards();
+                                if (NM_get_current_hover(PEDALBOARD_LIST) == pedalboards->menu_max - 1)
+                                    pedalboards->hover--;
+
+                                NM_update_lists(PEDALBOARD_LIST);
+
+                                //we removed the selected item, set the index out of bounds
+                                if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
+                                    NM_set_selected_index(PEDALBOARD_LIST, -1);
+                                else
+                                    NM_set_selected_index(PEDALBOARD_LIST, -2);
+                            }
                         break;
                     }
                 break;
@@ -774,6 +762,16 @@ void PM_button_pressed(uint8_t button)
 
                     ui_comm_webgui_send(buffer, i);
                     ui_comm_webgui_wait_response();
+
+                    if (g_post_callback_call) {
+
+                        if (g_current_popup_id == POPUP_OVERWRITE_SS_ID) {
+                            PM_launch_attention_overlay("\n\noverwrite snapshot\nsuccessful", exit_popup);
+                        }
+                        else {
+                            PM_launch_attention_overlay("\n\noverwrite pedalboard\nsuccessful", exit_popup);
+                        }
+                    }
                 break;
 
                 //cancel
