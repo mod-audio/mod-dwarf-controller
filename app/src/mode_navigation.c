@@ -1675,8 +1675,6 @@ void NM_set_last_selected(uint8_t list_type)
             uint16_t pedalboard_to_load = g_pedalboards->menu_max;
             int_to_str(pedalboard_to_load, str_bfr, 8, 0);
 
-            send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), str_bfr);
-
             g_current_pedalboard = pedalboard_to_load;
             g_pedalboards->selected = pedalboard_to_load;
             g_pedalboards->hover = pedalboard_to_load;
@@ -1685,8 +1683,6 @@ void NM_set_last_selected(uint8_t list_type)
         case SNAPSHOT_LIST:;
             uint16_t snapshot_to_load = g_snapshots->menu_max;
             int_to_str(snapshot_to_load, str_bfr, 8, 0);
-
-            send_load_snapshot(str_bfr);
 
             g_current_snapshot = snapshot_to_load;
             g_snapshots->selected = snapshot_to_load;

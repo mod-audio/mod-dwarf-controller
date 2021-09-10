@@ -96,7 +96,8 @@ void catch_ui_response(void *data, menu_item_t *item)
     char **response = data;
     g_post_callback_call = 0;
 
-    if (atoi(response[1]) == 0){
+    //we dont have success calls consistent, only errors
+    if (atoi(response[1]) >= 0){
         g_post_callback_call = 1;
         return;
     }

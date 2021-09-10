@@ -740,7 +740,6 @@ static void request_control_page(control_t *control, uint8_t dir)
 static void control_set(uint8_t id, control_t *control)
 {
     (void) id;
-
     uint32_t now, delta;
 
     if ((control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) && !(control->properties & FLAG_CONTROL_MOMENTARY))
@@ -829,15 +828,13 @@ static void control_set(uint8_t id, control_t *control)
                     request_control_page(control, 0);
                     return;
                 }
-
                 control->step--;
                 control->scale_point_index--;
             }
 
             // updates the value and the screen
-            control->value = control->scale_points[control->step]->value;
-
-            screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[control->step]->label, control->properties);
+            step_to_value(control);
+            send_control_set(control);
 
             if (trigger_led_change == 1)
                 set_alternated_led_list_colour(control);
@@ -1334,6 +1331,7 @@ void CM_set_control(uint8_t hw_id, float value)
     if (!g_initialized) return;
 
     control_t *control = NULL;
+    uint8_t i = 0;
 
     //encoder
     if (hw_id < ENCODERS_COUNT)
@@ -1355,8 +1353,24 @@ void CM_set_control(uint8_t hw_id, float value)
             control->value = control->maximum;
 
         // updates the step value
-        control->step =
-            (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
+        //for enumerations, this will ONLY be called for non paginated lists
+        if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) {
+            // locates the current value
+            control->step = 0;
+            for (i = 0; i < control->scale_points_count; i++)
+            {
+                if (control->value == control->scale_points[i]->value)
+                {
+                    control->step = i;
+                    control->scale_point_index = i;
+                    break;
+                }
+            }
+        }
+        else {
+            control->step =
+                (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
+        }
 
         if ((naveg_get_current_mode() != MODE_CONTROL) || (hardware_get_overlay_counter() != 0))
             return;
@@ -1373,9 +1387,25 @@ void CM_set_control(uint8_t hw_id, float value)
         else if (hw_id < MAX_FOOT_ASSIGNMENTS + ENCODERS_COUNT)
         {
             ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
-            uint8_t i;
+
+            if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+            {
+                // updates the led
+                if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
+                {
+                    set_alternated_led_list_colour(control);
+                }
+                else
+                {
+                    led->led_state.color = ENUMERATED_COLOR;
+                    ledz_set_state(led, LED_ON, LED_UPDATE);
+                }
+
+                // updates the footer
+                screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[i]->label, control->properties);
+            }
             //not implemented, not sure if ever needed
-            if (control->properties & FLAG_CONTROL_MOMENTARY)
+            else if (control->properties & FLAG_CONTROL_MOMENTARY)
             {
                 // updates the footer
                 screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
@@ -1491,33 +1521,6 @@ void CM_set_control(uint8_t hw_id, float value)
                 // updates the footer
                 screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
                              (control->value ? BYPASS_ON_FOOTER_TEXT : BYPASS_OFF_FOOTER_TEXT), control->properties);
-            }
-            else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
-            {
-                // updates the led
-                if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-                {
-                    set_alternated_led_list_colour(control);
-                }
-                else
-                {   
-                    led->led_state.color = ENUMERATED_COLOR;
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
-                }
-
-                // locates the current value
-                control->step = 0;
-                for (i = 0; i < control->scale_points_count; i++)
-                {
-                    if (control->value == control->scale_points[i]->value)
-                    {
-                        control->step = i;
-                        break;
-                    }
-                }
-
-                // updates the footer
-                screen_footer(control->hw_id - ENCODERS_COUNT, control->label, control->scale_points[i]->label, control->properties);
             }
         }
     }
@@ -1822,7 +1825,7 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
 
 void CM_close_overlay(void)
 {
-    if (g_list_click)
+    if (g_list_click && (g_current_overlay_actuator < ENCODERS_COUNT))
         reset_list_encoders();
 
     CM_print_screen();
