@@ -1695,6 +1695,22 @@ void NM_set_last_selected(uint8_t list_type)
     }
 }
 
+void NM_sync_names(uint8_t list_type)
+{
+    switch(list_type) {
+        case PEDALBOARD_LIST:;
+            strcpy(g_pedalboard_name, g_pedalboards->names[g_pedalboards->selected]);
+        break;
+
+        case SNAPSHOT_LIST:;
+            strcpy(g_snapshot_name, g_snapshots->names[g_snapshots->selected]);
+        break;
+
+        case BANKS_LIST:
+        break;
+    }
+}
+
 void NM_set_selected_index(uint8_t list_type, int16_t index)
 {
     switch(list_type) {
