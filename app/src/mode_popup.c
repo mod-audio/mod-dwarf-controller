@@ -438,7 +438,7 @@ void PM_set_leds(void)
 void PM_button_pressed(uint8_t button)
 {
     //now notify mod-ui
-    char buffer[30];
+    char buffer[40];
     uint8_t i = 0;
 
     switch (g_current_popup_id)
@@ -767,6 +767,8 @@ void PM_button_pressed(uint8_t button)
                        i = copy_command(buffer, CMD_PEDALBOARD_SAVE);
                     }
 
+                    buffer[i++] = 0;
+
                     ui_comm_webgui_send(buffer, i);
                     ui_comm_webgui_wait_response();
 
@@ -794,12 +796,12 @@ void PM_launch_popup(uint8_t popup_id)
 {
     //change current popup id and print it
     g_current_popup_id = popup_id;
+    g_keyboard_toggled = 0;
 
     //fetch the needed things
     if (g_global_popups[g_current_popup_id].has_naming_input) {
 
         g_global_popups[g_current_popup_id].cursor_index = 0;
-        g_keyboard_toggled = 0;
         g_keyboard_index = 0;
 
         switch (g_current_popup_id) {
@@ -826,8 +828,6 @@ void PM_launch_popup(uint8_t popup_id)
             }
         }
     }
-    else
-        g_keyboard_toggled = 0;
 
     PM_set_state();
 }
