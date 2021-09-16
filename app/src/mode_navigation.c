@@ -844,8 +844,6 @@ void NM_encoder_released(uint8_t encoder)
     }
     else {
         i = copy_command(buffer, CMD_REORDER_SSS_IN_PB);
-        i += int_to_str(g_pedalboards->hover, &buffer[i], sizeof(buffer) - i, 0);
-        buffer[i++] = ' ';
         i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
