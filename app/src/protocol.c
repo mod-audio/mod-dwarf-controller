@@ -741,8 +741,14 @@ void cb_boot(uint8_t serial_id, proto_t *proto)
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
-    //system is live, we can ask gains
+    //system is live, clear Linux CLI
     cli_command(NULL, CLI_DISCARD_RESPONSE);
+
+    //set the tuner mute state
+    system_update_menu_value(MENU_ID_TUNER_MUTE, atoi(proto->list[3]));
+
+    //set the current user profile
+    system_update_menu_value(MENU_ID_CURRENT_PROFILE, atoi(proto->list[4]));
 
     //after boot we are ready to print the control vieuw
     CM_set_state();

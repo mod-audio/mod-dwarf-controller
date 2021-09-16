@@ -91,15 +91,17 @@ struct TAP_TEMPO_T {
 
 uint8_t g_bypass[4] = {};
 uint8_t g_current_profile = 1;
-uint8_t g_snapshot_prog_change = 0;
-uint8_t g_pedalboard_prog_change = 0;
-uint16_t g_beats_per_minute = 0;
-uint8_t g_beats_per_bar = 0;
-uint8_t g_MIDI_clk_send = 0;
-uint8_t g_MIDI_clk_src = 0;
-uint8_t g_play_status = 0;
-uint8_t g_tuner_mute = 0;
-uint8_t g_tuner_input = 0;
+
+uint8_t g_snapshot_prog_change = -1;
+uint8_t g_pedalboard_prog_change = -1;
+uint16_t g_beats_per_minute = -1;
+uint8_t g_beats_per_bar = -1;
+uint8_t g_MIDI_clk_send = -1;
+uint8_t g_MIDI_clk_src = -1;
+uint8_t g_play_status = -1;
+uint8_t g_tuner_mute = -1;
+uint8_t g_tuner_input = -1;
+
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;
 int8_t g_actuator_hide = -1;
@@ -1279,8 +1281,8 @@ void system_save_pro_cb(void *arg, int event)
     else if (event == MENU_EV_NONE)
     {
         //display current profile number
-        item->data.value = 1;
-        item->data.selected = 1;
+        item->data.value = g_current_profile;
+        item->data.selected = g_current_profile;
         item->data.min = 1;
         item->data.max = 4;
         item->data.list_count = 2;
@@ -1493,7 +1495,7 @@ void system_tuner_input_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        item->data.value = g_tuner_mute;
+        item->data.value = g_tuner_input;
     }
     else if (event == MENU_EV_ENTER)
     {
