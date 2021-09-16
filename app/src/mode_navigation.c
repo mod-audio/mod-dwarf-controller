@@ -863,8 +863,10 @@ void NM_encoder_released(uint8_t encoder)
         }
     }
 
-    ui_comm_webgui_send(buffer, i);
-    ui_comm_webgui_wait_response();
+    if (g_item_grabbed_uid - 1 != ((g_current_list == SNAPSHOT_LIST)? g_snapshots->hover : g_pedalboards->hover)) {
+        ui_comm_webgui_send(buffer, i);
+        ui_comm_webgui_wait_response();
+    }
 
     //dissable 'item grab mode'
     g_item_grabbed = NO_GRAB_ITEM;

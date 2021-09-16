@@ -163,6 +163,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define SHUTDOWN_BUTTON_PORT    4
 #define SHUTDOWN_BUTTON_PIN     4
 
+#define DEFAULT_ENC_HOLD_TIME   130
+#define NAV_MODE_ENC_HOLD_TIME  300
+
 ////////////////////////////////////////////////////////////////
 ////// SETTINGS RELATED TO FIRMWARE
 

@@ -479,7 +479,7 @@ void hardware_setup(void)
 
         // actuators properties
         actuator_set_prop(hardware_actuators(ENCODER0 + i), ENCODER_STEPS, 4);
-        actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, 130);
+        actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, DEFAULT_ENC_HOLD_TIME);
     }
 
     //init foots
@@ -810,6 +810,15 @@ void *hardware_actuators(uint8_t actuator_id)
     }
 
     return NULL;
+}
+
+void hardware_change_encoder_hold(uint16_t hold_time)
+{
+    uint8_t i;
+    for (i = 0; i < ENCODERS_COUNT; i++)
+    {
+        actuator_set_prop(hardware_actuators(ENCODER0 + i), BUTTON_HOLD_TIME, hold_time);
+    }
 }
 
 uint32_t hardware_timestamp(void)

@@ -337,6 +337,7 @@ void naveg_ui_connection(uint8_t status)
     if (status == UI_CONNECTED)
     {
         g_ui_connected = 1;
+        hardware_change_encoder_hold(DEFAULT_ENC_HOLD_TIME);
     }
     else
     {
@@ -857,6 +858,12 @@ void naveg_foot_double_press(uint8_t foot)
             g_prev_device_mode = MODE_TOOL_FOOT;
         }
     }
+
+    //check if we need to change the encoder hold time
+    if (g_device_mode == MODE_NAVIGATION)
+        hardware_change_encoder_hold(NAV_MODE_ENC_HOLD_TIME);
+    else
+        hardware_change_encoder_hold(DEFAULT_ENC_HOLD_TIME);
 
     //we dont have others atm
     return;

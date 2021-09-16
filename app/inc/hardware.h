@@ -89,6 +89,8 @@ void hardware_glcd_brightness(int level);
 ledz_t *hardware_leds(uint8_t led_id);
 // returns the actuator object relative to actuator id
 void *hardware_actuators(uint8_t actuator_id);
+//change the button hold time of the encoders
+void hardware_change_encoder_hold(uint16_t hold_time);
 // returns the timestamp (a variable increment in each millisecond)
 uint32_t hardware_timestamp(void);
 //reset the eeprom memory to defaults
