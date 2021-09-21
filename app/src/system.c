@@ -675,7 +675,7 @@ void system_outp_0_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -127.5f;
+        item->data.min = -99.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
@@ -732,7 +732,7 @@ void system_outp_1_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -127.5f;
+        item->data.min = -99.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
@@ -788,7 +788,7 @@ void system_outp_2_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = -127.5f;
+        item->data.min = -99.5f;
         item->data.max = 0.0f;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
