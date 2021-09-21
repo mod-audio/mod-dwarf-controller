@@ -308,7 +308,7 @@ uint32_t int_to_hex_str(int32_t num, char *string)
         string[len] = hex_lookup[num & 0xf];
     }
 
-    return 0;
+    return len;
 }
 
 uint32_t float_to_str(float num, char *string, uint32_t string_size, uint8_t precision)

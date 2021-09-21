@@ -118,6 +118,7 @@ typedef struct ST7565P_T {
 void st7565p_init(st7565p_t *disp);
 void st7565p_backlight(st7565p_t *disp, uint8_t state);
 void st7565p_clear(st7565p_t *disp, uint8_t color);
+uint8_t st7565p_read_pixel(st7565p_t *disp, uint8_t x, uint8_t y);
 void st7565p_set_pixel(st7565p_t *disp, uint8_t x, uint8_t y, uint8_t color);
 void st7565p_hline(st7565p_t *disp, uint8_t x, uint8_t y, uint8_t width, uint8_t color);
 void st7565p_vline(st7565p_t *disp, uint8_t x, uint8_t y, uint8_t height, uint8_t color);

@@ -66,6 +66,9 @@ uint8_t g_initialized;
 
 bool g_self_test_mode;
 bool g_self_test_cancel_button;
+
+bool g_screenshot_mode_enabled;
+
 /*
 ************************************************************************************************************************
 *           MACRO'S
@@ -105,6 +108,7 @@ void naveg_trigger_mode_change(uint8_t mode);
 void naveg_print_shift_screen(void);
 void naveg_set_shift_mode(uint8_t mode);
 void naveg_trigger_popup(int8_t popup_id);
+void naveg_print_screen_data(uint8_t foot);
 
 /*
 ************************************************************************************************************************

@@ -96,7 +96,7 @@
 #define glcd_draw_image     FUNC_WRAP(draw_image)
 #define glcd_text           FUNC_WRAP(text)
 #define glcd_update         FUNC_WRAP(update)
-
+#define glcd_read_pixel     FUNC_WRAP(read_pixel)
 
 /*
 ************************************************************************************************************************

@@ -777,9 +777,9 @@ static void control_set(uint8_t id, control_t *control)
             //up
             if (!(control->properties & FLAG_CONTROL_REVERSE)) {
                 //are we about to reach the end of a control
-                if ((control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE) || (control->scale_point_index >= (control->steps - 1))) {
+                if ((control->scale_points_flag & FLAG_SCALEPOINT_END_PAGE) || (control->scale_point_index >= (control->steps))) {
                     //we wrap around so the step becomes 0 again
-                    if (control->scale_point_index >= (control->steps - 1)) {
+                    if (control->scale_point_index >= (control->steps)) {
                         if (control->scale_points_flag & (FLAG_SCALEPOINT_WRAP_AROUND)) {
                             control->step = 0;
 

@@ -75,6 +75,8 @@ bool g_self_test_cancel_button = false;
 
 bool shift_mode_active = false;
 
+bool g_screenshot_mode_enabled = false;
+
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -1199,5 +1201,38 @@ void naveg_trigger_popup(int8_t popup_id)
             g_device_mode = prev_mode;
 
         exit_popup();
+    }
+}
+
+void naveg_print_screen_data(uint8_t foot)
+{
+    if ((foot != 2) || (!g_screenshot_mode_enabled))
+        return;
+
+    char msg_buffer[300];
+
+    ui_comm_webgui_set_response_cb(NULL, NULL);
+
+    uint16_t i, x, y;
+    char pixel_buffer[8];
+    for (y = 0; y < 8; y++) {
+        //copy command
+        memset(msg_buffer, 0, sizeof(msg_buffer));
+        i = copy_command(msg_buffer, CMD_SCREENSHOT);
+
+        //copy id
+        i += int_to_str(y, &msg_buffer[i], sizeof(msg_buffer) - i, 0);
+        msg_buffer[i++] = ' ';
+
+        for (x = 0; x < 128; x++){
+            i += int_to_hex_str(glcd_read_pixel(hardware_glcds(0), x, (y*8)), &pixel_buffer[0]);
+            strcat(msg_buffer, pixel_buffer);
+        }
+
+        // sends the data to GUI
+        ui_comm_webgui_send(msg_buffer, strlen(msg_buffer));
+
+        //wait for a response from mod-ui
+        ui_comm_webgui_wait_response();
     }
 }

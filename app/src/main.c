@@ -326,6 +326,10 @@ static void actuators_task(void *pvParameters)
                 //footswitches
                 if (id < 3)
                 {
+                    if ((BUTTON_HOLD(status)) && id == 2)
+                    {
+                        naveg_print_screen_data(id);
+                    }
                     if (BUTTON_DOUBLE(status))
                     {
                         //we can keep it with 1 id for now, as foot 0 (middle) does not trigger any action

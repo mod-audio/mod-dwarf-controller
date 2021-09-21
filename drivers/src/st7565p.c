@@ -449,6 +449,11 @@ void st7565p_clear(st7565p_t *disp, uint8_t color)
     st7565p_rect_fill(disp, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color);
 }
 
+uint8_t st7565p_read_pixel(st7565p_t *disp, uint8_t x, uint8_t y)
+{
+    return read_data(disp, x, y);
+}
+
 void st7565p_set_pixel(st7565p_t *disp, uint8_t x, uint8_t y, uint8_t color)
 {
     // avoid x, y be out of the bounds

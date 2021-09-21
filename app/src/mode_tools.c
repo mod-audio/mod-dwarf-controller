@@ -13,6 +13,7 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "actuator.h"
 #include "config.h"
 #include "hardware.h"
 #include "protocol.h"
@@ -659,6 +660,10 @@ void TM_enter(uint8_t button)
                 if (button == 0) {
                     TM_turn_off_tuner();
                     screen_image(0, mod_father);
+                    g_screenshot_mode_enabled = true;
+
+                    //set footswitch prop
+                    actuator_set_prop(hardware_actuators(FOOTSWITCH2), BUTTON_HOLD_TIME, 500);
                 }
                 steps = 0;
             break;
