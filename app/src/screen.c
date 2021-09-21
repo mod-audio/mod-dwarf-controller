@@ -1304,6 +1304,11 @@ void screen_tool_control_page(node_t *node)
         else
             child_nodes = child_nodes->next;
     }
+
+    //clear some extra menu lines
+    glcd_rect_fill(display, 0, 9, DISPLAY_WIDTH, 4, GLCD_WHITE);
+    glcd_rect_fill(display, 0, DISPLAY_HEIGHT-18, 3, 5, GLCD_WHITE);
+    glcd_rect_fill(display, DISPLAY_WIDTH-3, DISPLAY_HEIGHT-18, 3, 8, GLCD_WHITE);
 }
 
 void screen_toggle_tuner(float frequency, char *note, int8_t cents)
