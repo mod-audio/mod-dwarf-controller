@@ -1394,28 +1394,18 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connec
     print_menu_outlines();
 
     //draw the first box, menu/control mode 
-    uint8_t x;
-    char *text;
-    if (previous_mode != MODE_TOOL_MENU)
-    {
-        text = "SETTNGS";
-        x = 16;
-    }
-    else
-    { 
-        text = "EXIT";
-        x = 22;
-    }
+    glcd_text(display, 16, DISPLAY_HEIGHT - 7, "SETTNGS", Terminal3x5, GLCD_BLACK);
+    //invert because this is active rn
+    if (previous_mode == MODE_TOOL_MENU)
+        glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 30, 8);
 
-    glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
-
-    //draw the second box, TODO Builder MODE
+    //draw the second box, save pb
     if (!ui_connection)
         glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
     else
         glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
-    //draw the third box, save PB
+    //draw the third box, TODO BUILDER MODE
     glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
     //print the 3 quick controls
