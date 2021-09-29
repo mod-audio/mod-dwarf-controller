@@ -1495,6 +1495,10 @@ void system_tuner_input_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
+        //TODO, we need to save this and request values from mod-ui, for now just start at 1
+        if (g_tuner_input == -1)
+            g_tuner_input = 0;
+
         item->data.value = g_tuner_input;
     }
     else if (event == MENU_EV_ENTER)

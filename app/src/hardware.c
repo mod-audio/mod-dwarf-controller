@@ -317,6 +317,9 @@ void write_o_settings_defaults()
 
     write_buffer = DEFAULT_CLICK_LIST;
     EEPROM_Write(0, CLICK_LIST_ADRESS, &write_buffer, MODE_8_BIT, 1);
+
+    write_buffer = DEFAULT_DEFAULT_TOOL;
+    EEPROM_Write(0, DEFAULT_TOOL_ADRESS, &write_buffer, MODE_8_BIT, 1);
 }
 
 void write_shift_defaults()
