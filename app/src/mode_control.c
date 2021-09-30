@@ -1082,7 +1082,7 @@ void CM_inc_control(uint8_t encoder)
         }
         else  {
             // increments the step
-            if ((control->step < (control->steps -1)) && (control->step < (control->scale_points_count))) {
+            if ((control->step < (control->steps)) && (control->step < (control->scale_points_count))) {
                 control->scale_point_index++;
                 control->step++;
             }
