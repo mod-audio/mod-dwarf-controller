@@ -1044,7 +1044,7 @@ void CM_inc_control(uint8_t encoder)
         if (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED) {
             // increments the step
             if (control->step < (control->scale_points_count - 3)) {
-                if (control->scale_point_index > control->steps-1)
+                if (control->scale_point_index > control->steps)
                     return;
 
                 control->step++;
@@ -1054,7 +1054,7 @@ void CM_inc_control(uint8_t encoder)
             else {
                 if ((control->scale_point_index >= control->steps - 2) ) {
 
-                    if (control->scale_point_index > control->steps - 1)
+                    if (control->scale_point_index > control->steps)
                         return;
 
                     control->step++;
