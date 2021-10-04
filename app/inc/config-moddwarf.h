@@ -499,7 +499,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_SL_OUTPUT                  0
 #define DEFAULT_SHIFT_1_ITEM               1
 #define DEFAULT_SHIFT_2_ITEM               2
-#define DEFAULT_SHIFT_3_ITEM               3
+#define DEFAULT_SHIFT_3_ITEM               19
 #define DEFAULT_DEFAULT_TOOL               0
 #define DEFAULT_LIST_MODE                  0
 #define DEFAULT_CONTROL_HEADER             0
@@ -517,7 +517,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             5L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                0
+#define FORCE_WRITE_EEPROM                 0
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)
