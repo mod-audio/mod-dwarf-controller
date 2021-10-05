@@ -283,15 +283,7 @@ void restore_led_states(void)
 
 static void load_control_page(uint8_t page)
 {
-    //first notify host
-    char val_buffer[20] = {0};
-    sys_comm_set_response_cb(NULL, NULL);
-
-    int_to_str(page, val_buffer, sizeof(val_buffer), 0);
-
-    sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
-
-    //now notify mod-ui
+    //first notify mod-ui
     char buffer[30];
 
     hardware_force_overlay_off(1);
@@ -317,6 +309,16 @@ static void load_control_page(uint8_t page)
     ui_comm_webgui_clear();
 
     ui_comm_webgui_send(buffer, i);
+
+    ui_comm_webgui_wait_response();
+
+    //now notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_PAGE_CHANGE, val_buffer);
 }
 
 // control assigned to display
@@ -1667,15 +1669,6 @@ void CM_load_next_encoder_page(uint8_t button)
     char buffer[30];
     uint8_t i = 0;
 
-    //first notify host
-    char val_buffer[20] = {0};
-    sys_comm_set_response_cb(NULL, NULL);
-
-    int_to_str(g_current_encoder_page, val_buffer, sizeof(val_buffer), 0);
-
-    sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
-    sys_comm_wait_response();
-
     set_encoder_pages_led_state();
 
     //clear prev messages
@@ -1696,6 +1689,15 @@ void CM_load_next_encoder_page(uint8_t button)
 
         ui_comm_webgui_wait_response();
     }
+
+    //now notify host
+    char val_buffer[20] = {0};
+    sys_comm_set_response_cb(NULL, NULL);
+
+    int_to_str(g_current_encoder_page, val_buffer, sizeof(val_buffer), 0);
+
+    sys_comm_send(CMD_SYS_SUBPAGE_CHANGE, val_buffer);
+    sys_comm_wait_response();
 }
 
 void CM_set_state(void)
