@@ -327,6 +327,7 @@ void protocol_init(void)
     protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
     protocol_add_command(CMD_SYS_CHANGE_WIDGET_INDICATOR, cb_change_widget_indicator);
     protocol_add_command(CMD_RESET_EEPROM, cb_clear_eeprom);
+    protocol_add_command(CMD_SYS_COMP_PEDALBOARD_GAIN, cb_set_pb_gain);
 }
 
 /*
@@ -862,6 +863,28 @@ void cb_clear_eeprom(uint8_t serial_id, proto_t *proto)
     hardware_reset_eeprom();
 
     //!! THIS NEEDS AN HMI RESET TO TAKE PROPER EFFECT
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_set_pb_gain(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    float value = atoi(proto->list[2]);
+
+    menu_item_t *gain_item = TM_get_menu_item_by_ID(COMPRESSOR_PB_VOL_ID);
+    gain_item->data.value = value;
+
+    if (naveg_get_current_mode() == MODE_TOOL_MENU)
+    {
+        TM_print_tool();
+    }
+    else if (naveg_get_current_mode() == MODE_SHIFT)
+    {
+        naveg_update_shift_item_values();
+    }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
