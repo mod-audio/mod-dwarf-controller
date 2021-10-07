@@ -1393,14 +1393,13 @@ void CM_set_control(uint8_t hw_id, float value)
             if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
             {
                 // updates the led
-                if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-                {
-                    set_alternated_led_list_colour(control);
-                }
-                else
-                {
-                    led->led_state.color = ENUMERATED_COLOR;
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
+                if (!control->lock_led_actions) {
+                    if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
+                        set_alternated_led_list_colour(control);
+                    else {
+                        led->led_state.color = ENUMERATED_COLOR;
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
+                    }
                 }
 
                 // updates the footer
@@ -1424,16 +1423,16 @@ void CM_set_control(uint8_t hw_id, float value)
             // toggled specification: http://lv2plug.in/ns/lv2core/#toggled
             else if (control->properties & FLAG_CONTROL_TOGGLED)
             {
-                // updates the led
-                led->led_state.color = TOGGLED_COLOR;
-                if (control->value <= 0)
-                {
-                    led->led_state.brightness = 0.1;
-                    ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                if (!control->lock_led_actions) {
+                    // updates the led
+                    led->led_state.color = TOGGLED_COLOR;
+                    if (control->value <= 0) {
+                        led->led_state.brightness = 0.1;
+                        ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                    }
+                    else
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
                 }
-                else
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
-
 
                 // updates the footer
                 screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
@@ -1460,7 +1459,8 @@ void CM_set_control(uint8_t hw_id, float value)
                     led->led_state.time_off = time_ms / 2;
                 }
 
-                ledz_set_state(led, LED_BLINK, LED_UPDATE);
+                if (!control->lock_led_actions)
+                    ledz_set_state(led, LED_BLINK, LED_UPDATE);
 
                 // calculates the maximum tap tempo value
                 if (g_tap_tempo[control->hw_id - ENCODERS_COUNT].state == TT_INIT)
@@ -1511,13 +1511,14 @@ void CM_set_control(uint8_t hw_id, float value)
             }
             else if (control->properties & FLAG_CONTROL_BYPASS)
             {
-                led->led_state.color = BYPASS_COLOR;
-                if (control->value <= 0)
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
-                else
-                {
-                    led->led_state.brightness = 0.1;
-                    ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                if (!control->lock_led_actions) {
+                    led->led_state.color = BYPASS_COLOR;
+                    if (control->value <= 0)
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
+                    else {
+                        led->led_state.brightness = 0.1;
+                        ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                    }
                 }
 
                 // updates the footer
