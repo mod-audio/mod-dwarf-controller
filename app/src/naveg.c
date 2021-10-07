@@ -318,6 +318,12 @@ void naveg_update_single_shift_item(uint8_t shift_item_id, int16_t item_id)
     shift_item->desc->action_cb(shift_item, MENU_EV_NONE);
 }
 
+void naveg_update_shift_screen(void)
+{
+    //print shift screen
+    screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0], g_ui_connected);
+}
+
 void naveg_turn_off_leds(void)
 {
     uint8_t i;

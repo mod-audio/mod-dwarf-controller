@@ -801,6 +801,30 @@ void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
 
     CM_reset_page();
 
+    //reset pb gain
+    //TODO DO NOT MAKE THIS ASSUMTION, LET MOD_HOST NOTIFY THE HMI
+    menu_item_t *gain_item = TM_get_menu_item_by_ID(COMPRESSOR_PB_VOL_ID);
+    gain_item->data.value = 0.0f;
+
+    static char str_bfr[10] = {};
+    if (gain_item->data.value != -30.0) {
+        float_to_str(gain_item->data.value, str_bfr, sizeof(str_bfr), 2);
+        strcat(str_bfr, " dB");
+    }
+    else
+        strcpy(str_bfr, "-INF DB");
+
+    gain_item->data.unit_text = str_bfr;
+
+    if (naveg_get_current_mode() == MODE_TOOL_MENU)
+    {
+        TM_print_tool();
+    }
+    else if (naveg_get_current_mode() == MODE_SHIFT)
+    {
+        naveg_update_shift_screen();
+    }
+
     if (naveg_get_current_mode() == MODE_CONTROL)
         CM_set_state();
 
@@ -877,13 +901,23 @@ void cb_set_pb_gain(uint8_t serial_id, proto_t *proto)
     menu_item_t *gain_item = TM_get_menu_item_by_ID(COMPRESSOR_PB_VOL_ID);
     gain_item->data.value = value;
 
+    static char str_bfr[10] = {};
+    if (gain_item->data.value != -30.0) {
+        float_to_str(gain_item->data.value, str_bfr, sizeof(str_bfr), 2);
+        strcat(str_bfr, " dB");
+    }
+    else
+        strcpy(str_bfr, "-INF DB");
+
+    gain_item->data.unit_text = str_bfr;
+
     if (naveg_get_current_mode() == MODE_TOOL_MENU)
     {
         TM_print_tool();
     }
     else if (naveg_get_current_mode() == MODE_SHIFT)
     {
-        naveg_update_shift_item_values();
+        naveg_update_shift_screen();
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
