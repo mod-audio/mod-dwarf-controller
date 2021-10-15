@@ -272,15 +272,6 @@ void set_encoder_pages_led_state(void)
     } 
 }
 
-void restore_led_states(void)
-{
-    uint8_t i;
-    for (i = 0; i < 6; i++)
-    {
-        ledz_restore_state(hardware_leds(i));
-    }
-}
-
 static void load_control_page(uint8_t page)
 {
     //first notify mod-ui
@@ -1836,11 +1827,15 @@ void CM_close_overlay(void)
 
 void CM_set_leds(void)
 {
+    //master page
     set_footswitch_pages_led_state();
 
+    //encoder subpages
     set_encoder_pages_led_state();
 
-    restore_led_states();
+    //footswitch actuators
+    CM_set_foot_led(g_foots[0], 1);
+    CM_set_foot_led(g_foots[1], 1);
 }
 
 void CM_print_screen(void)

@@ -519,7 +519,7 @@ void PM_button_pressed(uint8_t button)
                             NM_update_lists(SNAPSHOT_LIST);
 
                             //save successful message
-                            PM_launch_attention_overlay("\n\n\nsnapshot save\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\nsnapshot saved\nsuccessfully", exit_popup);
 
                             //sync the names
                             NM_set_pbss_name(g_current_name_input, 1);
@@ -532,7 +532,7 @@ void PM_button_pressed(uint8_t button)
                             NM_update_lists(PEDALBOARD_LIST);
 
                             //save successful message
-                            PM_launch_attention_overlay("\n\n\npedalboard save\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\npedalboard saved\nsuccessfully", exit_popup);
 
                             //sync the names
                             NM_set_pbss_name(g_current_name_input, 0);
@@ -613,7 +613,7 @@ void PM_button_pressed(uint8_t button)
 
                     if (g_post_callback_call) {
                         NM_enter_new_bank();
-                        PM_launch_attention_overlay("\n\nBank Creation\nsuccessful", exit_popup);
+                        PM_launch_attention_overlay("\n\nbank creation\nsuccessful", exit_popup);
                     }
                 break;
 
@@ -678,7 +678,7 @@ void PM_button_pressed(uint8_t button)
                             ui_comm_webgui_wait_response();
 
                             if (g_post_callback_call) {
-                                PM_launch_attention_overlay("\n\nbank deletion\nsuccessful", exit_popup);
+                                PM_launch_attention_overlay("\n\nbank deleted\nsuccessfully", exit_popup);
 
                                 bp_list_t* banks = NM_get_banks();
                                 banks->hover = 0;
@@ -705,7 +705,7 @@ void PM_button_pressed(uint8_t button)
                             ui_comm_webgui_wait_response();
 
                             if (g_post_callback_call) {
-                                PM_launch_attention_overlay("\n\nremoving snapshot\nsuccessful", exit_popup);
+                                PM_launch_attention_overlay("\n\nsnapshot removed\nsuccessfully", exit_popup);
 
                                 bp_list_t* snapshots = NM_get_snapshots();
                                 if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
@@ -725,7 +725,7 @@ void PM_button_pressed(uint8_t button)
                             ui_comm_webgui_wait_response();
 
                             if (g_post_callback_call) {
-                                PM_launch_attention_overlay("\n\nremoving pedalboard\nsuccessful", exit_popup);
+                                PM_launch_attention_overlay("\n\npedalboard removed \nsuccessfully", exit_popup);
 
                                 //check if we deleted the last item, if so correct hover
                                 bp_list_t* pedalboards = NM_get_pedalboards();
@@ -775,10 +775,10 @@ void PM_button_pressed(uint8_t button)
                     if (g_post_callback_call) {
 
                         if (g_current_popup_id == POPUP_OVERWRITE_SS_ID) {
-                            PM_launch_attention_overlay("\n\noverwrite snapshot\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\nsnapshot overwrite\nsuccessful", exit_popup);
                         }
                         else {
-                            PM_launch_attention_overlay("\n\noverwrite pedalboard\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\npedalboard overwrite\nsuccessful", exit_popup);
                         }
                     }
                 break;

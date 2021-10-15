@@ -92,15 +92,15 @@ struct TAP_TEMPO_T {
 uint8_t g_bypass[4] = {};
 uint8_t g_current_profile = 1;
 
-uint8_t g_snapshot_prog_change = -1;
-uint8_t g_pedalboard_prog_change = -1;
-uint16_t g_beats_per_minute = -1;
-uint8_t g_beats_per_bar = -1;
-uint8_t g_MIDI_clk_send = -1;
-uint8_t g_MIDI_clk_src = -1;
-uint8_t g_play_status = -1;
-uint8_t g_tuner_mute = -1;
-uint8_t g_tuner_input = -1;
+int8_t g_snapshot_prog_change = -1;
+int8_t g_pedalboard_prog_change = -1;
+int16_t g_beats_per_minute = -1;
+int8_t g_beats_per_bar = -1;
+int8_t g_MIDI_clk_send = -1;
+int8_t g_MIDI_clk_src = -1;
+int8_t g_play_status = -1;
+int8_t g_tuner_mute = -1;
+int8_t g_tuner_input = -1;
 
 int8_t g_display_brightness = -1;
 int8_t g_display_contrast = -1;

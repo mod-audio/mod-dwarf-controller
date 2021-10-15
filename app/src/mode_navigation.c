@@ -1820,16 +1820,10 @@ char* NM_get_pbss_name(uint8_t pb_ss_toggle)
 
 void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle)
 {
-    uint8_t string_length = 0;
-    string_length = strlen(name);
-
-    if (string_length > 20)
-        string_length = 20;
-
     if (pb_ss_toggle)
-        strncpy(g_snapshot_name, name, string_length);
+        strcpy(g_snapshot_name, name);
     else
-        strncpy(g_pedalboard_name, name, string_length);
+        strcpy(g_pedalboard_name, name);
 }
 
 void NM_enter_new_bank(void)
