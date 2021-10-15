@@ -1695,22 +1695,6 @@ void NM_set_last_selected(uint8_t list_type)
     }
 }
 
-void NM_sync_names(uint8_t list_type)
-{
-    switch(list_type) {
-        case PEDALBOARD_LIST:;
-            strcpy(g_pedalboard_name, g_pedalboards->names[g_pedalboards->selected]);
-        break;
-
-        case SNAPSHOT_LIST:;
-            strcpy(g_snapshot_name, g_snapshots->names[g_snapshots->selected]);
-        break;
-
-        case BANKS_LIST:
-        break;
-    }
-}
-
 void NM_set_selected_index(uint8_t list_type, int16_t index)
 {
     switch(list_type) {
@@ -1832,6 +1816,20 @@ char* NM_get_pbss_name(uint8_t pb_ss_toggle)
     else {
         return g_pedalboard_name;
     }
+}
+
+void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle)
+{
+    uint8_t string_length = 0;
+    string_length = strlen(name);
+
+    if (string_length > 20)
+        string_length = 20;
+
+    if (pb_ss_toggle)
+        strncpy(g_snapshot_name, name, string_length);
+    else
+        strncpy(g_pedalboard_name, name, string_length);
 }
 
 void NM_enter_new_bank(void)

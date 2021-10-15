@@ -518,11 +518,11 @@ void PM_button_pressed(uint8_t button)
                             //update list items
                             NM_update_lists(SNAPSHOT_LIST);
 
-                            //sync names
-                            NM_sync_names(SNAPSHOT_LIST);
-
                             //save successful message
                             PM_launch_attention_overlay("\n\n\nsnapshot save\nsuccessful", exit_popup);
+
+                            //sync the names
+                            NM_set_pbss_name(g_current_name_input, 1);
                         }
                         else {
                             //set last item as active
@@ -531,11 +531,11 @@ void PM_button_pressed(uint8_t button)
                             //update list items
                             NM_update_lists(PEDALBOARD_LIST);
 
-                            //sync names
-                            NM_sync_names(PEDALBOARD_LIST);
-
                             //save successful message
                             PM_launch_attention_overlay("\n\n\npedalboard save\nsuccessful", exit_popup);
+
+                            //sync the names
+                            NM_set_pbss_name(g_current_name_input, 0);
                         }
                     }
                 break;
