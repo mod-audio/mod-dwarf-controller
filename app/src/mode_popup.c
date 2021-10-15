@@ -211,6 +211,8 @@ void PM_init(void)
 
 void PM_enter(uint8_t encoder)
 {
+    hardware_force_overlay_off(0);
+
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
         switch (encoder)
@@ -245,6 +247,8 @@ void PM_enter(uint8_t encoder)
 
 void PM_up(uint8_t encoder)
 {
+    hardware_force_overlay_off(0);
+
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
         switch (encoder)
@@ -299,6 +303,8 @@ void PM_up(uint8_t encoder)
 
 void PM_down(uint8_t encoder)
 {
+    hardware_force_overlay_off(0);
+
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
         switch (encoder)

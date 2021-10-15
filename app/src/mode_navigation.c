@@ -683,6 +683,8 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
 void NM_enter(void)
 {
+    hardware_force_overlay_off(0);
+
     if (g_item_grabbed != NO_GRAB_ITEM)
         return;
 
@@ -758,6 +760,8 @@ void NM_enter(void)
 
 void NM_encoder_hold(uint8_t encoder)
 {
+    hardware_force_overlay_off(0);
+
     //we only suport reordering on the left encoder
     if (encoder != 0)
         return;
@@ -807,6 +811,8 @@ void NM_encoder_hold(uint8_t encoder)
 
 void NM_encoder_released(uint8_t encoder)
 {
+    hardware_force_overlay_off(0);
+
     //we only suport reordering on the left encoder
     if ((encoder != 0) || (g_item_grabbed == NO_GRAB_ITEM))
         return;
@@ -881,6 +887,8 @@ void NM_encoder_released(uint8_t encoder)
 
 uint8_t NM_up(void)
 {
+    hardware_force_overlay_off(0);
+
     if (!g_banks) return 0;
 
     switch (g_current_list) {
@@ -994,6 +1002,8 @@ uint8_t NM_up(void)
 
 uint8_t NM_down(void)
 {
+    hardware_force_overlay_off(0);
+
     if (!g_banks) return 0;
 
     switch (g_current_list) {
@@ -1428,6 +1438,8 @@ void NM_set_leds(void)
 
 void NM_button_pressed(uint8_t button)
 {
+    hardware_force_overlay_off(0);
+
     switch(button)
     {
         //enter menu
@@ -1567,6 +1579,8 @@ void NM_button_pressed(uint8_t button)
 
 void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
 {
+    hardware_force_overlay_off(0);
+
     if ((g_current_list == BANKS_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED) || (g_current_list == BANK_LIST_CHECKBOXES) ||
         (g_current_list == BANK_LIST_CHECKBOXES_ENGAGED) || (g_current_list == PB_LIST_CHECKBOXES) || (g_current_list == PB_LIST_CHECKBOXES_ENGAGED))
         return;
@@ -1609,6 +1623,8 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
 
 void NM_toggle_pb_ss(void)
 {
+    hardware_force_overlay_off(0);
+
     if (g_current_list == BANKS_LIST)
         return;
 
