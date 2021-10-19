@@ -301,8 +301,6 @@ static void load_control_page(uint8_t page)
 
     ui_comm_webgui_send(buffer, i);
 
-    ui_comm_webgui_wait_response();
-
     //now notify host
     char val_buffer[20] = {0};
     sys_comm_set_response_cb(NULL, NULL);
@@ -1892,7 +1890,7 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     {
         uint8_t pagefound = 0;
         uint8_t i;
-        for (i = 8; (i > 0) && !pagefound; i--)
+        for (i = 7; (i > 0) && !pagefound; i--)
         {
             //page found
             if (g_fs_page_available[i])
