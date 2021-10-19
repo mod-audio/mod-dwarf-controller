@@ -781,10 +781,10 @@ void PM_button_pressed(uint8_t button)
                     if (g_post_callback_call) {
 
                         if (g_current_popup_id == POPUP_OVERWRITE_SS_ID) {
-                            PM_launch_attention_overlay("\n\nsnapshot overwrite\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\nsnapshot overwritten\nsuccessfully", exit_popup);
                         }
                         else {
-                            PM_launch_attention_overlay("\n\npedalboard overwrite\nsuccessful", exit_popup);
+                            PM_launch_attention_overlay("\n\npedalboard overwritten\nsuccessfully", exit_popup);
                         }
                     }
                 break;

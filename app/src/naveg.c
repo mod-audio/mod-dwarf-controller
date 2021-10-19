@@ -928,8 +928,14 @@ void naveg_button_pressed(uint8_t button)
         case MODE_SHIFT:
             switch(button)
             {
-                //enter menu
+                //save pedalboard
                 case 0:
+                    naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
+                    shift_mode_active = false;
+                break;
+
+                //enter menu
+                case 1:
                     if (g_prev_shift_device_mode != MODE_TOOL_MENU)
                     {
                         g_device_mode = MODE_TOOL_MENU;
@@ -970,12 +976,6 @@ void naveg_button_pressed(uint8_t button)
                     
                     if (!g_self_test_mode)
                         ledz_off(hardware_leds(6), WHITE);
-                break;
-
-                //save pedalboard
-                case 1:
-                    naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
-                    shift_mode_active = false;
                 break;
 
                 //TODO enter builder mode

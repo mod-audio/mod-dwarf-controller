@@ -1356,6 +1356,9 @@ void screen_image(uint8_t display, const uint8_t *image)
 
 void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connection)
 {
+    //TODO WE NEED THIS VALUE ONCE BUILDER MODE IS SELECTABLE
+    (void) ui_connection;
+
     static uint8_t previous_mode;
     static int16_t last_item_ids[3] = {-1};
     uint8_t i;
@@ -1398,17 +1401,14 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connec
     //draw the outlines
     print_menu_outlines();
 
-    //draw the first box, menu/control mode 
-    glcd_text(display, 16, DISPLAY_HEIGHT - 7, "SETTNGS", Terminal3x5, GLCD_BLACK);
+    //draw the first box, save pb
+    glcd_text(display, 22, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
+
+    //draw the second box, menu/control mode
+    glcd_text(display, 50, DISPLAY_HEIGHT - 7, "SETTNGS", Terminal3x5, GLCD_BLACK);
     //invert because this is active rn
     if (previous_mode == MODE_TOOL_MENU)
-        glcd_rect_invert(display, 15, DISPLAY_HEIGHT - 8, 30, 8);
-
-    //draw the second box, save pb
-    if (!ui_connection)
-        glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
-    else
-        glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+        glcd_rect_invert(display, 49, DISPLAY_HEIGHT - 8, 30, 8);
 
     //draw the third box, TODO BUILDER MODE
     glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
