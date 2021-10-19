@@ -1619,6 +1619,8 @@ void NM_toggle_pb_ss(void)
 
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED))
     {
+       //g_current_pedalboard = g_pedalboards->selected;
+
         request_snapshots(PAGE_DIR_INIT);
 
         if (!g_snapshots_loaded) //no snapshots available
@@ -1637,9 +1639,14 @@ void NM_toggle_pb_ss(void)
     else
     {
         g_banks->selected = g_current_bank;
-        request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
+        g_banks->hover = g_current_bank;
         g_pedalboards->selected = g_current_pedalboard;
         g_pedalboards->hover = g_pedalboards->selected;
+        request_pedalboards(PAGE_DIR_INIT, g_current_bank);
+
+        g_pedalboards->selected = g_current_pedalboard;
+        g_pedalboards->hover = g_pedalboards->selected;
+
 
         if (g_pedalboards->hover == 0)
             g_current_list = PB_LIST_BEGINNING_BOX;
