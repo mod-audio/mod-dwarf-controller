@@ -1833,6 +1833,12 @@ void CM_set_leds(void)
     //encoder subpages
     set_encoder_pages_led_state();
 
+    //turn off foot leds, in case of no assignment
+    ledz_t *led = hardware_leds(0);
+    ledz_set_state(led, LED_OFF, LED_UPDATE);
+    led = hardware_leds(1);
+    ledz_set_state(led, LED_OFF, LED_UPDATE);
+
     //footswitch actuators
     CM_set_foot_led(g_foots[0], 1);
     CM_set_foot_led(g_foots[1], 1);
