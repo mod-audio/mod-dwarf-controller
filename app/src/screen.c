@@ -1018,8 +1018,8 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         uint8_t x;
         char *text;
         if (pb_ss_toggle) {
-            x = 28;
-            text = "-";
+            x = 22;
+            text = "SAVE";
         }
         else {
             x = 16;
@@ -1028,7 +1028,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
         //draw the second box
-        glcd_text(display, 56, DISPLAY_HEIGHT - 7, "SAVE", Terminal3x5, GLCD_BLACK);
+        glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
         //draw the third box, we can remove any pb or ss, except from the all-pb bank
         if ((NM_get_current_list() == BANKS_LIST) || (pb_ss_toggle && (list->menu_max > 1)) || (!pb_ss_toggle && (NM_get_current_selected(BANKS_LIST) != 0) && (type != PB_LIST_BEGINNING_BOX_SELECTED)))

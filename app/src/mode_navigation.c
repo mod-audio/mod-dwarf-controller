@@ -1397,15 +1397,14 @@ void NM_set_leds(void)
             led_state.color = BANK_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             led = hardware_leds(4);
-            led_state.color = TRIGGER_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
         break;
 
         case SNAPSHOT_LIST:
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(4);
+            led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
@@ -1489,8 +1488,9 @@ void NM_button_pressed(uint8_t button)
                     NM_print_screen();
                 break;
 
-                //not used
+                //save snapshots
                 case SNAPSHOT_LIST:
+                    naveg_trigger_popup(POPUP_SAVE_SS_ID);
                 break;
             }
         break;
@@ -1501,17 +1501,6 @@ void NM_button_pressed(uint8_t button)
                 case BANKS_LIST:
                     //new bank
                     naveg_trigger_popup(POPUP_NEW_BANK_ID);
-                break;
-
-                //save pedalboard
-                case PB_LIST_BEGINNING_BOX:
-                case PB_LIST_BEGINNING_BOX_SELECTED:
-                case PEDALBOARD_LIST:
-                    naveg_trigger_popup(POPUP_SAVE_PB_ID);
-                break;
-
-                case SNAPSHOT_LIST:
-                    naveg_trigger_popup(POPUP_SAVE_SS_ID);
                 break;
 
                 case BANK_LIST_CHECKBOXES:

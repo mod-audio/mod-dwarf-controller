@@ -147,7 +147,7 @@ void enter_shift_menu(void)
     screen_shift_overlay(g_prev_shift_device_mode, &g_shift_item_ids[0], g_ui_connected);
 
     //toggle the LED's
-    ledz_t *led = hardware_leds(3);
+    ledz_t *led = hardware_leds(4);
     led_state_t led_state;
     if (g_prev_shift_device_mode != MODE_TOOL_MENU)
         led_state.color = ENUMERATED_COLOR;
@@ -157,12 +157,9 @@ void enter_shift_menu(void)
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
     led_state.color = ENUMERATED_COLOR;
-    led = hardware_leds(4);
+    led = hardware_leds(3);
 
-    if (g_ui_connected)
-        set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
-    else
-        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
     led = hardware_leds(5);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
