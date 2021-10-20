@@ -1529,6 +1529,11 @@ void NM_button_pressed(uint8_t button)
                     //we cant delete pbs from the all bank
                     if (g_banks->selected == 0)
                             return;
+
+                    //we cant delete if we have no pedalboards
+                    if (g_pedalboards->menu_max == 0)
+                        return;
+
                     //give popup, delete pb?
                     naveg_trigger_popup(POPUP_REMOVE_PB_ID);
                 break;
