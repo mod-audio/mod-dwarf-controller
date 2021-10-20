@@ -216,7 +216,7 @@ void exit_shift_menu(void)
 
 void exit_popup(void)
 {
-    if (g_menu_popup_active || !g_device_booted) return;
+    if (!g_device_booted) return;
 
     //exit the shift menu, return to opperational mode
     switch(g_device_mode)
