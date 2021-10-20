@@ -337,6 +337,8 @@ void naveg_turn_off_leds(void)
 
 void naveg_ui_connection(uint8_t status)
 {
+    hardware_force_overlay_off(0);
+
     if (!g_initialized) return;
 
     if (status == UI_CONNECTED)
@@ -395,6 +397,11 @@ void naveg_enc_enter(uint8_t encoder)
 {
     if (!g_initialized) return;
 
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
@@ -407,6 +414,11 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
+            if (hardware_get_overlay_counter() != 0) {
+                hardware_force_overlay_off(0);
+                return;
+            }
+
             if (encoder == 0) NM_enter();
         break;
 
@@ -442,6 +454,11 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_POPUP:
+            if (hardware_get_overlay_counter() != 0) {
+                hardware_force_overlay_off(0);
+                return;
+            }
+
             PM_enter(encoder);
         break;
     }
@@ -451,26 +468,49 @@ void naveg_enc_released(uint8_t encoder)
 {
     if (!g_initialized) return;
 
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
     if (g_device_mode != MODE_NAVIGATION)
         g_encoders_pressed[encoder] = 0;
-    else
+    else {
+        if (hardware_get_overlay_counter() != 0) {
+            hardware_force_overlay_off(0);
+            return;
+        }
+
+
         NM_encoder_released(encoder);
+    }
 }
 
 void naveg_enc_hold(uint8_t encoder)
 {
     if (!g_initialized) return;
 
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
     if (g_device_mode != MODE_NAVIGATION)
         g_encoders_pressed[encoder] = 1;
-    else
+    else {
+        if (hardware_get_overlay_counter() != 0) {
+            hardware_force_overlay_off(0);
+            return;
+        }
+
         NM_encoder_hold(encoder);
+    }
 
     if (g_self_test_mode)
         naveg_enc_enter(encoder);
@@ -491,6 +531,11 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
+            if (hardware_get_overlay_counter() != 0) {
+                hardware_force_overlay_off(0);
+                return;
+            }
+
             //pass to navigation code
             NM_down();
         break;
@@ -554,6 +599,11 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_POPUP:
+            if (hardware_get_overlay_counter() != 0) {
+                hardware_force_overlay_off(0);
+                return;
+            }
+
             PM_down(encoder);
         break;
     }
@@ -562,6 +612,11 @@ void naveg_enc_down(uint8_t encoder)
 void naveg_enc_up(uint8_t encoder)
 {
     if (!g_initialized) return;
+
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
 
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
@@ -645,6 +700,11 @@ void naveg_enc_up(uint8_t encoder)
 void naveg_foot_change(uint8_t foot, uint8_t pressed)
 {
     if (!g_initialized || g_menu_popup_active) return;
+
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
 
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
@@ -741,6 +801,11 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
+    if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     if (g_device_mode == MODE_SELFTEST)
         return;
 
@@ -878,6 +943,10 @@ void naveg_foot_double_press(uint8_t foot)
 void naveg_button_pressed(uint8_t button)
 {
     hardware_force_overlay_off(0);
+
+    if (g_menu_popup_active) {
+        return;
+    }
 
     if (!g_initialized) return;
 
