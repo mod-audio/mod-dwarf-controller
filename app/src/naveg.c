@@ -397,11 +397,6 @@ void naveg_enc_enter(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (g_menu_popup_active) {
-        hardware_force_overlay_off(0);
-        return;
-    }
-
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
@@ -468,11 +463,6 @@ void naveg_enc_released(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (g_menu_popup_active) {
-        hardware_force_overlay_off(0);
-        return;
-    }
-
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
@@ -492,11 +482,6 @@ void naveg_enc_released(uint8_t encoder)
 void naveg_enc_hold(uint8_t encoder)
 {
     if (!g_initialized) return;
-
-    if (g_menu_popup_active) {
-        hardware_force_overlay_off(0);
-        return;
-    }
 
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
@@ -613,11 +598,6 @@ void naveg_enc_up(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (g_menu_popup_active) {
-        hardware_force_overlay_off(0);
-        return;
-    }
-
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
@@ -629,6 +609,11 @@ void naveg_enc_up(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
+            if (g_menu_popup_active) {
+                hardware_force_overlay_off(0);
+                return;
+            }
+
             //pass to navigation code
             NM_up();
         break;
@@ -942,12 +927,6 @@ void naveg_foot_double_press(uint8_t foot)
 //used fot the 3 encoder buttons
 void naveg_button_pressed(uint8_t button)
 {
-    hardware_force_overlay_off(0);
-
-    if (g_menu_popup_active) {
-        return;
-    }
-
     if (!g_initialized) return;
 
     if (g_menu_popup_active)
