@@ -28,7 +28,7 @@
 ************************************************************************************************************************
 */
 
-#define NAMING_WIDGET_TXT       "\n\n\n\nKnob 1 click - toggle keyboard\nKnob 2 turn - select posistion\nButton 2     - clear name"
+#define NAMING_WIDGET_TXT       "\n\n\n\nKnob 1 turn  - pick character\nKnob 1 click - input character\nKnob 2 turn  - cursor location"
 #define NAMING_WIDGET_BTN1      "save"
 #define NAMING_WIDGET_BTN2      "clear"
 #define NAMING_WIDGET_BTN3      "cancel"

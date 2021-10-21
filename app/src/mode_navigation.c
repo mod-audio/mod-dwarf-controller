@@ -1797,7 +1797,7 @@ void NM_save_pbss_name(const void *data, uint8_t pb_ss_toggle)
     // go to next name in list
     name_string = *(++name_list);
 
-    while (name_string && ((strlen((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name)) + strlen(name_string) + 1) < 19))
+    while (name_string && ((strlen((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name)) + strlen(name_string)) < 19))
     {
         strcat((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name), " ");
         strcat((pb_ss_toggle ? g_snapshot_name : g_pedalboard_name), name_string);

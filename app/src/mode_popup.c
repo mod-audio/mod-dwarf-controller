@@ -170,24 +170,28 @@ void copy_name_to_naming_widget(char *source_to_copy)
     uint8_t source_length = 0;
     source_length = strlen(source_to_copy);
 
-    if (source_length > 17)
-        source_length = 17;
+    if (source_length > 18) {
+        g_global_popups[g_current_popup_id].cursor_index = source_length-1;
+        source_length = 18;
+    }
+    else
+        g_global_popups[g_current_popup_id].cursor_index = source_length;
 
     strcpy(g_current_name_input, source_to_copy);
 
     uint8_t i;
-    for (i = source_length-1; i < 18; i++) {
+    for (i = source_length; i < 18; i++) {
         strcat(g_current_name_input, " ");
     }
 
-    g_current_name_input[18] = 0;
+    g_current_name_input[19] = 0;
 }
 
 //check all spaces at the end of a name, we dont send that to mod-ui
 void turnicate_naming_widget_spaces(void)
 {
     uint8_t i;
-    for (i = 17; i > 0; i--) {
+    for (i = 18; i > 0; i--) {
         if (g_current_name_input[i] != ' ')
             break;
     }
@@ -204,7 +208,7 @@ void turnicate_naming_widget_spaces(void)
 void PM_init(void)
 {
     //allocate memory for name
-    g_current_name_input = (char *) MALLOC((19) * sizeof(char));
+    g_current_name_input = (char *) MALLOC((20) * sizeof(char));
 
     reset_naming_widget_name();
 }
@@ -258,14 +262,10 @@ void PM_up(uint8_t encoder)
                     g_keyboard_toggled = 1;
                     g_keyboard_index = 0;
                 }
-                else if (g_keyboard_index > 0){
+                else if (g_keyboard_index > 0)
                     g_keyboard_index--;
-                    g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                }
-                else {
+                else
                     g_keyboard_index = 59;
-                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                }
 
                 PM_print_screen();
             break;
@@ -278,7 +278,6 @@ void PM_up(uint8_t encoder)
             break;
 
             case 2:
-            //TODO WE MIGHT NOT ADD THIS FEATURE
                 if (!g_keyboard_toggled) {
                     g_keyboard_toggled = 1;
                 }
@@ -288,8 +287,6 @@ void PM_up(uint8_t encoder)
                         g_keyboard_index += 45;
                     else
                         g_keyboard_index -= 15;
-
-                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
                 }
                 PM_print_screen();
             break;
@@ -313,14 +310,10 @@ void PM_down(uint8_t encoder)
                 if (!g_keyboard_toggled) {
                     g_keyboard_toggled = 1;
                 }
-                else if (g_keyboard_index < 59) {
+                else if (g_keyboard_index < 59)
                     g_keyboard_index++;
-                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                }
-                else {
+                else
                     g_keyboard_index = 0;
-                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
-                }
 
                 PM_print_screen();
             break;
@@ -347,8 +340,6 @@ void PM_down(uint8_t encoder)
                         g_keyboard_index -= 45;
                     else
                         g_keyboard_index += 15;
-
-                    g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
                 }
                 PM_print_screen();
             break;
@@ -781,10 +772,10 @@ void PM_button_pressed(uint8_t button)
                     if (g_post_callback_call) {
 
                         if (g_current_popup_id == POPUP_OVERWRITE_SS_ID) {
-                            PM_launch_attention_overlay("\n\nsnapshot overwritten\nsuccessfully", exit_popup);
+                            PM_launch_attention_overlay("\n\nsnapshot\noverwritten\nsuccessfully", exit_popup);
                         }
                         else {
-                            PM_launch_attention_overlay("\n\npedalboard overwritten\nsuccessfully", exit_popup);
+                            PM_launch_attention_overlay("\n\npedalboard\noverwritten\nsuccessfully", exit_popup);
                         }
                     }
                 break;
