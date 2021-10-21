@@ -217,11 +217,11 @@ void PM_enter(uint8_t encoder)
     if (g_global_popups[g_current_popup_id].has_naming_input) {
         switch (encoder)
         {
-            case 0:
+            case 1:
             break;
 
             case 2:
-            case 1:
+            case 0:
                 if (g_keyboard_toggled){
                     g_current_name_input[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
                     if (g_global_popups[g_current_popup_id].cursor_index < 18)
@@ -254,13 +254,6 @@ void PM_up(uint8_t encoder)
         switch (encoder)
         {
             case 0:
-                if (g_global_popups[g_current_popup_id].cursor_index > 0)
-                    g_global_popups[g_current_popup_id].cursor_index--;
-
-                PM_print_screen();
-            break;
-
-            case 1:
                 if (!g_keyboard_toggled) {
                     g_keyboard_toggled = 1;
                     g_keyboard_index = 0;
@@ -273,6 +266,13 @@ void PM_up(uint8_t encoder)
                     g_keyboard_index = 59;
                     g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
                 }
+
+                PM_print_screen();
+            break;
+
+            case 1:
+                if (g_global_popups[g_current_popup_id].cursor_index > 0)
+                    g_global_popups[g_current_popup_id].cursor_index--;
 
                 PM_print_screen();
             break;
@@ -310,17 +310,6 @@ void PM_down(uint8_t encoder)
         switch (encoder)
         {
             case 0:
-                if (g_global_popups[g_current_popup_id].cursor_index < 18) {
-                    g_global_popups[g_current_popup_id].cursor_index++;
-
-                    if (g_global_popups[g_current_popup_id].cursor_index > strlen(g_global_popups[g_current_popup_id].input_name))
-                        strcat(g_global_popups[g_current_popup_id].input_name, " ");
-                }
-
-                PM_print_screen();
-            break;
-
-            case 1:
                 if (!g_keyboard_toggled) {
                     g_keyboard_toggled = 1;
                 }
@@ -331,6 +320,17 @@ void PM_down(uint8_t encoder)
                 else {
                     g_keyboard_index = 0;
                     g_global_popups[g_current_popup_id].input_name[g_global_popups[g_current_popup_id].cursor_index] = keyboard_index_to_char(g_keyboard_index);
+                }
+
+                PM_print_screen();
+            break;
+
+            case 1:
+                if (g_global_popups[g_current_popup_id].cursor_index < 18) {
+                    g_global_popups[g_current_popup_id].cursor_index++;
+
+                    if (g_global_popups[g_current_popup_id].cursor_index > strlen(g_global_popups[g_current_popup_id].input_name))
+                        strcat(g_global_popups[g_current_popup_id].input_name, " ");
                 }
 
                 PM_print_screen();

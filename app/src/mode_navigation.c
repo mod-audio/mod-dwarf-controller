@@ -923,6 +923,8 @@ uint8_t NM_up(void)
                 //we still have items in our list
                 if (g_pedalboards->hover > 0)
                     g_pedalboards->hover--;
+                else
+                    return 0;
 
                 if ((g_pedalboards->hover == 0) && (g_item_grabbed == NO_GRAB_ITEM) && g_current_list != PB_LIST_CHECKBOXES && g_current_list != PB_LIST_CHECKBOXES_ENGAGED && g_banks->selected != 0)
                     g_current_list = PB_LIST_BEGINNING_BOX;
