@@ -407,13 +407,13 @@ static void encoder_control_rm(uint8_t hw_id)
     }
 }
 
-static void set_alternated_led_list_colour(control_t *control)
+static void set_alternated_led_list_colour(control_t *control, uint8_t update_led)
 {
     ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
 
     led->led_state.color = LED_LIST_COLOR_1 + (control->scale_point_index % LED_LIST_AMOUNT_OF_COLORS);
 
-    ledz_set_state(led, LED_ON, LED_UPDATE);
+    ledz_set_state(led, LED_ON, update_led);
 }
 
 static void foot_control_print(control_t *control)
@@ -828,7 +828,7 @@ static void control_set(uint8_t id, control_t *control)
             send_control_set(control);
 
             if (trigger_led_change == 1)
-                set_alternated_led_list_colour(control);
+                set_alternated_led_list_colour(control, LED_UPDATE);
         }
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
@@ -1294,7 +1294,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
         {
             if (g_foots[foot]->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
             {
-                set_alternated_led_list_colour(g_foots[foot]);
+                set_alternated_led_list_colour(g_foots[foot], LED_UPDATE);
             }
             else
             {
@@ -1384,7 +1384,7 @@ void CM_set_control(uint8_t hw_id, float value)
                 // updates the led
                 if (!control->lock_led_actions) {
                     if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
-                        set_alternated_led_list_colour(control);
+                        set_alternated_led_list_colour(control, LED_UPDATE);
                     else {
                         led->led_state.color = ENUMERATED_COLOR;
                         ledz_set_state(led, LED_ON, LED_UPDATE);
@@ -1799,7 +1799,7 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
         //check if its assigned to a trigger and if the button is released
         if (control->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
         {
-            set_alternated_led_list_colour(control);
+            set_alternated_led_list_colour(control, update_led);
         }
         else if ((control->scroll_dir == 2))
         {
