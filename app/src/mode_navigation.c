@@ -1335,9 +1335,12 @@ void NM_set_leds(void)
         break;
 
         case PB_LIST_CHECKBOXES:
-            led = hardware_leds(4);
-            led_state.color = TRIGGER_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            if (g_pedalboards->menu_max != 0) {
+                led = hardware_leds(4);
+                led_state.color = TRIGGER_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            }
+
             led_state.color = TOGGLED_COLOR;
             led = hardware_leds(3);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
