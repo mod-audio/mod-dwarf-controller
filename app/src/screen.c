@@ -931,7 +931,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
         list_box.page_min_offset = list->page_min;
         widget_banks_listbox(display, &list_box);
     }
-s
+
     //show empty bank msg
     if ((type == PB_LIST_CHECKBOXES) && (list->menu_max == 0))
         glcd_text(display, DISPLAY_WIDTH/2 - 30, DISPLAY_HEIGHT/2, "< empty bank >", Terminal3x5, GLCD_BLACK);
