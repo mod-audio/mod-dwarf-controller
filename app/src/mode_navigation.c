@@ -750,6 +750,9 @@ void NM_enter(void)
 
         case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
+            if (g_pedalboards->menu_max == 0)
+                return;
+
             add_to_selected_uid(g_pedalboards);
             NM_print_screen();
         break;
@@ -1505,9 +1508,17 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case PB_LIST_CHECKBOXES:
+                    //check if bank is empty
+                    if (g_pedalboards->menu_max == 0)
+                        return;
+
                     g_current_list = PB_LIST_CHECKBOXES_ENGAGED;
                 //fall-through
                 case PB_LIST_CHECKBOXES_ENGAGED:
+                    //check if bank is empty
+                    if (g_pedalboards->menu_max == 0)
+                        return;
+
                     NM_enter();
                     NM_print_screen();
                 break;
