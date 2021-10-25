@@ -885,8 +885,20 @@ void screen_bank_list(bp_list_t *list, const char *name)
             list_box.selected_ids = NULL;
         break;
 
-        case PB_LIST_CHECKBOXES_ENGAGED:
         case BANK_LIST_CHECKBOXES_ENGAGED:
+            if (NM_get_current_hover(BANKS_LIST != 0))
+                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+            else
+                glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+
+            glcd_text(display, 24, DISPLAY_HEIGHT - 7, "ADD", Terminal3x5, GLCD_BLACK);
+            glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
+
+            list_box.selected_ids = list->selected_pb_uids;
+            list_box.selected_count = list->selected_count;
+        break;
+
+        case PB_LIST_CHECKBOXES_ENGAGED:
             glcd_text(display, 24, DISPLAY_HEIGHT - 7, "ADD", Terminal3x5, GLCD_BLACK);
             glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);

@@ -1494,7 +1494,8 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case BANK_LIST_CHECKBOXES:
-                    g_current_list = BANK_LIST_CHECKBOXES_ENGAGED;
+                    if (NM_get_current_hover(BANKS_LIST != 0))
+                        g_current_list = BANK_LIST_CHECKBOXES_ENGAGED;
                 //fall-through
                 case BANK_LIST_CHECKBOXES_ENGAGED:
                     if (NM_get_current_hover(BANKS_LIST != 0)) {
