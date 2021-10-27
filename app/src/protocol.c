@@ -801,21 +801,6 @@ void cb_pedalboard_clear(uint8_t serial_id, proto_t *proto)
 
     CM_reset_page();
 
-    //reset pb gain
-    //TODO DO NOT MAKE THIS ASSUMTION, LET MOD_HOST NOTIFY THE HMI
-    menu_item_t *gain_item = TM_get_menu_item_by_ID(COMPRESSOR_PB_VOL_ID);
-    gain_item->data.value = 0.0f;
-
-    static char str_bfr[10] = {};
-    if (gain_item->data.value != -30.0) {
-        float_to_str(gain_item->data.value, str_bfr, sizeof(str_bfr), 2);
-        strcat(str_bfr, " dB");
-    }
-    else
-        strcpy(str_bfr, "-INF DB");
-
-    gain_item->data.unit_text = str_bfr;
-
     if (naveg_get_current_mode() == MODE_TOOL_MENU)
     {
         TM_print_tool();
