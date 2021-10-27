@@ -786,15 +786,13 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
-    if (g_menu_popup_active) {
-        hardware_force_overlay_off(0);
+    hardware_force_overlay_off(0);
+
+    if (g_menu_popup_active)
         return;
-    }
 
     if (g_device_mode == MODE_SELFTEST)
         return;
-
-    hardware_force_overlay_off(1);
 
     if (g_menu_popup_active)
         return;
