@@ -335,18 +335,23 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         //global tempo
         case MENU_ID_TEMPO:
             g_beats_per_minute = value;
+
+            menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
+            tempo_item->data.value = g_beats_per_minute;
+            static char str_bfr[12] = {};
+            int_to_str(g_beats_per_minute, str_bfr, 4, 0);
+            strcat(str_bfr, " BPM");
+            tempo_item->data.unit_text = str_bfr;
+
+            tempo_item = TM_get_menu_item_by_ID(TAP_ID);
+            tempo_item->data.value = g_beats_per_minute;
+            static char str_bfr2[12] = {};
+            int_to_str(g_beats_per_minute, str_bfr2, 4, 0);
+            tempo_item->data.unit_text = str_bfr2;
+
             //check if we need to update leds/display
             if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
-                menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
-                tempo_item->data.value = g_beats_per_minute;
 
-                static char str_bfr[12] = {};
-                int_to_str(g_beats_per_minute, str_bfr, 4, 0);
-                strcat(str_bfr, " BPM");
-                tempo_item->data.unit_text = str_bfr;
-
-                tempo_item = TM_get_menu_item_by_ID(TAP_ID);
-                tempo_item->data.value = g_beats_per_minute;
                 TM_print_tool();
                 TM_set_leds();
             }
