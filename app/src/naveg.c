@@ -522,7 +522,8 @@ void naveg_enc_down(uint8_t encoder)
             }
 
             //pass to navigation code
-            NM_down();
+            if (encoder == 0)
+                NM_down();
         break;
 
         case MODE_TOOL_FOOT:
@@ -615,7 +616,8 @@ void naveg_enc_up(uint8_t encoder)
             }
 
             //pass to navigation code
-            NM_up();
+            if (encoder == 0)
+                NM_up();
         break;
 
         case MODE_TOOL_FOOT:
