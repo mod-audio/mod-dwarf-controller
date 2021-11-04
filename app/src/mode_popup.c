@@ -161,7 +161,7 @@ void catch_ui_response(void *data, menu_item_t *item)
 void reset_naming_widget_name(void)
 {
     strcpy(g_current_name_input, "                  ");
-    g_current_name_input[18] = 0;
+    g_current_name_input[19] = 0;
 }
 
 //copy a name to the naming widget, but add spaces till the end of the box
@@ -191,7 +191,7 @@ void copy_name_to_naming_widget(char *source_to_copy)
 void turnicate_naming_widget_spaces(void)
 {
     uint8_t i;
-    for (i = 17; i > 0; i--) {
+    for (i = 18; i > 0; i--) {
         if (g_current_name_input[i] != ' ')
             break;
     }
