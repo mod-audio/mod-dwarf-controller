@@ -475,7 +475,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define MSG_TIMEOUT                 800
 
 //defines the timeout of the LEDS in us
-#define LED_INTERUPT_TIME                 8
+#define LED_INTERUPT_TIME                 16
 
 ///EEPROM adress page defines
 #define HIDE_ACTUATOR_ADRESS               0
