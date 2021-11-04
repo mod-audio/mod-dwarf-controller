@@ -1203,7 +1203,7 @@ void NM_update_lists(uint8_t list_type)
             request_banks_list(PAGE_DIR_INIT);
         break;
 
-            case PB_LIST_CHECKBOXES:
+        case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
         case PEDALBOARD_LIST:
         case PB_LIST_BEGINNING_BOX_SELECTED:
@@ -1758,6 +1758,12 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
         break;
 
         case BANKS_LIST:
+            g_current_bank = index;
+
+            if (g_banks) {
+                g_banks->selected = index;
+                g_banks->hover = index;
+            }
         break;
     }
 }

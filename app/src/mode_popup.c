@@ -524,6 +524,9 @@ void PM_button_pressed(uint8_t button)
                             //set last item as active
                             NM_set_last_selected(PEDALBOARD_LIST);
 
+                            //we can never save a pb directly to a bank, so "all pbs" is selected
+                            NM_set_selected_index(BANKS_LIST, 0);
+
                             //update list items
                             NM_update_lists(PEDALBOARD_LIST);
 
