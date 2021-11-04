@@ -650,6 +650,7 @@ void PM_button_pressed(uint8_t button)
 
                 //cancel
                 case 2:
+                    NM_update_lists(PEDALBOARD_LIST);
                     naveg_trigger_popup(-1);
                 break;
             }
