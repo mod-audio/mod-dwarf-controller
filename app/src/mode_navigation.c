@@ -1623,8 +1623,6 @@ void NM_toggle_pb_ss(void)
 
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED))
     {
-       //g_current_pedalboard = g_pedalboards->selected;
-
         request_snapshots(PAGE_DIR_INIT);
 
         if (!g_snapshots_loaded) //no snapshots available
@@ -1644,6 +1642,10 @@ void NM_toggle_pb_ss(void)
     {
         g_banks->selected = g_current_bank;
         g_banks->hover = g_current_bank;
+
+        //we micht not have this bank page in memory anymore, so request it
+        request_banks_list(PAGE_DIR_INIT);
+
         g_pedalboards->selected = g_current_pedalboard;
         g_pedalboards->hover = g_pedalboards->selected;
         request_pedalboards(PAGE_DIR_INIT, g_current_bank);
