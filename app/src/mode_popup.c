@@ -191,7 +191,7 @@ void copy_name_to_naming_widget(char *source_to_copy)
 void turnicate_naming_widget_spaces(void)
 {
     uint8_t i;
-    for (i = 18; i > 0; i--) {
+    for (i = 17; i > 0; i--) {
         if (g_current_name_input[i] != ' ')
             break;
     }
@@ -215,7 +215,7 @@ void PM_init(void)
 
 void PM_enter(uint8_t encoder)
 {
-    hardware_force_overlay_off(0);
+    hardware_force_overlay_off(1);
 
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
@@ -251,7 +251,7 @@ void PM_enter(uint8_t encoder)
 
 void PM_up(uint8_t encoder)
 {
-    hardware_force_overlay_off(0);
+    hardware_force_overlay_off(1);
 
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
@@ -300,7 +300,7 @@ void PM_up(uint8_t encoder)
 
 void PM_down(uint8_t encoder)
 {
-    hardware_force_overlay_off(0);
+    hardware_force_overlay_off(1);
 
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {

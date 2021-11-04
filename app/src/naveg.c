@@ -1237,10 +1237,10 @@ void naveg_trigger_popup(int8_t popup_id)
 
     //trigger popup
     if (popup_id >= 0) {
-        if (g_device_mode != MODE_POPUP) {
+        if (g_device_mode != MODE_POPUP)
             prev_mode = g_device_mode;
-            g_device_mode = MODE_POPUP;
-        }
+
+        g_device_mode = MODE_POPUP;
 
         PM_launch_popup(popup_id);
     }
