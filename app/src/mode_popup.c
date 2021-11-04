@@ -413,6 +413,7 @@ void PM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
+        case POPUP_EMPTY_NAME_ID:
         case POPUP_OVERWRITE_SS_ID:
         case POPUP_OVERWRITE_PB_ID:
         case POPUP_DELETE_BANK_ID:
