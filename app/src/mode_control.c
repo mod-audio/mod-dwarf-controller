@@ -1345,7 +1345,7 @@ void CM_set_control(uint8_t hw_id, float value)
 
         // updates the step value
         //for enumerations, this will ONLY be called for non paginated lists
-        if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) {
+        if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS)) {
             // locates the current value
             control->step = 0;
             for (i = 0; i < control->scale_points_count; i++)
@@ -1379,7 +1379,7 @@ void CM_set_control(uint8_t hw_id, float value)
         {
             ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
 
-            if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
+            if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
             {
                 // updates the led
                 if (!control->lock_led_actions) {
@@ -1397,9 +1397,18 @@ void CM_set_control(uint8_t hw_id, float value)
             //not implemented, not sure if ever needed
             else if (control->properties & FLAG_CONTROL_MOMENTARY)
             {
-                // updates the footer
-                screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
-                             (control->value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT), control->properties);
+                led->led_state.color = ENUMERATED_COLOR;
+
+                //update screen and text
+                if (control->value <= 0) {
+                    ledz_set_state(led, LED_ON, LED_UPDATE);
+                    screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
+                }
+                else {
+                    led->led_state.brightness = 0.1;
+                    ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                    screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
+                }
 
                 return;
             }
