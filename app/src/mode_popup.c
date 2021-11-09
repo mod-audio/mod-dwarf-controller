@@ -682,16 +682,20 @@ void PM_button_pressed(uint8_t button)
                                 PM_launch_attention_overlay("\n\nbank deleted\nsuccessfully", exit_popup);
 
                                 bp_list_t* banks = NM_get_banks();
-                                banks->hover = 0;
 
-                                if (g_change_selected != 0) {
-                                    //was there a bank deleted before or after the selected?
-                                    if (g_change_selected < banks->selected)
-                                        banks->selected = g_change_selected -1;
-                                    else
-                                        banks->selected = g_change_selected;
+                                if (banks->selected == g_change_selected) {
+                                    NM_set_selected_index(BANKS_LIST, 0);
+                                }
+                                else {
+                                    if (g_change_selected != 0) {
+                                        //was there a bank deleted before or after the selected?
+                                        if (g_change_selected < banks->selected)
+                                            banks->selected = g_change_selected -1;
+                                        else
+                                            banks->selected = g_change_selected;
 
-                                    g_change_selected = 0;
+                                        g_change_selected = 0;
+                                    }
                                 }
 
                                 NM_update_lists(BANKS_LIST);
