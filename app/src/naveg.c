@@ -686,7 +686,7 @@ void naveg_enc_up(uint8_t encoder)
 
 void naveg_foot_change(uint8_t foot, uint8_t pressed)
 {
-    if (!g_initialized || g_menu_popup_active) return;
+    if (!g_initialized) return;
 
     if (g_menu_popup_active) {
         hardware_force_overlay_off(0);
@@ -796,9 +796,6 @@ void naveg_foot_double_press(uint8_t foot)
     if (g_device_mode == MODE_SELFTEST)
         return;
 
-    if (g_menu_popup_active)
-        return;
-
     //lock foots when double press, we dont want a release action here
     g_lock_release[foot] = 1;
     //we always use foot 0 for double press, a bit dirty I know
@@ -809,7 +806,7 @@ void naveg_foot_double_press(uint8_t foot)
     if (foot == 1)
     {
         //reset nav mode if nececary
-        if (NM_get_current_list() == BANKS_LIST)
+        if ((NM_get_current_list() == BANKS_LIST) && (g_device_mode != MODE_POPUP))
             NM_set_current_list(PEDALBOARD_LIST);
 
         switch(g_device_mode)
@@ -919,9 +916,6 @@ void naveg_foot_double_press(uint8_t foot)
         hardware_change_encoder_hold(NAV_MODE_ENC_HOLD_TIME);
     else
         hardware_change_encoder_hold(DEFAULT_ENC_HOLD_TIME);
-
-    //we dont have others atm
-    return;
 }
 
 //used fot the 3 encoder buttons
