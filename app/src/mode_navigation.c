@@ -1195,6 +1195,7 @@ void NM_toggle_mode(void)
         break;
 
         case SNAPSHOT_LIST:
+            request_snapshots(PAGE_DIR_INIT);
         break;
     }
 
@@ -1262,10 +1263,12 @@ void NM_print_screen(void)
         break;
 
         case SNAPSHOT_LIST:
-            request_snapshots(PAGE_DIR_INIT);
-
             if (!g_snapshots_loaded) //no snapshots available
                 return;
+
+            //no data
+            if (!g_snapshots)
+                request_snapshots(PAGE_DIR_INIT);
 
             //display them
             screen_pbss_list(g_pedalboard_name, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
