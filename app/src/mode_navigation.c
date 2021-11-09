@@ -1227,7 +1227,10 @@ void NM_update_lists(uint8_t list_type)
         break;
 
         case SNAPSHOT_LIST:
-            request_snapshots(PAGE_DIR_INIT);
+            if (g_snapshots)
+                request_snapshots(PAGE_DIR_DOWN);
+            else
+                request_snapshots(PAGE_DIR_INIT);
         break;
     }
 
