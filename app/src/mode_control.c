@@ -1249,11 +1249,11 @@ void CM_toggle_control(uint8_t encoder)
             step_to_value(control);
             send_control_set(control);
 
+            clone_list_encoders(control);
+
             hardware_force_overlay_off(0);
             g_current_overlay_actuator = -1;
             CM_print_screen();
-
-            clone_list_encoders(control);
 
             return;
         }
