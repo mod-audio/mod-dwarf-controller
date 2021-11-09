@@ -1184,6 +1184,14 @@ void NM_toggle_mode(void)
                 g_banks->hover = g_current_bank;
                 g_banks->selected = g_banks->hover;
             }
+
+            if (g_current_bank == g_banks->selected) {
+                g_pedalboards->hover = g_current_pedalboard;
+                g_pedalboards->selected = g_current_pedalboard;
+            }
+            else
+                g_pedalboards->hover = 0;
+
         break;
 
         case SNAPSHOT_LIST:
