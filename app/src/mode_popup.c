@@ -841,7 +841,7 @@ void PM_launch_attention_overlay(char *message, void (*timeout_cb))
 {
     screen_msg_overlay(message);
 
-    hardware_set_overlay_timeout(MSG_TIMEOUT, timeout_cb);
+    hardware_set_overlay_timeout(MSG_TIMEOUT, timeout_cb, OVERLAY_ATTENTION);
 }
 
 uint8_t PM_get_current_popup(void)

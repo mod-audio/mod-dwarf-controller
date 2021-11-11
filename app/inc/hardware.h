@@ -49,6 +49,10 @@ enum {COREBOARD_INIT, COREBOARD_TURN_OFF, COREBOARD_TURN_ON};
 #define CYAN                LEDZ_GREEN | LEDZ_BLUE
 #define WHITE               LEDZ_GREEN | LEDZ_BLUE | LEDZ_RED
 
+//overlay types
+#define OVERLAY_ATTENTION		0
+#define OVERLAY_CONTROL			1
+
 /*
 ************************************************************************************************************************
 *           DATA TYPES
@@ -98,11 +102,13 @@ void hardware_reset_eeprom(void);
 // turn on/off coreboard
 void hardware_coreboard_power(uint8_t state);
 //set timer for overlays
-void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb));
+void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb), uint8_t type);
 //force stop timer
 void hardware_force_overlay_off(uint8_t avoid_callback);
 //get overlay counter time
 uint32_t hardware_get_overlay_counter(void);
+//get overlay type
+uint8_t hardware_get_overlay_type(void);
 
 
 /*

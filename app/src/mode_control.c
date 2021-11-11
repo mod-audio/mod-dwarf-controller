@@ -1028,6 +1028,10 @@ void CM_inc_control(uint8_t encoder)
     //no control
     if (!control) return;
 
+    //if we already have an overlay, reprint the full screen first
+    if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+        hardware_force_overlay_off(0);
+
     if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) {
         //prepare display overlay
         CM_print_control_overlay(control, ENCODER_LIST_TIMEOUT);
@@ -1131,6 +1135,10 @@ void CM_dec_control(uint8_t encoder)
 
     //no control, return
     if (!control) return;
+
+    //if we already have an overlay, reprint the full screen first
+    if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+        hardware_force_overlay_off(0);
     
     if  (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE))  {
         //prepare display overlay
@@ -1228,6 +1236,10 @@ void CM_toggle_control(uint8_t encoder)
     //no control
     if (!control) return;
 
+    //if we already have an overlay, reprint the full screen first
+    if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+        hardware_force_overlay_off(0);
+
     if (control->properties & FLAG_CONTROL_TRIGGER)
     {
         control->value = control->maximum;
@@ -1251,7 +1263,6 @@ void CM_toggle_control(uint8_t encoder)
 
             clone_list_encoders(control);
 
-            hardware_force_overlay_off(0);
             g_current_overlay_actuator = -1;
             CM_print_screen();
 
@@ -1260,7 +1271,6 @@ void CM_toggle_control(uint8_t encoder)
         //overlay already active, close
         else
         {
-            hardware_force_overlay_off(0);
             g_current_overlay_actuator = -1;
             CM_print_screen();
         }
@@ -1276,6 +1286,10 @@ void CM_toggle_control(uint8_t encoder)
 
 void CM_foot_control_change(uint8_t foot, uint8_t value)
 {
+    //if we already have an overlay, reprint the full screen first
+    if ((hardware_get_overlay_counter() != 0) && value)
+        hardware_force_overlay_off(0);
+
     // checks if there is assigned control
     if (g_foots[foot] == NULL) 
         return;
@@ -1654,7 +1668,7 @@ void CM_reset_page(void)
 
 void CM_load_next_encoder_page(uint8_t button)
 {
-    hardware_force_overlay_off(1);
+    hardware_force_overlay_off(0);
     g_current_overlay_actuator = -1;
 
     g_current_encoder_page = button;
@@ -1876,7 +1890,7 @@ void CM_print_control_overlay(control_t *control, uint16_t overlay_time)
 
     screen_control_overlay(control);
 
-    hardware_set_overlay_timeout(overlay_time, CM_close_overlay);
+    hardware_set_overlay_timeout(overlay_time, CM_close_overlay, OVERLAY_CONTROL);
 }
 
 void CM_set_pages_available(uint8_t page_toggles[8])

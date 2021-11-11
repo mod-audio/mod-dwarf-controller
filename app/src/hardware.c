@@ -252,6 +252,7 @@ static uint32_t g_counter, g_overlay_counter;
 static int g_brightness;
 static void (*g_overlay_callback)(void);
 static uint8_t trigger_overlay_callback = 0;
+static uint8_t g_overlay_type;
 
 /*
 ************************************************************************************************************************
@@ -865,9 +866,10 @@ void hardware_coreboard_power(uint8_t state)
     }
 }
 
-void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb))
+void hardware_set_overlay_timeout(uint32_t overlay_time_in_ms, void (*timeout_cb), uint8_t type)
 {
     g_overlay_callback = timeout_cb;
+    g_overlay_type = type;
 
     //overlay counter is per 10ms, not in ms, so devided by 10
     g_overlay_counter = (overlay_time_in_ms / 10);
@@ -886,6 +888,11 @@ void hardware_force_overlay_off(uint8_t avoid_callback)
 uint32_t hardware_get_overlay_counter(void)
 {
     return g_overlay_counter;
+}
+
+uint8_t hardware_get_overlay_type(void)
+{
+    return g_overlay_type;
 }
 
 void TIMER0_IRQHandler(void)
