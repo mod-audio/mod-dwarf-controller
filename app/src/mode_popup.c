@@ -650,7 +650,11 @@ void PM_button_pressed(uint8_t button)
 
                 //cancel
                 case 2:
-                    NM_update_lists(PEDALBOARD_LIST);
+                    if (NM_get_current_list() == PEDALBOARD_LIST)
+                        NM_update_lists(PEDALBOARD_LIST);
+                    else if (NM_get_current_list() == SNAPSHOT_LIST)
+                        NM_update_lists(SNAPSHOT_LIST);
+
                     naveg_trigger_popup(-1);
                 break;
             }
