@@ -1637,7 +1637,14 @@ void NM_toggle_pb_ss(void)
 
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED))
     {
-        request_snapshots(PAGE_DIR_INIT);
+        //if we dont have snapshots, also set the active one
+        if (!g_snapshots) {
+            request_snapshots(PAGE_DIR_INIT);
+            g_snapshots->selected = g_current_snapshot;
+            g_snapshots->hover = g_current_snapshot;
+        }
+        else
+            request_snapshots(PAGE_DIR_INIT);
 
         if (!g_snapshots_loaded) //no snapshots available
         {
@@ -1704,21 +1711,25 @@ void NM_set_last_selected(uint8_t list_type)
 
     switch(list_type) {
         case PEDALBOARD_LIST:;
-            uint16_t pedalboard_to_load = g_pedalboards->menu_max;
+            uint16_t pedalboard_to_load = g_pedalboards->menu_max-1;
             int_to_str(pedalboard_to_load, str_bfr, 8, 0);
 
             g_current_pedalboard = pedalboard_to_load;
-            g_pedalboards->selected = pedalboard_to_load;
-            g_pedalboards->hover = pedalboard_to_load;
+            if (g_pedalboards) {
+                g_pedalboards->selected = pedalboard_to_load;
+                g_pedalboards->hover = pedalboard_to_load;
+            }
         break;
 
         case SNAPSHOT_LIST:;
-            uint16_t snapshot_to_load = g_snapshots->menu_max;
+            uint16_t snapshot_to_load = g_snapshots->menu_max-1;
             int_to_str(snapshot_to_load, str_bfr, 8, 0);
 
             g_current_snapshot = snapshot_to_load;
-            g_snapshots->selected = snapshot_to_load;
-            g_snapshots->hover = snapshot_to_load;
+            if (g_snapshots) {
+                g_snapshots->selected = snapshot_to_load;
+                g_snapshots->hover = snapshot_to_load;
+            }
         break;
 
         case BANKS_LIST:

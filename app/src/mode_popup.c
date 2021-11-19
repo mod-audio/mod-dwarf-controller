@@ -180,7 +180,7 @@ void copy_name_to_naming_widget(char *source_to_copy)
     strcpy(g_current_name_input, source_to_copy);
 
     uint8_t i;
-    for (i = source_length; i < 18; i++) {
+    for (i = source_length; i <= 18; i++) {
         strcat(g_current_name_input, " ");
     }
 
@@ -509,11 +509,11 @@ void PM_button_pressed(uint8_t button)
 
                     if (g_post_callback_call) {
                         if (g_current_popup_id==POPUP_SAVE_SS_ID){
-                            //set last item as active
-                            NM_set_last_selected(SNAPSHOT_LIST);
-
                             //update list items
                             NM_update_lists(SNAPSHOT_LIST);
+
+                            //set last item as active
+                            NM_set_last_selected(SNAPSHOT_LIST);
 
                             //save successful message
                             PM_launch_attention_overlay("\n\nsnapshot saved\nsuccessfully", exit_popup);
@@ -522,14 +522,14 @@ void PM_button_pressed(uint8_t button)
                             NM_set_pbss_name(g_current_name_input, 1);
                         }
                         else {
-                            //set last item as active
-                            NM_set_last_selected(PEDALBOARD_LIST);
-
                             //we can never save a pb directly to a bank, so "all pbs" is selected
                             NM_set_selected_index(BANKS_LIST, 0);
 
                             //update list items
                             NM_update_lists(PEDALBOARD_LIST);
+
+                            //set last item as active
+                            NM_set_last_selected(PEDALBOARD_LIST);
 
                             //save successful message
                             PM_launch_attention_overlay("\n\npedalboard saved\nsuccessfully", exit_popup);
