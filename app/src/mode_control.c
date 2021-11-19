@@ -1916,11 +1916,11 @@ void CM_set_pages_available(uint8_t page_toggles[8])
         for (i = g_current_foot_control_page; (i > 0) && !pagefound; i--)
         {
             //page found
-            if (g_fs_page_available[i])
+            if (g_fs_page_available[i]) {
+                g_current_foot_control_page = i;
                 pagefound = 1;
+            }
         }
-
-        g_current_foot_control_page = i;
 
         load_control_page(g_current_foot_control_page);
     }
