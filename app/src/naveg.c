@@ -400,6 +400,11 @@ void naveg_enc_enter(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     g_encoders_pressed[encoder] = 1;
 
     switch(g_device_mode)
@@ -508,6 +513,11 @@ void naveg_enc_down(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     switch(g_device_mode)
     {
         case MODE_CONTROL:
@@ -602,6 +612,11 @@ void naveg_enc_up(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     switch(g_device_mode)
     {
         case MODE_CONTROL:
@@ -689,6 +704,11 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
     if (!g_initialized) return;
 
     if (g_menu_popup_active) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
+    if ((hardware_get_overlay_counter() != 0) && pressed) {
         hardware_force_overlay_off(0);
         return;
     }
@@ -788,10 +808,13 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
 void naveg_foot_double_press(uint8_t foot)
 {
-    hardware_force_overlay_off(0);
-
     if (g_menu_popup_active)
         return;
+
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
 
     if (g_device_mode == MODE_SELFTEST)
         return;
@@ -938,6 +961,11 @@ void naveg_button_pressed(uint8_t button)
             naveg_enc_enter(g_popup_encoder);
         }
 
+        return;
+    }
+
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
         return;
     }
 
@@ -1090,6 +1118,11 @@ void naveg_shift_pressed()
     if (g_device_mode == MODE_POPUP)
         return;
 
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
+
     if (g_shift_latching)
     {
         if (shift_mode_active)
@@ -1114,6 +1147,11 @@ void naveg_shift_releaed()
     //cant enter shift menu from popup
     if (g_device_mode == MODE_POPUP)
         return;
+
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
 
     if (!g_shift_latching) {
         //always a chance we changed gains, send save
