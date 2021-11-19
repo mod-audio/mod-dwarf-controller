@@ -496,6 +496,9 @@ static void exit_checkbox_mode(void)
 
     g_pedalboards->hover = 0;
 
+    if (g_current_bank == g_banks->selected)
+        g_pedalboards->selected = g_current_pedalboard;
+
     request_pedalboards(PAGE_DIR_INIT, g_banks->hover);
 
     NM_print_screen();
