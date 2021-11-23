@@ -38,7 +38,7 @@
 #define CONFIRM_CANCEL_BTN3     "cancel"
 
 #define POPUP_SAVE_SELECT_ID    0
-#define POPUP_SAVE_SELECT_MSG   "\n\nWhat whould you like to save?"
+#define POPUP_SAVE_SELECT_MSG   "\n\nWhat would you like to save?"
 #define PBTN1_SAVE_SELECT       "PB"
 #define PBTN2_SAVE_SELECT       "snapsht"
 #define PBTN3_SAVE_SELECT       "cancel"
