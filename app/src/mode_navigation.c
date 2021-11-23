@@ -881,6 +881,10 @@ void NM_encoder_released(uint8_t encoder)
     if (g_grabbed_item_label)
         FREE(g_grabbed_item_label);
 
+    if (g_current_list == SNAPSHOT_LIST) {
+        request_snapshots(PAGE_DIR_DOWN);
+    }
+
     //reprint screen
     NM_print_screen();
 }

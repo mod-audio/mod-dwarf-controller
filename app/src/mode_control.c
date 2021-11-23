@@ -1912,7 +1912,7 @@ void CM_set_pages_available(uint8_t page_toggles[8])
     if (!g_fs_page_available[g_current_foot_control_page])
     {
         uint8_t pagefound = 0;
-        uint8_t i;
+        int8_t i;
         for (i = g_current_foot_control_page; (i >= 0) && !pagefound; i--)
         {
             //page found
