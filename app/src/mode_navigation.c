@@ -375,8 +375,9 @@ static void request_snapshots(uint8_t dir)
     buffer[i++] = ' ';
 
     // insert the current hover on buffer
-    if ((dir == PAGE_DIR_INIT))
-        i += int_to_str(0, &buffer[i], sizeof(buffer) - i, 0);
+    if ((dir == PAGE_DIR_INIT)) {
+        i += int_to_str(g_current_snapshot, &buffer[i], sizeof(buffer) - i, 0);
+    }
     else
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
 
