@@ -120,7 +120,8 @@ typedef struct SYSTEM_POPUP_T {
     char *title;
     char *popup_text;
     char *btn1_txt, *btn2_txt, *btn3_txt;
-    uint8_t button_value, cursor_index;
+    uint8_t cursor_index;
+    int8_t button_value;
     const uint8_t button_max, has_naming_input;
     char *input_name;
 } system_popup_t;

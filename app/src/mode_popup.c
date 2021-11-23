@@ -242,7 +242,10 @@ void PM_enter(uint8_t encoder)
     }
     //pass to button pressed
     else {
-        if ((g_global_popups[g_current_popup_id].button_max == 2) && (g_global_popups[g_current_popup_id].button_value == 1))
+        //we have yet to turn the encoder
+        if (g_global_popups[g_current_popup_id].button_value == -1)
+            return;
+        else if ((g_global_popups[g_current_popup_id].button_max == 2) && (g_global_popups[g_current_popup_id].button_value == 1))
             PM_button_pressed(2);
         else
             PM_button_pressed(g_global_popups[g_current_popup_id].button_value);
@@ -296,6 +299,10 @@ void PM_up(uint8_t encoder)
         g_global_popups[g_current_popup_id].button_value--;
         PM_print_screen();
     }
+    else {
+        g_global_popups[g_current_popup_id].button_value = 0;
+        PM_print_screen();
+    }
 }
 
 void PM_down(uint8_t encoder)
@@ -344,8 +351,13 @@ void PM_down(uint8_t encoder)
             break;
         }
     }
-    else if (g_global_popups[g_current_popup_id].button_value < g_global_popups[g_current_popup_id].button_max-1){
+    else if ((g_global_popups[g_current_popup_id].button_value < g_global_popups[g_current_popup_id].button_max-1)
+        && (g_global_popups[g_current_popup_id].button_value >= 0)){
         g_global_popups[g_current_popup_id].button_value++;
+        PM_print_screen();
+    }
+    else {
+        g_global_popups[g_current_popup_id].button_value = g_global_popups[g_current_popup_id].button_max-1;
         PM_print_screen();
     }
 }
@@ -806,6 +818,7 @@ void PM_launch_popup(uint8_t popup_id)
     //change current popup id and print it
     g_current_popup_id = popup_id;
     g_keyboard_toggled = 0;
+    g_global_popups[g_current_popup_id].button_value = -1;
 
     //fetch the needed things
     if (g_global_popups[g_current_popup_id].has_naming_input) {
