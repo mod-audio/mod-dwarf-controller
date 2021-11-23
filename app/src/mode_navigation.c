@@ -257,9 +257,9 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
 
     buffer[i++] = 0;
 
-    uint16_t prev_hover = g_current_pedalboard;
-    uint16_t prev_selected = g_current_pedalboard;
-    uint16_t prev_selected_count = 0;
+    int32_t prev_hover = g_current_pedalboard;
+    int32_t prev_selected = g_current_pedalboard;
+    int32_t prev_selected_count = 0;
 
     if (g_pedalboards) {
         prev_hover = g_pedalboards->hover;
@@ -576,7 +576,7 @@ static void enter_bank(void)
         g_pedalboards->hover = g_current_pedalboard;
     }
     else {
-        g_pedalboards->selected = g_pedalboards->menu_max + 1;
+        g_pedalboards->selected = -1;
         g_pedalboards->hover = 0;
     }
 
