@@ -683,21 +683,22 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_clear();
 
                     switch (g_current_popup_id) {
-                        case POPUP_DELETE_BANK_ID:
+                        case POPUP_DELETE_BANK_ID:;
+
+                            bp_list_t *banks = NM_get_banks();
+
                             i = copy_command(buffer, CMD_BANK_DELETE);
-                            i += int_to_str(NM_get_current_hover(BANKS_LIST), &buffer[i], sizeof(buffer) - i, 0);
+                            i += int_to_str(banks->hover, &buffer[i], sizeof(buffer) - i, 0);
 
                             g_change_selected = 0;
-                            if (NM_get_current_hover(BANKS_LIST) == NM_get_current_selected(BANKS_LIST))
-                                g_change_selected = NM_get_current_selected(BANKS_LIST);
+                            if (banks->hover == banks->selected)
+                                g_change_selected = banks->selected;
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
 
                             if (g_post_callback_call) {
                                 PM_launch_attention_overlay("\n\nbank deleted\nsuccessfully", exit_popup);
-
-                                bp_list_t* banks = NM_get_banks();
 
                                 if (banks->selected == g_change_selected) {
                                     NM_set_selected_index(BANKS_LIST, 0);
@@ -713,6 +714,10 @@ void PM_button_pressed(uint8_t button)
                                         g_change_selected = 0;
                                     }
                                 }
+
+                                //if we deleted the last bank, change hover
+                                if (banks->hover >= banks->menu_max-1)
+                                    banks->hover--;
 
                                 NM_update_lists(BANKS_LIST);
                             }
