@@ -37,7 +37,6 @@
 #define RESTORE_HOSTNAME    "mod-restore"
 
 #define PEEK_SIZE           3
-#define LINE_BUFFER_SIZE    60
 #define RESPONSE_TIMEOUT    (CLI_RESPONSE_TIMEOUT / portTICK_RATE_MS)
 #define BOOT_TIMEOUT        (3000 / portTICK_RATE_MS)
 
