@@ -143,7 +143,7 @@ void catch_ui_response(void *data, menu_item_t *item)
         break;
 
         case POPUP_DELETE_BANK_ID:
-            PM_launch_attention_overlay("\n\nUnexpected error when\noverwriting pedalboard", exit_popup);
+            PM_launch_attention_overlay("\n\nUnexpected error when\ndeleting bank", exit_popup);
         break;
 
         case POPUP_REMOVE_SS_ID:
@@ -625,7 +625,7 @@ void PM_button_pressed(uint8_t button)
 
                     if (g_post_callback_call) {
                         NM_enter_new_bank();
-                        PM_launch_attention_overlay("\n\nbank creation\nsuccessful", exit_popup);
+                        PM_launch_attention_overlay("\n\nbank created\nsuccessfully", exit_popup);
                     }
                 break;
 
