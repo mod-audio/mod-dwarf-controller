@@ -71,7 +71,7 @@ static uint16_t g_current_pedalboard, g_current_snapshot, g_current_add_bank;
 static int16_t g_current_bank, g_force_update_pedalboard;
 static char *g_grabbed_item_label;
 static uint16_t* g_uids_to_add_to_bank;
-static uint8_t g_current_list = PEDALBOARD_LIST, g_snapshots_loaded = 0;;
+static uint8_t g_current_list = PEDALBOARD_LIST, g_snapshots_loaded = 0, g_post_callback_call = 0;
 static int8_t g_item_grabbed = NO_GRAB_ITEM;
 static uint16_t g_item_grabbed_uid;
 static char* g_pedalboard_name = NULL;
@@ -501,14 +501,23 @@ static void exit_checkbox_mode(void)
         g_pedalboards->selected = g_current_pedalboard;
 
     request_pedalboards(PAGE_DIR_INIT, g_banks->hover);
+}
 
-    NM_print_screen();
+static void catch_ui_response_adding_pbs(void *data, menu_item_t *item)
+{
+    (void) item;
+    char **response = data;
+    g_post_callback_call = 0;
+
+    //parse ok
+    if (atoi(response[1]) >= 0)
+        g_post_callback_call = 1;
 }
 
 static void parse_selected_uids(int8_t uid_count, int8_t bank_uid)
 {
     // sets the response callback
-    ui_comm_webgui_set_response_cb(NULL, NULL);
+    ui_comm_webgui_set_response_cb(catch_ui_response_adding_pbs, NULL);
 
     char buffer[80];
     memset(buffer, 0, 80);
@@ -543,7 +552,6 @@ static void parse_selected_uids(int8_t uid_count, int8_t bank_uid)
     // waits the pedalboards list be received
     ui_comm_webgui_wait_response();
 
-    //exit this mode
     exit_checkbox_mode();
 }
 
@@ -1474,7 +1482,16 @@ void NM_button_pressed(uint8_t button)
 
                 case BANK_LIST_CHECKBOXES_ENGAGED:
                     parse_selected_uids(g_banks->selected_count, ADD_FULL_BANKS);
-                    NM_print_screen();
+                    request_banks_list(PAGE_DIR_INIT);
+
+                    //exit this mode
+                    if (g_post_callback_call) {
+                        PM_launch_attention_overlay("\n\nPedalboards from\nbank added\nsuccesfully", NM_print_prev_screen);
+                    }
+                    //error
+                    else {
+                        PM_launch_attention_overlay("\n\nCan't add pedalboards\nUnexpected error", NM_print_prev_screen);
+                    }
                 break;
 
                 case PB_LIST_CHECKBOXES:
@@ -1499,7 +1516,16 @@ void NM_button_pressed(uint8_t button)
 
                 case PB_LIST_CHECKBOXES_ENGAGED:
                     parse_selected_uids(g_pedalboards->selected_count, g_banks->hover);
-                    NM_print_screen();
+                    request_banks_list(PAGE_DIR_INIT);
+
+                    ////exit this mode
+                    if (g_post_callback_call) {
+                        PM_launch_attention_overlay("\n\nPedalboards added\nsuccesfully", NM_print_prev_screen);
+                    }
+                    //error
+                    else {
+                        PM_launch_attention_overlay("\n\nCan't add pedalboards\nUnexpected error", NM_print_prev_screen);
+                    }
                 break;
 
                 //save snapshots
