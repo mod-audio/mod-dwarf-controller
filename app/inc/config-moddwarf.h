@@ -437,8 +437,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define WIDGET_LED1_COLOR               {100, 0,     0}
 #define WIDGET_LED2_COLOR               {0,   100,   0}
 #define WIDGET_LED3_COLOR               {0,   0,   100}
-#define WIDGET_LED4_COLOR               {100, 0,   100}
-#define WIDGET_LED5_COLOR               {0,   100, 100}
+#define WIDGET_LED4_COLOR               {0,   100, 100}
+#define WIDGET_LED5_COLOR               {100, 0,   100}
 #define WIDGET_LED6_COLOR               {100, 100,   0}
 #define WIDGET_LED7_COLOR               {100, 100, 100}
 
