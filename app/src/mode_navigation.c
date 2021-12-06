@@ -1612,6 +1612,7 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_CHECKBOXES:
                 case PB_LIST_CHECKBOXES_ENGAGED:
                     exit_checkbox_mode();
+                    NM_print_screen();
                 break;
             }
         break;
