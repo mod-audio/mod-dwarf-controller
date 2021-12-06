@@ -715,9 +715,8 @@ void PM_button_pressed(uint8_t button)
                                     }
                                 }
 
-                                //if we deleted the last bank, change hover
-                                if (banks->hover >= banks->menu_max-1)
-                                    banks->hover--;
+                                //we should not hover over the wrong bank
+                                banks->hover = banks->selected;
 
                                 NM_update_lists(BANKS_LIST);
                             }
