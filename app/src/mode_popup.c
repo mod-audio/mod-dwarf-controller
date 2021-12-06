@@ -725,7 +725,8 @@ void PM_button_pressed(uint8_t button)
 
                         case POPUP_REMOVE_SS_ID:
                             i = copy_command(buffer, CMD_SNAPSHOT_DELETE);
-                            i += int_to_str(NM_get_current_hover(SNAPSHOT_LIST), &buffer[i], sizeof(buffer) - i, 0);
+                            uint16_t snapshot_to_remove = NM_get_current_hover(SNAPSHOT_LIST);
+                            i += int_to_str(snapshot_to_remove, &buffer[i], sizeof(buffer) - i, 0);
 
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
@@ -734,6 +735,12 @@ void PM_button_pressed(uint8_t button)
                                 PM_launch_attention_overlay("\n\nsnapshot removed\nsuccessfully", exit_popup);
 
                                 bp_list_t* snapshots = NM_get_snapshots();
+
+                                if (snapshot_to_remove < snapshots->selected) {
+                                    snapshots->selected--;
+                                    NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
+                                }
+
                                 if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
                                     snapshots->hover--;
 
