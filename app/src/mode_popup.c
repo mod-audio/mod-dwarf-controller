@@ -160,7 +160,7 @@ void catch_ui_response(void *data, menu_item_t *item)
 //resets the naming widget to only include spaces
 void reset_naming_widget_name(void)
 {
-    strcpy(g_current_name_input, "                  ");
+    strcpy(g_current_name_input, "                   ");
     g_current_name_input[19] = 0;
 }
 
