@@ -400,7 +400,7 @@ void naveg_enc_enter(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
-    if (hardware_get_overlay_counter() != 0) {
+    if ((hardware_get_overlay_counter() != 0) && (g_device_mode != MODE_CONTROL)){
         hardware_force_overlay_off(0);
         return;
     }
@@ -513,7 +513,7 @@ void naveg_enc_down(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
-    if (hardware_get_overlay_counter() != 0) {
+    if ((hardware_get_overlay_counter() != 0) && (g_device_mode != MODE_CONTROL)) {
         hardware_force_overlay_off(0);
         return;
     }
@@ -612,7 +612,7 @@ void naveg_enc_up(uint8_t encoder)
     // checks the foot id
     if (encoder >= ENCODERS_COUNT) return;
 
-    if (hardware_get_overlay_counter() != 0) {
+    if ((hardware_get_overlay_counter() != 0) && (g_device_mode != MODE_CONTROL)) {
         hardware_force_overlay_off(0);
         return;
     }
@@ -708,7 +708,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         return;
     }
 
-    if ((hardware_get_overlay_counter() != 0) && pressed) {
+    if ((hardware_get_overlay_counter() != 0) && pressed && (g_device_mode != MODE_CONTROL)) {
         hardware_force_overlay_off(0);
         return;
     }
