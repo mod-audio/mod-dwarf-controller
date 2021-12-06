@@ -1304,7 +1304,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
             led->led_state.brightness = 0.1;
             ledz_set_state(led, LED_DIMMED, LED_UPDATE);
         }
-        else if (g_foots[foot]->properties & (FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION))  
+        else if (g_foots[foot]->properties & (FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION) && !g_foots[foot]->lock_led_actions)
         {
             if (g_foots[foot]->scale_points_flag & FLAG_SCALEPOINT_ALT_LED_COLOR)
             {
