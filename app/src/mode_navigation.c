@@ -1486,11 +1486,11 @@ void NM_button_pressed(uint8_t button)
 
                     //exit this mode
                     if (g_post_callback_call) {
-                        PM_launch_attention_overlay("\n\nPedalboards from\nbank added\nsuccesfully", NM_print_prev_screen);
+                        PM_launch_attention_overlay("\n\nPedalboard(s) from\nbank added\nsuccesfully", NM_print_prev_screen);
                     }
                     //error
                     else {
-                        PM_launch_attention_overlay("\n\nCan't add pedalboards\nUnexpected error", NM_print_prev_screen);
+                        PM_launch_attention_overlay("\n\nCan't add pedalboard(s)\nUnexpected error", NM_print_prev_screen);
                     }
                 break;
 
@@ -1520,11 +1520,11 @@ void NM_button_pressed(uint8_t button)
 
                     ////exit this mode
                     if (g_post_callback_call) {
-                        PM_launch_attention_overlay("\n\nPedalboards added\nsuccesfully", NM_print_prev_screen);
+                        PM_launch_attention_overlay("\n\nPedalboard(s) added\nsuccesfully", NM_print_prev_screen);
                     }
                     //error
                     else {
-                        PM_launch_attention_overlay("\n\nCan't add pedalboards\nUnexpected error", NM_print_prev_screen);
+                        PM_launch_attention_overlay("\n\nCan't add pedalboard(s)\nUnexpected error", NM_print_prev_screen);
                     }
                 break;
 
