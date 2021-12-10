@@ -485,7 +485,7 @@ void PM_button_pressed(uint8_t button)
                     }
 
                     //check if only spaces, if so, ask for cancel
-                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                  ")){
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                   ")){
                         g_keyboard_toggled = 0;
                         g_prev_popup_id = g_current_popup_id;
                         g_current_popup_id = POPUP_EMPTY_NAME_ID;
@@ -589,7 +589,7 @@ void PM_button_pressed(uint8_t button)
                     }
 
                     //check if only spaces, if so, ask for cancel
-                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                  ")){
+                    if (!strcmp(g_global_popups[g_current_popup_id].input_name , "                   ")){
                         g_keyboard_toggled = 0;
                         g_prev_popup_id = g_current_popup_id;
                         g_current_popup_id = POPUP_EMPTY_NAME_ID;
