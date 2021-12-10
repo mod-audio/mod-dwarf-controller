@@ -1484,6 +1484,9 @@ void NM_button_pressed(uint8_t button)
                     parse_selected_uids(g_banks->selected_count, ADD_FULL_BANKS);
                     request_banks_list(PAGE_DIR_INIT);
 
+                    if (g_current_bank != g_banks->selected)
+                        g_pedalboards->selected = -1;
+
                     //exit this mode
                     if (g_post_callback_call) {
                         PM_launch_attention_overlay("\n\nPedalboard(s) from\nbank added\nsuccesfully", NM_print_prev_screen);
@@ -1517,6 +1520,9 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_CHECKBOXES_ENGAGED:
                     parse_selected_uids(g_pedalboards->selected_count, g_banks->hover);
                     request_banks_list(PAGE_DIR_INIT);
+
+                    if (g_current_bank != g_banks->selected)
+                        g_pedalboards->selected = -1;
 
                     ////exit this mode
                     if (g_post_callback_call) {
