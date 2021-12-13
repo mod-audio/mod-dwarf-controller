@@ -160,6 +160,8 @@ void update_tap_tempo_led(void)
         tap_state.time_off = time_ms / 2;
     }
 
+    led->sync_blink = 0;
+    led->led_state.sync_blink = led->sync_blink;
     set_ledz_trigger_by_color_id(hardware_leds(1), LED_BLINK, tap_state);
 }
 

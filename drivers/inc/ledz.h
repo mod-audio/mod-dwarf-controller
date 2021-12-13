@@ -80,6 +80,12 @@ extern "C"
 //always blink value
 #define LED_BLINK_INFINIT		-1
 
+//how fast synced LED's blink in ms
+//fast blink should always be a devision of slow blink
+#define SYNC_BLINK_TIME_SLOW     500
+#define SYNC_BLINK_TIME_MID      250
+#define SYNC_BLINK_TIME_FAST     125
+
 //defines for LED state
 #define LED_OFF             0
 #define LED_ON 				1
@@ -119,11 +125,13 @@ typedef enum ledz_color_t {
     LEDZ_ALL_COLORS = 0xFF,
 } ledz_color_t;
 
+enum {NO_SYNC_BLINK, SYNC_SLOW_BLINK, SYNC_FAST_BLINK};
+
 typedef struct LED_STATE_T {
     uint8_t color;
     uint8_t state;
     int16_t time_on, time_off, fade_rate;
-    int8_t amount_of_blinks;
+    int8_t amount_of_blinks, sync_blink;
     float brightness, fade_ratio;
 } led_state_t;
 
@@ -145,7 +153,7 @@ typedef struct LEDZ_T {
 
     uint16_t time_on, time_off, time;
 
-    int8_t amount_of_blinks;
+    int8_t amount_of_blinks, sync_blink;
 
 #ifdef LEDZ_BRIGHTNESS_SUPPORT
     unsigned int pwm, brightness_value;

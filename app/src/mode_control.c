@@ -1457,6 +1457,8 @@ void CM_set_control(uint8_t hw_id, float value)
 
                 led->led_state.color = TAP_TEMPO_COLOR;
                 led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+                led->sync_blink = 0;
+                led->led_state.sync_blink = led->sync_blink;
                 led->led_state.fade_ratio = 10;
 
                 // setup the led blink
@@ -1471,8 +1473,9 @@ void CM_set_control(uint8_t hw_id, float value)
                     led->led_state.time_off = time_ms / 2;
                 }
 
-                if (!control->lock_led_actions)
+                if (!control->lock_led_actions) {
                     ledz_set_state(led, LED_BLINK, LED_UPDATE);
+                }
 
                 // calculates the maximum tap tempo value
                 if (g_tap_tempo[control->hw_id - ENCODERS_COUNT].state == TT_INIT)
@@ -1788,6 +1791,8 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
         uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5);
 
         led->led_state.color = TAP_TEMPO_COLOR;
+        led->sync_blink = 0;
+        led->led_state.sync_blink = led->sync_blink;
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
 
         // setup the led blink

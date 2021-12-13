@@ -233,6 +233,7 @@ ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pin
         led->fade_in = 0;
         led->fade_out = 0;
         led->amount_of_blinks = -1;
+        led->sync_blink = 0;
         led->led_state.color = 0;
         led->led_state.state = LED_OFF;
         led->led_state.time_on = 0;
@@ -315,7 +316,9 @@ void ledz_set(ledz_t* led, ledz_color_t color, int value)
 
 void ledz_blink(ledz_t* led, ledz_color_t color, uint16_t time_on, uint16_t time_off, int8_t amount_of_blinks)
 {
-    if (time_on == 0 || time_off == 0)
+    uint8_t sync_blink = led->sync_blink;
+
+    if ((time_on == 0 || time_off == 0) && !sync_blink)
     {
         led->blink = 0;
         return;
@@ -326,6 +329,14 @@ void ledz_blink(ledz_t* led, ledz_color_t color, uint16_t time_on, uint16_t time
     {
         if (led->color & color)
         {
+            if (sync_blink) {
+                led->sync_blink = sync_blink;
+                led->blink = 1;
+                led->amount_of_blinks = LED_BLINK_INFINIT;
+                continue;
+            }
+
+            led->sync_blink = 0;
             led->time_on = time_on;
             led->time_off = time_off;
 
@@ -440,6 +451,11 @@ void ledz_fade_up_down(ledz_t* led, ledz_color_t color, unsigned int rate, unsig
 void ledz_tick(void)
 {
     static uint16_t counter_1ms;
+    static uint32_t sync_blink_counter = SYNC_BLINK_TIME_SLOW;
+    static uint8_t fast_blink_state = 1;
+    static uint8_t mid_blink_state = 1;
+    static uint8_t slow_blink_state = 1;
+
     int flag_1ms = 0;
 
     // check if 1ms has been passed
@@ -447,6 +463,19 @@ void ledz_tick(void)
     {
         counter_1ms = 0;
         flag_1ms = 1;
+
+        sync_blink_counter--;
+
+        if (sync_blink_counter <= 0) {
+            slow_blink_state = 1 - slow_blink_state;
+            sync_blink_counter = SYNC_BLINK_TIME_SLOW;
+        }
+
+        if ((sync_blink_counter % SYNC_BLINK_TIME_FAST) == 0)
+            fast_blink_state = 1 - fast_blink_state;
+
+        if ((sync_blink_counter % SYNC_BLINK_TIME_MID) == 0)
+            mid_blink_state = 1 - mid_blink_state;
     }
 
     int i;
@@ -461,48 +490,106 @@ void ledz_tick(void)
         // execute blink control if 1ms has been passed
         if (led->blink && flag_1ms)
         {
-            if (led->time > 0)
-                led->time--;
-
-            if (led->time == 0)
+            if (led->sync_blink != 0)
             {
-                if (led->amount_of_blinks != 0)
+                switch (led->sync_blink) {
+                    //slow
+                    case 1:
+                        if (slow_blink_state) {
+                            // disable hardware PWM
+                            LED_PWM(led, 0);
+                            // turn off led
+                            LED_SET(led, 0);
+                        }
+                        else {
+                            // turn on led
+                            LED_SET(led, 1);
+                            // enable hardware PWM
+                            LED_PWM(led, cie1931[led->brightness_value]);
+                        }
+                    break;
+
+                    //mid
+                    case 2:
+                        if (mid_blink_state) {
+                            // disable hardware PWM
+                            LED_PWM(led, 0);
+                            // turn off led
+                            LED_SET(led, 0);
+                        }
+                        else {
+                            // turn on led
+                            LED_SET(led, 1);
+                            // enable hardware PWM
+                            LED_PWM(led, cie1931[led->brightness_value]);
+                        }
+                    break;
+
+                    //fast
+                    case 3:
+                        if (fast_blink_state) {
+                            // disable hardware PWM
+                            LED_PWM(led, 0);
+                            // turn off led
+                            LED_SET(led, 0);
+                        }
+                        else {
+                            // turn on led
+                            LED_SET(led, 1);
+                            // enable hardware PWM
+                            LED_PWM(led, cie1931[led->brightness_value]);
+                        }
+                    break;
+                }
+
+                // go to next led if blink control has updated led state
+                continue;
+            }
+            else
+            {
+                if (led->time > 0)
+                    led->time--;
+
+                if (led->time == 0)
                 {
-                    if (led->blink_state)
+                    if (led->amount_of_blinks != 0)
                     {
-                        // disable hardware PWM
-                        LED_PWM(led, 0);
+                        if (led->blink_state)
+                        {
+                            // disable hardware PWM
+                            LED_PWM(led, 0);
 
-                        // turn off led
-                        LED_SET(led, 0);
+                            // turn off led
+                            LED_SET(led, 0);
 
-                        // load counter with time off value
-                        led->time = led->time_off;
+                            // load counter with time off value
+                            led->time = led->time_off;
+                        }
+                        else
+                        {
+                            // turn on led
+                            LED_SET(led, 1);
+
+                            // enable hardware PWM
+                            LED_PWM(led, cie1931[led->brightness_value]);
+
+                            // load counter with time on value
+                            led->time = led->time_on;
+
+                            //substract a blink
+                            if (led->amount_of_blinks > -1)
+                            led->amount_of_blinks--;
+                        }
                     }
+                    //stop blinking
                     else
                     {
-                        // turn on led
-                        LED_SET(led, 1);
-
-                        // enable hardware PWM
-                        LED_PWM(led, cie1931[led->brightness_value]);
-
-                        // load counter with time on value
-                        led->time = led->time_on;
-
-                        //substract a blink
-                        if (led->amount_of_blinks > -1)
-                        led->amount_of_blinks--;
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
                     }
-                }
-                //stop blinking
-                else
-                {
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
-                }
 
-                // toggle blink state
-                led->blink_state = 1 - led->blink_state;
+                    // toggle blink state
+                    led->blink_state = 1 - led->blink_state;
+                }
 
                 // go to next led if blink control has updated led state
                 continue;
@@ -608,11 +695,13 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
         switch(state)
         {
             case LED_ON:
+                led->sync_blink = 0;
                 ledz_on(led, ledz_color);
                 ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
             break;
 
             case LED_OFF:
+                led->sync_blink = 0;
                 ledz_off(led, ledz_color);
                 ledz_brightness(led, ledz_color, 0);
             break;
@@ -628,12 +717,14 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
             break;
 
             case LED_FADE:
+                led->sync_blink = 0;
                 ledz_on(led, ledz_color);
                 ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
                 ledz_fade_up_down(led, ledz_color, led_state.fade_rate, (led_colors[led_state.color][i] / led_state.fade_ratio), led_colors[led_state.color][i]);
             break;
 
             case LED_DIMMED:
+                led->sync_blink = 0;
                 ledz_off(led, ledz_color);
                 if (led_colors[led_state.color][i] != 0)
                 {

@@ -363,11 +363,17 @@ void cb_led(uint8_t serial_id, proto_t *proto)
 
     if (proto->list_count < 6)
         ledz_set_state(led, LED_ON, LED_UPDATE);
+    else if (proto->list_count < 7) {
+        led->sync_blink = atoi(proto->list[5]);
+        led->led_state.sync_blink = led->sync_blink;
+        ledz_set_state(led, LED_BLINK, LED_UPDATE);
+    }
     else
     {
         led->led_state.time_on = atoi(proto->list[5]);
         led->led_state.time_off = atoi(proto->list[6]);
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
+        led->sync_blink = 0;
         ledz_set_state(led, LED_BLINK, LED_UPDATE);
     }
 
@@ -437,11 +443,18 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
         led->led_state.brightness = (float)(argument_1 / 100.0f);
         ledz_set_state(led, LED_DIMMED, led_update);
     }
+    else if (argument_1 == 0)
+    {
+        led->sync_blink = argument_2;
+        led->led_state.sync_blink = led->sync_blink;
+        ledz_set_state(led, LED_BLINK, LED_UPDATE);
+    }
     else
     {
         led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
         led->led_state.time_on = argument_1;
         led->led_state.time_off = argument_2;
+        led->led_state.sync_blink = 0;
         ledz_set_state(led, LED_BLINK, led_update);
     }
 
