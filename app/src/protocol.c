@@ -321,7 +321,8 @@ void protocol_init(void)
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
     protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
-    protocol_add_command(CMD_SYS_CHANGE_LED, cb_change_assigned_led);
+    //protocol_add_command(CMD_SYS_CHANGE_LED_BLINK, cb_change_assigned_led_blink);
+    //protocol_add_command(CMD_SYS_CHANGE_LED_BRIGHTNESS, cb_change_assigned_led_brightness);
     protocol_add_command(CMD_SYS_CHANGE_NAME, cb_change_assigment_name);
     protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
     protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
@@ -389,15 +390,15 @@ void cb_disp_brightness(uint8_t serial_id, proto_t *proto)
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 
-void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
+void cb_change_assigned_led_blink(uint8_t serial_id, proto_t *proto)
 {
     if (serial_id != SYSTEM_SERIAL)
         return;
 
     uint8_t hw_id = atoi(proto->list[2]);
 
-    uint16_t argument_1 = atoi(proto->list[4]);
-    uint16_t argument_2 = atoi(proto->list[5]);
+    int16_t argument_1 = atoi(proto->list[4]);
+    int16_t argument_2 = atoi(proto->list[5]);
 
     ledz_t *led;
     if (hw_id == 3)
@@ -431,21 +432,9 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if ((argument_1 == 0) && (argument_2 == 0))
+    if (argument_2 == 0)
     {
-        if (atoi(proto->list[3]) == 0)
-            ledz_set_state(led, LED_OFF, led_update);
-        else
-            ledz_set_state(led, LED_ON, led_update);
-    }
-    else if (argument_2 == 0)
-    {
-        led->led_state.brightness = (float)(argument_1 / 100.0f);
-        ledz_set_state(led, LED_DIMMED, led_update);
-    }
-    else if (argument_1 == 0)
-    {
-        led->sync_blink = argument_2;
+        led->sync_blink = argument_1;
         led->led_state.sync_blink = led->sync_blink;
         ledz_set_state(led, LED_BLINK, LED_UPDATE);
     }
@@ -456,6 +445,85 @@ void cb_change_assigned_led(uint8_t serial_id, proto_t *proto)
         led->led_state.time_off = argument_2;
         led->led_state.sync_blink = 0;
         ledz_set_state(led, LED_BLINK, led_update);
+    }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_change_assigned_led_brightness(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    int16_t argument = atoi(proto->list[4]);
+
+    ledz_t *led;
+    if (hw_id == 3)
+        led = hardware_leds(0);
+    else if (hw_id == 4)
+        led = hardware_leds(1);
+    //error, no led for actuator
+    else
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    //set color
+    ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, WIDGET_LED_COLORS[atoi(proto->list[3])]);
+
+    led->led_state.color =  MAX_COLOR_ID + hw_id-ENCODERS_COUNT+1;
+
+    control->lock_led_actions = 1;
+
+    uint8_t led_update = 0;
+    if (naveg_get_current_mode() == MODE_CONTROL)
+        led_update = LED_UPDATE;
+
+    if (argument < 0)
+    {
+        //set brightnesses
+        //TODO USE ENUM LIST
+        switch (argument) {
+            //full
+            case -1:
+                ledz_set_state(led, LED_ON, led_update);
+            break;
+
+            //60%
+            case -2:
+                led->led_state.brightness = 0.6f;
+                ledz_set_state(led, LED_DIMMED, led_update);
+            break;
+
+            //30%
+            case -3:
+                led->led_state.brightness = 0.3f;
+                ledz_set_state(led, LED_DIMMED, led_update);
+            break;
+
+            //off
+            case -4:
+                ledz_set_state(led, LED_OFF, led_update);
+            break;
+        }
+    }
+    //brightness control
+    else
+    {
+        led->led_state.brightness = (float)(argument / 100.0f);
+        ledz_set_state(led, LED_DIMMED, led_update);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
