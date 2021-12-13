@@ -513,7 +513,7 @@ void cb_change_assigned_led_brightness(uint8_t serial_id, proto_t *proto)
                 ledz_set_state(led, LED_DIMMED, led_update);
             break;
 
-            //off
+            //on
             case -3:
                 ledz_set_state(led, LED_ON, led_update);
             break;
