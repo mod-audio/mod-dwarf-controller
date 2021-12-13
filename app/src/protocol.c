@@ -491,14 +491,20 @@ void cb_change_assigned_led_brightness(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if (argument < 0)
+    if (argument =< 0)
     {
         //set brightnesses
         //TODO USE ENUM LIST
         switch (argument) {
             //full
+            case 0:
+                ledz_set_state(led, LED_OFF, led_update);
+            break;
+
+            //30%
             case -1:
-                ledz_set_state(led, LED_ON, led_update);
+                led->led_state.brightness = 0.3f;
+                ledz_set_state(led, LED_DIMMED, led_update);
             break;
 
             //60%
@@ -507,15 +513,9 @@ void cb_change_assigned_led_brightness(uint8_t serial_id, proto_t *proto)
                 ledz_set_state(led, LED_DIMMED, led_update);
             break;
 
-            //30%
-            case -3:
-                led->led_state.brightness = 0.3f;
-                ledz_set_state(led, LED_DIMMED, led_update);
-            break;
-
             //off
-            case -4:
-                ledz_set_state(led, LED_OFF, led_update);
+            case -3:
+                ledz_set_state(led, LED_ON, led_update);
             break;
         }
     }
