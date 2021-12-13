@@ -321,8 +321,8 @@ void protocol_init(void)
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
     protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
-    //protocol_add_command(CMD_SYS_CHANGE_LED_BLINK, cb_change_assigned_led_blink);
-    //protocol_add_command(CMD_SYS_CHANGE_LED_BRIGHTNESS, cb_change_assigned_led_brightness);
+    protocol_add_command(CMD_SYS_CHANGE_LED_BLINK, cb_change_assigned_led_blink);
+    protocol_add_command(CMD_SYS_CHANGE_LED_BRIGHTNESS, cb_change_assigned_led_brightness);
     protocol_add_command(CMD_SYS_CHANGE_NAME, cb_change_assigment_name);
     protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
     protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
@@ -434,9 +434,9 @@ void cb_change_assigned_led_blink(uint8_t serial_id, proto_t *proto)
 
     if (argument_2 == 0)
     {
-        led->sync_blink = argument_1;
+        led->sync_blink = abs(argument_1);
         led->led_state.sync_blink = led->sync_blink;
-        ledz_set_state(led, LED_BLINK, LED_UPDATE);
+        ledz_set_state(led, LED_BLINK, led_update);
     }
     else
     {
@@ -491,7 +491,7 @@ void cb_change_assigned_led_brightness(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if (argument =< 0)
+    if (argument <= 0)
     {
         //set brightnesses
         //TODO USE ENUM LIST

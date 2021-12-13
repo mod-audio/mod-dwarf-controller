@@ -495,7 +495,7 @@ void ledz_tick(void)
             {
                 switch (led->sync_blink) {
                     //slow
-                    case -1:
+                    case 1:
                         if (slow_blink_state) {
                             // disable hardware PWM
                             LED_PWM(led, 0);
@@ -511,7 +511,7 @@ void ledz_tick(void)
                     break;
 
                     //mid
-                    case -2:
+                    case 2:
                         if (mid_blink_state) {
                             // disable hardware PWM
                             LED_PWM(led, 0);
@@ -527,7 +527,7 @@ void ledz_tick(void)
                     break;
 
                     //fast
-                    case -3:
+                    case 3:
                         if (fast_blink_state) {
                             // disable hardware PWM
                             LED_PWM(led, 0);
@@ -692,6 +692,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
     for (i = 0; i < 3; i++)
     {
         ledz_color_t ledz_color = get_color_by_id(i);
+        uint8_t sync = led->sync_blink;
 
         switch(state)
         {
@@ -706,8 +707,10 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
             break;
 
             //TODO FIX BLINK BRIGHTNESS
+            //TODO CLEAN SYNC_BLINK
             case LED_BLINK:
                 ledz_off(led, ledz_color);
+                led->sync_blink = sync;
                 if (led_colors[led_state.color][i] != 0)
                 {
                     ledz_blink(led, ledz_color, led_state.time_on, led_state.time_off, led_state.amount_of_blinks);
