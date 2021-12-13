@@ -758,13 +758,18 @@ void PM_button_pressed(uint8_t button)
 
                                 bp_list_t* snapshots = NM_get_snapshots();
 
+                                if (snapshot_to_remove == snapshots->selected) {
+                                    snapshots->selected = 0;
+                                    NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
+                                }
+
                                 if (snapshot_to_remove < snapshots->selected) {
                                     snapshots->selected--;
                                     NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
                                 }
 
-                                if (NM_get_current_hover(SNAPSHOT_LIST) == snapshots->menu_max - 1)
-                                    snapshots->hover--;
+                                if (NM_get_current_hover(SNAPSHOT_LIST) >= snapshots->menu_max - 1)
+                                    snapshots->hover --;
 
                                 NM_update_lists(SNAPSHOT_LIST);
                             }
