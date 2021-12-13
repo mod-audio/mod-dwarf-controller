@@ -299,6 +299,7 @@ void ledz_set(ledz_t* led, ledz_color_t color, int value)
             led->fade_in = 0;
             led->fade_out = 0;
             led->amount_of_blinks = 0;
+            led->sync_blink = 0;
 
             // skip update if value match current state
             if (led->state == value)
@@ -695,13 +696,11 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
         switch(state)
         {
             case LED_ON:
-                led->sync_blink = 0;
                 ledz_on(led, ledz_color);
                 ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
             break;
 
             case LED_OFF:
-                led->sync_blink = 0;
                 ledz_off(led, ledz_color);
                 ledz_brightness(led, ledz_color, 0);
             break;
@@ -717,14 +716,12 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
             break;
 
             case LED_FADE:
-                led->sync_blink = 0;
                 ledz_on(led, ledz_color);
                 ledz_brightness(led, ledz_color, led_colors[led_state.color][i]);
                 ledz_fade_up_down(led, ledz_color, led_state.fade_rate, (led_colors[led_state.color][i] / led_state.fade_ratio), led_colors[led_state.color][i]);
             break;
 
             case LED_DIMMED:
-                led->sync_blink = 0;
                 ledz_off(led, ledz_color);
                 if (led_colors[led_state.color][i] != 0)
                 {

@@ -146,6 +146,7 @@ void update_tap_tempo_led(void)
     led_state_t tap_state = {
         .color = TEMPO_COLOR,
         .amount_of_blinks = LED_BLINK_INFINIT,
+        .sync_blink = 0,
     };
 
     // setup the led blink
@@ -160,9 +161,9 @@ void update_tap_tempo_led(void)
         tap_state.time_off = time_ms / 2;
     }
 
-    led->sync_blink = 0;
-    led->led_state.sync_blink = led->sync_blink;
-    set_ledz_trigger_by_color_id(hardware_leds(1), LED_BLINK, tap_state);
+    ledz_t *led = hardware_leds(1);
+    led->sync_blink = tap_state.sync_blink;
+    set_ledz_trigger_by_color_id(led, LED_BLINK, tap_state);
 }
 
 node_t *get_menu_node_by_ID(uint8_t menu_id)

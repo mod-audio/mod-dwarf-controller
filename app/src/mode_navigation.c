@@ -1642,7 +1642,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                     ledz_on(hardware_leds(next_prev), CYAN);
                 else
                 {
-                    ledz_t led = hardware_leds(next_prev);
+                    ledz_t *led = hardware_leds(next_prev);
                     led->sync_blink = 0;
                     ledz_on(led, MAGENTA);
                     ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
@@ -1658,7 +1658,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                     ledz_on(hardware_leds(next_prev), CYAN);
                 else
                 {
-                    ledz_t led = hardware_leds(next_prev);
+                    ledz_t *led = hardware_leds(next_prev);
                     led->sync_blink = 0;
                     ledz_on(led, MAGENTA);
                     ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
