@@ -789,10 +789,13 @@ void PM_button_pressed(uint8_t button)
                             if (g_post_callback_call) {
                                 PM_launch_attention_overlay("\n\npedalboard removed \nsuccessfully", exit_popup);
 
+                                bp_list_t *pbs = NM_get_pedalboards();
+
                                 //check if we deleted the last item, if so correct hover
                                 bp_list_t* pedalboards = NM_get_pedalboards();
-                                if (NM_get_current_hover(PEDALBOARD_LIST) == pedalboards->menu_max - 1)
-                                    pedalboards->hover--;
+                                if (pb_to_delete >= pedalboards->menu_max - 1) {
+                                    pbs->hover = pbs->menu_max - 2;
+                                }
 
                                 if (!g_all_bank_selected) {
                                     //we removed the selected item, set the index out of bounds
@@ -806,11 +809,12 @@ void PM_button_pressed(uint8_t button)
                                     bp_list_t *banks = NM_get_banks();
                                     banks->selected = current_bank;
                                     banks->hover = current_bank;
-                                    bp_list_t *pbs = NM_get_pedalboards();
-                                    if (pbs->menu_max <= pb_to_delete)
-                                        pbs->hover = pbs->menu_max -1;
-                                    else
+                                    if (pb_to_delete >= pedalboards->menu_max - 1) {
+                                        pbs->hover = pbs->menu_max - 2;
+                                    }
+                                    else {
                                         pbs->hover = pb_to_delete;
+                                    }
 
                                     g_all_bank_selected = 0;
                                 }
