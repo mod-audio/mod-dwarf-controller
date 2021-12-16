@@ -855,10 +855,19 @@ static void control_set(uint8_t id, control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
-        if (control->properties & FLAG_CONTROL_REVERSE)
-            control->value = control->scroll_dir;
-        else
-            control->value = 1 - control->scroll_dir;
+        //not the cleanest, will be redone in 1.12
+        if (control->properties & FLAG_CONTROL_BYPASS) {
+            if (control->properties & FLAG_CONTROL_REVERSE)
+                control->value = control->scroll_dir;
+            else
+                control->value = 1 - control->scroll_dir;
+        }
+        else {
+            if (control->properties & FLAG_CONTROL_REVERSE)
+                control->value = 1 - control->scroll_dir;
+            else
+                control->value = control->scroll_dir;
+        }
 
         // to update the footer and screen
         foot_control_add(control);
