@@ -996,6 +996,13 @@ void naveg_button_pressed(uint8_t button)
             {
                 //save pedalboard
                 case 0:
+                    if (g_ui_connected)
+                    {
+                        shift_mode_active = false;
+                        PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", exit_shift_menu);
+                        return;
+                    }
+
                     naveg_trigger_popup(POPUP_SAVE_SELECT_ID);
                     shift_mode_active = false;
                 break;
