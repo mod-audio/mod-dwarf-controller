@@ -356,7 +356,7 @@ void actuators_clock(void)
                     if (button_on)
                     {
                         // reset debounce counter
-                        button->debounce =  BUTTON_RELEASE_DEBOUNCE / CLOCK_PERIOD;
+                        button->debounce = BUTTON_RELEASE_DEBOUNCE / CLOCK_PERIOD;
 
                         // button hold
                         if (button->hold_time_counter > 0)
@@ -383,7 +383,7 @@ void actuators_clock(void)
                                 if (button_on == (other_button->control & BUTTON_ON_FLAG))
                                 {
                                     //double press
-                                    CLR_FLAG(button->status, EV_ALL_BUTTON_EVENTS);
+                                    CLR_FLAG(button->status, EV_BUTTON_PRESSED);
                                     SET_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
 
                                     event(button, EV_BUTTON_PRESSED_DOUBLE); 
@@ -396,7 +396,7 @@ void actuators_clock(void)
                             }
 
                             //timeout
-                            if (button->last_pressed_time_counter == 0)
+                            if (button->last_pressed_time_counter <= 0)
                             {
                                 //no action when the button is linked and the other one is pressed
                                 if (button->double_press_button_id == DOUBLE_PRESSED_LOCKED)
@@ -441,7 +441,6 @@ void actuators_clock(void)
                             //keep time for tap tempo
                             button->hardware_press_time = hardware_timestamp();
 
-                            //NOT passing any event here as it will mess with the double press
                             if (button->double_press_button_id == NO_DOUBLE_PRESS_LINK)
                             {
                                 CLR_FLAG(button->status, EV_BUTTON_RELEASED);

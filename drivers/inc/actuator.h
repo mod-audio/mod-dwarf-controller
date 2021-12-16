@@ -61,8 +61,9 @@ typedef enum {
 
 // Debounce configuration (in miliseconds)
 #define BUTTON_PRESS_DEBOUNCE           15
-#define BUTTON_DOUBLE_PRESS_DEBOUNCE    70
-#define BUTTON_RELEASE_DEBOUNCE         50
+#define BUTTON_DOUBLE_PRESS_DEBOUNCE    50
+#define BUTTON_RELEASE_DEBOUNCE         30
+
 #define ENCODER_PRESS_DEBOUNCE          35
 #define ENCODER_RELEASE_DEBOUNCE        100
 
