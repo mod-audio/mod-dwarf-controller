@@ -432,14 +432,14 @@ void cb_change_assigned_led_blink(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_CONTROL)
         led_update = LED_UPDATE;
 
-    if (argument_1 < 0)
+    if (argument_1 == 0) {
+        ledz_set_state(led, LED_ON, led_update);
+    }
+    else if (argument_1 < 0)
     {
         led->sync_blink = abs(argument_1);
         led->led_state.sync_blink = led->sync_blink;
         ledz_set_state(led, LED_BLINK, led_update);
-    }
-    else if ((argument_1 == 0) && (argument_2 == 0)) {
-        ledz_set_state(led, LED_OFF, led_update);
     }
     else
     {
