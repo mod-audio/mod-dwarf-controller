@@ -383,8 +383,8 @@ static void request_snapshots(uint8_t dir)
 
     buffer[i++] = 0;
 
-    uint16_t prev_hover = g_current_snapshot;
-    uint16_t prev_selected = g_current_snapshot;
+    int32_t prev_hover = g_current_snapshot;
+    int32_t prev_selected = g_current_snapshot;
 
     if (g_snapshots) {
         prev_hover = g_snapshots->hover;
@@ -1392,14 +1392,14 @@ void NM_set_leds(void)
         case PEDALBOARD_LIST:
             led_state.brightness = 0.1;
 
-            if (g_pedalboards->hover > 0)
+            if ((g_pedalboards->hover > 0) && (g_banks->selected == g_current_bank))
             {
                 led = hardware_leds(0);
                 led_state.color = FS_PB_MENU_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
-            if (g_pedalboards->hover < g_pedalboards->menu_max - 1)
+            if ((g_pedalboards->hover < g_pedalboards->menu_max - 1) || (g_banks->selected != g_current_bank))
             {
                 led = hardware_leds(1);
                 led_state.color = FS_PB_MENU_COLOR;
@@ -1442,14 +1442,14 @@ void NM_set_leds(void)
 
             led_state.brightness = 0.1;
 
-            if (g_snapshots->hover > 0)
+            if ((g_snapshots->hover > 0) && (g_snapshots->selected >= 0))
             {
                 led = hardware_leds(0);
                 led_state.color = FS_SS_MENU_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
-            if (g_snapshots->hover < g_snapshots->menu_max - 1)
+            if ((g_snapshots->hover < g_snapshots->menu_max - 1) || (g_snapshots->selected < 0))
             {
                 led = hardware_leds(1);
                 led_state.color = FS_SS_MENU_COLOR;
@@ -1631,33 +1631,60 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
         (g_current_list == BANK_LIST_CHECKBOXES_ENGAGED) || (g_current_list == PB_LIST_CHECKBOXES) || (g_current_list == PB_LIST_CHECKBOXES_ENGAGED))
         return;
 
-    if (pressed)
-    {
-        if (next_prev)
-        {
-            if (NM_down())
-            {
-                NM_enter();
-                if (g_current_list == SNAPSHOT_LIST)
-                    ledz_on(hardware_leds(next_prev), CYAN);
-                else
-                {
-                    ledz_t *led = hardware_leds(next_prev);
-                    led->sync_blink = 0;
-                    ledz_on(led, MAGENTA);
-                    ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+    //right now the foots are bassed of of the current hover.
+    //this means foot and knob navigation are linked
+    if (pressed) {
+        if (next_prev) {
+            //check if we can scroll down
+            if ((g_current_list == PB_LIST_BEGINNING_BOX || PEDALBOARD_LIST) && (g_banks->selected != g_current_bank)) {
+                g_pedalboards->hover = 0;
+                g_pedalboards->selected = 0;
+                g_current_pedalboard = 0;
+                g_current_bank = g_banks->hover;
+                send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), 0);
+
+                ledz_t *led = hardware_leds(next_prev);
+                led->sync_blink = 0;
+                ledz_on(led, MAGENTA);
+                ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+
+                NM_print_screen();
+            }
+            else if ((g_current_list == SNAPSHOT_LIST) && (g_snapshots->selected < 0))  {
+                g_snapshots->hover = 0;
+                g_snapshots->selected = 0;
+                g_current_snapshot = 0;
+                send_load_snapshot(0);
+
+                ledz_on(hardware_leds(next_prev), CYAN);
+
+                NM_print_screen();
+            }
+            else {
+                if (NM_down()) {
+                    //load pb/ss
+                    NM_enter();
+                    if (g_current_list == SNAPSHOT_LIST)
+                        ledz_on(hardware_leds(next_prev), CYAN);
+                    else {
+                        ledz_t *led = hardware_leds(next_prev);
+                        led->sync_blink = 0;
+                        ledz_on(led, MAGENTA);
+                        ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+                    }
                 }
             }
         }
-        else if (g_current_list != PB_LIST_BEGINNING_BOX)
-        {
-            if (NM_up())
-            {
+        //check condistions on which we dont preform this actions (bank is not active, no snapshot active, item == 0 or seelction box)
+        else if ((g_current_list != PB_LIST_BEGINNING_BOX) && !((g_current_list == SNAPSHOT_LIST) && (g_snapshots->selected < 0)) &&
+                !((g_current_list == PEDALBOARD_LIST) && (g_banks->selected != g_current_bank))) {
+            //check if we can scroll up
+            if (NM_up()) {
+                //load pb/ss
                 NM_enter();
                 if (g_current_list == SNAPSHOT_LIST)
                     ledz_on(hardware_leds(next_prev), CYAN);
-                else
-                {
+                else {
                     ledz_t *led = hardware_leds(next_prev);
                     led->sync_blink = 0;
                     ledz_on(led, MAGENTA);
