@@ -759,17 +759,18 @@ void PM_button_pressed(uint8_t button)
                                 bp_list_t* snapshots = NM_get_snapshots();
 
                                 if (snapshot_to_remove == snapshots->selected) {
-                                    snapshots->selected = 0;
-                                    NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
+                                    snapshots->selected = -1;
+                                    snapshots->hover = 0;
                                 }
+                                else {
+                                    if (snapshot_to_remove < snapshots->selected) {
+                                        snapshots->selected--;
+                                        NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
+                                    }
 
-                                if (snapshot_to_remove < snapshots->selected) {
-                                    snapshots->selected--;
-                                    NM_set_selected_index(SNAPSHOT_LIST, snapshots->selected);
+                                    if (NM_get_current_hover(SNAPSHOT_LIST) >= snapshots->menu_max - 1)
+                                        snapshots->hover --;
                                 }
-
-                                if (NM_get_current_hover(SNAPSHOT_LIST) >= snapshots->menu_max - 1)
-                                    snapshots->hover --;
 
                                 NM_update_lists(SNAPSHOT_LIST);
                             }
@@ -891,8 +892,12 @@ void PM_launch_popup(uint8_t popup_id)
                 copy_name_to_naming_widget(NM_get_pbss_name(0));
             break;
 
-            case POPUP_SAVE_SS_ID:
-                copy_name_to_naming_widget(NM_get_pbss_name(1));
+            case POPUP_SAVE_SS_ID:;
+                bp_list_t *snapshots = NM_get_snapshots();
+                if ((snapshots->selected >= snapshots->menu_max) || (snapshots->selected < 0))
+                    reset_naming_widget_name();
+                else
+                    copy_name_to_naming_widget(NM_get_pbss_name(1));
             break;
 
             case POPUP_NEW_BANK_ID:
