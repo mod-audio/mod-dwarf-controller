@@ -837,7 +837,7 @@ void cb_boot(uint8_t serial_id, proto_t *proto)
     system_update_menu_value(MENU_ID_CURRENT_PROFILE, atoi(proto->list[4]));
 
     //after boot we are ready to print the control vieuw
-    CM_set_state();
+    CM_print_screen();
 
     g_device_booted = true;
 }
