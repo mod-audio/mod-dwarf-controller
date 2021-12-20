@@ -1734,10 +1734,6 @@ void CM_set_state(void)
 
 void CM_set_foot_led(control_t *control, uint8_t update_led)
 {
-    //widgets do nothing
-    if (control->lock_led_actions)
-        return;
-
     ledz_t *led = hardware_leds(control->hw_id - ENCODERS_COUNT);
 
     if (ledz_color_valid(MAX_COLOR_ID + control->hw_id-ENCODERS_COUNT+1))
@@ -1869,10 +1865,15 @@ void CM_set_leds(void)
     set_encoder_pages_led_state();
 
     //turn off foot leds, in case of no assignment
-    ledz_t *led = hardware_leds(0);
-    ledz_set_state(led, LED_OFF, LED_UPDATE);
-    led = hardware_leds(1);
-    ledz_set_state(led, LED_OFF, LED_UPDATE);
+    if (!g_foots[0]) {
+        ledz_t *led = hardware_leds(0);
+        ledz_set_state(led, LED_OFF, LED_UPDATE);
+    }
+
+    if (!g_foots[1]) {
+        ledz_t *led = hardware_leds(1);
+        ledz_set_state(led, LED_OFF, LED_UPDATE);
+    }
 
     //footswitch actuators
     CM_set_foot_led(g_foots[0], 1);

@@ -692,7 +692,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
     for (i = 0; i < 3; i++)
     {
         ledz_color_t ledz_color = get_color_by_id(i);
-        uint8_t sync = led->sync_blink;
+        uint8_t sync = led->led_state.sync_blink;
 
         switch(state)
         {
