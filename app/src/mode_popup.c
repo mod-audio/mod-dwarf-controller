@@ -758,8 +758,8 @@ void PM_button_pressed(uint8_t button)
 
                                 bp_list_t* snapshots = NM_get_snapshots();
 
-                                if (snapshot_to_remove == snapshots->selected) {
-                                    snapshots->selected = -1;
+                                if (snapshot_to_remove == NM_get_current_selected(SNAPSHOT_LIST)) {
+                                    NM_set_selected_index(SNAPSHOT_LIST, -1);
                                     snapshots->hover = 0;
                                 }
                                 else {
