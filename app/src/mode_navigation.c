@@ -67,7 +67,7 @@
 
 static bp_list_t *g_banks, *g_pedalboards, *g_snapshots;
 static bank_config_t g_bank_functions[BANK_FUNC_COUNT];
-static uint16_t g_current_pedalboard, g_current_snapshot, g_current_add_bank;
+static int32_t g_current_pedalboard, g_current_snapshot, g_current_add_bank;
 static int16_t g_current_bank, g_force_update_pedalboard;
 static char *g_grabbed_item_label;
 static uint16_t* g_uids_to_add_to_bank;
@@ -1312,6 +1312,9 @@ void NM_print_prev_screen(void)
             if (!g_snapshots_loaded) //no snapshots available
                 return;
 
+            if (!g_snapshots)
+                request_snapshots(PAGE_DIR_INIT);
+
             //display them
             screen_pbss_list(g_pedalboard_name, g_snapshots, SS_MODE, g_item_grabbed, g_grabbed_item_label);
         break;
@@ -1755,7 +1758,7 @@ void NM_toggle_pb_ss(void)
     NM_set_leds();
 }
 
-uint16_t NM_get_current_selected(uint8_t list_type)
+int32_t NM_get_current_selected(uint8_t list_type)
 {
     switch(list_type) {
         case PEDALBOARD_LIST:

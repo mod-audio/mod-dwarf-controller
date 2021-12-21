@@ -748,6 +748,7 @@ void PM_button_pressed(uint8_t button)
                         case POPUP_REMOVE_SS_ID:
                             i = copy_command(buffer, CMD_SNAPSHOT_DELETE);
                             uint16_t snapshot_to_remove = NM_get_current_hover(SNAPSHOT_LIST);
+                            int32_t selected_snapshot = NM_get_current_selected(SNAPSHOT_LIST);
                             i += int_to_str(snapshot_to_remove, &buffer[i], sizeof(buffer) - i, 0);
 
                             ui_comm_webgui_send(buffer, i);
@@ -758,9 +759,14 @@ void PM_button_pressed(uint8_t button)
 
                                 bp_list_t* snapshots = NM_get_snapshots();
 
-                                if (snapshot_to_remove == NM_get_current_selected(SNAPSHOT_LIST)) {
-                                    NM_set_selected_index(SNAPSHOT_LIST, -1);
+                                if (snapshot_to_remove == selected_snapshot) {
                                     snapshots->hover = 0;
+                                    NM_update_lists(SNAPSHOT_LIST);
+
+                                    NM_set_selected_index(SNAPSHOT_LIST, -1);
+                                    //old pointer is invalid after update_list
+                                    bp_list_t* snapshots_new = NM_get_snapshots();
+                                    snapshots_new->hover = 0;
                                 }
                                 else {
                                     if (snapshot_to_remove < snapshots->selected) {
@@ -770,9 +776,9 @@ void PM_button_pressed(uint8_t button)
 
                                     if (NM_get_current_hover(SNAPSHOT_LIST) >= snapshots->menu_max - 1)
                                         snapshots->hover --;
-                                }
 
-                                NM_update_lists(SNAPSHOT_LIST);
+                                    NM_update_lists(SNAPSHOT_LIST);
+                                }
                             }
                         break;
 

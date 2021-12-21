@@ -86,7 +86,7 @@ void NM_button_pressed(uint8_t button);
 void NM_change_pbss(uint8_t next_prev, uint8_t pressed);
 void NM_toggle_pb_ss(void);
 void NM_load_selected(void);
-uint16_t NM_get_current_selected(uint8_t list_type);
+int32_t NM_get_current_selected(uint8_t list_type);
 void NM_set_last_selected(uint8_t list_type);
 void NM_set_selected_index(uint8_t list_type, int16_t index);
 uint16_t NM_get_current_hover(uint8_t list_type);
