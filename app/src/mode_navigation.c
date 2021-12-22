@@ -801,6 +801,8 @@ void NM_encoder_hold(uint8_t encoder)
 
         g_grabbed_item_label = (char *) MALLOC((char_cnt_name+1) * sizeof(char));
         strncpy(g_grabbed_item_label, g_pedalboards->names[g_item_grabbed], char_cnt_name);
+
+        g_item_grabbed = g_pedalboards->hover;
     }
     else if (g_current_list == SNAPSHOT_LIST) {
         g_item_grabbed = g_snapshots->hover - g_snapshots->page_min;
@@ -812,6 +814,8 @@ void NM_encoder_hold(uint8_t encoder)
 
         g_grabbed_item_label = (char *) MALLOC((char_cnt_name+1) * sizeof(char));
         strncpy(g_grabbed_item_label, g_snapshots->names[g_item_grabbed], char_cnt_name);
+
+        g_item_grabbed = g_snapshots->hover;
     }
     else
         return;

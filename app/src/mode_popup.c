@@ -775,7 +775,7 @@ void PM_button_pressed(uint8_t button)
                                     }
 
                                     if (NM_get_current_hover(SNAPSHOT_LIST) >= snapshots->menu_max - 1)
-                                        snapshots->hover --;
+                                        snapshots->hover = snapshots->menu_max - 2;
 
                                     NM_update_lists(SNAPSHOT_LIST);
                                 }

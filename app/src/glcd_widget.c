@@ -660,6 +660,7 @@ void widget_listbox_pedalboard(glcd_t *display, listbox_t *listbox, const uint8_
     FREE(item_str_bfr);
 }
 
+//TODO, this should not be handled here but way before
 void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, const uint8_t *title_font, uint8_t toggle,
                                int8_t hold_item_index, const char *hold_item_label)
 {
@@ -669,17 +670,14 @@ void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, cons
     //create a buffer, max line length is 15
     char *item_str_bfr = (char *) MALLOC(16 * sizeof(char));
 
-    //draw the list
+    int16_t relative_item_index = hold_item_index-listbox->page_min_offset;
 
     //uper item
     if (listbox->hover > 0) {
 
         uint8_t item_index = listbox->hover;
 
-        if (hold_item_index > listbox->hover)
-            item_index--;
-
-        if (hold_item_index == item_index)
+        if (relative_item_index >= listbox->hover)
             item_index--;
 
         uint8_t line_length = strlen(listbox->list[item_index]);
@@ -704,8 +702,8 @@ void widget_listbox_pedalboard_draging(glcd_t *display, listbox_t *listbox, cons
     if (listbox->hover < listbox->count -1) {
 
         uint8_t item_index = listbox->hover+1; 
-        
-        if (hold_item_index > listbox->hover)
+
+        if (relative_item_index > listbox->hover)
             item_index--;
 
         uint8_t line_length = strlen(listbox->list[item_index]);

@@ -1004,6 +1004,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         list_box.line_top_margin = 1;
         list_box.line_bottom_margin = 1;
         list_box.text_left_margin = 2;
+        list_box.page_min_offset = list->page_min;
         if (!pb_ss_toggle)
             list_box.name = "PEDALBOARDS";
         else
