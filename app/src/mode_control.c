@@ -829,6 +829,8 @@ static void control_set(uint8_t id, control_t *control)
 
             if (trigger_led_change == 1)
                 set_alternated_led_list_colour(control, LED_UPDATE);
+
+            foot_control_print(control);
         }
     }
     else if (control->properties & FLAG_CONTROL_TRIGGER)
