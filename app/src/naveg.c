@@ -810,11 +810,6 @@ void naveg_foot_double_press(uint8_t foot)
     if (g_menu_popup_active)
         return;
 
-    if (hardware_get_overlay_counter() != 0) {
-        hardware_force_overlay_off(0);
-        return;
-    }
-
     if (g_device_mode == MODE_SELFTEST)
         return;
 
@@ -823,6 +818,11 @@ void naveg_foot_double_press(uint8_t foot)
     //we always use foot 0 for double press, a bit dirty I know
     //TODO make pretty
     g_lock_release[0] = 1;
+
+    if (hardware_get_overlay_counter() != 0) {
+        hardware_force_overlay_off(0);
+        return;
+    }
 
     //navigation mode
     if (foot == 1)

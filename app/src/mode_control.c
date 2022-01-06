@@ -725,6 +725,7 @@ static void request_control_page(control_t *control, uint8_t dir)
 
         foot_control_print(g_foots[hw_id - ENCODERS_COUNT]);
         CM_print_control_overlay(g_foots[hw_id - ENCODERS_COUNT], FOOT_CONTROLS_TIMEOUT);
+        CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_UPDATE);
     }
 }
 
@@ -799,6 +800,7 @@ static void control_set(uint8_t id, control_t *control)
                 else if (((control->step >= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)) {
                     //request new data, a new control we be assigned after
                     request_control_page(control, 1);
+                    CM_set_foot_led(control, LED_UPDATE);
                     return;
                 }
 
@@ -817,6 +819,7 @@ static void control_set(uint8_t id, control_t *control)
                 else if (((control->step <= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)){
                     //request new data, a new control we be assigned after
                     request_control_page(control, 0);
+                    CM_set_foot_led(control, LED_UPDATE);
                     return;
                 }
                 control->step--;
@@ -830,6 +833,7 @@ static void control_set(uint8_t id, control_t *control)
             if (trigger_led_change == 1)
                 set_alternated_led_list_colour(control, LED_UPDATE);
 
+            CM_set_foot_led(control, LED_UPDATE);
             foot_control_print(control);
         }
     }
