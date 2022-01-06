@@ -346,7 +346,7 @@ void actuators_clock(void)
 
                 button_t *other_button = NULL;
                 
-                if (button->double_press_button_id >= 0)
+                if (button->double_press_button_id > 0)
                     other_button = (button_t *) g_actuators_pointers[button->double_press_button_id];
 
                 // button on same state
@@ -378,11 +378,12 @@ void actuators_clock(void)
                             button->last_pressed_time_counter--;
 
                             //check if we need to toggle double press
-                            if (button->double_press_button_id >= 0)
+                            if (button->double_press_button_id > 0)
                             {
                                 if (button_on == (other_button->control & BUTTON_ON_FLAG))
                                 {
                                     //double press
+                                    CLR_FLAG(button->status, EV_BUTTON_RELEASED);
                                     CLR_FLAG(button->status, EV_BUTTON_PRESSED);
                                     SET_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
 

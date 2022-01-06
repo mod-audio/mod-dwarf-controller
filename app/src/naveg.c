@@ -703,6 +703,11 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 {
     if (!g_initialized) return;
 
+    if (g_lock_release[foot] && !pressed) {
+        g_lock_release[foot] = 0;
+        return;
+    }
+
     if (g_menu_popup_active) {
         hardware_force_overlay_off(0);
         return;
@@ -715,12 +720,6 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
     // checks the foot id
     if (foot >= FOOTSWITCHES_COUNT) return;
-
-    if (g_lock_release[foot] && !pressed)
-    {
-        g_lock_release[foot] = 0;
-        return;
-    }
 
     switch(g_device_mode)
     {
