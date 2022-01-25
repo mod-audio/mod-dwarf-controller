@@ -1414,7 +1414,7 @@ void NM_set_leds(void)
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
-            if (g_banks->hover != 0) {
+            if ((g_banks->hover != 0) && (g_item_grabbed == NO_GRAB_ITEM)) {
                 led_state.color = TOGGLED_COLOR;
                 led = hardware_leds(5);
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -1443,10 +1443,8 @@ void NM_set_leds(void)
             led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             //block removing the last snapshot
-            if (g_snapshots->menu_max >= 2)
+            if ((g_snapshots->menu_max >= 2) && (g_item_grabbed == NO_GRAB_ITEM)) 
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            else
-                ledz_off(led, TRIGGER_COLOR);
 
             led_state.brightness = 0.1;
 
@@ -1609,6 +1607,10 @@ void NM_button_pressed(uint8_t button)
                     if (g_pedalboards->menu_max == 0)
                         return;
 
+                    //we are reorganizing, cant remove
+                    if (g_item_grabbed != NO_GRAB_ITEM)
+                        return;
+    
                     //give popup, delete pb?
                     naveg_trigger_popup(POPUP_REMOVE_PB_ID);
                 break;
@@ -1617,6 +1619,11 @@ void NM_button_pressed(uint8_t button)
                     //block removing the last snapshot
                     if (g_snapshots->menu_max <= 1)
                         return;
+
+                    //we are reorganizing, cant remove
+                    if (g_item_grabbed != NO_GRAB_ITEM)
+                        return;
+
                     //give popup, delete ss?
                     naveg_trigger_popup(POPUP_REMOVE_SS_ID);
                 break;
