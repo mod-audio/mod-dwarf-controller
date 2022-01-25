@@ -132,6 +132,9 @@ void enter_shift_menu(void)
 
     hardware_force_overlay_off(1);
 
+    if (g_device_mode == MODE_NAVIGATION)
+        NM_check_grab_mode_and_disable();
+
     //enter shift mode
     //save to return
     g_prev_shift_device_mode = g_device_mode;
@@ -479,7 +482,6 @@ void naveg_enc_released(uint8_t encoder)
             return;
         }
 
-
         NM_encoder_released(encoder);
     }
 }
@@ -744,6 +746,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             if (pressed)
                 hardware_force_overlay_off(0);
 
+            NM_check_grab_mode_and_disable();
+
             if ((foot == 2) && pressed)
             {
                 //change pb <-> ss
@@ -847,9 +851,11 @@ void naveg_foot_double_press(uint8_t foot)
                 NM_toggle_mode();
             break;
 
-            case MODE_NAVIGATION:;
+            case MODE_NAVIGATION:
                 //enter control mode
                 naveg_turn_off_leds();
+
+                NM_check_grab_mode_and_disable();
 
                 g_device_mode = MODE_CONTROL;
                 g_prev_device_mode = MODE_NAVIGATION;

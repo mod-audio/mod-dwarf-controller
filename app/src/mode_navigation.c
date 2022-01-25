@@ -1519,6 +1519,7 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PB_LIST_BEGINNING_BOX:
                 case PEDALBOARD_LIST:
+                    NM_check_grab_mode_and_disable();
                     g_current_list = BANKS_LIST;
                     NM_print_screen();
                 break;
@@ -1542,6 +1543,7 @@ void NM_button_pressed(uint8_t button)
 
                 //save snapshots
                 case SNAPSHOT_LIST:
+                    NM_check_grab_mode_and_disable();
                     naveg_trigger_popup(POPUP_SAVE_SS_ID);
                 break;
             }
@@ -1959,4 +1961,18 @@ void NM_enter_new_bank(void)
 
     //enter the bank
     enter_bank();
+}
+
+void NM_check_grab_mode_and_disable(void)
+{
+    //dissable 'item grab mode'
+    g_item_grabbed = NO_GRAB_ITEM;
+
+    //free string in mem
+    if (g_grabbed_item_label)
+        FREE(g_grabbed_item_label);
+
+    NM_update_lists(PEDALBOARD_LIST);
+    NM_update_lists(BANKS_LIST);
+    NM_update_lists(SNAPSHOT_LIST);
 }
