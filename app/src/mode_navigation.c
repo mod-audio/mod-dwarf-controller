@@ -1720,6 +1720,8 @@ void NM_toggle_pb_ss(void)
     if (g_current_list == BANKS_LIST)
         return;
 
+    NM_check_grab_mode_and_disable();
+
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED))
     {
         //if we dont have snapshots, also set the active one
@@ -1975,4 +1977,12 @@ void NM_check_grab_mode_and_disable(void)
     NM_update_lists(PEDALBOARD_LIST);
     NM_update_lists(BANKS_LIST);
     NM_update_lists(SNAPSHOT_LIST);
+}
+
+uint8_t NM_check_grab_mode(void)
+{
+    if (g_item_grabbed == NO_GRAB_ITEM)
+        return 0;
+    else
+        return 1;
 }

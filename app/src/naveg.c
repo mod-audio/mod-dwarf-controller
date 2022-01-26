@@ -742,6 +742,9 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_NAVIGATION:
+            if (NM_check_grab_mode())
+                return;
+
             //no release action
             if (pressed)
                 hardware_force_overlay_off(0);
@@ -910,6 +913,8 @@ void naveg_foot_double_press(uint8_t foot)
     {
         if ((g_device_mode == MODE_CONTROL) || (g_device_mode == MODE_NAVIGATION)|| (g_device_mode == MODE_TOOL_MENU))
         {
+            NM_check_grab_mode_and_disable();
+
             g_prev_device_mode = g_device_mode;
             g_device_mode = MODE_TOOL_FOOT;
             TM_launch_tool(TOOL_FOOT);
