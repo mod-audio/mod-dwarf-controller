@@ -1015,7 +1015,7 @@ void naveg_button_pressed(uint8_t button)
                     if (g_ui_connected)
                     {
                         shift_mode_active = false;
-                        PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", exit_shift_menu);
+                        PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to save aPedalboard/Snapshot", exit_shift_menu);
                         return;
                     }
 
