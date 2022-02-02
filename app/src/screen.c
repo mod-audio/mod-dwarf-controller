@@ -1036,14 +1036,21 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         
         uint8_t x;
         char *text;
-        if (pb_ss_toggle) {
-            x = 22;
-            text = "SAVE";
+        if (hold_item_index == -1) {
+            if (pb_ss_toggle) {
+                x = 22;
+                text = "SAVE";
+            }
+            else {
+                x = 16;
+                text = "< BANKS";
+            }
         }
         else {
-            x = 16;
-            text = "< BANKS";
+            x = 28;
+            text = "-";
         }
+
         glcd_text(display, x, DISPLAY_HEIGHT - 7, text, Terminal3x5, GLCD_BLACK);
 
         //draw the second box

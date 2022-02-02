@@ -1427,7 +1427,9 @@ void NM_set_leds(void)
 
             led = hardware_leds(3);
             led_state.color = BANK_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            if (g_item_grabbed == NO_GRAB_ITEM)
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            
             led = hardware_leds(4);
             set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
         break;
@@ -1436,14 +1438,16 @@ void NM_set_leds(void)
             led = hardware_leds(2);
             led_state.color = FS_SS_MENU_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+            if (g_item_grabbed == NO_GRAB_ITEM)
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             //block removing the last snapshot
-            if ((g_snapshots->menu_max >= 2) && (g_item_grabbed == NO_GRAB_ITEM)) 
+            if ((g_snapshots->menu_max >= 2) && (g_item_grabbed == NO_GRAB_ITEM))
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led_state.brightness = 0.1;
@@ -1519,7 +1523,9 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PB_LIST_BEGINNING_BOX:
                 case PEDALBOARD_LIST:
-                    NM_check_grab_mode_and_disable();
+                    if (NM_check_grab_mode())
+                        return;
+
                     g_current_list = BANKS_LIST;
                     NM_print_screen();
                 break;
@@ -1543,7 +1549,9 @@ void NM_button_pressed(uint8_t button)
 
                 //save snapshots
                 case SNAPSHOT_LIST:
-                    NM_check_grab_mode_and_disable();
+                    if (NM_check_grab_mode())
+                        return;
+
                     naveg_trigger_popup(POPUP_SAVE_SS_ID);
                 break;
             }
@@ -1719,8 +1727,6 @@ void NM_toggle_pb_ss(void)
 {
     if (g_current_list == BANKS_LIST)
         return;
-
-    NM_check_grab_mode_and_disable();
 
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX) || (g_current_list == PB_LIST_BEGINNING_BOX_SELECTED))
     {
@@ -1963,20 +1969,6 @@ void NM_enter_new_bank(void)
 
     //enter the bank
     enter_bank();
-}
-
-void NM_check_grab_mode_and_disable(void)
-{
-    //dissable 'item grab mode'
-    g_item_grabbed = NO_GRAB_ITEM;
-
-    //free string in mem
-    if (g_grabbed_item_label)
-        FREE(g_grabbed_item_label);
-
-    NM_update_lists(PEDALBOARD_LIST);
-    NM_update_lists(BANKS_LIST);
-    NM_update_lists(SNAPSHOT_LIST);
 }
 
 uint8_t NM_check_grab_mode(void)

@@ -95,7 +95,6 @@ void NM_save_pbss_name(const void *data, uint8_t pb_ss_toggle);
 char* NM_get_pbss_name(uint8_t pb_ss_toggle);
 void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle);
 void NM_enter_new_bank(void);
-void NM_check_grab_mode_and_disable(void);
 uint8_t NM_check_grab_mode(void);
 
 /*
