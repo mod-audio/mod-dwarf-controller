@@ -939,8 +939,7 @@ void system_led_brightness_cb(void *arg, int event)
 {
     menu_item_t *item = arg;
 
-    if (g_led_brightness == -1)
-    {
+    if (g_led_brightness == -1) {
         //read EEPROM
         uint8_t read_buffer = 0;
         EEPROM_Read(0, LED_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
@@ -948,42 +947,46 @@ void system_led_brightness_cb(void *arg, int event)
         g_led_brightness = read_buffer;
     }
 
-    if (event == MENU_EV_ENTER)
-    {
-        if (g_led_brightness < item->data.max) g_led_brightness++;
-        else g_led_brightness = 0;
+    if (event == MENU_EV_ENTER) {
+        if (g_led_brightness < item->data.max)
+            g_led_brightness++;
+        else
+            g_led_brightness = 0;
     }
-    else if (event == MENU_EV_UP)
-    {
-        if (g_led_brightness < item->data.max) g_led_brightness++;
-        else return;
+    else if (event == MENU_EV_UP) {
+        if (g_led_brightness < item->data.max)
+            g_led_brightness++;
+        else
+            return;
     }
-    else if (event == MENU_EV_DOWN)
-    {
-        if (g_led_brightness > item->data.min) g_led_brightness--;
-        else return;
+    else if (event == MENU_EV_DOWN) {
+        if (g_led_brightness > item->data.min)
+            g_led_brightness--;
+        else
+            return;
     }
-    else if (event == MENU_EV_NONE)
-    {
+    else if (event == MENU_EV_NONE) {
         //only display value
         item->data.value = g_led_brightness;
         item->data.min = 0;
-        item->data.max = 1;
+        item->data.max = 2;
     }
 
-    if (item->data.value != g_led_brightness)
-    {
-        hardware_glcd_brightness(g_led_brightness);
+    if (item->data.value != g_led_brightness) {
+        ledz_set_global_brightness(g_led_brightness);
+        TM_set_leds();
 
         //also write to EEPROM
         uint8_t write_buffer = g_led_brightness;
         EEPROM_Write(0, LED_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
 
-
         item->data.value = g_led_brightness;
     }
 
-    item->data.unit_text = g_led_brightness ? "HIGH" : "LOW";
+    if (g_led_brightness == 0) item->data.unit_text ="LOW";
+    else if (g_led_brightness == 1) item->data.unit_text = "MID";
+    else if (g_led_brightness == 2) item->data.unit_text ="HIGH";
+
     item->data.step = 1;
 }
 

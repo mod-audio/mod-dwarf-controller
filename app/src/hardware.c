@@ -523,14 +523,16 @@ void hardware_setup(void)
     g_brightness = MAX_BRIGHTNESS;
 
     //set the display contrast
-    uint8_t display_contrast = 0;
-    EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &display_contrast, MODE_8_BIT, 1);
-    st7565p_set_contrast(hardware_glcds(0), display_contrast);
+    uint8_t read_buffer = 0;
+    EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    st7565p_set_contrast(hardware_glcds(0), read_buffer);
 
     //set the display brightness
-    uint8_t display_brightness = 0;
-    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &display_brightness, MODE_8_BIT, 1);
-    hardware_glcd_brightness(display_brightness);
+    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    hardware_glcd_brightness(read_buffer);
+
+    EEPROM_Read(0, LED_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    ledz_set_global_brightness(read_buffer);
 
     //set led colors
     int8_t led_color_value[3] = {};
@@ -548,7 +550,6 @@ void hardware_setup(void)
         }
 
         uint8_t j=0;
-        uint8_t read_buffer = 0;
         for (j=0; j<3; j++)
         {
             EEPROM_Read(eeprom_page, (LED_COLOR_ADRESS_START + (eeprom_index*3) + j), &read_buffer, MODE_8_BIT, 1);

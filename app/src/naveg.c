@@ -168,7 +168,7 @@ void enter_shift_menu(void)
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
 
     if (!g_self_test_mode)
-        ledz_on(hardware_leds(6), WHITE);
+        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 }
 
 void exit_shift_menu(void)

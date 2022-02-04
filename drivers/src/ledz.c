@@ -198,7 +198,7 @@ void ledz_set_global_brightness(uint8_t brightness)
 
         //mid
         case 1:
-            brightness_calc = 0.6;
+            brightness_calc = 0.55;
         break;
 
         //high
@@ -366,7 +366,12 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
     if (value >= 100)
         value = 100;
 
-    value = value * g_ledz_brightness;
+    if ((value < 50) && (g_ledz_brightness < 0.5)) {
+        ledz_off(led, color);
+        return;
+    }
+    else
+        value = value * g_ledz_brightness;
 
     int i;
     for (i = 0; led; led = led->next, i++)
