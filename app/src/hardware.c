@@ -378,6 +378,12 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
+            //LED brightness
+            case 5:;
+                write_buffer = DEFAULT_LED_BRIGHTNESS;
+                EEPROM_Write(0, LED_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
