@@ -380,12 +380,27 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
             g_bypass[1] = value;
         break;
         //MIDI clock source
-        case MENU_ID_MIDI_CLK_SOURCE: 
+        case MENU_ID_MIDI_CLK_SOURCE:
             g_MIDI_clk_src = value;
+
+            menu_item_t *item = TM_get_menu_item_by_ID(CLOCK_SOURCE_ID);
+            item->data.value = g_MIDI_clk_src;
+
+            //translate the int to string value for the menu
+            if (g_MIDI_clk_src == 0) item->data.unit_text ="INTERNAL";
+            else if (g_MIDI_clk_src == 1) item->data.unit_text = "MIDI";
+            else if (g_MIDI_clk_src == 2) item->data.unit_text ="ABLETON LINK";
+
             //check if we need to update leds/display
             if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
                 menu_item_t *clk_source_item = TM_get_menu_item_by_ID(CLOCK_SOURCE_ID_2);
                 clk_source_item->data.value = g_MIDI_clk_src;
+
+                //translate the int to string value for the menu
+                if (g_MIDI_clk_src == 0) clk_source_item->data.unit_text ="INTERNAL";
+                else if (g_MIDI_clk_src == 1) clk_source_item->data.unit_text = "MIDI";
+                else if (g_MIDI_clk_src == 2) clk_source_item->data.unit_text ="ABLETON LINK";
+
                 TM_print_tool();
                 TM_set_leds();
             }
