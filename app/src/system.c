@@ -363,8 +363,14 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
             if ((naveg_get_current_mode() == MODE_TOOL_FOOT) && (TM_check_tool_status() == TOOL_SYNC)) {
                 menu_item_t *bar_item = TM_get_menu_item_by_ID(BPB_ID);
                 bar_item->data.value = g_beats_per_bar;
+
+                //add the items to the display
+                static char str_bfr[8] = {};
+                int_to_str(g_beats_per_bar, str_bfr, 4, 0);
+                strcat(str_bfr, "/4");
+                bar_item->data.unit_text = str_bfr;
+
                 TM_print_tool();
-                TM_set_leds();
             }
         break;
         //tuner mute
