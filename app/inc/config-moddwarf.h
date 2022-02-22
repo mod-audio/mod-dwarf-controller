@@ -391,7 +391,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define TUNER_COLOR               26
 #define TEMPO_COLOR               27
 #define BANK_COLOR                28
-#define MAX_COLOR_ID              29
+#define PB_COLOR                  29
+#define MENU_OK_COLOR             30
+#define MAX_COLOR_ID              31
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
 #define DEFAULT_TRIGGER_COLOR             {80,80,80}
@@ -400,7 +402,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_ENUMERATED_COLOR          {80,80,80}
 #define DEFAULT_ENUMERATED_PRESSED_COLOR  {100,0,0}
 #define DEFAULT_BYPASS_COLOR              {100,0,0}
-#define DEFAULT_SNAPSHOT_COLOR            {80,80,80}
+#define DEFAULT_SNAPSHOT_COLOR            {0,80,80}
 #define DEFAULT_SNAPSHOT_LOAD_COLOR       {0,80,80}
 #define DEFAULT_LED_LIST_COLOR_1          {80,80,80}
 #define DEFAULT_LED_LIST_COLOR_2          {100,0,0}
@@ -422,6 +424,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_TUNER_COLOR               {0,0,80}
 #define DEFAULT_TEMO_COLOR                {0,80,0}
 #define DEFAULT_BANK_COLOR                {40,50,100}
+#define DEFAULT_PB_COLOR                  {80,0,80}
+#define DEFAULT_MENU_OK_COLOR             {80,80,80}
 
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7

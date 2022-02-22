@@ -97,6 +97,7 @@ static ledz_t g_leds[LEDZ_MAX_INSTANCES];
 static unsigned int g_leds_available = LEDZ_MAX_INSTANCES;
 static int8_t led_colors[MAX_COLOR_ID + MAX_FOOT_ASSIGNMENTS + 1][3];
 static float g_ledz_brightness = 1;
+
 /*
 ****************************************************************************************************
 *       INTERNAL FUNCTIONS
@@ -198,7 +199,7 @@ void ledz_set_global_brightness(uint8_t brightness)
 
         //mid
         case 1:
-            brightness_calc = 0.55;
+            brightness_calc = 0.49;
         break;
 
         //high
@@ -366,7 +367,7 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
     if (value >= 100)
         value = 100;
 
-    if ((value < 50) && (g_ledz_brightness < 0.5)) {
+    if ((value < 40) && (g_ledz_brightness < 0.5)) {
         ledz_off(led, color);
         return;
     }
@@ -708,7 +709,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
 
             case LED_OFF:
                 ledz_off(led, ledz_color);
-                ledz_brightness(led, ledz_color, 0);
+                //ledz_brightness(led, ledz_color, 0);
             break;
 
             //TODO FIX BLINK BRIGHTNESS
@@ -730,8 +731,12 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
             break;
 
             case LED_DIMMED:
+                if ((led->brightness == 0) && (led_state.brightness == 0))
+                    return;
+
                 ledz_off(led, ledz_color);
-                if (led_colors[led_state.color][i] != 0)
+
+                if ((led_colors[led_state.color][i] != 0) && ((led_state.brightness > 0.5) && (g_ledz_brightness > 0.5)))
                 {
                     ledz_on(led, ledz_color);
                     ledz_brightness(led, ledz_color ,led_colors[led_state.color][i] * led_state.brightness);

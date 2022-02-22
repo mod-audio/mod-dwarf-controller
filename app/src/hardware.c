@@ -221,6 +221,12 @@ static const uint8_t *LED_COLORS[]  = {
 #ifdef DEFAULT_BANK_COLOR
     (const uint8_t []) DEFAULT_BANK_COLOR,
 #endif
+#ifdef DEFAULT_PB_COLOR
+    (const uint8_t []) DEFAULT_PB_COLOR,
+#endif
+#ifdef DEFAULT_MENU_OK_COLOR
+    (const uint8_t []) DEFAULT_MENU_OK_COLOR,
+#endif
 };
 
 /*
@@ -382,6 +388,7 @@ void check_eeprom_defaults(uint16_t current_version)
             case 5:;
                 write_buffer = DEFAULT_LED_BRIGHTNESS;
                 EEPROM_Write(0, LED_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+                write_led_defaults();
             break;
 
             //nothing saved yet, new unit, write all settings

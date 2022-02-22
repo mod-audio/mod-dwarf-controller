@@ -1092,7 +1092,7 @@ void TM_set_leds(void)
             case MENU_CONFIRM:;
                 // ok / cancel or yes / no
                 led = hardware_leds(3);
-                led_state.color = WHITE;
+                led_state.color = MENU_OK_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
                 led = hardware_leds(4);
@@ -1107,7 +1107,7 @@ void TM_set_leds(void)
         case MENU_OK:;
             //single item
             led = hardware_leds(3);
-            led_state.color = WHITE;
+            led_state.color = MENU_OK_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led = hardware_leds(4);
@@ -1123,7 +1123,7 @@ void TM_set_leds(void)
         default:
             // ok / cancel or yes / no
             led = hardware_leds(3);
-            led_state.color = WHITE;
+            led_state.color = MENU_OK_COLOR;
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             led = hardware_leds(4);
@@ -1147,7 +1147,7 @@ void TM_set_leds(void)
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
                 led = hardware_leds(4);
-                led_state.color = WHITE;
+                led_state.color = MENU_OK_COLOR;
                 if (!g_current_menu->prev)
                     led_state.brightness = 0.25;
                 else
@@ -1156,7 +1156,7 @@ void TM_set_leds(void)
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
 
                 led = hardware_leds(5);
-                led_state.color = WHITE;
+                led_state.color = MENU_OK_COLOR;
                 menu_item_t *next_menu = g_current_menu->next->data;
                 if (next_menu->desc->id == BLUETOOTH_ID)
                     led_state.brightness = 0.25;
@@ -1168,7 +1168,7 @@ void TM_set_leds(void)
             else
             {
                 led = hardware_leds(3);
-                led_state.color = WHITE;
+                led_state.color = MENU_OK_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
                 led = hardware_leds(4);
                 led_state.color = TOGGLED_COLOR;

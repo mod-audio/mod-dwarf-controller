@@ -161,11 +161,13 @@ void enter_shift_menu(void)
 
     led_state.color = ENUMERATED_COLOR;
     led = hardware_leds(3);
-
     set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
     led = hardware_leds(5);
     set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+
+    led = hardware_leds(6);
+    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
     if (!g_self_test_mode)
         set_ledz_trigger_by_color_id(led, LED_ON, led_state);
