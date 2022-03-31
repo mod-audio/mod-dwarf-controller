@@ -970,6 +970,9 @@ void naveg_button_pressed(uint8_t button)
         }
         else if (button == 2)
         {
+            if (TM_get_current_menu_item()->desc->type == MENU_OK)
+                return;
+
             naveg_enc_down(g_popup_encoder);
             naveg_enc_enter(g_popup_encoder);
         }

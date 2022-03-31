@@ -79,6 +79,7 @@ void TM_print_tool(void);
 void TM_set_leds(void);
 void TM_encoder_click(uint8_t encoder);
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id);
+menu_item_t *TM_get_current_menu_item(void);
 void TM_turn_off_tuner(void);
 uint8_t TM_check_tool_status(void);
 
