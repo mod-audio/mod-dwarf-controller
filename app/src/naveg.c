@@ -728,6 +728,10 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
     if (g_lock_release[foot] && !pressed) {
         g_lock_release[foot] = 0;
+
+        if (foot != 2)
+            CM_reset_momentary_control(foot);
+
         return;
     }
 
