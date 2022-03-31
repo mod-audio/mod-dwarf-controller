@@ -861,7 +861,7 @@ static void control_set(uint8_t id, control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_MOMENTARY)
     {
-        //not the cleanest, will be redone in 1.12
+        //TODO, BYPASS AND TOGGLES SHOULD BE HANDLED THE SAME
         if (control->properties & FLAG_CONTROL_BYPASS) {
             if (control->properties & FLAG_CONTROL_REVERSE)
                 control->value = control->scroll_dir;
@@ -1336,7 +1336,7 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
         //not used right now anymore, maybe in the future, TODO: rename to actuator flag
         g_foots[foot]->scroll_dir = value;
 
-        //we dont actually preform an action here
+        //we dont change any value here, no need to send things to the host
         if (!(g_foots[foot]->properties & FLAG_CONTROL_MOMENTARY))
             return;
     }
@@ -1968,4 +1968,29 @@ void CM_reset_encoder_page(void)
 void CM_set_list_behaviour(uint8_t click_list)
 {
     g_list_click = click_list;
+}
+
+void CM_reset_momentary_control(uint8_t foot)
+{
+    // checks the function assigned to foot and update the footer
+    if (g_foots[foot]) {
+        //check if control is momentary
+        if (g_foots[foot]->properties & FLAG_CONTROL_MOMENTARY) {
+
+            //check to what value we need to default
+            if (g_foots[foot]->properties & FLAG_CONTROL_REVERSE)
+                g_foots[foot]->value = g_foots[foot]->maximum;
+            else
+                g_foots[foot]->value = g_foots[foot]->minimum;
+        }
+    }
+
+    //notify host
+    send_control_set(g_foots[foot]);
+
+    //update the screen / leds
+    if (naveg_get_current_mode() == MODE_CONTROL) {
+        CM_print_screen();
+        CM_set_leds();
+    }
 }
