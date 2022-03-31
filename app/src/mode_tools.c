@@ -421,10 +421,13 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                     }
                     else if (item->desc->id == INFO_ID)
                     {
-                        //go back to main menu
-                        g_current_item = g_current_menu->data;
+                        if (encoder == 0) {
+                            //go back to main menu
+                            g_current_item = g_current_menu->data;
 
-                        TM_print_tool();
+                            TM_print_tool();
+                        }
+
                         return;
                     }
 
@@ -1211,6 +1214,11 @@ void TM_set_leds(void)
 menu_item_t *TM_get_menu_item_by_ID(uint8_t menu_id)
 {
     return get_menu_node_by_ID(menu_id)->data;
+}
+
+menu_item_t *TM_get_current_menu_item(void)
+{
+    return g_current_item;
 }
 
 void TM_turn_off_tuner(void)

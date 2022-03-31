@@ -1199,9 +1199,7 @@ void NM_toggle_mode(void)
             g_current_list = PEDALBOARD_LIST;
         //fall-through
         case PEDALBOARD_LIST:
-
-            if (!g_banks)
-                request_banks_list(PAGE_DIR_INIT);
+            NM_update_lists(PEDALBOARD_LIST);
 
             //reset these
             g_banks->hover = g_current_bank;
