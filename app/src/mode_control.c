@@ -1977,11 +1977,21 @@ void CM_reset_momentary_control(uint8_t foot)
         //check if control is momentary
         if (g_foots[foot]->properties & FLAG_CONTROL_MOMENTARY) {
 
-            //check to what value we need to default
-            if (g_foots[foot]->properties & FLAG_CONTROL_REVERSE)
-                g_foots[foot]->value = g_foots[foot]->maximum;
-            else
-                g_foots[foot]->value = g_foots[foot]->minimum;
+            //bypass and toggles are inverted from eachother, this should changed at some point
+            if (g_foots[foot]->properties & FLAG_CONTROL_BYPASS) {
+                //check to what value we need to default
+                if (g_foots[foot]->properties & FLAG_CONTROL_REVERSE)
+                    g_foots[foot]->value = g_foots[foot]->minimum;
+                else
+                    g_foots[foot]->value = g_foots[foot]->maximum;
+            }
+            else {
+                //check to what value we need to default
+                if (g_foots[foot]->properties & FLAG_CONTROL_REVERSE)
+                    g_foots[foot]->value = g_foots[foot]->maximum;
+                else
+                    g_foots[foot]->value = g_foots[foot]->minimum;
+            }
         }
     }
 
