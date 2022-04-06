@@ -198,6 +198,16 @@ void ledz_set_global_brightness(uint8_t brightness)
     }
 }
 
+uint8_t ledz_get_global_brightness(void)
+{
+    if (g_ledz_brightness < 0.5) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
 ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pins)
 {
     if (g_leds_available < type)

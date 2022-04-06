@@ -369,6 +369,12 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
  * @}
  */
 void ledz_set_global_brightness(uint8_t brightness);
+
+/**
+ * @}
+ */
+uint8_t ledz_get_global_brightness(void);
+
 /*
 ****************************************************************************************************
 *       CONFIGURATION ERRORS

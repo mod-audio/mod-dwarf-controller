@@ -1396,7 +1396,10 @@ void NM_set_leds(void)
 
         case PB_LIST_BEGINNING_BOX:
         case PEDALBOARD_LIST:
-            led_state.brightness = 0.1;
+            if (ledz_get_global_brightness())
+                led_state.brightness = 0.1;
+            else
+                led_state.brightness = 0.8;
 
             if ((g_pedalboards->hover > 0) && (g_banks->selected == g_current_bank))
             {
@@ -1448,7 +1451,10 @@ void NM_set_leds(void)
             if ((g_snapshots->menu_max >= 2) && (g_item_grabbed == NO_GRAB_ITEM))
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
-            led_state.brightness = 0.1;
+            if (ledz_get_global_brightness())
+                led_state.brightness = 0.1;
+            else
+                led_state.brightness = 0.65;
 
             if ((g_snapshots->hover > 0) && (g_snapshots->selected >= 0))
             {
