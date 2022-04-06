@@ -740,8 +740,12 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
 
                 if (led_colors[led_state.color][i] != 0)
                 {
+                    uint8_t brightness = led_colors[led_state.color][i] * led_state.brightness;
+                    if ((brightness < 40) && (g_ledz_brightness < 0.5))
+                        return;
+
                     ledz_on(led, ledz_color);
-                    ledz_brightness(led, ledz_color ,led_colors[led_state.color][i] * led_state.brightness);
+                    ledz_brightness(led, ledz_color, brightness);
                 }
             break;
         }
