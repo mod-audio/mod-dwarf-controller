@@ -399,9 +399,18 @@ void check_eeprom_defaults(uint16_t current_version)
             break;
         }
     }
-    //detect downgrade, dont do anything
+    //detect downgrade
     else if ((current_version > EEPROM_CURRENT_VERSION) && (!FORCE_WRITE_EEPROM))
-    {   
+    {
+        //we changed a color, we need to change it back when downgrading
+        if (current_version == 5) {
+            write_led_defaults();
+
+            //downgrade the version
+            uint16_t write_buffer_version = EEPROM_CURRENT_VERSION;
+            EEPROM_Write(0, EEPROM_VERSION_ADRESS, &write_buffer_version, MODE_16_BIT, 1);
+        }
+
         return;
     }
     //force defaults

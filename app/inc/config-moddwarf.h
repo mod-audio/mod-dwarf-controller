@@ -317,7 +317,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
     {"LOAD PROFILE",                    MENU_CLICK_LIST,LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
     {"SAVE PROFILE AS",                 MENU_CLICK_LIST,SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
-    {"DISPLAY & LIGHT",                 MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
+    {"DISPLAY & LEDS",                  MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DISPLAY_SETTINGS,   system_display_brightness_cb, 0},  \
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DISPLAY_SETTINGS,   system_display_contrast_cb  , 0},  \
     {"LED BRIGHTNESS",                  MENU_LIST,      LED_BRIGHTNESS_ID,      DISPLAY_SETTINGS,   system_led_brightness_cb    , 0},  \
@@ -524,7 +524,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_CURRENT_VERSION             6L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                 0
+#define FORCE_WRITE_EEPROM                 1
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)

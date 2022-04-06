@@ -969,7 +969,7 @@ void system_led_brightness_cb(void *arg, int event)
         //only display value
         item->data.value = g_led_brightness;
         item->data.min = 0;
-        item->data.max = 2;
+        item->data.max = 1;
     }
 
     if (item->data.value != g_led_brightness) {
@@ -984,8 +984,7 @@ void system_led_brightness_cb(void *arg, int event)
     }
 
     if (g_led_brightness == 0) item->data.unit_text ="LOW";
-    else if (g_led_brightness == 1) item->data.unit_text = "MID";
-    else if (g_led_brightness == 2) item->data.unit_text ="HIGH";
+    else item->data.unit_text ="HIGH";
 
     item->data.step = 1;
 }

@@ -94,6 +94,7 @@ const unsigned char cie1931[101] = {
 */
 
 static ledz_t g_leds[LEDZ_MAX_INSTANCES];
+static uint8_t g_led_amount = 0;
 static unsigned int g_leds_available = LEDZ_MAX_INSTANCES;
 static int8_t led_colors[MAX_COLOR_ID + MAX_FOOT_ASSIGNMENTS + 1][3];
 static float g_ledz_brightness = 1;
@@ -189,28 +190,12 @@ uint8_t ledz_color_valid(uint8_t item)
 
 void ledz_set_global_brightness(uint8_t brightness)
 {
-    float brightness_calc = 1;
-    switch (brightness)
-    {
-        //low
-        case 0:
-            brightness_calc = 0.3;
-        break;
-
-        //mid
-        case 1:
-            brightness_calc = 0.49;
-        break;
-
-        //high
-        case 2:
-        default:
-            brightness_calc = 1;
-        break;
+    if (brightness == 0) {
+        g_ledz_brightness = 0.3;
     }
-
-    //save globaly
-    g_ledz_brightness = brightness_calc;
+    else {
+        g_ledz_brightness = 1;
+    }
 }
 
 ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pins)
@@ -224,6 +209,7 @@ ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pin
     for (i = type - 1; i >= 0; i--)
     {
         ledz_t *led = ledz_take();
+        led->id = g_led_amount;
         led->color = colors[i];
         led->pins = &pins[i * 2];
         led->state = LED_OFF;
@@ -253,6 +239,8 @@ ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pin
         led->next = next;
         next = led;
     }
+
+    g_led_amount++;
 
     return next;
 }
@@ -371,8 +359,13 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
         ledz_off(led, color);
         return;
     }
-    else
-        value = value * g_ledz_brightness;
+    //also check if we have a button, if so, increase by 0.19 (foots on low, buttons on mid)
+    else {
+        if ((led->id > 2) && (g_ledz_brightness < 0.8))
+            value = value * (g_ledz_brightness + 0.19);
+        else
+            value = value * g_ledz_brightness;
+    }
 
     int i;
     for (i = 0; led; led = led->next, i++)
@@ -709,7 +702,6 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
 
             case LED_OFF:
                 ledz_off(led, ledz_color);
-                //ledz_brightness(led, ledz_color, 0);
             break;
 
             //TODO FIX BLINK BRIGHTNESS
@@ -736,7 +728,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
 
                 ledz_off(led, ledz_color);
 
-                if ((led_colors[led_state.color][i] != 0) && ((led_state.brightness > 0.5) && (g_ledz_brightness > 0.5)))
+                if (led_colors[led_state.color][i] != 0)
                 {
                     ledz_on(led, ledz_color);
                     ledz_brightness(led, ledz_color ,led_colors[led_state.color][i] * led_state.brightness);
