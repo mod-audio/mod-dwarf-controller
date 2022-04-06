@@ -221,6 +221,12 @@ static const uint8_t *LED_COLORS[]  = {
 #ifdef DEFAULT_BANK_COLOR
     (const uint8_t []) DEFAULT_BANK_COLOR,
 #endif
+#ifdef DEFAULT_PB_COLOR
+    (const uint8_t []) DEFAULT_PB_COLOR,
+#endif
+#ifdef DEFAULT_MENU_OK_COLOR
+    (const uint8_t []) DEFAULT_MENU_OK_COLOR,
+#endif
 };
 
 /*
@@ -378,6 +384,13 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
+            //LED brightness
+            case 5:;
+                write_buffer = DEFAULT_LED_BRIGHTNESS;
+                EEPROM_Write(0, LED_BRIGHTNESS_ADRESS, &write_buffer, MODE_8_BIT, 1);
+                write_led_defaults();
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
@@ -386,9 +399,18 @@ void check_eeprom_defaults(uint16_t current_version)
             break;
         }
     }
-    //detect downgrade, dont do anything
+    //detect downgrade
     else if ((current_version > EEPROM_CURRENT_VERSION) && (!FORCE_WRITE_EEPROM))
-    {   
+    {
+        //we changed a color, we need to change it back when downgrading
+        if (current_version == 5) {
+            write_led_defaults();
+
+            //downgrade the version
+            uint16_t write_buffer_version = EEPROM_CURRENT_VERSION;
+            EEPROM_Write(0, EEPROM_VERSION_ADRESS, &write_buffer_version, MODE_16_BIT, 1);
+        }
+
         return;
     }
     //force defaults
@@ -517,14 +539,16 @@ void hardware_setup(void)
     g_brightness = MAX_BRIGHTNESS;
 
     //set the display contrast
-    uint8_t display_contrast = 0;
-    EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &display_contrast, MODE_8_BIT, 1);
-    st7565p_set_contrast(hardware_glcds(0), display_contrast);
+    uint8_t read_buffer = 0;
+    EEPROM_Read(0, DISPLAY_CONTRAST_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    st7565p_set_contrast(hardware_glcds(0), read_buffer);
 
     //set the display brightness
-    uint8_t display_brightness = 0;
-    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &display_brightness, MODE_8_BIT, 1);
-    hardware_glcd_brightness(display_brightness);
+    EEPROM_Read(0, DISPLAY_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    hardware_glcd_brightness(read_buffer);
+
+    EEPROM_Read(0, LED_BRIGHTNESS_ADRESS, &read_buffer, MODE_8_BIT, 1);
+    ledz_set_global_brightness(read_buffer);
 
     //set led colors
     int8_t led_color_value[3] = {};
@@ -542,7 +566,6 @@ void hardware_setup(void)
         }
 
         uint8_t j=0;
-        uint8_t read_buffer = 0;
         for (j=0; j<3; j++)
         {
             EEPROM_Read(eeprom_page, (LED_COLOR_ADRESS_START + (eeprom_index*3) + j), &read_buffer, MODE_8_BIT, 1);

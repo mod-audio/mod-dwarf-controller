@@ -1667,10 +1667,15 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), 0);
 
                 ledz_t *led = hardware_leds(next_prev);
-                led->sync_blink = 0;
-                ledz_on(led, MAGENTA);
-                ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+                led_state_t led_state = {
+                    .color = PB_COLOR,
+                    .amount_of_blinks = LED_BLINK_INFINIT,
+                    .sync_blink = 0,
+                    .time_off = 150,
+                    .time_on = 150,
+                };
 
+                set_ledz_trigger_by_color_id(led, LED_BLINK, led_state);
                 NM_print_screen();
             }
             else if ((g_current_list == SNAPSHOT_LIST) && (g_snapshots->selected < 0))  {
@@ -1679,7 +1684,12 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 g_current_snapshot = 0;
                 send_load_snapshot(0);
 
-                ledz_on(hardware_leds(next_prev), CYAN);
+                ledz_t *led = hardware_leds(next_prev);
+                led_state_t led_state = {
+                    .color = SNAPSHOT_COLOR,
+                };
+
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
                 NM_print_screen();
             }
@@ -1687,13 +1697,25 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
                 if (NM_down()) {
                     //load pb/ss
                     NM_enter();
-                    if (g_current_list == SNAPSHOT_LIST)
-                        ledz_on(hardware_leds(next_prev), CYAN);
+                    if (g_current_list == SNAPSHOT_LIST) {
+                        ledz_t *led = hardware_leds(next_prev);
+                        led_state_t led_state = {
+                            .color = SNAPSHOT_COLOR,
+                        };
+
+                        set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                    }
                     else {
                         ledz_t *led = hardware_leds(next_prev);
-                        led->sync_blink = 0;
-                        ledz_on(led, MAGENTA);
-                        ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+                        led_state_t led_state = {
+                            .color = PB_COLOR,
+                            .amount_of_blinks = LED_BLINK_INFINIT,
+                            .sync_blink = 0,
+                            .time_off = 150,
+                            .time_on = 150,
+                        };
+
+                        set_ledz_trigger_by_color_id(led, LED_BLINK, led_state);
                     }
                 }
             }
@@ -1705,13 +1727,25 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
             if (NM_up()) {
                 //load pb/ss
                 NM_enter();
-                if (g_current_list == SNAPSHOT_LIST)
-                    ledz_on(hardware_leds(next_prev), CYAN);
+                if (g_current_list == SNAPSHOT_LIST) {
+                    ledz_t *led = hardware_leds(next_prev);
+                    led_state_t led_state = {
+                        .color = SNAPSHOT_COLOR,
+                    };
+
+                    set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+                }
                 else {
                     ledz_t *led = hardware_leds(next_prev);
-                    led->sync_blink = 0;
-                    ledz_on(led, MAGENTA);
-                    ledz_blink(led, MAGENTA, 150, 150, LED_BLINK_INFINIT);
+                    led_state_t led_state = {
+                        .color = PB_COLOR,
+                        .amount_of_blinks = LED_BLINK_INFINIT,
+                        .sync_blink = 0,
+                        .time_off = 150,
+                        .time_on = 150,
+                    };
+
+                    set_ledz_trigger_by_color_id(led, LED_BLINK, led_state);
                 }
             }
         }

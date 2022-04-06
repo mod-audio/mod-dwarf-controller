@@ -142,6 +142,7 @@ typedef struct LED_STATE_T {
 typedef struct LEDZ_T {
     ledz_color_t color;
     const int *pins;
+    int id;
     led_state_t led_state;
 
     struct {

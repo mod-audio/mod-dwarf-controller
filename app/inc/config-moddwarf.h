@@ -261,6 +261,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define DISPLAY_BRIGHTNESS_ID   DISPLAY_SETTINGS+1
 #define DISPLAY_CONTRAST_ID     DISPLAY_SETTINGS+2
+#define LED_BRIGHTNESS_ID       DISPLAY_SETTINGS+3
 
 #define DEFAULT_TOOL_ID         CONTROLLER_SET_ID+1
 #define KNOB_LIST_ID            CONTROLLER_SET_ID+2
@@ -316,9 +317,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"USER PROFILES",                   MENU_MAIN,      USER_PROFILE_ID,        ROOT_ID,            NULL                        , 0},  \
     {"LOAD PROFILE",                    MENU_CLICK_LIST,LOAD_USER_PROF_ID,      USER_PROFILE_ID,    system_load_pro_cb          , 0},  \
     {"SAVE PROFILE AS",                 MENU_CLICK_LIST,SAVE_USER_PROF_ID,      USER_PROFILE_ID,    system_save_pro_cb          , 0},  \
-    {"DISPLAY",                         MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
+    {"DISPLAY & LEDS",                  MENU_MAIN,      DISPLAY_SETTINGS,       ROOT_ID,            NULL                        , 0},  \
     {"DISPLAY BRIGHTNESS",              MENU_LIST,      DISPLAY_BRIGHTNESS_ID,  DISPLAY_SETTINGS,   system_display_brightness_cb, 0},  \
     {"DISPLAY CONTRAST",                MENU_BAR,       DISPLAY_CONTRAST_ID,    DISPLAY_SETTINGS,   system_display_contrast_cb  , 0},  \
+    {"LED BRIGHTNESS",                  MENU_LIST,      LED_BRIGHTNESS_ID,      DISPLAY_SETTINGS,   system_led_brightness_cb    , 0},  \
     {"APPEARANCE",                      MENU_MAIN,      APPEARANCE_SET_ID,      ROOT_ID,            NULL                        , 0},  \
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      APPEARANCE_SET_ID,  system_control_header_cb    , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, APPEARANCE_SET_ID,  system_hide_actuator_cb     , 0},  \
@@ -389,7 +391,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define TUNER_COLOR               26
 #define TEMPO_COLOR               27
 #define BANK_COLOR                28
-#define MAX_COLOR_ID              29
+#define PB_COLOR                  29
+#define MENU_OK_COLOR             30
+#define MAX_COLOR_ID              31
 
 #define DEFAULT_TOGGLED_COLOR             {100,0,0}
 #define DEFAULT_TRIGGER_COLOR             {80,80,80}
@@ -398,7 +402,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_ENUMERATED_COLOR          {80,80,80}
 #define DEFAULT_ENUMERATED_PRESSED_COLOR  {100,0,0}
 #define DEFAULT_BYPASS_COLOR              {100,0,0}
-#define DEFAULT_SNAPSHOT_COLOR            {80,80,80}
+#define DEFAULT_SNAPSHOT_COLOR            {0,80,80}
 #define DEFAULT_SNAPSHOT_LOAD_COLOR       {0,80,80}
 #define DEFAULT_LED_LIST_COLOR_1          {80,80,80}
 #define DEFAULT_LED_LIST_COLOR_2          {100,0,0}
@@ -420,6 +424,8 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_TUNER_COLOR               {0,0,80}
 #define DEFAULT_TEMO_COLOR                {0,80,0}
 #define DEFAULT_BANK_COLOR                {40,50,100}
+#define DEFAULT_PB_COLOR                  {80,0,80}
+#define DEFAULT_MENU_OK_COLOR             {80,80,80}
 
 //alternate LED colors for lists
 #define LED_LIST_AMOUNT_OF_COLORS         7
@@ -490,11 +496,11 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define CONTROL_HEADER_ADRESS              10
 #define SHIFT_MODE_ADRESS                  11
 #define CLICK_LIST_ADRESS                  12
+#define LED_BRIGHTNESS_ADRESS              13
 
 //default settings
 #define DEFAULT_HIDE_ACTUATOR              0
 #define DEFAULT_DISPLAY_BRIGHTNESS         MAX_BRIGHTNESS
-#define DEFAULT_LED_BRIGHTNESS             2
 #define DEFAULT_SL_INPUT                   0
 #define DEFAULT_SL_OUTPUT                  0
 #define DEFAULT_SHIFT_1_ITEM               1
@@ -505,6 +511,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_CONTROL_HEADER             0
 #define DEFAULT_SHIFT_MODE                 1
 #define DEFAULT_CLICK_LIST                 0
+#define DEFAULT_LED_BRIGHTNESS             1
 
 //memory used for LED value's
 #define LED_COLOR_EEMPROM_PAGE             2
@@ -514,10 +521,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define EEPROM_VERSION_ADRESS              62
 
 //for version control, when increasing they ALWAYS need to be bigger then the previous value
-#define EEPROM_CURRENT_VERSION             5L
+#define EEPROM_CURRENT_VERSION             6L
 
 //for testing purposes, overwrites the EEPROM regardless of the version
-#define FORCE_WRITE_EEPROM                 0
+#define FORCE_WRITE_EEPROM                 1
 
 //// Dynamic menory allocation
 // defines the heap size (in bytes)

@@ -72,6 +72,7 @@ void system_outp_2_volume_cb(void *arg, int event);
 void system_hp_volume_cb(void *arg, int event);
 void system_save_gains_cb(void *arg, int event);
 void system_display_brightness_cb(void *arg, int event);
+void system_led_brightness_cb(void *arg, int event);
 void system_display_contrast_cb(void *arg, int event);
 void system_shift_item_cb(void *arg, int event);
 void system_default_tool_cb(void *arg, int event);
