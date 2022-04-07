@@ -1316,8 +1316,14 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
         if ((g_foots[foot]->properties & (FLAG_CONTROL_MOMENTARY | FLAG_CONTROL_TRIGGER)) && !g_foots[foot]->lock_led_actions)
         {
             led->led_state.color = TRIGGER_COLOR;
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+            
+            if (!ledz_get_global_brightness()) {
+                ledz_set_state(led, LED_OFF, LED_UPDATE);
+            }
+            else {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+            }
         }
         else if (g_foots[foot]->properties & (FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION) && !g_foots[foot]->lock_led_actions)
         {
@@ -1328,8 +1334,13 @@ void CM_foot_control_change(uint8_t foot, uint8_t value)
             else
             {
                 led->led_state.color = ENUMERATED_COLOR;
+            if (!ledz_get_global_brightness()) {
+                ledz_set_state(led, LED_OFF, LED_UPDATE);
+            }
+            else {
                 led->led_state.brightness = 0.1;
                 ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+            }
             }
         }
 
@@ -1750,22 +1761,32 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
     {
         // updates the led
         led->led_state.color = TRIGGER_COLOR;
-        if (control->properties & FLAG_CONTROL_BYPASS)
+        if (control->properties & FLAG_CONTROL_BYPASS) 
         {
             if (control->value <= 0)
                 ledz_set_state(led, LED_ON, update_led);
             else
-            {
-                led->led_state.brightness = 0.1;
-                ledz_set_state(led, LED_DIMMED, update_led);
+            {   
+                if (!ledz_get_global_brightness()) {
+                    ledz_set_state(led, LED_OFF, update_led);
+                }
+                else {
+                    led->led_state.brightness = 0.1;
+                    ledz_set_state(led, LED_DIMMED, update_led);
+                }
             }
         }
         else
         {
             if (control->value <= 0)
             {
-                led->led_state.brightness = 0.1;
-                ledz_set_state(led, LED_DIMMED, update_led);
+                if (!ledz_get_global_brightness()) {
+                    ledz_set_state(led, LED_OFF, update_led);
+                }
+                else {
+                    led->led_state.brightness = 0.1;
+                    ledz_set_state(led, LED_DIMMED, update_led);
+                }
             }
             else
                 ledz_set_state(led, LED_ON, update_led);
@@ -1777,8 +1798,13 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
         led->led_state.color = TRIGGER_COLOR;
         if ((control->value <= 0) || (control->scroll_dir == 2))
         {
-            led->led_state.brightness = 0.1;
-            ledz_set_state(led, LED_DIMMED, update_led);
+            if (!ledz_get_global_brightness()) {
+                ledz_set_state(led, LED_OFF, update_led);
+            }
+            else {
+                led->led_state.brightness = 0.1;
+                ledz_set_state(led, LED_DIMMED, update_led);
+            }
         }
         else
             ledz_set_state(led, LED_ON, update_led);
@@ -1993,14 +2019,14 @@ void CM_reset_momentary_control(uint8_t foot)
                     g_foots[foot]->value = g_foots[foot]->minimum;
             }
         }
-    }
 
-    //notify host
-    send_control_set(g_foots[foot]);
+        //notify host
+        send_control_set(g_foots[foot]);
 
-    //update the screen / leds
-    if (naveg_get_current_mode() == MODE_CONTROL) {
-        CM_print_screen();
-        CM_set_leds();
+        //update the screen / leds
+        if (naveg_get_current_mode() == MODE_CONTROL) {
+            CM_print_screen();
+            CM_set_leds();
+        }
     }
 }
