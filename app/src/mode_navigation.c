@@ -1399,7 +1399,7 @@ void NM_set_leds(void)
             if (ledz_get_global_brightness())
                 led_state.brightness = 0.1;
             else
-                led_state.brightness = 0.8;
+                led_state.brightness = 0.6;
 
             if ((g_pedalboards->hover > 0) && (g_banks->selected == g_current_bank))
             {
@@ -1454,7 +1454,7 @@ void NM_set_leds(void)
             if (ledz_get_global_brightness())
                 led_state.brightness = 0.1;
             else
-                led_state.brightness = 0.65;
+                led_state.brightness = 0.6;
 
             if ((g_snapshots->hover > 0) && (g_snapshots->selected >= 0))
             {

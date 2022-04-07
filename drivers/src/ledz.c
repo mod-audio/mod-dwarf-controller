@@ -365,17 +365,11 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
     if (value >= 100)
         value = 100;
 
-    if ((value < 40) && (g_ledz_brightness < 0.5)) {
-        ledz_off(led, color);
-        return;
-    }
     //also check if we have a button, if so, increase by 0.19 (foots on low, buttons on mid)
-    else {
-        if ((led->id > 2) && (g_ledz_brightness < 0.8))
-            value = value * (g_ledz_brightness + 0.19);
-        else
-            value = value * g_ledz_brightness;
-    }
+    if ((led->id > 2) && (g_ledz_brightness < 0.8))
+        value = value * (g_ledz_brightness + 0.19);
+    else
+        value = value * g_ledz_brightness;
 
     int i;
     for (i = 0; led; led = led->next, i++)
@@ -741,7 +735,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
                 if (led_colors[led_state.color][i] != 0)
                 {
                     uint8_t brightness = led_colors[led_state.color][i] * led_state.brightness;
-                    if ((brightness < 40) && (g_ledz_brightness < 0.5))
+                    if ((led_state.brightness < 0.55) && (g_ledz_brightness < 0.5))
                         return;
 
                     ledz_on(led, ledz_color);
