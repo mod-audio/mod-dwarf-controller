@@ -179,8 +179,12 @@ void exit_shift_menu(void)
 
     hardware_force_overlay_off(1);
 
-    if (!g_self_test_mode)
-        ledz_off(hardware_leds(6), WHITE);
+    if (!g_self_test_mode) {
+        uint8_t i;
+        for (i = 0; i < LEDS_COUNT; i++) {
+            ledz_off(hardware_leds(i), WHITE);
+        }
+    }
 
     //already entered some other mode
     if (g_device_mode != MODE_SHIFT)
