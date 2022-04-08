@@ -432,13 +432,7 @@ void naveg_enc_enter(uint8_t encoder)
 
         case MODE_TOOL_FOOT:
         case MODE_TOOL_MENU:
-            if (g_menu_popup_active) {
-                if (encoder == 0)
-                    TM_encoder_click(encoder);
-            }
-            else {
-                TM_encoder_click(encoder);
-            }
+            TM_encoder_click(encoder);
         break;
 
         case MODE_BUILDER:
@@ -552,13 +546,7 @@ void naveg_enc_down(uint8_t encoder)
         case MODE_TOOL_FOOT:
         case MODE_TOOL_MENU:
             //pass for tuner/menu/bypass controls
-            if (g_menu_popup_active) {
-                if (encoder == 0)
-                    TM_down(encoder);
-            }
-            else {
-                TM_down(encoder);
-            }
+            TM_down(encoder);
         break;
 
         case MODE_SHIFT:;
@@ -657,13 +645,7 @@ void naveg_enc_up(uint8_t encoder)
         case MODE_TOOL_FOOT:
         case MODE_TOOL_MENU:
             //pass for tuner/menu/bypass controls
-            if (g_menu_popup_active) {
-                if (encoder == 0)
-                    TM_up(encoder);
-            }
-            else {
-                TM_up(encoder);
-            }
+            TM_up(encoder);
         break;
 
         case MODE_SHIFT:;

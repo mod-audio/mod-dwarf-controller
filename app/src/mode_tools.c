@@ -349,6 +349,10 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
     else
         item = g_current_item;
 
+    //check if another popup in the menu is open, if so return
+    if ((g_menu_popup_active) && (g_popup_encoder != encoder))
+        return;
+
     switch (item->desc->id)
     {
         case INP_1_GAIN_ID:
@@ -811,6 +815,10 @@ void TM_up(uint8_t encoder)
     }
     else if (tool_is_on(TOOL_MENU))
     {
+        //check if another popup in the menu is open, if so return
+        if ((g_menu_popup_active) && (g_popup_encoder != encoder))
+            return;
+
         //first encoder, check if we need to change menu or item
         if (encoder == 0)
         {
@@ -862,6 +870,10 @@ void TM_down(uint8_t encoder)
     }
     else if (tool_is_on(TOOL_MENU))
     {
+        //check if another popup in the menu is open, if so return
+        if ((g_menu_popup_active) && (g_popup_encoder != encoder))
+            return;
+
         //first encoder, check if we need to change menu or item
         if (encoder == 0)
         {
