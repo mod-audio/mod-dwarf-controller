@@ -265,8 +265,13 @@ void set_encoder_pages_led_state(void)
         }
         else
         {
-            led->led_state.brightness = 0.25;
-            ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+            if (!ledz_get_global_brightness()) {
+                ledz_set_state(led, LED_OFF, LED_UPDATE);
+            }
+            else {
+                led->led_state.brightness = 0.25;
+                ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+            }
         }
 
     } 
