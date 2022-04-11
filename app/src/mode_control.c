@@ -2030,6 +2030,9 @@ void CM_reset_momentary_control(uint8_t foot)
 
         //update the screen / leds
         if (naveg_get_current_mode() == MODE_CONTROL) {
+            if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+                return;
+
             CM_print_screen();
             CM_set_leds();
         }
