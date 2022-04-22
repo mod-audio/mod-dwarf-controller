@@ -1014,9 +1014,9 @@ void cb_pedalboard_change(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    NM_set_selected_index(PEDALBOARD_LIST, atoi(proto->list[1]));
-
     protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    NM_set_selected_index(PEDALBOARD_LIST, atoi(proto->list[1]));
 
     if (naveg_get_current_mode() == MODE_NAVIGATION) {
         NM_set_need_update();

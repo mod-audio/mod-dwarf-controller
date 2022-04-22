@@ -1890,8 +1890,11 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
             }
             else {
                 g_current_pedalboard = index;
-                g_pedalboards->selected = index;
-                g_pedalboards->hover = index;
+
+                if (g_current_bank == g_banks->selected) {
+                    g_pedalboards->selected = index;
+                    g_pedalboards->hover = index;
+                }
             }
         break;
 
