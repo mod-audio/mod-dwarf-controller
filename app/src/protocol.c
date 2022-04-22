@@ -318,6 +318,7 @@ void protocol_init(void)
     protocol_add_command(CMD_MENU_ITEM_CHANGE, cb_menu_item_changed);
     protocol_add_command(CMD_PEDALBOARD_CLEAR, cb_pedalboard_clear);
     protocol_add_command(CMD_PEDALBOARD_NAME_SET, cb_pedalboard_name);
+    protocol_add_command(CMD_PEDALBOARD_CHANGE, cb_pedalboard_change);
     protocol_add_command(CMD_SNAPSHOT_NAME_SET, cb_snapshot_name);
     protocol_add_command(CMD_DWARF_PAGES_AVAILABLE, cb_pages_available);
     protocol_add_command(CMD_SELFTEST_SKIP_CONTROL_ENABLE, cb_set_selftest_control_skip);
@@ -1007,4 +1008,17 @@ void cb_set_pb_gain(uint8_t serial_id, proto_t *proto)
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_pedalboard_change(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    NM_set_selected_index(PEDALBOARD_LIST, atoi(proto->list[1]));
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    if (naveg_get_current_mode() == MODE_NAVIGATION) {
+        NM_set_need_update();
+    }
 }

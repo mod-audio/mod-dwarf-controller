@@ -114,6 +114,7 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto);
 void cb_pages_available(uint8_t serial_id, proto_t *proto);
 void cb_clear_eeprom(uint8_t serial_id, proto_t *proto);
 void cb_set_pb_gain(uint8_t serial_id, proto_t *proto);
+void cb_pedalboard_change(uint8_t serial_id, proto_t *proto);
 
 /*
 ************************************************************************************************************************
