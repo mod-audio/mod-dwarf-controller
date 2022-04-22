@@ -938,6 +938,10 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
     NM_save_pbss_name(&proto->list[2], 1);
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
+
+    if (naveg_get_current_mode() == MODE_NAVIGATION) {
+        NM_set_need_update();
+    }
 }
 
 void cb_pages_available(uint8_t serial_id, proto_t *proto)

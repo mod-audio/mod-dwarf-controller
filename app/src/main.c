@@ -258,6 +258,12 @@ static void displays_task(void *pvParameters)
         // update GLCD
         glcd_update(hardware_glcds(0));
 
+        //check if nav mode needs update
+        if (NM_get_need_update()){
+            NM_update_lists(NM_get_current_list());
+            NM_print_screen();
+        }
+
         if (TM_need_update_menu())
         {
             if (++count == 5000)

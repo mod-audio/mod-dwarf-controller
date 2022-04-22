@@ -76,7 +76,7 @@ static int8_t g_item_grabbed = NO_GRAB_ITEM;
 static uint16_t g_item_grabbed_uid;
 static char* g_pedalboard_name = NULL;
 static char* g_snapshot_name = NULL;
-
+static uint8_t g_update_list_items = 0;
 
 /*
 ************************************************************************************************************************
@@ -566,7 +566,6 @@ static void enter_bank(void)
     else
         g_pedalboards->hover = 0;
 
-    //index is relevent in our array so - page_min
     request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
 
     // if reach here, received the pedalboards list
@@ -1242,14 +1241,13 @@ void NM_update_lists(uint8_t list_type)
         break;
 
         case SNAPSHOT_LIST:
-            if (g_snapshots)
-                request_snapshots(PAGE_DIR_DOWN);
-            else
-                request_snapshots(PAGE_DIR_INIT);
+            request_snapshots(PAGE_DIR_INIT);
         break;
     }
 
     NM_set_leds();
+
+    g_update_list_items = 0;
 }
 
 void NM_print_screen(void)
@@ -1285,6 +1283,9 @@ void NM_print_screen(void)
                 return;
 
             //no data
+            //if ((!g_snapshots) || (g_current_snapshot >= g_snapshots->page_max) || (g_current_snapshot <= g_snapshots->page_min))
+            //    request_snapshots(PAGE_DIR_INIT);
+
             if (!g_snapshots)
                 request_snapshots(PAGE_DIR_INIT);
 
@@ -2015,4 +2016,14 @@ uint8_t NM_check_grab_mode(void)
         return 0;
     else
         return 1;
+}
+
+void NM_set_need_update(void)
+{
+    g_update_list_items = 1;
+}
+
+uint8_t NM_get_need_update(void)
+{
+    return g_update_list_items;
 }

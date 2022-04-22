@@ -96,6 +96,8 @@ char* NM_get_pbss_name(uint8_t pb_ss_toggle);
 void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle);
 void NM_enter_new_bank(void);
 uint8_t NM_check_grab_mode(void);
+void NM_set_need_update(void);
+uint8_t NM_get_need_update(void);
 
 /*
 ************************************************************************************************************************
