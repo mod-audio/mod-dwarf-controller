@@ -887,6 +887,9 @@ void naveg_foot_double_press(uint8_t foot)
 
                 TM_turn_off_tuner();
 
+                //enter control mode
+                naveg_turn_off_leds();
+
                 g_prev_device_mode = MODE_TOOL_FOOT;
                 //we enter the prev mode
                 g_device_mode = MODE_NAVIGATION;
@@ -899,6 +902,9 @@ void naveg_foot_double_press(uint8_t foot)
                     PM_launch_attention_overlay("\nPlease disconnect   the Web-ui to enter navigation mode", TM_print_tool);
                     return;
                 }
+
+                //enter control mode
+                naveg_turn_off_leds();
 
                 g_prev_device_mode = MODE_TOOL_MENU;
                 //we enter the prev mode
@@ -934,6 +940,9 @@ void naveg_foot_double_press(uint8_t foot)
         }
         else if (g_device_mode == MODE_TOOL_FOOT)
         {
+            //enter control mode
+            naveg_turn_off_leds();
+
             TM_turn_off_tuner();
             if (g_prev_device_mode == MODE_CONTROL)
             {
