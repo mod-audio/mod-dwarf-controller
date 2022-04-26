@@ -567,8 +567,10 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto)
 
         if (hw_id < ENCODERS_COUNT)
             screen_encoder(control, hw_id);
-        else
+        else {
             CM_draw_foot(hw_id - ENCODERS_COUNT);
+            control->lock_overlays = 1;
+        }   
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);

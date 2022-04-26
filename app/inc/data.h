@@ -70,6 +70,7 @@ typedef struct CONTROL_T {
     uint8_t scroll_dir;
     uint8_t lock_led_actions;
     float screen_indicator_widget_val;
+    uint8_t lock_overlays;
 } control_t;
 
 typedef struct LIST_CLONE_T {

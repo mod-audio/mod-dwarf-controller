@@ -729,7 +729,9 @@ static void request_control_page(control_t *control, uint8_t dir)
             screen_group_foots(1);
 
         foot_control_print(g_foots[hw_id - ENCODERS_COUNT]);
-        CM_print_control_overlay(g_foots[hw_id - ENCODERS_COUNT], FOOT_CONTROLS_TIMEOUT);
+        if (!control->lock_overlays)
+            CM_print_control_overlay(g_foots[hw_id - ENCODERS_COUNT], FOOT_CONTROLS_TIMEOUT);
+
         CM_set_foot_led(g_foots[hw_id - ENCODERS_COUNT], LED_UPDATE);
     }
 }
@@ -794,7 +796,8 @@ static void control_set(uint8_t id, control_t *control)
 
                             foot_control_print(updated_control);
                             CM_set_foot_led(updated_control, LED_UPDATE);
-                            CM_print_control_overlay(updated_control, FOOT_CONTROLS_TIMEOUT);
+                            if (!control->lock_overlays)
+                                CM_print_control_overlay(updated_control, FOOT_CONTROLS_TIMEOUT);
                             return;
                         }
                         else
@@ -961,7 +964,7 @@ static void control_set(uint8_t id, control_t *control)
         }
     }
 
-    if (ENCODERS_COUNT <= control->hw_id)
+    if ((ENCODERS_COUNT <= control->hw_id) && (!control->lock_overlays))
         CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
 
     if (g_list_click && (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 

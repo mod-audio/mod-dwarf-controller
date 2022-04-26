@@ -107,6 +107,7 @@ control_t *data_parse_control(char **data)
     //can only be set by widget
     control->value_string = NULL;
     control->screen_indicator_widget_val = -1;
+    control->lock_overlays = 0;
 
     // checks the memory allocation
     if (!control->label || !control->unit)
