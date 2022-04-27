@@ -1544,14 +1544,14 @@ void screen_control_overlay(control_t *control)
     }
 }
 
-void screen_widget_overlay(char *header, char *text)
+void screen_widget_overlay(int8_t style, char *header, char *text)
 {
     overlay_t overlay;
     overlay.x = 0;
     overlay.y = 11;
     overlay.width = DISPLAY_WIDTH;
     overlay.height = 38;
-    overlay.value_num = 0;
+    overlay.value_num = style;
     overlay.color = GLCD_BLACK;
     overlay.font = Terminal5x7;
     overlay.name = header;

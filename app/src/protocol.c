@@ -673,7 +673,7 @@ void cb_launch_popup(uint8_t serial_id, proto_t *proto)
         if (hardware_get_overlay_counter() != 0)
             hardware_force_overlay_off(0);
 
-        screen_widget_overlay(proto->list[3], proto->list[4]);
+        screen_widget_overlay(atoi(proto->list[3]), proto->list[4], proto->list[5]);
 
         hardware_set_overlay_timeout(FOOT_CONTROLS_TIMEOUT, CM_close_overlay, OVERLAY_CONTROL);
     }

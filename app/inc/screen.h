@@ -84,7 +84,7 @@ void screen_shift_overlay(int8_t prev_mode, int16_t *item_ids, uint8_t ui_connec
 void screen_menu_page(node_t *node);
 void screen_control_overlay(control_t *control);
 void screen_msg_overlay(char *message);
-void screen_widget_overlay(char *header, char *text);
+void screen_widget_overlay(int8_t style, char *header, char *text);
 void screen_popup(system_popup_t *popup_data);
 void screen_keyboard(system_popup_t *popup_data, uint8_t keyboard_index);
 void screen_update_tuner(float frequency, char *note, int8_t cents);
