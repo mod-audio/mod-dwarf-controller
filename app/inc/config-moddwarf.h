@@ -165,6 +165,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define DEFAULT_ENC_HOLD_TIME   130
 #define NAV_MODE_ENC_HOLD_TIME  300
+#define PAGE_PREV_HOLD_TIME     350
 
 ////////////////////////////////////////////////////////////////
 ////// SETTINGS RELATED TO FIRMWARE

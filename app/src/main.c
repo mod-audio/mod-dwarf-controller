@@ -332,9 +332,9 @@ static void actuators_task(void *pvParameters)
                 //footswitches
                 if (id < 3)
                 {
-                    if ((BUTTON_HOLD(status)) && id == 2)
+                    if (BUTTON_HOLD(status))
                     {
-                        naveg_print_screen_data(id);
+                        naveg_foot_hold(id);
                     }
                     if (BUTTON_DOUBLE(status))
                     {

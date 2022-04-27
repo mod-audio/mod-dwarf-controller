@@ -1697,6 +1697,43 @@ void CM_load_next_page()
     load_control_page(g_current_foot_control_page);
 }
 
+void CM_load_prev_page()
+{
+    uint8_t pagefound = 0;
+    int8_t j = g_current_foot_control_page;
+
+    while (!pagefound)
+    {
+        j--;
+        if (j < 0)
+        {
+            j = FOOTSWITCH_PAGES_COUNT-1;
+        }
+
+        //we went in a loop, only one page
+        if (j == g_current_foot_control_page)
+        {
+            break;
+        }
+
+        //page found
+        if (g_fs_page_available[j])
+        {
+            g_current_foot_control_page = j;
+            pagefound = 1;
+            break;
+        }
+    }
+
+    if (!pagefound)
+    {
+        CM_print_screen();
+        return;
+    }
+
+    load_control_page(g_current_foot_control_page);
+}
+
 void CM_reset_page(void)
 {
     g_current_foot_control_page = 0;

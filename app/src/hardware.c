@@ -520,9 +520,10 @@ void hardware_setup(void)
         
         //set links for double press
         if (i > 0)
-        {
             actuator_set_link(hardware_actuators(FOOTSWITCH0 + i), FOOTSWITCH0);
-        }
+
+        if (i == 2)
+            actuator_set_prop(hardware_actuators(FOOTSWITCH0 + i), BUTTON_HOLD_TIME, PAGE_PREV_HOLD_TIME);
     }
 
     //init buttons

@@ -256,6 +256,23 @@ void exit_popup(void)
     }
 }
 
+void change_actuator_page(uint8_t direction)
+{
+    static uint8_t lock_next_page = 0;
+    hardware_force_overlay_off(1);
+
+    if (direction) {
+        if (lock_next_page)
+            lock_next_page = 0;
+        else
+            CM_load_next_page();
+    }
+    else {
+        CM_load_prev_page();
+        lock_next_page = 1;
+    }
+}
+
 /*
 ************************************************************************************************************************
 *           GLOBAL FUNCTIONS
@@ -742,10 +759,8 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
             //footswitch used for pages
             if (foot == 2)
             {
-                hardware_force_overlay_off(1);
-
-                if (pressed)
-                    CM_load_next_page();
+                if (!pressed)
+                    change_actuator_page(1);
             }
             else 
             {
@@ -820,6 +835,15 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
                 ui_comm_webgui_send(buffer, i);
             }
         break;
+    }
+}
+
+void naveg_foot_hold(uint8_t foot)
+{
+    //footswitch used for pages
+    if (foot == 2)
+    {
+        change_actuator_page(0);
     }
 }
 
