@@ -93,6 +93,7 @@ void cb_change_assigment_name(uint8_t serial_id, proto_t *proto);
 void cb_change_assigment_value(uint8_t serial_id, proto_t *proto);
 void cb_change_assigment_unit(uint8_t serial_id, proto_t *proto);
 void cb_change_widget_indicator(uint8_t serial_id, proto_t *proto);
+void cb_launch_popup(uint8_t serial_id, proto_t *proto);
 void cb_glcd_text(uint8_t serial_id, proto_t *proto);
 void cb_glcd_dialog(uint8_t serial_id, proto_t *proto);
 void cb_glcd_draw(uint8_t serial_id, proto_t *proto);

@@ -125,7 +125,6 @@ void sys_comm_send(const char *command, const char *arguments)
 
     if (arguments)
     {
-
         //add size as hex number
         char str_bfr[9] = {};
         i += 2;

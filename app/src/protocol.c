@@ -328,6 +328,7 @@ void protocol_init(void)
     protocol_add_command(CMD_SYS_CHANGE_UNIT, cb_change_assigment_unit);
     protocol_add_command(CMD_SYS_CHANGE_VALUE, cb_change_assigment_value);
     protocol_add_command(CMD_SYS_CHANGE_WIDGET_INDICATOR, cb_change_widget_indicator);
+    protocol_add_command(CMD_SYS_LAUNCH_POPUP, cb_launch_popup);
     protocol_add_command(CMD_RESET_EEPROM, cb_clear_eeprom);
     protocol_add_command(CMD_SYS_COMP_PEDALBOARD_GAIN, cb_set_pb_gain);
 }
@@ -646,6 +647,35 @@ void cb_change_widget_indicator(uint8_t serial_id, proto_t *proto)
             hardware_force_overlay_off(0);
 
         screen_encoder(control, hw_id);
+    }
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_launch_popup(uint8_t serial_id, proto_t *proto)
+{
+    if (serial_id != SYSTEM_SERIAL)
+        return;
+
+    uint8_t hw_id = atoi(proto->list[2]);
+
+    control_t *control = CM_get_control(hw_id);
+
+    //error no assignment
+    if (!control)
+    {
+        protocol_send_response(CMD_RESPONSE, INVALID_ARGUMENT, proto);
+        return;
+    }
+
+    if (naveg_get_current_mode() == MODE_CONTROL)
+    {
+        if (hardware_get_overlay_counter() != 0)
+            hardware_force_overlay_off(0);
+
+        screen_widget_overlay(proto->list[3], proto->list[4]);
+
+        hardware_set_overlay_timeout(FOOT_CONTROLS_TIMEOUT, CM_close_overlay, OVERLAY_CONTROL);
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
