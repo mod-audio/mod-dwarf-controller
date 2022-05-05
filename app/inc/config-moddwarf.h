@@ -504,9 +504,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define DEFAULT_DISPLAY_BRIGHTNESS         MAX_BRIGHTNESS
 #define DEFAULT_SL_INPUT                   0
 #define DEFAULT_SL_OUTPUT                  0
-#define DEFAULT_SHIFT_1_ITEM               1
-#define DEFAULT_SHIFT_2_ITEM               2
-#define DEFAULT_SHIFT_3_ITEM               19
+#define DEFAULT_SHIFT_1_ITEM               6
+#define DEFAULT_SHIFT_2_ITEM               19
+#define DEFAULT_SHIFT_3_ITEM               0
 #define DEFAULT_DEFAULT_TOOL               0
 #define DEFAULT_LIST_MODE                  0
 #define DEFAULT_CONTROL_HEADER             0
