@@ -1026,9 +1026,9 @@ uint8_t NM_down(void)
         case BANK_LIST_CHECKBOXES_ENGAGED:
         case BANKS_LIST:
             //are we reaching the bottom of the menu?
-            if(g_banks->page_max == g_banks->menu_max) {
+            if(g_banks->page_max >= g_banks->menu_max - 1) {
                 //check if we are not already at the end
-                if (g_banks->hover >= g_banks->menu_max -1)
+                if (g_banks->hover >= g_banks->menu_max - 1)
                     return 0;
                 else
                     g_banks->hover++;
@@ -1839,12 +1839,9 @@ int32_t NM_get_current_selected(uint8_t list_type)
 
 void NM_set_last_selected(uint8_t list_type)
 {
-    static char str_bfr[8] = {};
-
     switch(list_type) {
         case PEDALBOARD_LIST:;
             uint16_t pedalboard_to_load = g_pedalboards->menu_max-1;
-            int_to_str(pedalboard_to_load, str_bfr, 8, 0);
 
             g_current_pedalboard = pedalboard_to_load;
             if (g_pedalboards) {
@@ -1855,7 +1852,6 @@ void NM_set_last_selected(uint8_t list_type)
 
         case SNAPSHOT_LIST:;
             uint16_t snapshot_to_load = g_snapshots->menu_max-1;
-            int_to_str(snapshot_to_load, str_bfr, 8, 0);
 
             g_current_snapshot = snapshot_to_load;
             if (g_snapshots) {

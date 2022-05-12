@@ -539,7 +539,7 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_wait_response();
 
                     if (g_post_callback_call) {
-                        if (g_current_popup_id==POPUP_SAVE_SS_ID){
+                        if (g_current_popup_id == POPUP_SAVE_SS_ID){
                             //update list items
                             NM_update_lists(SNAPSHOT_LIST);
 
