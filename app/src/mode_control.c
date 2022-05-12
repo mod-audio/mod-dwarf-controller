@@ -1445,19 +1445,34 @@ void CM_set_control(uint8_t hw_id, float value)
             //not implemented, not sure if ever needed
             else if (control->properties & FLAG_CONTROL_MOMENTARY)
             {
+                led->led_state.color = WHITE;
+                set_ledz_trigger_by_color_id(led, LED_OFF, led->led_state);
+
                 led->led_state.color = ENUMERATED_COLOR;
 
                 //update screen and text
-                if (control->value <= 0) {
-                    ledz_set_state(led, LED_ON, LED_UPDATE);
-                    screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
+                if (control->properties & FLAG_CONTROL_BYPASS) {
+                    if (control->value <= 0) {
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
+                    }
+                    else {
+                        led->led_state.brightness = 0.1;
+                        ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
+                    }
                 }
                 else {
-                    led->led_state.brightness = 0.1;
-                    ledz_set_state(led, LED_DIMMED, LED_UPDATE);
-                    screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
+                    if (control->value <= 0) {
+                        led->led_state.brightness = 0.1;
+                        ledz_set_state(led, LED_DIMMED, LED_UPDATE);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
+                    }
+                    else {
+                        ledz_set_state(led, LED_ON, LED_UPDATE);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
+                    }
                 }
-
                 return;
             }
             // trigger specification: http://lv2plug.in/ns/ext/port-props/#trigger
