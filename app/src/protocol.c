@@ -972,7 +972,8 @@ void cb_snapshot_name(uint8_t serial_id, proto_t *proto)
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
 
-    if (naveg_get_current_mode() == MODE_NAVIGATION) {
+    //we only need to update snapshots if thats what we are viewing
+    if ((naveg_get_current_mode() == MODE_NAVIGATION) && (NM_get_current_list() == SNAPSHOT_LIST)) {
         NM_set_need_update();
     }
 }

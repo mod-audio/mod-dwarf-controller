@@ -947,7 +947,7 @@ uint8_t NM_up(void)
                     request_next_bank_page(PAGE_DIR_DOWN);
                 }
                 //we have items, just go up
-                else
+                else if (g_banks->hover > 0)
                     g_banks->hover--;
             }
 
@@ -1054,14 +1054,14 @@ uint8_t NM_down(void)
             }
             else {
                 //we always keep 3 items in front of us, if not request new page
-                if (g_banks->hover >= (g_banks->page_max - 4)) {
+                if ((g_banks->hover >= (g_banks->page_max - 4)) && (g_banks->hover < g_banks->menu_max-1) ){
                     g_banks->hover++;
 
                     //request new page
                     request_next_bank_page(PAGE_DIR_UP);
                 }
                 //we have items, just go down
-                else
+                else if (g_banks->hover < g_banks->menu_max-1)
                     g_banks->hover++;
             }
 
