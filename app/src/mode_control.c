@@ -1451,6 +1451,9 @@ void CM_set_control(uint8_t hw_id, float value)
                 led->led_state.color = ENUMERATED_COLOR;
 
                 //update screen and text
+
+                //handle the bypass vs toggle difference
+                //TODO Lets please fix that...
                 if (control->properties & FLAG_CONTROL_BYPASS) {
                     if (control->value <= 0) {
                         ledz_set_state(led, LED_ON, LED_UPDATE);
@@ -1466,11 +1469,11 @@ void CM_set_control(uint8_t hw_id, float value)
                     if (control->value <= 0) {
                         led->led_state.brightness = 0.1;
                         ledz_set_state(led, LED_DIMMED, LED_UPDATE);
-                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
                     }
                     else {
                         ledz_set_state(led, LED_ON, LED_UPDATE);
-                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_OFF_FOOTER_TEXT, control->properties);
+                        screen_footer(control->hw_id - ENCODERS_COUNT, control->label, TOGGLED_ON_FOOTER_TEXT, control->properties);
                     }
                 }
                 return;
