@@ -841,7 +841,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 void naveg_foot_hold(uint8_t foot)
 {
     //footswitch used for pages
-    if (foot == 2)
+    if ((foot == 2) && (g_device_mode == MODE_CONTROL))
     {
         change_actuator_page(0);
     }
