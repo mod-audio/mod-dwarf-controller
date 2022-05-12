@@ -501,10 +501,10 @@ void system_upgrade_cb(void *arg, int event)
         // check if OK option was chosen
         if (item->data.hover == 0)
         {
-            uint8_t foot_status = actuator_get_status(foot);
+            button_t *foot_restore = (button_t *) hardware_actuators(FOOTSWITCH2);
 
             // check if footswitch is pressed down
-            if (BUTTON_PRESSED(foot_status))
+            if (READ_PIN(foot_restore->port, foot_restore->pin) == BUTTON_ACTIVATED)
             {
                 //clear all screens
                 screen_clear();
