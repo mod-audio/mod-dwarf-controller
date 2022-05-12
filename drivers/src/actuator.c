@@ -365,6 +365,8 @@ void actuators_clock(void)
 
                             if (button->hold_time_counter == 0)
                             {
+                                CLR_FLAG(button->status, EV_BUTTON_PRESSED);
+                                CLR_FLAG(button->status, EV_BUTTON_RELEASED);
                                 SET_FLAG(button->status, EV_BUTTON_HELD);
                                 SET_FLAG(button->control, CLICK_CANCEL_FLAG);
 
