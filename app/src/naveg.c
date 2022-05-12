@@ -754,7 +754,7 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
 
             //no release action
             if (pressed)
-                hardware_force_overlay_off(0);
+                hardware_force_overlay_off(1);
 
             if ((foot == 2) && pressed)
             {
