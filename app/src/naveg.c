@@ -440,11 +440,6 @@ void naveg_enc_enter(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            if (hardware_get_overlay_counter() != 0) {
-                hardware_force_overlay_off(0);
-                return;
-            }
-
             if (NM_check_grab_mode())
                 return;
 
@@ -554,7 +549,7 @@ void naveg_enc_down(uint8_t encoder)
         break;
 
         case MODE_NAVIGATION:
-            if (hardware_get_overlay_counter() != 0) {
+            if (g_menu_popup_active) {
                 hardware_force_overlay_off(0);
                 return;
             }

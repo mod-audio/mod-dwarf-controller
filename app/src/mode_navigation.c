@@ -101,6 +101,11 @@ static void parse_banks_list(void *data, menu_item_t *item)
 {
     (void) item;
     char **list = data;
+
+    //error, dont parse when mod-ui gives error
+    if (atoi(list[1]) == -1)
+        return;
+
     uint16_t count = strarr_length(&list[5]);
 
     uint16_t prev_hover = g_current_bank;
@@ -208,6 +213,11 @@ static void parse_pedalboards_list(void *data, menu_item_t *item)
 {
     (void) item;
     char **list = data;
+
+    //error, dont parse when mod-ui gives error
+    if (atoi(list[1]) == -1)
+        return;
+
     uint32_t count = strarr_length(&list[5]);
 
     // free the navigation pedalboads list
@@ -232,6 +242,8 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
 
     // sets the response callback
     ui_comm_webgui_set_response_cb(parse_pedalboards_list, NULL);
+    //clear the buffer
+    ui_comm_webgui_clear_tx_buffer();
 
     i = copy_command((char *)buffer, CMD_PEDALBOARDS);
 
@@ -331,6 +343,11 @@ static void parse_snapshots_list(void *data, menu_item_t *item)
 {
     (void) item;
     char **list = data;
+
+    //error, dont parse when mod-ui gives error
+    if (atoi(list[1]) == -1)
+        return;
+
     uint32_t count = strarr_length(&list[5]);
 
     // free the navigation pedalboads list
@@ -359,6 +376,8 @@ static void request_snapshots(uint8_t dir)
 
     // sets the response callback
     ui_comm_webgui_set_response_cb(parse_snapshots_list, NULL);
+    //clear the buffer
+    ui_comm_webgui_clear_tx_buffer();
 
     i = copy_command((char *)buffer, CMD_SNAPSHOTS);
 
@@ -1281,10 +1300,6 @@ void NM_print_screen(void)
         case SNAPSHOT_LIST:
             if (!g_snapshots_loaded) //no snapshots available
                 return;
-
-            //no data
-            //if ((!g_snapshots) || (g_current_snapshot >= g_snapshots->page_max) || (g_current_snapshot <= g_snapshots->page_min))
-            //    request_snapshots(PAGE_DIR_INIT);
 
             if (!g_snapshots)
                 request_snapshots(PAGE_DIR_INIT);
