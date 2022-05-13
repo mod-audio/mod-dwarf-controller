@@ -551,6 +551,10 @@ void PM_button_pressed(uint8_t button)
 
                     if (g_post_callback_call) {
                         if (g_current_popup_id == POPUP_SAVE_SS_ID){
+                            bp_list_t *snapshots = NM_get_snapshots();
+
+                            NM_set_selected_index(SNAPSHOT_LIST, snapshots->menu_max);
+
                             //update list items
                             NM_update_lists(SNAPSHOT_LIST);
 
