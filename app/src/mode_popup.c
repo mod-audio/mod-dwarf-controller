@@ -64,8 +64,7 @@ static uint8_t g_current_popup_id, g_prev_popup_id;
 static uint8_t g_keyboard_toggled = 0;
 static uint8_t g_keyboard_index = 0;
 static char* g_current_name_input;
-static uint16_t g_change_selected = 0;
-static uint8_t g_post_callback_call = 0, g_all_bank_selected = 0;;
+static uint8_t g_post_callback_call = 0;
 
 /*
 ************************************************************************************************************************
@@ -102,16 +101,28 @@ void catch_ui_response(void *data, menu_item_t *item)
 
         switch(g_current_popup_id)
         {
-            case POPUP_DELETE_BANK_ID:
-            case POPUP_REMOVE_PB_ID:;
+            case POPUP_DELETE_BANK_ID: {
+                bp_list_t *banks = NM_get_banks();
                 int32_t pedalboard_id = atoi(response[2]);
-                if (pedalboard_id >= 0){
-                    //we got a valid pb, this means we need to change bank/pedalboard
+
+                //we removed our current bank, so we need to change to all bank
+                if (banks->hover == banks->selected) {
                     NM_set_selected_index(BANKS_LIST, 0);
                     NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);
-
-                    g_all_bank_selected = 1;
                 }
+            }
+            break;
+
+            case POPUP_REMOVE_PB_ID: {
+                bp_list_t *pedalboards = NM_get_pedalboards();
+                int32_t pedalboard_id = atoi(response[2]);
+
+                //we removed the pb from our bank, so we need to change to all bank
+                if (pedalboards->hover == pedalboards->selected) {
+                    NM_set_selected_index(BANKS_LIST, 0);
+                    NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);
+                }
+            }
             break;
 
             default:
@@ -704,34 +715,14 @@ void PM_button_pressed(uint8_t button)
                             i = copy_command(buffer, CMD_BANK_DELETE);
                             i += int_to_str(banks->hover, &buffer[i], sizeof(buffer) - i, 0);
 
-                            g_change_selected = 0;
-                            if (banks->hover == banks->selected)
-                                g_change_selected = banks->selected;
-
                             ui_comm_webgui_send(buffer, i);
                             ui_comm_webgui_wait_response();
 
                             if (g_post_callback_call) {
                                 PM_launch_attention_overlay("\n\nbank deleted\nsuccessfully", exit_popup);
 
-                                if (!g_all_bank_selected) {
-                                    if (banks->selected == g_change_selected) {
-                                        NM_set_selected_index(BANKS_LIST, 0);
-                                    }
-                                    else {
-                                        if (g_change_selected != 0) {
-                                            //was there a bank deleted before or after the selected?
-                                            if (g_change_selected < banks->selected)
-                                                banks->selected = g_change_selected -1;
-                                            else
-                                                banks->selected = g_change_selected;
-
-                                            g_change_selected = 0;
-                                        }
-                                    }
-                                }
-                                else
-                                    g_all_bank_selected = 0;
+                                if (banks->selected >= banks->menu_max - 1)
+                                    banks->selected--;
 
                                 //we should not hover over the wrong bank
                                 banks->hover = banks->selected;
@@ -791,36 +782,25 @@ void PM_button_pressed(uint8_t button)
                             if (g_post_callback_call) {
                                 PM_launch_attention_overlay("\n\npedalboard removed \nsuccessfully", exit_popup);
 
-                                bp_list_t *pbs = NM_get_pedalboards();
-
-                                //check if we deleted the last item, if so correct hover
                                 bp_list_t* pedalboards = NM_get_pedalboards();
-                                if (pb_to_delete >= pedalboards->menu_max - 1) {
-                                    pbs->hover = pbs->menu_max - 2;
-                                }
+                                bp_list_t* banks = NM_get_banks();
 
-                                if (!g_all_bank_selected) {
-                                    //we removed the selected item, set the index out of bounds
-                                    if (NM_get_current_selected(PEDALBOARD_LIST) == NM_get_current_hover(PEDALBOARD_LIST))
-                                        NM_set_selected_index(PEDALBOARD_LIST, -1);
-                                    else
-                                        NM_set_selected_index(PEDALBOARD_LIST, -2);
-                                }
-                                else {
-                                    //we should not go bank to the all-bank
-                                    bp_list_t *banks = NM_get_banks();
-                                    banks->selected = current_bank;
+                                //check if we moved to the all bank in the callback
+                                if (NM_get_current_selected(BANKS_LIST) == 0){
                                     banks->hover = current_bank;
-                                    if (pb_to_delete >= pedalboards->menu_max - 1) {
-                                        pbs->hover = pbs->menu_max - 2;
-                                    }
-                                    else {
-                                        pbs->hover = pb_to_delete;
-                                    }
+                                    banks->selected = current_bank;
 
-                                    g_all_bank_selected = 0;
+                                    pedalboards->hover = pb_to_delete;
                                 }
 
+                                //correct the hover
+                                if (pedalboards->menu_max > 0)
+                                    pedalboards->hover--;
+
+                                //this function checks if we need the beginning box or not
+                                NM_set_current_list(PEDALBOARD_LIST);
+
+                                //update pb from bank hover
                                 NM_update_lists(PEDALBOARD_LIST);
                             }
                         break;

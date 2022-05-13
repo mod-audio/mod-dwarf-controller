@@ -1045,7 +1045,7 @@ uint8_t NM_down(void)
         case BANK_LIST_CHECKBOXES_ENGAGED:
         case BANKS_LIST:
             //are we reaching the bottom of the menu?
-            if(g_banks->page_max >= g_banks->menu_max - 1) {
+            if(g_banks->page_max >= g_banks->menu_max ) {
                 //check if we are not already at the end
                 if (g_banks->hover >= g_banks->menu_max - 1)
                     return 0;
@@ -1054,14 +1054,14 @@ uint8_t NM_down(void)
             }
             else {
                 //we always keep 3 items in front of us, if not request new page
-                if ((g_banks->hover >= (g_banks->page_max - 4)) && (g_banks->hover < g_banks->menu_max-1) ){
+                if (g_banks->hover >= (g_banks->page_max - 3)) {
                     g_banks->hover++;
 
                     //request new page
                     request_next_bank_page(PAGE_DIR_UP);
                 }
                 //we have items, just go down
-                else if (g_banks->hover < g_banks->menu_max-1)
+                else
                     g_banks->hover++;
             }
 

@@ -367,6 +367,7 @@ void actuators_clock(void)
                             {
                                 CLR_FLAG(button->status, EV_BUTTON_PRESSED);
                                 CLR_FLAG(button->status, EV_BUTTON_RELEASED);
+                                CLR_FLAG(button->status, EV_BUTTON_PRESSED_DOUBLE);
                                 SET_FLAG(button->status, EV_BUTTON_HELD);
                                 SET_FLAG(button->control, CLICK_CANCEL_FLAG);
 
