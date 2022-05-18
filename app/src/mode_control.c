@@ -2081,18 +2081,18 @@ void CM_reset_momentary_control(uint8_t foot)
                 else
                     g_foots[foot]->value = g_foots[foot]->minimum;
             }
-        }
 
-        //notify host
-        send_control_set(g_foots[foot]);
+            //notify host
+            send_control_set(g_foots[foot]);
 
-        //update the screen / leds
-        if (naveg_get_current_mode() == MODE_CONTROL) {
-            if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
-                return;
+            //update the screen / leds
+            if (naveg_get_current_mode() == MODE_CONTROL) {
+                if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+                    return;
 
-            CM_print_screen();
-            CM_set_leds();
+                CM_print_screen();
+                CM_set_leds();
+            }
         }
     }
 }
