@@ -394,10 +394,12 @@ static void request_snapshots(uint8_t dir)
     buffer[i++] = ' ';
 
     // insert the current hover on buffer
-    if (g_snapshots && g_snapshots->selected == -1)
-        i += int_to_str(0, &buffer[i], sizeof(buffer) - i, 0);
-    else if ((dir == PAGE_DIR_INIT))
-        i += int_to_str(g_current_snapshot, &buffer[i], sizeof(buffer) - i, 0);
+    if ((dir == PAGE_DIR_INIT)) {
+        if (g_snapshots && g_snapshots->selected == -1)
+            i += int_to_str(0, &buffer[i], sizeof(buffer) - i, 0);
+        else
+            i += int_to_str(g_current_snapshot, &buffer[i], sizeof(buffer) - i, 0);
+    }
     else
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
 
@@ -1899,7 +1901,7 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
                 if (g_pedalboards->menu_max == 0)
                     g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
             }
-            else {
+            else {                
                 g_current_pedalboard = index;
 
                 if (g_current_bank == g_banks->selected) {

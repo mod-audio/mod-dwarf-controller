@@ -122,6 +122,10 @@ void catch_ui_response(void *data, menu_item_t *item)
                     NM_set_selected_index(BANKS_LIST, 0);
                     NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);
                 }
+                else if (pedalboards->hover < pedalboards->selected) {
+                    uint16_t new_selected = pedalboards->selected - 1;
+                    NM_set_selected_index(PEDALBOARD_LIST, new_selected);
+                }
             }
             break;
 
@@ -751,9 +755,10 @@ void PM_button_pressed(uint8_t button)
 
                                 if (snapshot_to_remove == selected_snapshot) {
                                     snapshots->hover = 0;
+    
+                                    NM_set_selected_index(SNAPSHOT_LIST, -1);
                                     NM_update_lists(SNAPSHOT_LIST);
 
-                                    NM_set_selected_index(SNAPSHOT_LIST, -1);
                                     //old pointer is invalid after update_list
                                     bp_list_t* snapshots_new = NM_get_snapshots();
                                     snapshots_new->hover = 0;
@@ -798,7 +803,7 @@ void PM_button_pressed(uint8_t button)
                                 }
 
                                 //correct the hover
-                                if (pedalboards->menu_max > 0)
+                                if ((pedalboards->menu_max > 0) && (pedalboards->hover > 0))
                                     pedalboards->hover--;
 
                                 //this function checks if we need the beginning box or not
