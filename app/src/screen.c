@@ -23,6 +23,9 @@
 ************************************************************************************************************************
 */
 
+//make the menu boxes rectangle or cut a pixel
+#define RECT_MENU_BOXES
+
 /*
 ************************************************************************************************************************
 *           LOCAL CONSTANTS
@@ -78,9 +81,35 @@ void print_menu_outlines(void)
     glcd_hline(display, 45, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
     glcd_hline(display, 79, DISPLAY_HEIGHT - 5, 3, GLCD_BLACK);
     glcd_hline(display, 112, DISPLAY_HEIGHT - 5, 15, GLCD_BLACK);
+
+#ifdef RECT_MENU_BOXES
+
     glcd_rect(display, 14, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
     glcd_rect(display, 48, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
     glcd_rect(display, 82, DISPLAY_HEIGHT - 9, 31, 9, GLCD_BLACK);
+
+#else
+
+    //box 1
+    glcd_hline(display, 15, DISPLAY_HEIGHT-9, 29, GLCD_BLACK);
+    glcd_hline(display, 15, DISPLAY_HEIGHT-1, 29, GLCD_BLACK);
+    glcd_vline(display, 14, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+    glcd_vline(display, 44, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+
+    //box 2
+    glcd_hline(display, 49, DISPLAY_HEIGHT-9, 29, GLCD_BLACK);
+    glcd_hline(display, 49, DISPLAY_HEIGHT-1, 29, GLCD_BLACK);
+    glcd_vline(display, 48, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+    glcd_vline(display, 78, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+
+    //box 3
+    glcd_hline(display, 83, DISPLAY_HEIGHT-9, 29, GLCD_BLACK);
+    glcd_hline(display, 83, DISPLAY_HEIGHT-1, 29, GLCD_BLACK);
+    glcd_vline(display, 82, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+    glcd_vline(display, 112, DISPLAY_HEIGHT-8, 7, GLCD_BLACK);
+
+#endif
+
 }
 
 void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode)
