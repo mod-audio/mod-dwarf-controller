@@ -1230,6 +1230,10 @@ void NM_toggle_mode(void)
         break;
 
         case SNAPSHOT_LIST:
+            if (g_snapshots) {
+                g_snapshots->selected = g_current_snapshot;
+                g_snapshots->hover = g_current_snapshot;
+            }
             request_snapshots(PAGE_DIR_INIT);
         break;
     }
@@ -1792,8 +1796,11 @@ void NM_toggle_pb_ss(void)
             g_snapshots->selected = g_current_snapshot;
             g_snapshots->hover = g_current_snapshot;
         }
-        else
+        else {
+            g_snapshots->selected = g_current_snapshot;
+            g_snapshots->hover = g_current_snapshot;
             request_snapshots(PAGE_DIR_INIT);
+        }
 
         if (!g_snapshots_loaded) //no snapshots available
         {
