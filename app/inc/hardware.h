@@ -52,6 +52,7 @@ enum {COREBOARD_INIT, COREBOARD_TURN_OFF, COREBOARD_TURN_ON};
 //overlay types
 #define OVERLAY_ATTENTION		0
 #define OVERLAY_CONTROL			1
+#define OVERLAY_WIDGET			2
 
 /*
 ************************************************************************************************************************
