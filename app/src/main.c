@@ -264,6 +264,12 @@ static void displays_task(void *pvParameters)
             NM_print_screen();
         }
 
+        //check if we need to take a screenshot
+        if (g_screenshot) {
+            naveg_print_screen_data(g_screenshot - 1);
+            g_screenshot = 0;
+        }
+
         if (TM_need_update_menu())
         {
             if (++count == 5000)

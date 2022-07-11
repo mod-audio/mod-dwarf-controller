@@ -24,6 +24,8 @@
 #include "mode_navigation.h"
 #include "mode_tools.h"
 
+uint8_t g_screenshot = 0;
+
 /*
 ************************************************************************************************************************
 *           LOCAL DEFINES
@@ -331,6 +333,7 @@ void protocol_init(void)
     protocol_add_command(CMD_SYS_LAUNCH_POPUP, cb_launch_popup);
     protocol_add_command(CMD_RESET_EEPROM, cb_clear_eeprom);
     protocol_add_command(CMD_SYS_COMP_PEDALBOARD_GAIN, cb_set_pb_gain);
+    protocol_add_command(CMD_SCREENSHOT, cb_screenshot);
 }
 
 /*
@@ -1054,4 +1057,12 @@ void cb_pedalboard_change(uint8_t serial_id, proto_t *proto)
     if (naveg_get_current_mode() == MODE_NAVIGATION) {
         NM_set_need_update();
     }
+}
+
+void cb_screenshot(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    //set a flag, as we can not send new commands from a cb of a recieved one
+    g_screenshot = atoi(proto->list[1]);
 }

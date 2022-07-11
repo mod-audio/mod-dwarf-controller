@@ -1359,11 +1359,8 @@ void naveg_trigger_popup(int8_t popup_id)
     }
 }
 
-void naveg_print_screen_data(uint8_t foot)
+void naveg_print_screen_data(uint8_t display)
 {
-    if ((foot != 2) || (!g_screenshot_mode_enabled))
-        return;
-
     char msg_buffer[300];
 
     ui_comm_webgui_set_response_cb(NULL, NULL);
@@ -1380,7 +1377,7 @@ void naveg_print_screen_data(uint8_t foot)
         msg_buffer[i++] = ' ';
 
         for (x = 0; x < 128; x++){
-            i += int_to_hex_str(glcd_read_pixel(hardware_glcds(0), x, (y*8)), &pixel_buffer[0]);
+            i += int_to_hex_str(glcd_read_pixel(hardware_glcds(display), x, (y*8)), &pixel_buffer[0]);
             strcat(msg_buffer, pixel_buffer);
         }
 
