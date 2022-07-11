@@ -650,7 +650,7 @@ void NM_clear(void)
     g_pedalboards = NULL;
     g_snapshots = NULL;
 
-    g_current_list = PEDALBOARD_LIST;
+    g_current_list = SNAPSHOT_LIST;
 
     if (g_uids_to_add_to_bank)
         FREE(g_uids_to_add_to_bank);
@@ -711,7 +711,7 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
     g_pedalboards->selected = g_current_pedalboard;
 
     if ((g_current_bank != 0) && (g_current_pedalboard == 0))
-        g_current_list = PB_LIST_BEGINNING_BOX;
+        g_current_list = SNAPSHOT_LIST;
 }
 
 void NM_enter(void)
