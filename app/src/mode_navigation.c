@@ -650,7 +650,7 @@ void NM_clear(void)
     g_pedalboards = NULL;
     g_snapshots = NULL;
 
-    g_current_list = PEDALBOARD_LIST;
+    g_current_list = SNAPSHOT_LIST;
 
     if (g_uids_to_add_to_bank)
         FREE(g_uids_to_add_to_bank);
@@ -710,8 +710,7 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
     g_pedalboards->hover = g_current_pedalboard;
     g_pedalboards->selected = g_current_pedalboard;
 
-    if ((g_current_bank != 0) && (g_current_pedalboard == 0))
-        g_current_list = PB_LIST_BEGINNING_BOX;
+    g_current_list = SNAPSHOT_LIST;
 }
 
 void NM_enter(void)
@@ -925,12 +924,12 @@ void NM_encoder_released(uint8_t encoder)
 
 uint8_t NM_up(void)
 {
-    if (!g_banks) return 0;
-
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
         case BANKS_LIST:
+            if (!g_banks) return 0;
+
             //if we are nearing the final 3 items of the page, and we already have the end of the page in memory, or if we just need to go down
             if(g_banks->page_min == 0) {
                 //check if we are not already at the end
@@ -960,6 +959,8 @@ uint8_t NM_up(void)
         case PEDALBOARD_LIST:
         case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
+            if (!g_banks || !g_pedalboards) return 0;
+
             //are we reaching the bottom of the menu?
             if(g_pedalboards->page_min == 0) {
 
@@ -991,6 +992,7 @@ uint8_t NM_up(void)
         break;
 
         case SNAPSHOT_LIST:
+            if (!g_snapshots) return 0;
             //are we reaching the bottom of the menu?
             if(g_snapshots->page_min == 0)  {
                 //check if we are not already at the end
@@ -1020,6 +1022,8 @@ uint8_t NM_up(void)
         break;
 
         case PB_LIST_BEGINNING_BOX:
+            if (!g_banks || !g_pedalboards) return 0;
+
             if (g_item_grabbed != NO_GRAB_ITEM)
                 return 0;
 
@@ -1040,12 +1044,12 @@ uint8_t NM_up(void)
 
 uint8_t NM_down(void)
 {
-    if (!g_banks) return 0;
-
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
         case BANKS_LIST:
+            if (!g_banks) return 0;
+
             //are we reaching the bottom of the menu?
             if(g_banks->page_max >= g_banks->menu_max ) {
                 //check if we are not already at the end
@@ -1074,6 +1078,8 @@ uint8_t NM_down(void)
         case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
         case PEDALBOARD_LIST:
+            if (!g_banks || !g_pedalboards) return 0;
+
             //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
             if(g_pedalboards->page_max == g_pedalboards->menu_max) {
                 //check if we are not already at the end
@@ -1100,6 +1106,8 @@ uint8_t NM_down(void)
         break;
 
         case SNAPSHOT_LIST:
+            if (!g_snapshots) return 0;
+
             //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
             if(g_snapshots->page_max == g_snapshots->menu_max) {
                 //check if we are not already at the end
@@ -1126,6 +1134,8 @@ uint8_t NM_down(void)
         break;
 
         case PB_LIST_BEGINNING_BOX:
+            if (!g_banks || !g_pedalboards) return 0;
+
             //are we reaching the bottom of the menu, -1 because menu max is bigger then page_max
             if ((g_pedalboards->page_max == g_pedalboards->menu_max) && (g_pedalboards->hover >= g_pedalboards->menu_max - 1))
                     return 0;
@@ -1139,6 +1149,8 @@ uint8_t NM_down(void)
         break;
 
         case PB_LIST_BEGINNING_BOX_SELECTED:
+            if (!g_banks || !g_pedalboards) return 0;
+
             if (g_pedalboards->page_max == 0)
                 return 0;
 
@@ -1217,16 +1229,8 @@ void NM_toggle_mode(void)
             }
 
             g_current_list = PEDALBOARD_LIST;
-        //fall-through
+        break;
         case PEDALBOARD_LIST:
-            NM_update_lists(PEDALBOARD_LIST);
-
-            //reset these
-            g_banks->hover = g_current_bank;
-            g_banks->selected = g_banks->hover;
-            g_pedalboards->hover = g_current_pedalboard;
-            g_pedalboards->selected = g_current_pedalboard;
-
         break;
 
         case SNAPSHOT_LIST:
@@ -1234,8 +1238,23 @@ void NM_toggle_mode(void)
                 g_snapshots->selected = g_current_snapshot;
                 g_snapshots->hover = g_current_snapshot;
             }
-            request_snapshots(PAGE_DIR_INIT);
         break;
+    }
+
+    NM_update_lists(g_current_list);
+
+    //reset these
+    if (g_banks) {
+        g_banks->hover = g_current_bank;
+        g_banks->selected = g_banks->hover;
+    }
+    if (g_pedalboards) {
+        g_pedalboards->hover = g_current_pedalboard;
+        g_pedalboards->selected = g_current_pedalboard;
+    }
+    if (g_snapshots) {
+        g_snapshots->selected = g_current_snapshot;
+        g_snapshots->hover = g_current_snapshot;
     }
 
     NM_print_screen();
@@ -1817,14 +1836,18 @@ void NM_toggle_pb_ss(void)
     }
     else
     {
-        g_banks->selected = g_current_bank;
-        g_banks->hover = g_current_bank;
+        if (g_banks) {
+            g_banks->selected = g_current_bank;
+            g_banks->hover = g_current_bank;
+        }
 
         //we micht not have this bank page in memory anymore, so request it
         request_banks_list(PAGE_DIR_INIT);
 
-        g_pedalboards->selected = g_current_pedalboard;
-        g_pedalboards->hover = g_pedalboards->selected;
+        if (g_pedalboards) {
+            g_pedalboards->selected = g_current_pedalboard;
+            g_pedalboards->hover = g_pedalboards->selected;
+        }
         request_pedalboards(PAGE_DIR_INIT, g_current_bank);
 
         g_pedalboards->selected = g_current_pedalboard;
