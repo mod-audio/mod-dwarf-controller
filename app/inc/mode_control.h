@@ -82,7 +82,7 @@ void CM_reset_encoder_page(void);
 void CM_reset_page(void);
 void CM_set_list_behaviour(uint8_t click_list);
 void CM_reset_list_actuators(void);
-void CM_reset_momentary_control(uint8_t foot);
+void CM_reset_momentary_control(uint8_t foot, uint8_t update_display);
 
 /*
 ************************************************************************************************************************

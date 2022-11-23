@@ -591,6 +591,9 @@ static void foot_control_rm(uint8_t hw_id)
                 ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
             }
 
+            //reset any possible states
+            CM_reset_momentary_control(i, 0);
+
             // remove the control
             data_free_control(g_foots[i]);
             g_foots[i] = NULL;
@@ -2059,7 +2062,7 @@ void CM_set_list_behaviour(uint8_t click_list)
     g_list_click = click_list;
 }
 
-void CM_reset_momentary_control(uint8_t foot)
+void CM_reset_momentary_control(uint8_t foot, uint8_t update_display)
 {
     // checks the function assigned to foot and update the footer
     if (g_foots[foot]) {
@@ -2085,13 +2088,16 @@ void CM_reset_momentary_control(uint8_t foot)
             //notify host
             send_control_set(g_foots[foot]);
 
-            //update the screen / leds
-            if (naveg_get_current_mode() == MODE_CONTROL) {
-                if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
-                    return;
+            if (update_display)
+            {
+                //update the screen / leds
+                if (naveg_get_current_mode() == MODE_CONTROL) {
+                    if ((hardware_get_overlay_counter() != 0) && (hardware_get_overlay_type() == OVERLAY_ATTENTION))
+                        return;
 
-                CM_print_screen();
-                CM_set_leds();
+                    CM_print_screen();
+                    CM_set_leds();
+                }
             }
         }
     }
