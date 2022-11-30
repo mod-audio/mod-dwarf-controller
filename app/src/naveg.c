@@ -97,6 +97,13 @@ bool g_screenshot_mode_enabled = false;
 ************************************************************************************************************************
 */
 
+void exit_control_mode(void)
+{
+    //for now we just need to make sure we reset the momentary foots here
+    CM_reset_momentary_control(0, 0);
+    CM_reset_momentary_control(1, 0);
+}
+
 void enter_shift_menu(void)
 {
     if (g_device_mode == MODE_SELFTEST)
@@ -132,6 +139,9 @@ void enter_shift_menu(void)
 
     if ((g_device_mode == MODE_NAVIGATION) && NM_check_grab_mode())
         return;
+
+    if (g_device_mode == MODE_CONTROL)
+        exit_control_mode();
 
     hardware_force_overlay_off(1);
 
@@ -884,6 +894,8 @@ void naveg_foot_double_press(uint8_t foot)
                     return;
                 }
 
+                exit_control_mode();
+
                 g_prev_device_mode = MODE_CONTROL;
                 g_device_mode = MODE_NAVIGATION;
 
@@ -958,6 +970,9 @@ void naveg_foot_double_press(uint8_t foot)
         {
             if (NM_check_grab_mode())
                 return;
+
+            if (g_device_mode == MODE_CONTROL)
+                exit_control_mode();
 
             g_prev_device_mode = g_device_mode;
             g_device_mode = MODE_TOOL_FOOT;
