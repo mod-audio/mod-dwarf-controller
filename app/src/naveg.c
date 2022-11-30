@@ -153,6 +153,10 @@ void enter_shift_menu(void)
     if (g_prev_shift_device_mode == MODE_TOOL_FOOT)
         TM_turn_off_tuner();
 
+    //turn off foot leds
+    for (uint8_t i = 0; i < FOOTSWITCHES_COUNT; i++)
+        ledz_off(hardware_leds(i), WHITE);
+
     //toggle shift
     g_device_mode = MODE_SHIFT;
 
