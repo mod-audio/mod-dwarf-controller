@@ -288,16 +288,16 @@ static void load_control_page(uint8_t page)
     uint8_t i = copy_command(buffer, CMD_NEXT_PAGE);
     i += int_to_str(page, &buffer[i], sizeof(buffer) - i, 0);
 
+    //reset any possible states
+    CM_reset_momentary_control(0, 0);
+    CM_reset_momentary_control(1, 0);
+
     //clear controls
     uint8_t q = 0;
     for (q = 0; q < TOTAL_CONTROL_ACTUATORS; q++)
     {
         CM_remove_control(q);
     }
-
-    //reset any possible states
-    CM_reset_momentary_control(0, 0);
-    CM_reset_momentary_control(1, 0);
 
     g_current_encoder_page = 0;
 
@@ -2069,7 +2069,6 @@ void CM_reset_momentary_control(uint8_t foot, uint8_t update_display)
     if (g_foots[foot]) {
         //check if control is momentary
         if (g_foots[foot]->properties & FLAG_CONTROL_MOMENTARY) {
-
             //bypass and toggles are inverted from eachother, this should changed at some point
             if (g_foots[foot]->properties & FLAG_CONTROL_BYPASS) {
                 //check to what value we need to default
