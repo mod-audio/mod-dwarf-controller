@@ -718,7 +718,8 @@ void NM_enter(void)
     if (g_item_grabbed != NO_GRAB_ITEM)
         return;
 
-    if (!g_banks)
+    //we dont always have banks in momory when dealing with snapshots
+    if ((!g_banks) && (g_current_list != SNAPSHOT_LIST))
         return;
 
     switch (g_current_list) {
@@ -1236,7 +1237,7 @@ void NM_toggle_mode(void)
         case SNAPSHOT_LIST:
             if (g_snapshots) {
                 g_snapshots->selected = g_current_snapshot;
-                g_snapshots->hover = g_current_snapshot;
+                g_snapshots->hover = (g_current_snapshot == -1) ? 0 : g_current_snapshot;;
             }
         break;
     }
@@ -1254,7 +1255,7 @@ void NM_toggle_mode(void)
     }
     if (g_snapshots) {
         g_snapshots->selected = g_current_snapshot;
-        g_snapshots->hover = g_current_snapshot;
+        g_snapshots->hover = (g_current_snapshot == -1) ? 0 : g_current_snapshot;;
     }
 
     NM_print_screen();
@@ -1813,11 +1814,12 @@ void NM_toggle_pb_ss(void)
         if (!g_snapshots) {
             request_snapshots(PAGE_DIR_INIT);
             g_snapshots->selected = g_current_snapshot;
-            g_snapshots->hover = g_current_snapshot;
+            //no active snapshot
+            g_snapshots->hover = (g_current_snapshot == -1) ? 0 : g_current_snapshot;
         }
         else {
             g_snapshots->selected = g_current_snapshot;
-            g_snapshots->hover = g_current_snapshot;
+            g_snapshots->hover = (g_current_snapshot == -1) ? 0 : g_current_snapshot;;
             request_snapshots(PAGE_DIR_INIT);
         }
 
@@ -1946,7 +1948,7 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
 
             if (g_snapshots) {
                 g_snapshots->selected = index;
-                g_snapshots->hover = index;
+                g_snapshots->hover = (g_current_snapshot == -1) ? 0 : g_current_snapshot;;
             }
         break;
 
