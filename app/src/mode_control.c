@@ -295,6 +295,10 @@ static void load_control_page(uint8_t page)
         CM_remove_control(q);
     }
 
+    //reset any possible states
+    CM_reset_momentary_control(0, 0);
+    CM_reset_momentary_control(1, 0);
+
     g_current_encoder_page = 0;
 
     CM_set_state();
@@ -590,9 +594,6 @@ static void foot_control_rm(uint8_t hw_id)
                 int8_t value[3] = {-1, -1, -1};
                 ledz_set_color(MAX_COLOR_ID + hw_id-ENCODERS_COUNT +1, value);
             }
-
-            //reset any possible states
-            CM_reset_momentary_control(i, 0);
 
             // remove the control
             data_free_control(g_foots[i]);
