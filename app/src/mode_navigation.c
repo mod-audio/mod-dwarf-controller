@@ -1707,7 +1707,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
     if (pressed) {
         if (next_prev) {
             //check if we can scroll down
-            if ((g_current_list == PB_LIST_BEGINNING_BOX || PEDALBOARD_LIST) && (g_banks->selected != g_current_bank)) {
+            if ((g_current_list == (PB_LIST_BEGINNING_BOX || PEDALBOARD_LIST)) && (g_banks->selected != g_current_bank)) {
                 g_pedalboards->hover = 0;
                 g_pedalboards->selected = 0;
                 g_current_pedalboard = 0;
