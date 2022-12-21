@@ -79,6 +79,7 @@ control_t *data_parse_control(char **data)
     control_t *control = NULL;
     uint32_t len = strarr_length(data);
     const uint32_t min_params = 11;
+    uint8_t i = 0;
 
     // checks if all data was received
     if (len < min_params - 2)
@@ -114,7 +115,6 @@ control_t *data_parse_control(char **data)
         goto error;
 
     // checks if has scale points
-    uint8_t i = 0;
     if (len >= (min_params+1) && (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)))
     {
         control->scale_points_count = atoi(data[min_params - 2]);
@@ -183,7 +183,7 @@ bp_list_t *data_parse_banks_list(char **list_data, uint32_t list_count)
 
     // create an array of banks
     bp_list_t *bp_list = (bp_list_t *) MALLOC(sizeof(bp_list_t));
-    if (!bp_list) goto error;
+    if (!bp_list) return NULL;
 
     // clear allocated memory
     memset(bp_list, 0, sizeof(bp_list_t));

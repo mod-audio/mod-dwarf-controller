@@ -117,9 +117,9 @@
 
 typedef struct SYSTEM_POPUP_T {
     uint8_t id;
-    char *title;
-    char *popup_text;
-    char *btn1_txt, *btn2_txt, *btn3_txt;
+    const char *title;
+    const char *popup_text;
+    const char *btn1_txt, *btn2_txt, *btn3_txt;
     uint8_t cursor_index;
     int8_t button_value;
     const uint8_t button_max, has_naming_input;
@@ -155,7 +155,7 @@ void PM_print_screen(void);
 void PM_set_leds(void);
 void PM_button_pressed(uint8_t button);
 void PM_launch_popup(uint8_t popup_id);
-void PM_launch_attention_overlay(char *message, void (*timeout_cb));
+void PM_launch_attention_overlay(const char *message, void (*timeout_cb));
 uint8_t PM_get_current_popup(void);
 
 /*

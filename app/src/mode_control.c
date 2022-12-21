@@ -119,7 +119,7 @@ static void step_to_value(control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_LOGARITHMIC)
     {
-        control->value = control->minimum * pow(control->maximum / control->minimum, p_step);
+        control->value = control->minimum * powf(control->maximum / control->minimum, p_step);
     }
     else if (!(control->properties & (FLAG_CONTROL_TRIGGER | FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)))
     {
@@ -337,7 +337,7 @@ static void encoder_control_add(control_t *control)
         uint8_t i;
         for (i = 0; i < control->scale_points_count; i++)
         {
-            if (control->value == control->scale_points[i]->value)
+            if (floats_are_equal(control->value, control->scale_points[i]->value))
             {
                 control->step = i;
                 break;
@@ -349,13 +349,13 @@ static void encoder_control_add(control_t *control)
     }
     else if (control->properties & FLAG_CONTROL_LOGARITHMIC)
     {
-        if (control->minimum == 0.0)
+        if (float_is_zero(control->minimum))
             control->minimum = FLT_MIN;
 
-        if (control->maximum == 0.0)
+        if (float_is_zero(control->maximum))
             control->maximum = FLT_MIN;
 
-        if (control->value == 0.0)
+        if (float_is_zero(control->value))
             control->value = FLT_MIN;
 
         control->step =
@@ -458,7 +458,7 @@ static void foot_control_print(control_t *control)
             // time unit (ms, s)
             if (strcmp(control->unit, "ms") == 0 || strcmp(control->unit, "s") == 0)
             {
-                max = (uint32_t)(convert_to_ms(control->unit, control->maximum) + 0.5);
+                max = (uint32_t)(convert_to_ms(control->unit, control->maximum) + 0.5f);
                 //makes sure we enforce a proper timeout
                 if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
                     max = TAP_TEMPO_DEFAULT_TIMEOUT;
@@ -467,10 +467,10 @@ static void foot_control_print(control_t *control)
             else
             {
                 //prevent division by 0 case
-                if (control->minimum == 0)
+                if (float_is_zero(control->minimum))
                     max = TAP_TEMPO_DEFAULT_TIMEOUT;
                 else
-                    max = (uint32_t)(convert_to_ms(control->unit, control->minimum) + 0.5);
+                    max = (uint32_t)(convert_to_ms(control->unit, control->minimum) + 0.5f);
 
                 //makes sure we enforce a proper timeout
                 if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
@@ -502,7 +502,8 @@ static void foot_control_print(control_t *control)
     {
         // updates the footer
         screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
-                     (control->value ? BYPASS_ON_FOOTER_TEXT : BYPASS_OFF_FOOTER_TEXT), control->properties);
+                      float_is_not_zero(control->value) ? BYPASS_ON_FOOTER_TEXT : BYPASS_OFF_FOOTER_TEXT,
+                      control->properties);
     }
     else if (control->properties & (FLAG_CONTROL_REVERSE | FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS))
     {
@@ -510,7 +511,7 @@ static void foot_control_print(control_t *control)
         control->step = 0;
         for (i = 0; i < control->scale_points_count; i++)
         {
-            if (control->value == control->scale_points[i]->value)
+            if (floats_are_equal(control->value, control->scale_points[i]->value))
             {
                 control->step = i;
                 break;
@@ -790,12 +791,12 @@ static void control_set(uint8_t id, control_t *control)
                             send_control_set(control);
 
                             //save before
-                            uint8_t id = control->hw_id;
+                            uint8_t hw_id = control->hw_id;
                             if (control->scale_points_flag & (FLAG_SCALEPOINT_PAGINATED))
                                 request_control_page(control, 1);
 
                             //fetch pointer again, becomes invalid by request_control_page
-                            control_t *updated_control = g_foots[id - ENCODERS_COUNT];
+                            control_t *updated_control = g_foots[hw_id - ENCODERS_COUNT];
                             updated_control->scale_point_index = 0;
 
                             foot_control_print(updated_control);
@@ -1116,13 +1117,13 @@ void CM_inc_control(uint8_t encoder)
         control->value = control->maximum;
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED) {
-        if (control->value == 1)
+        if (float_is_not_zero(control->value))
             return;
         else 
             control->value = 1;
     }
     else if (control->properties & FLAG_CONTROL_BYPASS) {
-        if (control->value == 0)
+        if (float_is_zero(control->value))
             return;
         else 
             control->value = 0;
@@ -1214,13 +1215,13 @@ void CM_dec_control(uint8_t encoder)
         }
     }
     else if (control->properties & FLAG_CONTROL_TOGGLED) {
-        if (control->value == 0)
+        if (float_is_zero(control->value))
             return;
         else 
             control->value = 0;
     }
     else if (control->properties & FLAG_CONTROL_BYPASS) {
-        if (control->value == 1)
+        if (float_is_not_zero(control->value))
             return;
         else 
             control->value = 1;
@@ -1273,7 +1274,7 @@ void CM_toggle_control(uint8_t encoder)
     }
     else if ((control->properties & FLAG_CONTROL_TOGGLED) || (control->properties & FLAG_CONTROL_BYPASS))
     {
-        control->value = !control->value;
+        control->value = float_is_zero(control->value) ? 1 : 0;
     }
     else if (control->properties & (FLAG_CONTROL_ENUMERATION | FLAG_CONTROL_SCALE_POINTS | FLAG_CONTROL_REVERSE)) 
     {
@@ -1402,7 +1403,7 @@ void CM_set_control(uint8_t hw_id, float value)
             control->step = 0;
             for (i = 0; i < control->scale_points_count; i++)
             {
-                if (control->value == control->scale_points[i]->value)
+                if (floats_are_equal(control->value, control->scale_points[i]->value))
                 {
                     control->step = i;
                     control->scale_point_index = i;
@@ -1509,7 +1510,7 @@ void CM_set_control(uint8_t hw_id, float value)
             else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
             {
                 // convert the time unit
-                uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5);
+                uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5f);
 
                 led->led_state.color = TAP_TEMPO_COLOR;
                 led->led_state.amount_of_blinks = LED_BLINK_INFINIT;
@@ -1541,7 +1542,7 @@ void CM_set_control(uint8_t hw_id, float value)
                     // time unit (ms, s)
                     if (strcmp(control->unit, "ms") == 0 || strcmp(control->unit, "s") == 0)
                     {
-                        max = (uint32_t)(convert_to_ms(control->unit, control->maximum) + 0.5);
+                        max = (uint32_t)(convert_to_ms(control->unit, control->maximum) + 0.5f);
                         //makes sure we enforce a proper timeout
                         if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
                             max = TAP_TEMPO_DEFAULT_TIMEOUT;
@@ -1550,10 +1551,10 @@ void CM_set_control(uint8_t hw_id, float value)
                     else
                     {
                         //prevent division by 0 case
-                        if (control->minimum == 0)
+                        if (float_is_zero(control->minimum))
                             max = TAP_TEMPO_DEFAULT_TIMEOUT;
                         else
-                            max = (uint32_t)(convert_to_ms(control->unit, control->minimum) + 0.5);
+                            max = (uint32_t)(convert_to_ms(control->unit, control->minimum) + 0.5f);
                         //makes sure we enforce a proper timeout
                         if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
                             max = TAP_TEMPO_DEFAULT_TIMEOUT;
@@ -1594,7 +1595,8 @@ void CM_set_control(uint8_t hw_id, float value)
 
                 // updates the footer
                 screen_footer(control->hw_id - ENCODERS_COUNT, control->label,
-                             (control->value ? BYPASS_ON_FOOTER_TEXT : BYPASS_OFF_FOOTER_TEXT), control->properties);
+                              float_is_not_zero(control->value) ? BYPASS_ON_FOOTER_TEXT : BYPASS_OFF_FOOTER_TEXT,
+                              control->properties);
             }
         }
     }
@@ -1892,7 +1894,7 @@ void CM_set_foot_led(control_t *control, uint8_t update_led)
     else if (control->properties & FLAG_CONTROL_TAP_TEMPO)
     {
         // convert the time unit
-        uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5);
+        uint16_t time_ms = (uint16_t)(convert_to_ms(control->unit, control->value) + 0.5f);
 
         led->led_state.color = TAP_TEMPO_COLOR;
         led->sync_blink = 0;

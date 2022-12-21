@@ -108,7 +108,7 @@ typedef struct PEAKMETER_T {
 
 typedef struct TUNER_T {
     float frequency;
-    char *note;
+    const char *note;
     int8_t cents;
     uint8_t input;
 } tuner_t;

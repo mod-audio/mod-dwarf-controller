@@ -583,7 +583,7 @@ void naveg_enc_down(uint8_t encoder)
             TM_down(encoder);
         break;
 
-        case MODE_SHIFT:;
+        case MODE_SHIFT: {
             //do system callbacks
             uint8_t read_buffer = 0;
             switch (encoder)
@@ -607,6 +607,7 @@ void naveg_enc_down(uint8_t encoder)
             item->desc->action_cb(item, MENU_EV_UP);
 
             screen_shift_overlay(-1, NULL, g_ui_connected);
+        }
         break;
 
         case MODE_BUILDER:
@@ -684,7 +685,7 @@ void naveg_enc_up(uint8_t encoder)
             TM_up(encoder);
         break;
 
-        case MODE_SHIFT:;
+        case MODE_SHIFT: {
             //do system callbacks
             uint8_t read_buffer = 0;
             switch (encoder)
@@ -708,6 +709,7 @@ void naveg_enc_up(uint8_t encoder)
             item->desc->action_cb(item, MENU_EV_DOWN);
 
             screen_shift_overlay(-1, NULL, g_ui_connected);
+        }
         break;
 
         case MODE_BUILDER:

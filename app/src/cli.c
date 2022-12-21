@@ -47,7 +47,7 @@
 ************************************************************************************************************************
 */
 
-static char *g_boot_steps[] = {
+static const char *g_boot_steps[] = {
     "U-Boot",
     "Hit any key",
     "Starting kernel",

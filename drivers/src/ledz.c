@@ -200,7 +200,7 @@ void ledz_set_global_brightness(uint8_t brightness)
 
 uint8_t ledz_get_global_brightness(void)
 {
-    if (g_ledz_brightness < 0.5) {
+    if (g_ledz_brightness < 0.5f) {
         return 0;
     }
     else {
@@ -219,6 +219,9 @@ ledz_t* ledz_create(ledz_type_t type, const ledz_color_t *colors, const int *pin
     for (i = type - 1; i >= 0; i--)
     {
         ledz_t *led = ledz_take();
+        if (!led)
+            return NULL;
+
         led->id = g_led_amount;
         led->color = colors[i];
         led->pins = &pins[i * 2];
@@ -366,8 +369,8 @@ void ledz_brightness(ledz_t* led, ledz_color_t color, unsigned int value)
         value = 100;
 
     //also check if we have a button, if so, increase by 0.19 (foots on low, buttons on mid)
-    if ((led->id > 2) && (g_ledz_brightness < 0.8))
-        value = value * (g_ledz_brightness + 0.19);
+    if ((led->id > 2) && (g_ledz_brightness < 0.8f))
+        value = value * (g_ledz_brightness + 0.19f);
     else
         value = value * g_ledz_brightness;
 
@@ -727,7 +730,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
             break;
 
             case LED_DIMMED:
-                if ((led->brightness == 0) && (led_state.brightness == 0))
+                if (float_is_zero(led->brightness) && float_is_zero(led_state.brightness))
                     return;
 
                 ledz_off(led, ledz_color);
@@ -735,7 +738,7 @@ void set_ledz_trigger_by_color_id(ledz_t* led, uint8_t state, led_state_t led_st
                 if (led_colors[led_state.color][i] != 0)
                 {
                     uint8_t brightness = led_colors[led_state.color][i] * led_state.brightness;
-                    if ((led_state.brightness < 0.5) && (g_ledz_brightness < 0.5))
+                    if ((led_state.brightness < 0.5f) && (g_ledz_brightness < 0.5f))
                         return;
 
                     ledz_brightness(led, ledz_color, brightness);

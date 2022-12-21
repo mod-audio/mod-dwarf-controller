@@ -1025,7 +1025,7 @@ void cb_set_pb_gain(uint8_t serial_id, proto_t *proto)
     gain_item->data.value = value;
 
     static char str_bfr[10] = {};
-    if (gain_item->data.value != -30.0) {
+    if (gain_item->data.value > -30.f) {
         float_to_str(gain_item->data.value, str_bfr, sizeof(str_bfr), 2);
         strcat(str_bfr, " dB");
     }

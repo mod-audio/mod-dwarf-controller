@@ -1889,7 +1889,8 @@ int32_t NM_get_current_selected(uint8_t list_type)
 void NM_set_last_selected(uint8_t list_type)
 {
     switch(list_type) {
-        case PEDALBOARD_LIST:;
+        case PEDALBOARD_LIST:
+        {
             uint16_t pedalboard_to_load = g_pedalboards->menu_max-1;
 
             g_current_pedalboard = pedalboard_to_load;
@@ -1898,8 +1899,10 @@ void NM_set_last_selected(uint8_t list_type)
                 g_pedalboards->hover = pedalboard_to_load;
             }
         break;
+        }
 
-        case SNAPSHOT_LIST:;
+        case SNAPSHOT_LIST:
+        {
             uint16_t snapshot_to_load = g_snapshots->menu_max-1;
 
             g_current_snapshot = snapshot_to_load;
@@ -1908,6 +1911,7 @@ void NM_set_last_selected(uint8_t list_type)
                 g_snapshots->hover = snapshot_to_load;
             }
         break;
+        }
 
         case BANKS_LIST:
             //return g_banks->selected;
