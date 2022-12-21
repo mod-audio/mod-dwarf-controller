@@ -149,6 +149,10 @@ static void request_banks_list(uint8_t dir)
 
     i = copy_command(buffer, CMD_BANKS); 
 
+    // TODO insert user vs factory bank mode
+    buffer[i++] = '1';
+    buffer[i++] = ' ';
+
     // insert the direction on buffer
     i += int_to_str(dir, &buffer[i], sizeof(buffer) - i, 0);
 
@@ -184,6 +188,10 @@ static void request_next_bank_page(uint8_t dir)
     uint8_t i;
 
     i = copy_command(buffer, CMD_BANKS); 
+
+    // TODO insert user vs factory bank mode
+    buffer[i++] = '1';
+    buffer[i++] = ' ';
 
     // insert the direction on buffer
     i += int_to_str(dir, &buffer[i], sizeof(buffer) - i, 0);
@@ -264,6 +272,10 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
     // inserts one space
     buffer[i++] = ' ';
 
+    // TODO insert user vs factory bank mode
+    buffer[i++] = '1';
+    buffer[i++] = ' ';
+
     // copy the bank uid
     i += int_to_str((bank_uid), &buffer[i], sizeof(buffer) - i, 0);
 
@@ -307,6 +319,10 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
         g_snapshots->selected = 0;
         g_snapshots->hover = 0;
     }
+
+    // TODO insert user vs factory bank mode
+    buffer[i++] = '1';
+    buffer[i++] = ' ';
 
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
