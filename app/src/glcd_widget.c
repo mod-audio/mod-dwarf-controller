@@ -47,7 +47,7 @@
 */
 
 #define ABS(x)      ((x) > 0 ? (x) : -(x))
-#define ROUND(x)    ((x) > 0.0 ? (((float)(x)) + 0.5) : (((float)(x)) - 0.5))
+#define ROUND(x)    ((x) > 0.f ? (((float)(x)) + 0.5f) : (((float)(x)) - 0.5f))
 
 /*
 ************************************************************************************************************************
@@ -903,7 +903,7 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
     if (overlay->properties & FLAG_CONTROL_BYPASS)
     {
         //weird lv2 stuff, bypass on means effect off
-        overlay->value_num = !overlay->value_num;
+        overlay->value_num = float_is_zero(overlay->value_num) ? 1 : 0;
     }
     else if (overlay->properties & FLAG_CONTROL_TAP_TEMPO)
     {
@@ -920,7 +920,7 @@ void widget_foot_overlay(glcd_t *display, overlay_t *overlay)
     else
     {
         //invert the area if value is 1
-        if (overlay->value_num)
+        if (float_is_not_zero(overlay->value_num))
         {
             uint8_t begin_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-3);
             uint8_t end_of_tittle_block = (((DISPLAY_WIDTH) /2) - char_cnt_name*3-2) + ((6*char_cnt_name) +10);
@@ -1139,7 +1139,7 @@ void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm)
     // draws the peak
     if (pkm->peak > pkm->value)
     {
-        y_peak = 13.0 + ABS(ROUND((h_max * pkm->peak) / (max_dB - min_dB)));
+        y_peak = 13.f + ABS(ROUND((h_max * pkm->peak) / (max_dB - min_dB)));
         glcd_hline(display, x_bar[pkm_id], y_peak, 16, GLCD_BLACK);
     }
 }

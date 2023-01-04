@@ -57,7 +57,25 @@ CFLAGS += -mcpu=$(MCU)
 else
 CFLAGS += -DCCC_ANALYZER -Wshadow -Wno-attributes -m32
 endif
+CFLAGS += -std=gnu99
 CFLAGS += -Wall -Wextra -Wpointer-arith -Wredundant-decls -Wsizeof-pointer-memaccess
+
+# CFLAGS += -Werror
+CFLAGS += -Wdisabled-optimization
+CFLAGS += -Wdouble-promotion -Wfloat-equal
+CFLAGS += -Wformat=2 -Woverlength-strings
+CFLAGS += -Wredundant-decls
+CFLAGS += -Wshadow -Wundef -Wuninitialized -Wunused
+CFLAGS += -Wstrict-aliasing -fstrict-aliasing
+CFLAGS += -Wstrict-overflow -fstrict-overflow
+CFLAGS += -Wnull-dereference
+CFLAGS += -Wformat-truncation=2 -Wformat-overflow=2
+CFLAGS += -Wstringop-overflow=4 -Wstringop-truncation
+CFLAGS += -Wclobbered -Wlogical-op
+CFLAGS += -Wduplicated-cond
+CFLAGS += -Winit-self -Wwrite-strings
+CFLAGS += -Wjump-misses-init
+
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUT_DIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 CFLAGS += -MMD -MP -MF $(OUT_DIR)/dep/$(@F).d
 CFLAGS += -I. $(patsubst %,-I%,$(INC))
@@ -153,7 +171,7 @@ $(ELF): $(OBJ)
 
 # ignore warnings for 3rd-party CPU code
 freertos/src/%.o: freertos/src/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< -Wno-unused-parameter -Wno-implicit-fallthrough
+	$(CC) $(CFLAGS) -o $@ -c $< -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-nested-externs
 
 %.o: %.c
 	@echo -e ${GREEN}Building $<${NOCOLOR}

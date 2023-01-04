@@ -535,17 +535,19 @@ void PM_button_pressed(uint8_t button)
                     //send save to webui
                     i = copy_command(buffer, (g_current_popup_id==POPUP_SAVE_SS_ID)?CMD_SNAPSHOT_SAVE_AS:CMD_PEDALBOARD_SAVE_AS);
 
-                    const char *p = g_current_name_input;
-                    // copy the pedalboard uid
-                    if (!*p)
-                        buffer[i++] = '0';
-                    else {
-                        while (*p) {
-                            buffer[i++] = *p;
-                            p++;
+                    {
+                        const char *p = g_current_name_input;
+                        // copy the pedalboard uid
+                        if (!*p)
+                            buffer[i++] = '0';
+                        else {
+                            while (*p) {
+                                buffer[i++] = *p;
+                                p++;
+                            }
                         }
+                        buffer[i] = 0;
                     }
-                    buffer[i] = 0;
 
                     // sends the data to GUI
                     ui_comm_webgui_send(buffer, i);
@@ -644,17 +646,19 @@ void PM_button_pressed(uint8_t button)
                     //send save to webui
                     i = copy_command(buffer, CMD_BANK_NEW);
 
-                    const char *p = g_current_name_input;
-                    // copy the pedalboard uid
-                    if (!*p)
-                        buffer[i++] = '0';
-                    else {
-                        while (*p) {
-                            buffer[i++] = *p;
-                            p++;
+                    {
+                        const char *p = g_current_name_input;
+                        // copy the pedalboard uid
+                        if (!*p)
+                            buffer[i++] = '0';
+                        else {
+                            while (*p) {
+                                buffer[i++] = *p;
+                                p++;
+                            }
                         }
+                        buffer[i] = 0;
                     }
-                    buffer[i] = 0;
 
                     // sends the data to GUI
                     ui_comm_webgui_send(buffer, i);
@@ -716,8 +720,7 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_clear();
 
                     switch (g_current_popup_id) {
-                        case POPUP_DELETE_BANK_ID:;
-
+                        case POPUP_DELETE_BANK_ID: {
                             bp_list_t *banks = NM_get_banks();
 
                             i = copy_command(buffer, CMD_BANK_DELETE);
@@ -737,9 +740,10 @@ void PM_button_pressed(uint8_t button)
 
                                 NM_update_lists(BANKS_LIST);
                             }
+                        }
                         break;
 
-                        case POPUP_REMOVE_SS_ID:
+                        case POPUP_REMOVE_SS_ID: {
                             i = copy_command(buffer, CMD_SNAPSHOT_DELETE);
                             uint16_t snapshot_to_remove = NM_get_current_hover(SNAPSHOT_LIST);
                             int32_t selected_snapshot = NM_get_current_selected(SNAPSHOT_LIST);
@@ -775,9 +779,10 @@ void PM_button_pressed(uint8_t button)
                                     NM_update_lists(SNAPSHOT_LIST);
                                 }
                             }
+                        }
                         break;
 
-                        case POPUP_REMOVE_PB_ID:
+                        case POPUP_REMOVE_PB_ID: {
                             i = copy_command(buffer, CMD_PEDALBOARD_DELETE);
                             int32_t current_bank = NM_get_current_selected(BANKS_LIST);
                             i += int_to_str(current_bank, &buffer[i], sizeof(buffer) - i, 0);
@@ -812,6 +817,7 @@ void PM_button_pressed(uint8_t button)
                                 //update pb from bank hover
                                 NM_update_lists(PEDALBOARD_LIST);
                             }
+                        }
                         break;
                     }
                 break;
@@ -910,7 +916,7 @@ void PM_launch_popup(uint8_t popup_id)
     PM_set_state();
 }
 
-void PM_launch_attention_overlay(char *message, void (*timeout_cb))
+void PM_launch_attention_overlay(const char *message, void (*timeout_cb))
 {
     screen_msg_overlay(message);
 

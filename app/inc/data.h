@@ -107,12 +107,12 @@ typedef struct MENU_DATA_T {
     uint8_t list_count;
     uint8_t selected, hover;
     uint8_t popup_active;
-    char *popup_header;
-    char *popup_content;
+    const char *popup_header;
+    const char *popup_content;
 
     // FIXME: need to be improved, not all menu items should have this vars (wasting memory)
     float min, max, value, step;
-    char *unit_text;
+    const char *unit_text;
 } menu_data_t;
 
 typedef struct MENU_ITEM_T {
@@ -123,8 +123,8 @@ typedef struct MENU_ITEM_T {
 
 typedef struct MENU_POPUP_T {
     int16_t menu_id;
-    char *popup_header;
-    char *popup_content;
+    const char *popup_header;
+    const char *popup_content;
 } menu_popup_t;
 
 /*

@@ -328,7 +328,7 @@ uint32_t float_to_str(float num, char *string, uint32_t string_size, uint8_t pre
     if (fracp < 0.0) fracp = -fracp;
 
     // insert minus if negative number
-    if (num < 0.0)
+    if (num < 0.f)
     {
         *str = '-';
         str++;
@@ -472,15 +472,15 @@ float convert_to_ms(const char *unit_from, float value)
 
     if (strcmp(unit, "bpm") == 0)
     {
-        return (60000.0 / value);
+        return (60000.f / value);
     }
     else if (strcmp(unit, "hz") == 0)
     {
-        return (1000.0 / value);
+        return (1000.f / value);
     }
     else if (strcmp(unit, "s") == 0)
     {
-        return (value * 1000.0);
+        return (value * 1000.f);
     }
     else if (strcmp(unit, "ms") == 0)
     {
@@ -505,15 +505,15 @@ float convert_from_ms(const char *unit_to, float value)
 
     if (strcmp(unit, "bpm") == 0)
     {
-        return (60000.0 / value);
+        return (60000.f / value);
     }
     else if (strcmp(unit, "hz") == 0)
     {
-        return (1000.0 / value);
+        return (1000.f / value);
     }
     else if (strcmp(unit, "s") == 0)
     {
-        return (value / 1000.0);
+        return (value / 1000.f);
     }
     else if (strcmp(unit, "ms") == 0)
     {

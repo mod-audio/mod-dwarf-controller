@@ -155,7 +155,7 @@ static void update_gain_item_value(uint8_t menu_id, float value)
     item->data.unit_text = str_bfr;
 }
 
-void set_item_value(char *command, uint16_t value)
+static void set_item_value(const char *command, uint16_t value)
 {
     uint8_t i;
     char buffer[50];
@@ -215,12 +215,20 @@ static void recieve_sys_value(void *data, menu_item_t *item)
         item->data.value = atof(values[2]);
 }
 
+#define SHARED_BUFFER_SIZE 150
+
+static char* shared_static_buffer()
+{
+    static char buffer[SHARED_BUFFER_SIZE];
+    return buffer;
+}
+
 static void recieve_bluetooth_info(void *data, menu_item_t *item)
 {
     char **values = data;
 
     //protocol ok
-    if (atof(values[1]) != 0)
+    if (float_is_zero(atof(values[1])))
         return;
 
     char resp[LINE_BUFFER_SIZE];
@@ -239,7 +247,8 @@ static void recieve_bluetooth_info(void *data, menu_item_t *item)
 
     if (items)
     {
-        char *buffer = (char *) MALLOC(150 * sizeof(char));
+        char *buffer = shared_static_buffer();
+        memset(buffer, 0, SHARED_BUFFER_SIZE);
 
         strcpy(buffer, "\nEnable Bluetooth discovery\nmode for 2 minutes?");
         strcat(buffer, "\n\nSTATUS: ");
@@ -252,7 +261,6 @@ static void recieve_bluetooth_info(void *data, menu_item_t *item)
         item->data.popup_content = buffer;
 
         FREE(items);
-        FREE(buffer);
     }
 }
 
@@ -261,16 +269,13 @@ static void append_sys_value_popup(void *data, menu_item_t *item)
     char **values = data;
 
     //protocol ok
-    if (atof(values[1]) != 0)
+    if (float_is_zero(atof(values[1])))
         return;
 
-    char resp[LINE_BUFFER_SIZE];
+    char *buffer = shared_static_buffer();
+    strncat(buffer, values[2], SHARED_BUFFER_SIZE/2);
 
-    memset(resp, 0, LINE_BUFFER_SIZE*sizeof(char));
-            
-    strncpy(resp, values[2], sizeof(resp)-1);
-
-    strcat(item->data.popup_content, resp);
+    UNUSED_PARAM(item);
 }
 
 /*
@@ -335,6 +340,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         break;
         //global tempo
         case MENU_ID_TEMPO:
+        {
             g_beats_per_minute = value;
 
             menu_item_t *tempo_item = TM_get_menu_item_by_ID(BPM_ID);
@@ -357,6 +363,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
                 TM_set_leds();
             }
         break;
+        }
         //global tempo status
         case MENU_ID_BEATS_PER_BAR:
             g_beats_per_bar = value;
@@ -388,6 +395,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
         break;
         //MIDI clock source
         case MENU_ID_MIDI_CLK_SOURCE:
+        {
             g_MIDI_clk_src = value;
 
             menu_item_t *item = TM_get_menu_item_by_ID(CLOCK_SOURCE_ID);
@@ -412,6 +420,7 @@ void system_update_menu_value(uint8_t item_ID, uint16_t value)
                 TM_set_leds();
             }
         break;
+        }
         //send midi clock
         case MENU_ID_MIDI_CLK_SEND: 
             g_MIDI_clk_send = value;
@@ -473,8 +482,9 @@ void system_info_cb(void *arg, int event)
 
     if (event == MENU_EV_ENTER)
     {
-        static char buffer[70];
-        memset(buffer, 0, sizeof buffer);
+        char *buffer = shared_static_buffer();
+        memset(buffer, 0, SHARED_BUFFER_SIZE);
+
         strcpy(buffer, item->data.popup_content);
         item->data.popup_content = buffer;
 
@@ -482,7 +492,7 @@ void system_info_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_VERSION, "release");
         sys_comm_wait_response();
 
-        strcat(item->data.popup_content, "\n\nDevice Serial:\n");
+        strcat(buffer, "\n\nDevice Serial:\n");
 
         sys_comm_set_response_cb(append_sys_value_popup, item);
         sys_comm_send(CMD_SYS_SERIAL, NULL);
@@ -705,7 +715,7 @@ void system_outp_0_volume_cb(void *arg, int event)
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        if (item->data.value == 0.0)
+        if (float_is_zero(item->data.value))
             item->data.step = 0.5;
 
         if (event == MENU_EV_UP)
@@ -762,7 +772,7 @@ void system_outp_1_volume_cb(void *arg, int event)
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        if (item->data.value == 0.0)
+        if (float_is_zero(item->data.value))
             item->data.step = 0.5;
 
         if (event == MENU_EV_UP)
@@ -818,7 +828,7 @@ void system_outp_2_volume_cb(void *arg, int event)
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
-        if (item->data.value == 0.0)
+        if (float_is_zero(item->data.value))
             item->data.step = 0.5;
 
         if (event == MENU_EV_UP)
@@ -935,7 +945,7 @@ void system_display_brightness_cb(void *arg, int event)
         item->data.max = 4;
     }
 
-    if (item->data.value != g_display_brightness)
+    if (floats_are_not_equal(item->data.value, g_display_brightness))
     {
         hardware_glcd_brightness(g_display_brightness);
 
@@ -991,7 +1001,7 @@ void system_led_brightness_cb(void *arg, int event)
         item->data.max = 1;
     }
 
-    if (item->data.value != g_led_brightness) {
+    if (floats_are_not_equal(item->data.value, g_led_brightness)) {
         ledz_set_global_brightness(g_led_brightness);
         TM_set_leds();
 
@@ -1040,7 +1050,7 @@ void system_display_contrast_cb(void *arg, int event)
         item->data.max = DISPLAY_CONTRAST_MAX;
     }
 
-    if (item->data.value != g_display_contrast)
+    if (floats_are_not_equal(item->data.value, g_display_contrast))
     {
         st7565p_set_contrast(hardware_glcds(0), g_display_contrast);
         
@@ -1421,7 +1431,7 @@ void system_shift_item_cb(void *arg, int event)
         item->data.max = SHIFT_MENU_ITEMS_COUNT-1;
     }
 
-    if (item->data.value != g_shift_item[shift_item_id])
+    if (floats_are_not_equal(item->data.value, g_shift_item[shift_item_id]))
     {
         //also write to EEPROM
         uint8_t write_buffer = g_shift_item[shift_item_id];
@@ -1529,7 +1539,7 @@ void system_control_header_cb(void *arg, int event)
         item->data.max = 1;
     }
 
-    if (item->data.value != g_control_header)
+    if (floats_are_not_equal(item->data.value, g_control_header))
     {
         screen_set_control_mode_header(g_control_header);
 
@@ -1559,7 +1569,7 @@ void system_tuner_mute_cb(void *arg, int event)
     }
     else if (event == MENU_EV_ENTER)
     {
-        if (item->data.value == 0) item->data.value = 1;
+        if (float_is_zero(item->data.value)) item->data.value = 1;
         else item->data.value = 0;
 
         g_tuner_mute = item->data.value;
@@ -1582,7 +1592,7 @@ void system_tuner_input_cb(void *arg, int event)
     }
     else if (event == MENU_EV_ENTER)
     {
-        if (item->data.value == 0) item->data.value = 1;
+        if (float_is_zero(item->data.value)) item->data.value = 1;
         else item->data.value = 0;
 
         g_tuner_input = item->data.value;
@@ -1616,7 +1626,7 @@ void system_play_cb (void *arg, int event)
     }
     else if (event == MENU_EV_ENTER)
     {
-        if (item->data.value == 0) item->data.value = 1;
+        if (float_is_zero(item->data.value)) item->data.value = 1;
         else item->data.value = 0;
 
         g_play_status = item->data.value;
@@ -1718,7 +1728,7 @@ void system_taptempo_cb (void *arg, int event)
         item->data.max = 280;
 
         // calculates the maximum tap tempo value
-        uint32_t max = (uint32_t)(convert_to_ms("bpm", item->data.min) + 0.5);
+        uint32_t max = (uint32_t)(convert_to_ms("bpm", item->data.min) + 0.5f);
 
         //makes sure we enforce a proper timeout
         if (max > TAP_TEMPO_DEFAULT_TIMEOUT)
@@ -2230,7 +2240,7 @@ void system_comp_pb_vol_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    if (item->data.value != -30.0) {
+    if (item->data.value > -30.f) {
         float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
         strcat(str_bfr, " dB");
     }

@@ -15,6 +15,8 @@
 ************************************************************************************************************************
 */
 
+#include <float.h>
+#include <math.h>
 #include <stdint.h>
 #include "config.h"
 
@@ -139,6 +141,31 @@ uint16_t str_to_hex(const char *str, uint8_t *array, uint16_t array_size);
 //used for keyboard widget mapping
 uint8_t char_to_keyboard_index(char character);
 char keyboard_index_to_char(uint8_t index);
+
+//math functions, inlined for speed
+static inline
+bool floats_are_equal(float a, float b)
+{
+    return fabsf(a - b) < FLT_EPSILON;
+}
+
+static inline
+bool floats_are_not_equal(float a, float b)
+{
+    return fabsf(a - b) >= FLT_EPSILON;
+}
+
+static inline
+bool float_is_zero(float v)
+{
+    return fabsf(v) < FLT_EPSILON;
+}
+
+static inline
+bool float_is_not_zero(float v)
+{
+    return fabsf(v) >= FLT_EPSILON;
+}
 
 /*
 ************************************************************************************************************************

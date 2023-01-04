@@ -141,7 +141,7 @@ void update_tap_tempo_led(void)
     menu_item_t *sync_item = TM_get_menu_item_by_ID(TAP_ID);
 
     // convert the time unit
-    uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5);
+    uint16_t time_ms = (uint16_t)(convert_to_ms("bpm", sync_item->data.value) + 0.5f);
 
     led_state_t tap_state = {
         .color = TEMPO_COLOR,
@@ -415,7 +415,7 @@ static void menu_change_value(uint8_t encoder, uint8_t action)
                         if (item->desc->action_cb)
                             item->desc->action_cb(item, action);
 
-                        if (item->data.value == 1)
+                        if (floats_are_equal(item->data.value, 1))
                             return;
 
                         //go back to main menu
@@ -1047,22 +1047,27 @@ void TM_print_tool(void)
             }
         break;
 
-        case TOOL_TUNER:
+        case TOOL_TUNER: {
             //first screen
             screen_toggle_tuner(0.0, "?", 0);
 
             //draw foots
             menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_INPUT_ID);
-            screen_footer(1, tuner_item->desc->name, tuner_item->data.value ? "2":"1", FLAG_CONTROL_ENUMERATION);
+            screen_footer(1, tuner_item->desc->name,
+                          float_is_not_zero(tuner_item->data.value) ? "2" : "1",
+                          FLAG_CONTROL_ENUMERATION);
 
             tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
-            screen_footer(0, tuner_item->desc->name, tuner_item->data.value <= 0 ? TOGGLED_OFF_FOOTER_TEXT : TOGGLED_ON_FOOTER_TEXT, FLAG_CONTROL_TOGGLED);
+            screen_footer(0, tuner_item->desc->name,
+                          float_is_not_zero(tuner_item->data.value) ? TOGGLED_ON_FOOTER_TEXT : TOGGLED_OFF_FOOTER_TEXT,
+                          FLAG_CONTROL_TOGGLED);
 
             //draw the index
             screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+        }
         break;
 
-        case TOOL_SYNC:
+        case TOOL_SYNC: {
             screen_tool_control_page(get_menu_node_by_ID(TEMPO_ID));
 
             //draw the foots
@@ -1081,6 +1086,7 @@ void TM_print_tool(void)
 
             //draw the index
             screen_page_index(g_current_tool - TOOL_FOOT-1, FOOT_TOOL_AMOUNT);
+        }
         break;
 
         case TOOL_BYPASS:
@@ -1190,24 +1196,25 @@ void TM_set_leds(void)
             }
         break;
 
-        case TOOL_TUNER:;
+        case TOOL_TUNER: {
             led_state.brightness = 0.1;
             led_state.color = TUNER_COLOR;
             set_ledz_trigger_by_color_id(hardware_leds(1), LED_DIMMED, led_state);
 
             menu_item_t *tuner_item = TM_get_menu_item_by_ID(TUNER_MUTE_ID);
             led_state.color = TUNER_COLOR;
-            if (tuner_item->data.value) led_state.brightness = 1;
+            if (float_is_not_zero(tuner_item->data.value)) led_state.brightness = 1;
             set_ledz_trigger_by_color_id(hardware_leds(0), LED_DIMMED, led_state);
 
             set_tool_pages_led_state();
+        }
         break;
 
-        case TOOL_SYNC:;
+        case TOOL_SYNC: {
             menu_item_t *sync_item = TM_get_menu_item_by_ID(PLAY_ID);
             led_state.color = TEMPO_COLOR;
 
-            if (sync_item->data.value) led_state.brightness = 1;
+            if (float_is_not_zero(sync_item->data.value)) led_state.brightness = 1;
             else led_state.brightness = 0.1;
 
             set_ledz_trigger_by_color_id(hardware_leds(0), LED_DIMMED, led_state);
@@ -1215,6 +1222,7 @@ void TM_set_leds(void)
             update_tap_tempo_led();
 
             set_tool_pages_led_state();
+        }
         break;
 
         case TOOL_BYPASS:

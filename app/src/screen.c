@@ -184,6 +184,7 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
     {
         case MENU_FOOT:
         case MENU_TOGGLE:
+        {
             if (tool_mode)
                 glcd_vline(display, item_x+16, item_y+13, 8, GLCD_BLACK_WHITE);
             toggle_t menu_toggle = {};
@@ -194,9 +195,11 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
             menu_toggle.height = 11;
             menu_toggle.value = item_child->data.value;
             widget_toggle(display, &menu_toggle);
+        }
         break;
 
-        case MENU_BAR:;
+        case MENU_BAR:
+        {
             //print the bar
             menu_bar_t bar = {};
             bar.x = item_x;
@@ -256,10 +259,10 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
 
                 print_menu_outlines();
             }
+        }
         break;
 
         case MENU_CLICK_LIST:
-        // fall through
         case MENU_LIST:
             if (item_child->data.unit_text)
             {
@@ -470,7 +473,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
 
         FREE(labels_list);
     }
-    else if ((control->properties & FLAG_CONTROL_TRIGGER) && (control->screen_indicator_widget_val == -1))
+    else if ((control->properties & FLAG_CONTROL_TRIGGER) && (floats_are_equal(control->screen_indicator_widget_val, -1.f)))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -479,11 +482,11 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.height = 18;
         toggle.color = GLCD_BLACK;
         //we use 2 and 3 to indicate a trigger in the widget
-        toggle.value = control->value ? 3 : 2;
+        toggle.value = float_is_not_zero(control->value) ? 3 : 2;
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
-    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (control->screen_indicator_widget_val == -1))
+    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (floats_are_equal(control->screen_indicator_widget_val, -1)))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
@@ -491,7 +494,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.width = 35;
         toggle.height = 18;
         toggle.color = GLCD_BLACK;
-        toggle.value = (control->properties == FLAG_CONTROL_TOGGLED)?control->value:!control->value;
+        toggle.value = control->properties == FLAG_CONTROL_TOGGLED ? control->minimum : control->maximum;
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
@@ -504,7 +507,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         bar.width = 35;
         bar.height = 6;
         bar.color = GLCD_BLACK;
-        if (control->screen_indicator_widget_val == -1) {
+        if (floats_are_equal(control->screen_indicator_widget_val, -1.f)) {
             bar.step = control->step;
             bar.steps = control->steps - 1;
         }
@@ -517,11 +520,11 @@ void screen_encoder(control_t *control, uint8_t encoder)
         {
             char str_bfr[15] = {0};
 
-            if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9) || (control->value < -999.9))
+            if ((control->properties == FLAG_CONTROL_INTEGER) || (control->value > 999.9f) || (control->value < -999.9f))
                 int_to_str(control->value, str_bfr, sizeof(str_bfr), 0);
-            else if ((control->value > 99.99) || (control->value < -99.99))
+            else if ((control->value > 99.99f) || (control->value < -99.99f))
                 float_to_str((control->value), str_bfr, sizeof(str_bfr), 1);
-            else if ((control->value > 9.99) || (control->value < -9.99))
+            else if ((control->value > 9.99f) || (control->value < -9.99f))
                 float_to_str((control->value), str_bfr, sizeof(str_bfr), 2);
             else
                 float_to_str((control->value), str_bfr, sizeof(str_bfr), 3);
@@ -1064,7 +1067,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         //draw the first box, back
         
         uint8_t x;
-        char *text;
+        const char *text;
         if (hold_item_index == -1) {
             if (pb_ss_toggle) {
                 x = 22;
@@ -1233,7 +1236,7 @@ void screen_menu_page(node_t *node)
     glcd_text(display, 18, DISPLAY_HEIGHT - 7, "< BACK", Terminal3x5, GLCD_BLACK);
 
     uint8_t x;
-    char *text;
+    const char *text;
     if (node->prev)
     {
         x = 56;
@@ -1366,7 +1369,7 @@ void screen_tool_control_page(node_t *node)
     glcd_rect_fill(display, DISPLAY_WIDTH-3, DISPLAY_HEIGHT-18, 3, 8, GLCD_WHITE);
 }
 
-void screen_toggle_tuner(float frequency, char *note, int8_t cents)
+void screen_toggle_tuner(float frequency, const char *note, int8_t cents)
 {
     screen_clear();
 
@@ -1689,7 +1692,7 @@ void screen_keyboard(system_popup_t *popup_data, uint8_t keyboard_index)
     glcd_text(display, 98 - (2*strlen("DELETE")), DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
 }
 
-void screen_msg_overlay(char *message)
+void screen_msg_overlay(const char *message)
 {
     glcd_t *display;
     display = hardware_glcds(0);

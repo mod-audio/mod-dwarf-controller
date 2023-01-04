@@ -341,6 +341,7 @@ void actuators_clock(void)
         switch (ACTUATOR_TYPE(g_actuators_pointers[i]))
         {
             case BUTTON:
+            {
                 if (READ_PIN(button->port, button->pin) == BUTTON_ACTIVATED) button_on = BUTTON_ON_FLAG;
                 else button_on = 0;
 
@@ -495,6 +496,7 @@ void actuators_clock(void)
                     }
                 }
                 break;
+            }
 
             case ROTARY_ENCODER:
                 // --- button processing ---
