@@ -177,19 +177,19 @@ void data_free_control(control_t *control)
 
 bp_list_t *data_parse_banks_list(char **list_data, uint32_t list_count)
 {
-    if (!list_data || list_count == 0 || (list_count % 2)) return NULL;
+    if (!list_data || list_count == 0 || (list_count % 3)) return NULL;
 
-    list_count = (list_count / 2);
-
-    // create an array of banks
-    bp_list_t *bp_list = (bp_list_t *) MALLOC(sizeof(bp_list_t));
-    if (!bp_list) return NULL;
-
-    // clear allocated memory
-    memset(bp_list, 0, sizeof(bp_list_t));
+    list_count = (list_count / 3);
 
     // allocate string arrays
     const size_t list_size = sizeof(char *) * (list_count + 1);
+
+    // create an array of banks
+    bp_list_t *bp_list = (bp_list_t *) MALLOC(sizeof(bp_list_t));
+    if (!bp_list) goto error;
+
+    // clear allocated memory
+    memset(bp_list, 0, sizeof(bp_list_t));
 
     if ((bp_list->names = (char **) MALLOC(list_size)))
         memset(bp_list->names, 0, list_size);
@@ -197,14 +197,18 @@ bp_list_t *data_parse_banks_list(char **list_data, uint32_t list_count)
     if ((bp_list->uids = (char **) MALLOC(list_size)))
         memset(bp_list->uids, 0, list_size);
 
+    if ((bp_list->user_bank = (uint8_t *) MALLOC(list_count + 1)))
+        memset(bp_list->user_bank, 0, list_count + 1);
+
     // check memory allocation
     if (!bp_list->names || !bp_list->uids) goto error;
 
-    // fill the bp_list struct
-    for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 2, j++)
+    for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 3, j++)
     {
-        bp_list->names[j] = str_duplicate(list_data[i + 0]);
+        bp_list->user_bank[j] = atoi(list_data[i]);
         bp_list->uids[j] = str_duplicate(list_data[i + 1]);
+
+        bp_list->names[j] = str_duplicate(list_data[i + 2]);
 
         // check memory allocation
         if (!bp_list->names[j] || !bp_list->uids[j]) goto error;
@@ -237,6 +241,11 @@ void data_free_banks_list(bp_list_t *bp_list)
             FREE(bp_list->uids[i]);
 
         FREE(bp_list->uids);
+    }
+
+    if (bp_list->user_bank)
+    {
+        FREE(bp_list->user_bank);
     }
 
     FREE(bp_list);

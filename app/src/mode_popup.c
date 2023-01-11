@@ -105,9 +105,9 @@ void catch_ui_response(void *data, menu_item_t *item)
                 bp_list_t *banks = NM_get_banks();
                 int32_t pedalboard_id = atoi(response[2]);
 
-                //we removed our current bank, so we need to change to all bank
+                //we removed our current bank, so we need to change to the top item, this is 1 as we always start with a divider
                 if (banks->hover == banks->selected) {
-                    NM_set_selected_index(BANKS_LIST, 0);
+                    NM_set_selected_index(BANKS_LIST, 1);
                     NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);
                 }
             }
@@ -117,9 +117,9 @@ void catch_ui_response(void *data, menu_item_t *item)
                 bp_list_t *pedalboards = NM_get_pedalboards();
                 int32_t pedalboard_id = atoi(response[2]);
 
-                //we removed the pb from our bank, so we need to change to all bank
+                //we removed our current bank, so we need to change to the top item, this is 1 as we always start with a divider
                 if (pedalboards->hover == pedalboards->selected) {
-                    NM_set_selected_index(BANKS_LIST, 0);
+                    NM_set_selected_index(BANKS_LIST, 1);
                     NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);
                 }
                 else if (pedalboards->hover < pedalboards->selected) {
@@ -574,8 +574,8 @@ void PM_button_pressed(uint8_t button)
                             NM_set_pbss_name(g_current_name_input, 1);
                         }
                         else {
-                            //we can never save a pb directly to a bank, so "all pbs" is selected
-                            NM_set_selected_index(BANKS_LIST, 0);
+                            //we can never save a pb directly to a bank, so first bank is selected
+                            NM_set_selected_index(BANKS_LIST, 1);
 
                             //update list items
                             NM_update_lists(PEDALBOARD_LIST);

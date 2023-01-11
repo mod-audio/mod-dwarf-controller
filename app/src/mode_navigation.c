@@ -149,10 +149,6 @@ static void request_banks_list(uint8_t dir)
 
     i = copy_command(buffer, CMD_BANKS); 
 
-    // TODO insert user vs factory bank mode
-    buffer[i++] = '1';
-    buffer[i++] = ' ';
-
     // insert the direction on buffer
     i += int_to_str(dir, &buffer[i], sizeof(buffer) - i, 0);
 
@@ -188,10 +184,6 @@ static void request_next_bank_page(uint8_t dir)
     uint8_t i;
 
     i = copy_command(buffer, CMD_BANKS); 
-
-    // TODO insert user vs factory bank mode
-    buffer[i++] = '1';
-    buffer[i++] = ' ';
 
     // insert the direction on buffer
     i += int_to_str(dir, &buffer[i], sizeof(buffer) - i, 0);
@@ -272,10 +264,6 @@ static void request_pedalboards(uint8_t dir, uint16_t bank_uid)
     // inserts one space
     buffer[i++] = ' ';
 
-    // TODO insert user vs factory bank mode
-    buffer[i++] = '1';
-    buffer[i++] = ' ';
-
     // copy the bank uid
     i += int_to_str((bank_uid), &buffer[i], sizeof(buffer) - i, 0);
 
@@ -319,10 +307,6 @@ static void send_load_pedalboard(uint16_t bank_id, const char *pedalboard_uid)
         g_snapshots->selected = 0;
         g_snapshots->hover = 0;
     }
-
-    // TODO insert user vs factory bank mode
-    buffer[i++] = '1';
-    buffer[i++] = ' ';
 
     // copy the bank id
     i += int_to_str(bank_id, &buffer[i], 8, 0);
@@ -678,12 +662,12 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
     {
         if (g_banks)
         {
-            g_banks->selected = 0;
-            g_banks->hover = 0;
+            g_banks->selected = 1;
+            g_banks->hover = 1;
             g_banks->page_min = 0;
             g_banks->page_max = 0;
             g_banks->menu_max = 0;
-            g_current_bank = 0;
+            g_current_bank = 1;
         }
 
         if (g_pedalboards)
@@ -1671,6 +1655,7 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX:
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PEDALBOARD_LIST:
+                    // TODO we cant assume this anymore, we need to have an extra flag for this
                     //we cant delete pbs from the all bank
                     if (g_banks->selected == 0)
                             return;

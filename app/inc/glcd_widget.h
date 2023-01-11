@@ -68,6 +68,7 @@ typedef struct LISTBOX_T {
     uint8_t text_left_margin;
     uint8_t direction;
     uint16_t *selected_ids;
+    uint8_t *list_item_flags;
     const char *name;
 } listbox_t;
 

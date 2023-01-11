@@ -82,6 +82,7 @@ typedef struct LIST_CLONE_T {
 
 typedef struct BP_LIST_T {
     char **names, **uids;
+    uint8_t *user_bank;
     uint16_t *selected_pb_uids;
     uint8_t selected_count;
     int32_t hover, selected;

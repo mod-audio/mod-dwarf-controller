@@ -497,6 +497,15 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                     else
                         icon_bank_selected(display, listbox->x+1, y_line);
                 }
+
+                //divider
+                // TODO dont hardcode flag
+                if (listbox->list_item_flags[i] == 2) {
+                    glcd_rect_fill(display, listbox->x+1, y_line+1, 4, 3, GLCD_BLACK);
+                    uint8_t bar_x = (strlen(aux) * 4) + listbox->x+1 + 5;
+                    glcd_rect_fill(display, bar_x, y_line+1, listbox->width - bar_x, 3, GLCD_BLACK);
+                }
+
             }
             else {
                 uint8_t selected = 0;
