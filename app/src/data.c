@@ -197,17 +197,16 @@ bp_list_t *data_parse_banks_list(char **list_data, uint32_t list_count)
     if ((bp_list->uids = (char **) MALLOC(list_size)))
         memset(bp_list->uids, 0, list_size);
 
-    if ((bp_list->user_bank = (uint8_t *) MALLOC(list_count + 1)))
-        memset(bp_list->user_bank, 0, list_count + 1);
+    if ((bp_list->bank_flag = (uint8_t *) MALLOC(list_count + 1)))
+        memset(bp_list->bank_flag, 0, list_count + 1);
 
     // check memory allocation
     if (!bp_list->names || !bp_list->uids) goto error;
 
     for (uint32_t i = 0, j = 0; list_data[i] && j < list_count; i += 3, j++)
     {
-        bp_list->user_bank[j] = atoi(list_data[i]);
-        bp_list->uids[j] = str_duplicate(list_data[i + 1]);
-
+        bp_list->uids[j] = str_duplicate(list_data[i]);
+        bp_list->bank_flag[j] = atoi(list_data[i + 1]);
         bp_list->names[j] = str_duplicate(list_data[i + 2]);
 
         // check memory allocation
@@ -243,9 +242,9 @@ void data_free_banks_list(bp_list_t *bp_list)
         FREE(bp_list->uids);
     }
 
-    if (bp_list->user_bank)
+    if (bp_list->bank_flag)
     {
-        FREE(bp_list->user_bank);
+        FREE(bp_list->bank_flag);
     }
 
     FREE(bp_list);

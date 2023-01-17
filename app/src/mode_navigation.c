@@ -933,24 +933,24 @@ uint8_t NM_up(void)
 
             //if we are nearing the final 3 items of the page, and we already have the end of the page in memory, or if we just need to go down
             if(g_banks->page_min == 0) {
-                //check if we are not already at the end
-                if (g_banks->hover == 0)
+                //check if we are not already at the end, or if we go to item 0 which is posibly a divider
+                if ((g_banks->hover == 0) || ((g_banks->hover == 1) && (g_banks->bank_flag[0] & FLAG_BANK_DIVIDER)))
                     return 0;
-                else
-                    g_banks->hover--;
-            }
-            //are we comming from the bottom of the menu?
-            else {
-                //we always keep 3 items in front of us, if not request new page
-                if (g_banks->hover <= (g_banks->page_min + 3)) {
+                else {
                     g_banks->hover--;
 
-                    //request new page
-                    request_next_bank_page(PAGE_DIR_DOWN);
+                    if (g_banks->bank_flag[g_banks->hover] & FLAG_BANK_DIVIDER)
+                        g_banks->hover--;
                 }
-                //we have items, just go up
-                else if (g_banks->hover > 0)
-                    g_banks->hover--;
+            }
+            else {
+                g_banks->hover--;
+
+                if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                        g_banks->hover--;
+
+                //request new page
+                request_next_bank_page(PAGE_DIR_DOWN);
             }
 
             NM_print_screen();
@@ -1056,20 +1056,21 @@ uint8_t NM_down(void)
                 //check if we are not already at the end
                 if (g_banks->hover >= g_banks->menu_max - 1)
                     return 0;
-                else
-                    g_banks->hover++;
-            }
-            else {
-                //we always keep 3 items in front of us, if not request new page
-                if (g_banks->hover >= (g_banks->page_max - 3)) {
+                else {
                     g_banks->hover++;
 
-                    //request new page
-                    request_next_bank_page(PAGE_DIR_UP);
+                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                        g_banks->hover++;
                 }
-                //we have items, just go down
-                else
+            }
+            else {
+                g_banks->hover++;
+
+                if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
                     g_banks->hover++;
+
+                //request new page
+                request_next_bank_page(PAGE_DIR_UP);
             }
 
             NM_print_screen();

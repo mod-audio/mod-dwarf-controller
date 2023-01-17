@@ -960,7 +960,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
         list_box.selected = list->selected - list->page_min;
         list_box.count = count;
         list_box.list = list->names;
-        list_box.list_item_flags = list->user_bank;
+        list_box.list_item_flags = list->bank_flag;
         list_box.font = Terminal3x5;
         list_box.type = type;
         list_box.line_space = 2;

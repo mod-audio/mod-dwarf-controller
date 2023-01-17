@@ -499,8 +499,8 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                 }
 
                 //divider
-                // TODO dont hardcode flag
-                if (listbox->list_item_flags[i] == 2) {
+                //we dont care if its selected or not as that should never happen
+                if (listbox->list_item_flags[first_line + i] & FLAG_BANK_DIVIDER) {
                     glcd_rect_fill(display, listbox->x+1, y_line+1, 4, 3, GLCD_BLACK);
                     uint8_t bar_x = (strlen(aux) * 4) + listbox->x+1 + 5;
                     glcd_rect_fill(display, bar_x, y_line+1, listbox->width - bar_x, 3, GLCD_BLACK);
