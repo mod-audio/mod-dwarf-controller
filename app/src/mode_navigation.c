@@ -656,8 +656,11 @@ void NM_clear(void)
         FREE(g_uids_to_add_to_bank);
 }
 
-void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, char *pedalboard_uid, char **pedalboards_list)
+void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, uint8_t bank_flag, char *pedalboard_uid, char **pedalboards_list)
 {
+    // not used
+    (void) bank_flag;
+
     if (!pedalboards_list)
     {
         if (g_banks)
