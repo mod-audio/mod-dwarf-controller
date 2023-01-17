@@ -718,6 +718,8 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
 void NM_enter(void)
 {
+    // TODO FOR NOW WE CANT COPY FACTORY BANKS TO ANOTHER BANK, SO BLOCK ENTERING THOSE
+
     if (g_item_grabbed != NO_GRAB_ITEM)
         return;
 
@@ -801,6 +803,8 @@ void NM_encoder_hold(uint8_t encoder)
     if (encoder != 0)
         return;
 
+    // TODO, DO NOT TRIGGER REARANGE MODE IN FACTORY BANKS
+
     //trigger 'item grab mode'
     //save the name to use later when in other subpage of list
     //this mode will be detected by NM_up and NM_down
@@ -853,6 +857,8 @@ void NM_encoder_released(uint8_t encoder)
     //we only suport reordering on the left encoder
     if ((encoder != 0) || (g_item_grabbed == NO_GRAB_ITEM))
         return;
+
+    // TODO, DO NOT TRIGGER REARANGE MODE IN FACTORY BANKS
 
     //send CMD_PEDALBOARD_CHANGE_INDEX or CMD_SNAPSHOT_CHANGE_INDEX
     ui_comm_webgui_set_response_cb(NULL, NULL);
@@ -1384,6 +1390,8 @@ void NM_set_leds(void)
     led_state.fade_ratio = 0;
     led_state.fade_rate = 0;
 
+    //TODO CHECK ALL LED STATES WITH FACTORY VS USER BANKS
+
     switch(g_current_list)
     {
         case BANK_LIST_CHECKBOXES:
@@ -1521,6 +1529,8 @@ void NM_set_leds(void)
 
 void NM_button_pressed(uint8_t button)
 {
+    //TODO CHECK BUTTON ACTIONS WHICH ARE AVAILABLE WITH FACTORY BANKS
+
     switch(button)
     {
         //enter menu
@@ -1659,7 +1669,6 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX:
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PEDALBOARD_LIST:
-                    // TODO we cant assume this anymore, we need to have an extra flag for this
                     //we cant delete pbs from the all bank
                     if (g_banks->selected == 0)
                             return;
@@ -2084,3 +2093,5 @@ uint8_t NM_get_need_update(void)
 {
     return g_update_list_items;
 }
+
+// TODO, WE MOST LICKELY NEED A "GET_CURRENT_BANK_FLAG FUNCTION HERE

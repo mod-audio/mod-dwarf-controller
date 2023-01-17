@@ -290,6 +290,8 @@ void PM_up(uint8_t encoder)
 {
     hardware_force_overlay_off(1);
 
+    // TODO FIND A CLEVER WAY TO CHECK USER VS FACTORY BANKS TOGHETER WITH GLOBAL POPUP CONST
+
     //check if naming
     if (g_global_popups[g_current_popup_id].has_naming_input) {
         switch (encoder)
@@ -418,6 +420,8 @@ void PM_set_leds(void)
         ledz_off(hardware_leds(i), WHITE);
     }
 
+    //TODO WE DONT HAVE ALL LEDS IN FACTORY BANKS
+
     ledz_t *led;
     led_state_t led_state;
     led_state.fade_ratio = 0;
@@ -483,6 +487,8 @@ void PM_button_pressed(uint8_t button)
     //now notify mod-ui
     char buffer[40];
     uint8_t i = 0;
+
+//TODO WE DONT HAVE ALL ACTIONS IN FACTORY BANKS
 
     switch (g_current_popup_id)
     {
