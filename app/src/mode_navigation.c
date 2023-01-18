@@ -1552,8 +1552,7 @@ void NM_set_leds(void)
 
 void NM_button_pressed(uint8_t button)
 {
-    //TODO CHECK BUTTON ACTIONS WHICH ARE AVAILABLE WITH FACTORY BANKS
-
+    // TODO make either list type or button/led leading, its confusing with the function above
     switch(button)
     {
         //enter menu
@@ -1561,6 +1560,11 @@ void NM_button_pressed(uint8_t button)
             switch(g_current_list)
             {
                 case BANK_LIST_CHECKBOXES:
+
+                    // we cant enter a factory bank in checkbox mode, cant add it anyhow
+                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                        return;
+
                     //clear all from before
                     FREE(g_uids_to_add_to_bank);
                     //allocate memory for the UID's
@@ -1574,6 +1578,11 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case BANK_LIST_CHECKBOXES_ENGAGED:
+
+                    // we cant enter a factory bank in checkbox mode, cant add it anyhow
+                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                        return;
+
                     parse_selected_uids(g_banks->selected_count, ADD_FULL_BANKS);
                     request_banks_list(PAGE_DIR_INIT);
 
@@ -1649,14 +1658,17 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case BANK_LIST_CHECKBOXES:
-                    if (NM_get_current_hover(BANKS_LIST) != 0)
-                        g_current_list = BANK_LIST_CHECKBOXES_ENGAGED;
+                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                        return;
+
+                    g_current_list = BANK_LIST_CHECKBOXES_ENGAGED;
                 //fall-through
                 case BANK_LIST_CHECKBOXES_ENGAGED:
-                    if (NM_get_current_hover(BANKS_LIST) != 0) {
-                        NM_enter();
-                        NM_print_screen();
-                    }
+                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                        return;
+
+                    NM_enter();
+                    NM_print_screen();
                 break;
 
                 case PB_LIST_CHECKBOXES:
@@ -1681,8 +1693,8 @@ void NM_button_pressed(uint8_t button)
             switch(g_current_list)
             {
                 case BANKS_LIST:
-                        //delete bank, cant delete "all pedalboards"
-                        if (g_banks->hover == 0)
+                        //delete bank, cant delete a bank with a flag
+                        if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
                             return;
 
                         //give popup, delete bank?
@@ -1692,9 +1704,9 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX:
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PEDALBOARD_LIST:
-                    //we cant delete pbs from the all bank
-                    if (g_banks->selected == 0)
-                            return;
+                    //we cant delete pbs from a bank with a flag
+                    if (g_banks->bank_flag[g_banks->selected - g_banks->page_min])
+                        return;
 
                     //we cant delete if we have no pedalboards
                     if (g_pedalboards->menu_max == 0)
