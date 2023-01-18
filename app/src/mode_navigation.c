@@ -728,7 +728,7 @@ void NM_enter(void)
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
             // we can only copy from user banks which dont have any flag
-            if (g_banks[g_banks->hover - g_banks->page_min]->bank_flag)
+            if(g_banks->bank_flag[g_banks->hover - g_banks->page_min])
                 return;
             //fall-through
         case BANKS_LIST:
@@ -817,7 +817,7 @@ void NM_encoder_hold(uint8_t encoder)
             return;
 
         // if any flag is present, its not a user bank and we cant rearange
-        if (g_banks[g_banks->selected - g_banks->page_min]->bank_flag)
+        if (g_banks->bank_flag[g_banks->selected - g_banks->page_min])
             return;
 
         if (g_pedalboards->menu_max == 1)
@@ -1392,25 +1392,33 @@ void NM_set_leds(void)
     led_state.fade_ratio = 0;
     led_state.fade_rate = 0;
 
-    //TODO CHECK ALL LED STATES WITH FACTORY VS USER BANKS
-
     switch(g_current_list)
     {
+        // Enter, Select, Cancel
         case BANK_LIST_CHECKBOXES:
         case BANK_LIST_CHECKBOXES_ENGAGED:
-            led = hardware_leds(3);
+            // We cant enter factory banks here, no use as we cant add from that
             led_state.color = TRIGGER_COLOR;
-            set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            led = hardware_leds(4);
-            if (NM_get_current_hover(BANKS_LIST) != 0)
-                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
-            else
+            led = hardware_leds(3);
+            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_FACTORY)
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+            else
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            // We cant select a bank with any bitmask (factory, all or divider)
+            led = hardware_leds(4);
+            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+            else
+                set_ledz_trigger_by_color_id(led, LED_ON, led_state);
+
+            // We can always cancel adding banks
             led_state.color = TOGGLED_COLOR;
             led = hardware_leds(5);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
+        // Add, Select, Cancel
         case PB_LIST_CHECKBOXES_ENGAGED:
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
@@ -1422,7 +1430,9 @@ void NM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
+        // Back, Select, Cancel
         case PB_LIST_CHECKBOXES:
+            // Cant select anything from an empty bank
             if (g_pedalboards->menu_max != 0) {
                 led = hardware_leds(4);
                 led_state.color = TRIGGER_COLOR;
@@ -1436,6 +1446,7 @@ void NM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
+        // Enter, New, Delete
         case BANKS_LIST:
             led = hardware_leds(3);
             led_state.color = TRIGGER_COLOR;
@@ -1443,13 +1454,18 @@ void NM_set_leds(void)
             led = hardware_leds(4);
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
-            if (g_banks->hover != 0) {
-                led = hardware_leds(5);
+            // We cant delete a bank with a flag (factory, all or divider)
+            led = hardware_leds(5);
+            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+            else {
                 led_state.color = TOGGLED_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             }
         break;
 
+        // <Banks, - , Remove
+        // Also handles foots
         case PB_LIST_BEGINNING_BOX:
         case PEDALBOARD_LIST:
             if (ledz_get_global_brightness())
@@ -1471,9 +1487,14 @@ void NM_set_leds(void)
                 set_ledz_trigger_by_color_id(led, LED_DIMMED, led_state);
             }
 
-            if ((g_banks->hover != 0) && (g_item_grabbed == NO_GRAB_ITEM)) {
+            // We cant delete from a bank with a flag (factory, all or divider)
+            led = hardware_leds(5);
+            if ((g_banks->bank_flag[g_banks->selected - g_banks->page_min]) && (g_item_grabbed != NO_GRAB_ITEM)) {
+                led_state.color = TRIGGER_COLOR;
+                set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
+            }
+            else {
                 led_state.color = TOGGLED_COLOR;
-                led = hardware_leds(5);
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
             }
         //fall-through
