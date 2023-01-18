@@ -515,7 +515,10 @@ static void exit_checkbox_mode(void)
 
     g_banks->hover = g_current_add_bank;
     g_banks->selected = g_current_add_bank;
-    g_current_list = PB_LIST_BEGINNING_BOX;
+    if ((g_banks->bank_flag[g_banks->hover - g_banks->page_min]))
+        g_current_list = PEDALBOARD_LIST;
+    else
+        g_current_list = PB_LIST_BEGINNING_BOX;
 
     g_pedalboards->hover = 0;
 
@@ -594,7 +597,7 @@ static void enter_bank(void)
         g_current_list = PB_LIST_CHECKBOXES;
     else if (g_pedalboards->page_max == 0)
         g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-    else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
+    else if ((g_pedalboards->hover == 0) && (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min])))
         g_current_list = PB_LIST_BEGINNING_BOX;
     else
         g_current_list = PEDALBOARD_LIST;
@@ -983,7 +986,8 @@ uint8_t NM_up(void)
                 else
                     return 0;
 
-                if ((g_pedalboards->hover == 0) && (g_item_grabbed == NO_GRAB_ITEM) && g_current_list != PB_LIST_CHECKBOXES && g_current_list != PB_LIST_CHECKBOXES_ENGAGED && g_banks->selected != 0)
+                if ((g_pedalboards->hover == 0) && (g_item_grabbed == NO_GRAB_ITEM) && g_current_list != PB_LIST_CHECKBOXES && 
+                    g_current_list != PB_LIST_CHECKBOXES_ENGAGED && (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min])))
                     g_current_list = PB_LIST_BEGINNING_BOX;
             }
             else {
@@ -1168,7 +1172,11 @@ uint8_t NM_down(void)
                 return 0;
 
             g_pedalboards->hover = 0;
-            g_current_list = PB_LIST_BEGINNING_BOX;
+            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                g_current_list = PEDALBOARD_LIST;
+            else
+                g_current_list = PB_LIST_BEGINNING_BOX;
+
             NM_print_screen();
             return 1;
         break;
@@ -1980,11 +1988,14 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
                         g_pedalboards->hover--;
                 }
 
-                if (g_pedalboards->hover == 0)
-                    g_current_list = PB_LIST_BEGINNING_BOX;
+                if (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min]))
+                {
+                    if (g_pedalboards->hover == 0)
+                        g_current_list = PB_LIST_BEGINNING_BOX;
 
-                if (g_pedalboards->menu_max == 0)
-                    g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+                    if (g_pedalboards->menu_max == 0)
+                        g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+                }
             }
             else {                
                 g_current_pedalboard = index;
