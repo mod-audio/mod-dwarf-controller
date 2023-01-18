@@ -813,10 +813,14 @@ void NM_encoder_hold(uint8_t encoder)
     //these will not preform their normal actions, but instead keep indexes to be send when released
     uint8_t char_cnt_name = 0;
     if ((g_current_list == PEDALBOARD_LIST) || (g_current_list == PB_LIST_BEGINNING_BOX)) {
-        if (g_banks) {
-            if (g_banks->selected == 0) return;
-        }
-        else if (g_current_bank == 0) return;
+
+        // something off
+        if (g_banks->selected != g_current_bank)
+            return;
+
+        // if any flag is present, its not a user bank and we cant rearange
+        if (g_banks[g_banks->selected - g_banks->page_min]->bank_flag)
+            return;
 
         if (g_pedalboards->menu_max == 1)
             return;
