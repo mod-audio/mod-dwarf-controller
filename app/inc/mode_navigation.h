@@ -64,7 +64,7 @@ enum {BANKS_LIST, PEDALBOARD_LIST, SNAPSHOT_LIST, PB_LIST_BEGINNING_BOX,
 
 void NM_init(void);
 void NM_clear(void);
-void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, uint8_t bank_flag, char *pedalboard_uid, char **pedalboards_list);
+void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, uint8_t bp_flag, char *pedalboard_uid, char **pedalboards_list);
 void NM_enter(void);
 void NM_encoder_hold(uint8_t encoder);
 void NM_encoder_released(uint8_t encoder);

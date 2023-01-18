@@ -515,7 +515,7 @@ static void exit_checkbox_mode(void)
 
     g_banks->hover = g_current_add_bank;
     g_banks->selected = g_current_add_bank;
-    if ((g_banks->bank_flag[g_banks->hover - g_banks->page_min]))
+    if ((g_banks->bp_flag[g_banks->hover - g_banks->page_min]))
         g_current_list = PEDALBOARD_LIST;
     else
         g_current_list = PB_LIST_BEGINNING_BOX;
@@ -595,9 +595,9 @@ static void enter_bank(void)
     // if reach here, received the pedalboards list
     if (g_current_list == BANK_LIST_CHECKBOXES)
         g_current_list = PB_LIST_CHECKBOXES;
-    else if (g_pedalboards->page_max == 0)
+    else if ((g_pedalboards->page_max == 0) && (g_banks->bp_flag[g_banks->hover - g_banks->page_min] == 0))
         g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-    else if ((g_pedalboards->hover == 0) && (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min])))
+    else if ((g_pedalboards->hover == 0) && (g_banks->bp_flag[g_banks->hover - g_banks->page_min] == 0))
         g_current_list = PB_LIST_BEGINNING_BOX;
     else
         g_current_list = PEDALBOARD_LIST;
@@ -659,10 +659,10 @@ void NM_clear(void)
         FREE(g_uids_to_add_to_bank);
 }
 
-void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, uint8_t bank_flag, char *pedalboard_uid, char **pedalboards_list)
+void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, char *bank_uid, uint8_t bp_flag, char *pedalboard_uid, char **pedalboards_list)
 {
     // not used
-    (void) bank_flag;
+    (void) bp_flag;
 
     if (!pedalboards_list)
     {
@@ -731,7 +731,7 @@ void NM_enter(void)
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
             // we can only copy from user banks which dont have any flag
-            if(g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+            if(g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                 return;
             //fall-through
         case BANKS_LIST:
@@ -820,7 +820,7 @@ void NM_encoder_hold(uint8_t encoder)
             return;
 
         // if any flag is present, its not a user bank and we cant rearange
-        if (g_banks->bank_flag[g_banks->selected - g_banks->page_min])
+        if (g_banks->bp_flag[g_banks->selected - g_banks->page_min])
             return;
 
         if (g_pedalboards->menu_max == 1)
@@ -948,19 +948,19 @@ uint8_t NM_up(void)
             //if we are nearing the final 3 items of the page, and we already have the end of the page in memory, or if we just need to go down
             if(g_banks->page_min == 0) {
                 //check if we are not already at the end, or if we go to item 0 which is posibly a divider
-                if ((g_banks->hover == 0) || ((g_banks->hover == 1) && (g_banks->bank_flag[0] & FLAG_BANK_DIVIDER)))
+                if ((g_banks->hover == 0) || ((g_banks->hover == 1) && (g_banks->bp_flag[0] & FLAG_BANK_DIVIDER)))
                     return 0;
                 else {
                     g_banks->hover--;
 
-                    if (g_banks->bank_flag[g_banks->hover] & FLAG_BANK_DIVIDER)
+                    if (g_banks->bp_flag[g_banks->hover] & FLAG_BANK_DIVIDER)
                         g_banks->hover--;
                 }
             }
             else {
                 g_banks->hover--;
 
-                if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
                         g_banks->hover--;
 
                 //request new page
@@ -987,7 +987,7 @@ uint8_t NM_up(void)
                     return 0;
 
                 if ((g_pedalboards->hover == 0) && (g_item_grabbed == NO_GRAB_ITEM) && g_current_list != PB_LIST_CHECKBOXES && 
-                    g_current_list != PB_LIST_CHECKBOXES_ENGAGED && (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min])))
+                    g_current_list != PB_LIST_CHECKBOXES_ENGAGED && (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0))
                     g_current_list = PB_LIST_BEGINNING_BOX;
             }
             else {
@@ -1074,14 +1074,14 @@ uint8_t NM_down(void)
                 else {
                     g_banks->hover++;
 
-                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
                         g_banks->hover++;
                 }
             }
             else {
                 g_banks->hover++;
 
-                if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
                     g_banks->hover++;
 
                 //request new page
@@ -1172,7 +1172,7 @@ uint8_t NM_down(void)
                 return 0;
 
             g_pedalboards->hover = 0;
-            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                 g_current_list = PEDALBOARD_LIST;
             else
                 g_current_list = PB_LIST_BEGINNING_BOX;
@@ -1222,7 +1222,7 @@ bp_list_t *NM_get_pedalboards(void)
 
 void NM_set_current_list(uint8_t list_type)
 {
-    if ((list_type == PEDALBOARD_LIST) && (g_pedalboards->hover == 0))
+    if ((list_type == PEDALBOARD_LIST) && (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0))
         g_current_list = PB_LIST_BEGINNING_BOX;
     else
         g_current_list = list_type;
@@ -1299,10 +1299,13 @@ void NM_update_lists(uint8_t list_type)
             request_banks_list(PAGE_DIR_INIT);
             request_pedalboards(PAGE_DIR_INIT, g_banks->selected);
 
-            if (g_pedalboards->page_max == 0)
-                g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-            else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
-                g_current_list = PB_LIST_BEGINNING_BOX;
+            if (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0) {
+
+                if (g_pedalboards->page_max == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+                else if ((g_pedalboards->hover == 0) && (g_banks->selected != 0))
+                    g_current_list = PB_LIST_BEGINNING_BOX;
+            }
         break;
 
         case SNAPSHOT_LIST:
@@ -1332,11 +1335,14 @@ void NM_print_screen(void)
             request_banks_list(PAGE_DIR_INIT);
             request_pedalboards(PAGE_DIR_INIT, g_banks->hover);
 
-            if (g_pedalboards->page_max == 0)
-                g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-            else if ((g_pedalboards->hover == 0) && (g_banks->hover != 0))
-                g_current_list = PB_LIST_BEGINNING_BOX;
+            if (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0) {
 
+                if (g_pedalboards->page_max == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+                else if ((g_pedalboards->hover == 0) && (g_banks->hover != 0))
+                    g_current_list = PB_LIST_BEGINNING_BOX;
+
+            }
         //fall-through
         case PB_LIST_CHECKBOXES:
         case PB_LIST_CHECKBOXES_ENGAGED:
@@ -1408,14 +1414,14 @@ void NM_set_leds(void)
             // We cant enter factory banks here, no use as we cant add from that
             led_state.color = TRIGGER_COLOR;
             led = hardware_leds(3);
-            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_FACTORY)
+            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_FACTORY)
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             else
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
 
             // We cant select a bank with any bitmask (factory, all or divider)
             led = hardware_leds(4);
-            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             else
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -1464,7 +1470,7 @@ void NM_set_leds(void)
 
             // We cant delete a bank with a flag (factory, all or divider)
             led = hardware_leds(5);
-            if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             else {
                 led_state.color = TOGGLED_COLOR;
@@ -1497,7 +1503,7 @@ void NM_set_leds(void)
 
             // We cant delete from a bank with a flag (factory, all or divider)
             led = hardware_leds(5);
-            if ((g_banks->bank_flag[g_banks->selected - g_banks->page_min]) && (g_item_grabbed != NO_GRAB_ITEM)) {
+            if ((g_banks->bp_flag[g_banks->selected - g_banks->page_min]) && (g_item_grabbed != NO_GRAB_ITEM)) {
                 led_state.color = TRIGGER_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             }
@@ -1570,7 +1576,7 @@ void NM_button_pressed(uint8_t button)
                 case BANK_LIST_CHECKBOXES:
 
                     // we cant enter a factory bank in checkbox mode, cant add it anyhow
-                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
                         return;
 
                     //clear all from before
@@ -1588,7 +1594,7 @@ void NM_button_pressed(uint8_t button)
                 case BANK_LIST_CHECKBOXES_ENGAGED:
 
                     // we cant enter a factory bank in checkbox mode, cant add it anyhow
-                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
                         return;
 
                     parse_selected_uids(g_banks->selected_count, ADD_FULL_BANKS);
@@ -1666,13 +1672,13 @@ void NM_button_pressed(uint8_t button)
                 break;
 
                 case BANK_LIST_CHECKBOXES:
-                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                         return;
 
                     g_current_list = BANK_LIST_CHECKBOXES_ENGAGED;
                 //fall-through
                 case BANK_LIST_CHECKBOXES_ENGAGED:
-                    if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                         return;
 
                     NM_enter();
@@ -1702,7 +1708,7 @@ void NM_button_pressed(uint8_t button)
             {
                 case BANKS_LIST:
                         //delete bank, cant delete a bank with a flag
-                        if (g_banks->bank_flag[g_banks->hover - g_banks->page_min])
+                        if (g_banks->bp_flag[g_banks->hover - g_banks->page_min])
                             return;
 
                         //give popup, delete bank?
@@ -1713,7 +1719,7 @@ void NM_button_pressed(uint8_t button)
                 case PB_LIST_BEGINNING_BOX_SELECTED:
                 case PEDALBOARD_LIST:
                     //we cant delete pbs from a bank with a flag
-                    if (g_banks->bank_flag[g_banks->selected - g_banks->page_min])
+                    if (g_banks->bp_flag[g_banks->selected - g_banks->page_min])
                         return;
 
                     //we cant delete if we have no pedalboards
@@ -1913,7 +1919,7 @@ void NM_toggle_pb_ss(void)
         g_pedalboards->hover = g_pedalboards->selected;
 
 
-        if (g_pedalboards->hover == 0)
+        if ((g_pedalboards->hover == 0) && (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0))
             g_current_list = PB_LIST_BEGINNING_BOX;
         else
             g_current_list = PEDALBOARD_LIST;
@@ -1988,7 +1994,7 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
                         g_pedalboards->hover--;
                 }
 
-                if (!(g_banks->bank_flag[g_banks->hover - g_banks->page_min]))
+                if ((g_banks->bp_flag[g_banks->hover - g_banks->page_min]) == 0)
                 {
                     if (g_pedalboards->hover == 0)
                         g_current_list = PB_LIST_BEGINNING_BOX;

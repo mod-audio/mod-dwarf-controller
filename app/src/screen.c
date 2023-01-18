@@ -893,6 +893,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
             //draw the second box
             glcd_text(display, 58, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
             //draw the third box, new bank
+            // TODO NO DELETE OF FACTORY BANKS
             if (list->hover == 0)
                 glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
             else
@@ -903,6 +904,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
 
         case BANK_LIST_CHECKBOXES:
             glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
+            // TODO NO SELECT FOR FACTORY BANKS
             if (NM_get_current_hover(BANKS_LIST != 0))
                 glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
             else
@@ -960,7 +962,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
         list_box.selected = list->selected - list->page_min;
         list_box.count = count;
         list_box.list = list->names;
-        list_box.list_item_flags = list->bank_flag;
+        list_box.list_item_flags = list->bp_flag;
         list_box.font = Terminal3x5;
         list_box.type = type;
         list_box.line_space = 2;
@@ -1091,6 +1093,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
         //draw the third box, we can remove any pb or ss, except from the all-pb bank
+        // TODO CHECK HERE IF USER VS FACTORY BANK
         if (((NM_get_current_list() == BANKS_LIST) || (pb_ss_toggle && (list->menu_max > 1)) || (!pb_ss_toggle && (NM_get_current_selected(BANKS_LIST) != 0) && (type != PB_LIST_BEGINNING_BOX_SELECTED))) && (hold_item_index == -1))
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "REMOVE", Terminal3x5, GLCD_BLACK);
         else
