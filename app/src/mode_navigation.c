@@ -805,8 +805,6 @@ void NM_encoder_hold(uint8_t encoder)
     if (encoder != 0)
         return;
 
-    // TODO, DO NOT TRIGGER REARANGE MODE IN FACTORY BANKS
-
     //trigger 'item grab mode'
     //save the name to use later when in other subpage of list
     //this mode will be detected by NM_up and NM_down
@@ -863,8 +861,6 @@ void NM_encoder_released(uint8_t encoder)
     //we only suport reordering on the left encoder
     if ((encoder != 0) || (g_item_grabbed == NO_GRAB_ITEM))
         return;
-
-    // TODO, DO NOT TRIGGER REARANGE MODE IN FACTORY BANKS
 
     //send CMD_PEDALBOARD_CHANGE_INDEX or CMD_SNAPSHOT_CHANGE_INDEX
     ui_comm_webgui_set_response_cb(NULL, NULL);
