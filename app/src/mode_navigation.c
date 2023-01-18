@@ -718,8 +718,6 @@ void NM_initial_state(uint16_t max_menu, uint16_t page_min, uint16_t page_max, c
 
 void NM_enter(void)
 {
-    // TODO FOR NOW WE CANT COPY FACTORY BANKS TO ANOTHER BANK, SO BLOCK ENTERING THOSE
-
     if (g_item_grabbed != NO_GRAB_ITEM)
         return;
 
@@ -729,6 +727,10 @@ void NM_enter(void)
 
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
+            // we can only copy from user banks which dont have any flag
+            if (g_banks[g_banks->hover - g_banks->page_min]->bank_flag)
+                return;
+            //fall-through
         case BANKS_LIST:
             enter_bank();
         break;
