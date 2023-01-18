@@ -99,6 +99,7 @@ uint8_t NM_check_grab_mode(void);
 void NM_set_need_update(void);
 uint8_t NM_get_need_update(void);
 uint8_t NM_get_current_bp_flag(uint8_t list_type);
+void NM_check_for_trail_plugin(void);
 
 /*
 ************************************************************************************************************************

@@ -97,6 +97,12 @@
 #define PBTN2_EMPTY_NAME       CONFIRM_CANCEL_BTN2
 #define PBTN3_EMPTY_NAME       CONFIRM_CANCEL_BTN3
 
+#define POPUP_TRAIL_PB_ID    10
+#define POPUP_TRAIL_PB_MSG   "This Pedalboard has a plugin in trail mode, audio will drop out every x seconds"
+#define PBTN1_TRAIL_PB       "ok"
+#define PBTN2_TRAIL_PB       CONFIRM_CANCEL_BTN2
+#define PBTN3_TRAIL_PB       CONFIRM_CANCEL_BTN2
+
     /*ID,                     POPUP TITLE,            POPUP TEXT,              POPUP BUTTON TEXT,                           val, cursor, btns, naming widget, txt input*/
 #define SYSTEM_POPUPS     \
     {POPUP_SAVE_SELECT_ID   ,"What to save?",         POPUP_SAVE_SELECT_MSG,   PBTN1_SAVE_SELECT,  PBTN2_SAVE_SELECT,  PBTN3_SAVE_SELECT,  0,  0,  3,  0, NULL },  \
@@ -109,6 +115,7 @@
     {POPUP_NEW_BANK_ID      ,"Create bank",           POPUP_NEW_BANK_MSG,      PBTN1_NEW_BANK,     PBTN2_NEW_BANK,     PBTN3_NEW_BANK,     0,  0,  3,  1, NULL },  \
     {POPUP_DELETE_BANK_ID   ,"Delete bank",           POPUP_DELETE_BANK_MSG,   PBTN1_DELETE_BANK,  PBTN2_DELETE_BANK,  PBTN3_DELETE_BANK,  0,  0,  2,  0, NULL },  \
     {POPUP_EMPTY_NAME_ID    ,"Invalid input",         POPUP_EMPTY_NAME_MSG,    PBTN1_EMPTY_NAME,   PBTN2_EMPTY_NAME,   PBTN3_EMPTY_NAME,   0,  0,  2,  0, NULL },  \
+    {POPUP_TRAIL_PB_ID      ,"Trail Plugin",          POPUP_TRAIL_PB_MSG,      PBTN1_TRAIL_PB,     PBTN2_TRAIL_PB,     PBTN3_TRAIL_PB,     0,  0,  1,  0, NULL },  \
 /*
 ************************************************************************************************************************
 *           DATA TYPES

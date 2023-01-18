@@ -2162,3 +2162,10 @@ uint8_t NM_get_current_bp_flag(uint8_t list_type)
         break;
     }
 }
+
+void NM_check_for_trail_plugin(void)
+{
+    //if the current pb has a trail plugin, launch a popup indicating this
+    if (g_pedalboards->bp_flag[g_pedalboards->selected - g_pedalboards->page_min] & FLAG_PEDALBOARD_TRIAL_PLUGINS)
+        naveg_trigger_popup(POPUP_TRAIL_PB_ID);
+}

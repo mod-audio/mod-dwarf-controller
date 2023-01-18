@@ -955,11 +955,12 @@ void cb_pedalboard_name(uint8_t serial_id, proto_t *proto)
 
     NM_save_pbss_name(&proto->list[1], 0);
 
-    //stop the loading leds from fading
+    //stop the loading leds from fading, and possibly give a warning popup that there are trail plugins
     //this is done here as its one of the last messages from MOD-UI
     if (naveg_get_current_mode() == MODE_NAVIGATION)
     {
         NM_set_leds();
+        NM_check_for_trail_plugin();
     }
 
     protocol_send_response(CMD_RESPONSE, 0, proto);
