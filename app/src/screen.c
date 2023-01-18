@@ -973,7 +973,8 @@ void screen_bank_list(bp_list_t *list, const char *name)
         widget_banks_listbox(display, &list_box);
     }
 
-    //show empty bank msg
+    // Show empty bank msg
+    // A big assumption here that a factory bank will never be empty
     if ((type == PB_LIST_CHECKBOXES) && (list->menu_max == 0))
         glcd_text(display, DISPLAY_WIDTH/2 - 30, DISPLAY_HEIGHT/2, "< empty bank >", Terminal3x5, GLCD_BLACK);
 }
@@ -1093,8 +1094,7 @@ void screen_pbss_list(const char *title, bp_list_t *list, uint8_t pb_ss_toggle, 
         glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
 
         //draw the third box, we can remove any pb or ss, except from the all-pb bank
-        // TODO CHECK HERE IF USER VS FACTORY BANK
-        if (((NM_get_current_list() == BANKS_LIST) || (pb_ss_toggle && (list->menu_max > 1)) || (!pb_ss_toggle && (NM_get_current_selected(BANKS_LIST) != 0) && (type != PB_LIST_BEGINNING_BOX_SELECTED))) && (hold_item_index == -1))
+        if (((NM_get_current_list() == BANKS_LIST) || (pb_ss_toggle && (list->menu_max > 1)) || (!pb_ss_toggle && (!NM_get_current_bp_flag(BANKS_LIST)) && (type != PB_LIST_BEGINNING_BOX_SELECTED))) && (hold_item_index == -1))
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "REMOVE", Terminal3x5, GLCD_BLACK);
         else
             glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);

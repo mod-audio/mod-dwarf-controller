@@ -2146,4 +2146,19 @@ uint8_t NM_get_need_update(void)
     return g_update_list_items;
 }
 
-// TODO, WE MOST LICKELY NEED A "GET_CURRENT_BANK_FLAG FUNCTION HERE
+uint8_t NM_get_current_bp_flag(uint8_t list_type)
+{
+    switch(list_type) {
+        case PEDALBOARD_LIST:
+            return g_pedalboards->bp_flag[g_pedalboards->selected - g_pedalboards->page_min];
+        break;
+
+        case BANKS_LIST:
+            return g_banks->bp_flag[g_banks->selected - g_banks->page_min];
+        break;
+
+        default:
+            return 0;
+        break;
+    }
+}
