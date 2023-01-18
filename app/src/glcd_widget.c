@@ -397,6 +397,10 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
 
 void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
 {
+    // TODO CHECK FOR DIVIDER IN CHECKBOX BANK MODE
+
+    // TODO DONT DISPLAY CHECKBOXES FOR FACTORY ITEMS
+    
     uint8_t i, font_height, max_lines, y_line;
     uint8_t first_line, focus, center_focus, focus_height;
     const char *line_txt;
