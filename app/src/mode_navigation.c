@@ -352,10 +352,10 @@ static void parse_snapshots_list(void *data, menu_item_t *item)
 
     // free the navigation pedalboads list
     if (g_snapshots)
-        data_free_pedalboards_list(g_snapshots);
+        data_free_snapshots_list(g_snapshots);
 
     // parses the list
-    g_snapshots = data_parse_pedalboards_list(&list[5], count);
+    g_snapshots = data_parse_snapshots_list(&list[5], count);
 
     if (g_snapshots) {
         g_snapshots->menu_max = (atoi(list[2]));
