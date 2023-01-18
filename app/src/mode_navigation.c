@@ -2150,11 +2150,11 @@ uint8_t NM_get_current_bp_flag(uint8_t list_type)
 {
     switch(list_type) {
         case PEDALBOARD_LIST:
-            return g_pedalboards->bp_flag[g_pedalboards->selected - g_pedalboards->page_min];
+            return g_pedalboards->bp_flag[g_pedalboards->hover - g_pedalboards->page_min];
         break;
 
         case BANKS_LIST:
-            return g_banks->bp_flag[g_banks->selected - g_banks->page_min];
+            return g_banks->bp_flag[g_banks->hover - g_banks->page_min];
         break;
 
         default:

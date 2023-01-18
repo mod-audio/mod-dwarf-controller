@@ -893,8 +893,7 @@ void screen_bank_list(bp_list_t *list, const char *name)
             //draw the second box
             glcd_text(display, 58, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
             //draw the third box, new bank
-            // TODO NO DELETE OF FACTORY BANKS
-            if (list->hover == 0)
+            if (NM_get_current_bp_flag(BANKS_LIST))
                 glcd_text(display, 96, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
             else
                 glcd_text(display, 86, DISPLAY_HEIGHT - 7, "DELETE", Terminal3x5, GLCD_BLACK);
@@ -904,11 +903,12 @@ void screen_bank_list(bp_list_t *list, const char *name)
 
         case BANK_LIST_CHECKBOXES:
             glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
-            // TODO NO SELECT FOR FACTORY BANKS
-            if (NM_get_current_hover(BANKS_LIST != 0))
-                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+
+            if (NM_get_current_bp_flag(BANKS_LIST))
+                glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
             else
-               glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
+
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
             list_box.selected_ids = NULL;
         break;
@@ -926,10 +926,10 @@ void screen_bank_list(bp_list_t *list, const char *name)
         break;
 
         case BANK_LIST_CHECKBOXES_ENGAGED:
-            if (NM_get_current_hover(BANKS_LIST != 0))
-                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
-            else
+            if (NM_get_current_bp_flag(BANKS_LIST))
                 glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+            else
+                glcd_text(display, 52, DISPLAY_HEIGHT - 7, "SELECT", Terminal3x5, GLCD_BLACK);
 
             glcd_text(display, 24, DISPLAY_HEIGHT - 7, "ADD", Terminal3x5, GLCD_BLACK);
             glcd_text(display, 86, DISPLAY_HEIGHT - 7, "CANCEL", Terminal3x5, GLCD_BLACK);
