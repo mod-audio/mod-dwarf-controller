@@ -1503,7 +1503,7 @@ void NM_set_leds(void)
 
             // We cant delete from a bank with a flag (factory, all or divider)
             led = hardware_leds(5);
-            if ((g_banks->bp_flag[g_banks->selected - g_banks->page_min]) && (g_item_grabbed != NO_GRAB_ITEM)) {
+            if ((g_banks->bp_flag[g_banks->selected - g_banks->page_min]) || (g_item_grabbed != NO_GRAB_ITEM)) {
                 led_state.color = TRIGGER_COLOR;
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             }
