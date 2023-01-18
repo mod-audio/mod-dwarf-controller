@@ -835,7 +835,7 @@ void cb_initial_state(uint8_t serial_id, proto_t *proto)
 {
     UNUSED_PARAM(serial_id);
 
-    NM_initial_state(atoi(proto->list[1]), atoi(proto->list[2]), atoi(proto->list[3]), proto->list[5], atoi(proto->list[6]), proto->list[7], &(proto->list[8]));
+    NM_initial_state(atoi(proto->list[1]), atoi(proto->list[2]), atoi(proto->list[3]), proto->list[4], atoi(proto->list[5]), proto->list[6], &(proto->list[7]));
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 
