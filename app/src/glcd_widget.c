@@ -397,10 +397,6 @@ void widget_menu_listbox(glcd_t *display, listbox_t *listbox)
 
 void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
 {
-    // TODO CHECK FOR DIVIDER IN CHECKBOX BANK MODE
-
-    // TODO DONT DISPLAY CHECKBOXES FOR FACTORY ITEMS
-    
     uint8_t i, font_height, max_lines, y_line;
     uint8_t first_line, focus, center_focus, focus_height;
     const char *line_txt;
@@ -501,15 +497,6 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                     else
                         icon_bank_selected(display, listbox->x+1, y_line);
                 }
-
-                //divider
-                //we dont care if its selected or not as that should never happen
-                if (listbox->list_item_flags[first_line + i] & FLAG_BANK_DIVIDER) {
-                    glcd_rect_fill(display, listbox->x+1, y_line+1, 4, 3, GLCD_BLACK);
-                    uint8_t bar_x = (strlen(aux) * 4) + listbox->x+1 + 5;
-                    glcd_rect_fill(display, bar_x, y_line+1, listbox->width - bar_x, 3, GLCD_BLACK);
-                }
-
             }
             else {
                 uint8_t selected = 0;
@@ -533,7 +520,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                 }
 
                 if (!strcmp("BANKS", listbox->name)) {
-                    if (first_line + i != 0){
+                    if (listbox->list_item_flags[first_line + i] == 0) {
                         if (i == focus)
                             icon_pb_checkbox(display, listbox->x+1, y_line+2, selected);
                         else
@@ -546,6 +533,14 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                     else
                         icon_pb_checkbox(display, listbox->x+1, y_line+1, selected);
                 }
+            }
+
+            //divider
+            //we dont care if its selected or not as that should never happen
+            if (listbox->list_item_flags[first_line + i] & FLAG_BANK_DIVIDER) {
+                glcd_rect_fill(display, listbox->x+1, y_line+1, 4, 3, GLCD_BLACK);
+                uint8_t bar_x = (strlen(aux) * 4) + listbox->x+1 + 5;
+                glcd_rect_fill(display, bar_x, y_line+1, listbox->width - bar_x, 3, GLCD_BLACK);
             }
 
             if (i == focus)
