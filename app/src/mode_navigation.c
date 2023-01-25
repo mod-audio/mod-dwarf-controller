@@ -730,8 +730,8 @@ void NM_enter(void)
 
     switch (g_current_list) {
         case BANK_LIST_CHECKBOXES:
-            // we can only copy from user banks which dont have any flag
-            if(g_banks->bp_flag[g_banks->hover - g_banks->page_min])
+            // we can only copy from user banks
+            if(g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_NAVIGATION_FACTORY | FLAG_NAVIGATION_DIVIDER))
                 return;
             //fall-through
         case BANKS_LIST:
@@ -948,19 +948,19 @@ uint8_t NM_up(void)
             //if we are nearing the final 3 items of the page, and we already have the end of the page in memory, or if we just need to go down
             if(g_banks->page_min == 0) {
                 //check if we are not already at the end, or if we go to item 0 which is posibly a divider
-                if ((g_banks->hover == 0) || ((g_banks->hover == 1) && (g_banks->bp_flag[0] & FLAG_BANK_DIVIDER)))
+                if ((g_banks->hover == 0) || ((g_banks->hover == 1) && (g_banks->bp_flag[0] & FLAG_NAVIGATION_DIVIDER)))
                     return 0;
                 else {
                     g_banks->hover--;
 
-                    if (g_banks->bp_flag[g_banks->hover] & FLAG_BANK_DIVIDER)
+                    if (g_banks->bp_flag[g_banks->hover] & FLAG_NAVIGATION_DIVIDER)
                         g_banks->hover--;
                 }
             }
             else {
                 g_banks->hover--;
 
-                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_NAVIGATION_DIVIDER)
                         g_banks->hover--;
 
                 //request new page
@@ -1074,14 +1074,14 @@ uint8_t NM_down(void)
                 else {
                     g_banks->hover++;
 
-                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_NAVIGATION_DIVIDER)
                         g_banks->hover++;
                 }
             }
             else {
                 g_banks->hover++;
 
-                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_DIVIDER)
+                if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_NAVIGATION_DIVIDER)
                     g_banks->hover++;
 
                 //request new page
@@ -1414,7 +1414,7 @@ void NM_set_leds(void)
             // We cant enter factory banks here, no use as we cant add from that
             led_state.color = TRIGGER_COLOR;
             led = hardware_leds(3);
-            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_BANK_FACTORY)
+            if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & FLAG_NAVIGATION_FACTORY)
                 set_ledz_trigger_by_color_id(led, LED_OFF, led_state);
             else
                 set_ledz_trigger_by_color_id(led, LED_ON, led_state);
@@ -1576,7 +1576,7 @@ void NM_button_pressed(uint8_t button)
                 case BANK_LIST_CHECKBOXES:
 
                     // we cant enter a factory bank in checkbox mode, cant add it anyhow
-                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_NAVIGATION_FACTORY | FLAG_NAVIGATION_DIVIDER))
                         return;
 
                     //clear all from before
@@ -1594,7 +1594,7 @@ void NM_button_pressed(uint8_t button)
                 case BANK_LIST_CHECKBOXES_ENGAGED:
 
                     // we cant enter a factory bank in checkbox mode, cant add it anyhow
-                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_BANK_FACTORY | FLAG_BANK_DIVIDER))
+                    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_NAVIGATION_FACTORY | FLAG_NAVIGATION_DIVIDER))
                         return;
 
                     parse_selected_uids(g_banks->selected_count, ADD_FULL_BANKS);
@@ -2166,6 +2166,6 @@ uint8_t NM_get_current_bp_flag(uint8_t list_type)
 void NM_check_for_trail_plugin(void)
 {
     //if the current pb has a trail plugin, launch a popup indicating this
-    if (g_pedalboards->bp_flag[g_pedalboards->selected - g_pedalboards->page_min] & FLAG_PEDALBOARD_TRIAL_PLUGINS)
+    if (g_pedalboards->bp_flag[g_pedalboards->selected - g_pedalboards->page_min] & FLAG_NAVIGATION_TRIAL_PLUGINS)
         naveg_trigger_popup(POPUP_TRAIL_PB_ID);
 }
