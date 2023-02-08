@@ -161,7 +161,7 @@ void catch_ui_response(void *data, menu_item_t *item)
         case POPUP_NEW_BANK_ID:
             //name already exist
             if (atoi(response[1]) == -2) {
-                PM_launch_attention_overlay("\n\nCan't create bank\nName already exists", exit_popup);
+                PM_launch_popup(DUPLICATE_BANK_ID);
             }
             else {
                 PM_launch_attention_overlay("\n\nCan't create bank\nUnexpected error", exit_popup);

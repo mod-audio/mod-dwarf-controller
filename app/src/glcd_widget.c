@@ -1086,7 +1086,7 @@ void widget_toggle(glcd_t *display, toggle_t *toggle)
         glcd_hline(display, toggle->x + 26, toggle->y + 8, 7, GLCD_BLACK);
     }
     //toggle
-    else if (toggle->value == 1)
+    else if (floats_are_equal(toggle->value, 1.f))
     {
         label.x = toggle->x + (toggle->width / 2) - 4;
         label.text = "ON";

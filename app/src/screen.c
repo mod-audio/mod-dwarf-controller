@@ -494,7 +494,8 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.width = 35;
         toggle.height = 18;
         toggle.color = GLCD_BLACK;
-        toggle.value = control->properties == FLAG_CONTROL_TOGGLED ? control->minimum : control->maximum;
+        // correct here for the inverted bypass value
+        toggle.value = control->properties & FLAG_CONTROL_BYPASS ? 1.f - control->value : control->value;
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
