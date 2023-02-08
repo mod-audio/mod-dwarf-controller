@@ -82,6 +82,7 @@ typedef struct LIST_CLONE_T {
 
 typedef struct BP_LIST_T {
     char **names, **uids;
+    uint8_t *bp_flag;
     uint16_t *selected_pb_uids;
     uint8_t selected_count;
     int32_t hover, selected;
@@ -153,7 +154,8 @@ bp_list_t *data_parse_banks_list(char **list_data, uint32_t list_count);
 void data_free_banks_list(bp_list_t *bp_list);
 bp_list_t *data_parse_pedalboards_list(char **list_data, uint32_t list_count);
 void data_free_pedalboards_list(bp_list_t *bp_list);
-
+bp_list_t *data_parse_snapshots_list(char **list_data, uint32_t list_count);
+void data_free_snapshots_list(bp_list_t *bp_list);
 
 /*
 ************************************************************************************************************************
