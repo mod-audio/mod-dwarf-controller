@@ -129,6 +129,11 @@ void catch_ui_response(void *data, menu_item_t *item)
             }
             break;
 
+            case POPUP_NEW_BANK_ID: {
+                NM_set_selected_index(BANKS_LIST, atoi(response[2]));
+            }
+            break;
+
             default:
             break;
         }
@@ -161,7 +166,9 @@ void catch_ui_response(void *data, menu_item_t *item)
         case POPUP_NEW_BANK_ID:
             //name already exist
             if (atoi(response[1]) == -2) {
-                PM_launch_popup(DUPLICATE_BANK_ID);
+                g_prev_popup_id = g_current_popup_id;
+                g_current_popup_id = POPUP_DUPL_BANK_ID;
+                PM_launch_popup(POPUP_DUPL_BANK_ID);
             }
             else {
                 PM_launch_attention_overlay("\n\nCan't create bank\nUnexpected error", exit_popup);
@@ -459,6 +466,7 @@ void PM_set_leds(void)
             set_ledz_trigger_by_color_id(led, LED_ON, led_state);
         break;
 
+        case POPUP_DUPL_BANK_ID:
         case POPUP_EMPTY_NAME_ID:
         case POPUP_OVERWRITE_SS_ID:
         case POPUP_OVERWRITE_PB_ID:
@@ -703,6 +711,7 @@ void PM_button_pressed(uint8_t button)
             }
         break;
 
+        case POPUP_DUPL_BANK_ID:
         case POPUP_EMPTY_NAME_ID:
             switch(button)
             {

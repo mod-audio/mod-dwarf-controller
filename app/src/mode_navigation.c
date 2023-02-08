@@ -2122,7 +2122,7 @@ void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle)
 void NM_enter_new_bank(void)
 {
     //set the hover
-    g_banks->hover = g_banks->menu_max;
+    g_banks->hover = g_banks->selected;
 
     //enter the bank
     enter_bank();
