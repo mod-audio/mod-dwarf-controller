@@ -1222,7 +1222,7 @@ bp_list_t *NM_get_pedalboards(void)
 
 void NM_set_current_list(uint8_t list_type)
 {
-    if ((list_type == PEDALBOARD_LIST) && (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0))
+    if ((list_type == PEDALBOARD_LIST) && (g_banks->bp_flag[g_banks->selected - g_banks->page_min] == 0) && (g_pedalboards->hover < 1))
         g_current_list = PB_LIST_BEGINNING_BOX;
     else
         g_current_list = list_type;
