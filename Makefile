@@ -74,7 +74,7 @@ CFLAGS += -Wstringop-overflow=4 -Wstringop-truncation
 CFLAGS += -Wclobbered -Wlogical-op
 CFLAGS += -Wduplicated-cond
 CFLAGS += -Winit-self -Wwrite-strings
-CFLAGS += -Wjump-misses-init
+CFLAGS += -Wjump-misses-init -fcommon
 
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUT_DIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 CFLAGS += -MMD -MP -MF $(OUT_DIR)/dep/$(@F).d

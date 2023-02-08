@@ -486,7 +486,7 @@ void screen_encoder(control_t *control, uint8_t encoder)
         toggle.inner_border = 1;
         widget_toggle(display, &toggle);
     }
-    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (floats_are_equal(control->screen_indicator_widget_val, -1)))
+    else if ((control->properties & (FLAG_CONTROL_TOGGLED | FLAG_CONTROL_BYPASS)) && (floats_are_equal(control->screen_indicator_widget_val, -1.f)))
     {
         toggle_t toggle;
         toggle.x = encoder_x;
