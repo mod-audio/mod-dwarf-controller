@@ -520,7 +520,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                 }
 
                 if (!strcmp("BANKS", listbox->name)) {
-                    if (first_line + i != 0){
+                    if (listbox->list_item_flags[first_line + i] == 0) {
                         if (i == focus)
                             icon_pb_checkbox(display, listbox->x+1, y_line+2, selected);
                         else
@@ -533,6 +533,14 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                     else
                         icon_pb_checkbox(display, listbox->x+1, y_line+1, selected);
                 }
+            }
+
+            //divider
+            //we dont care if its selected or not as that should never happen
+            if (listbox->list_item_flags[first_line + i] & FLAG_NAVIGATION_DIVIDER) {
+                glcd_rect_fill(display, listbox->x+1, y_line+1, 4, 3, GLCD_BLACK);
+                uint8_t bar_x = (strlen(aux) * 4) + listbox->x+1 + 5;
+                glcd_rect_fill(display, bar_x, y_line+1, listbox->width - bar_x, 3, GLCD_BLACK);
             }
 
             if (i == focus)

@@ -58,6 +58,7 @@ else
 CFLAGS += -DCCC_ANALYZER -Wshadow -Wno-attributes -m32
 endif
 CFLAGS += -std=gnu99
+CFLAGS += -fcommon
 CFLAGS += -Wall -Wextra -Wpointer-arith -Wredundant-decls -Wsizeof-pointer-memaccess
 
 # CFLAGS += -Werror
