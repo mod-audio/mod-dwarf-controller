@@ -403,6 +403,15 @@ void PM_down(uint8_t encoder)
     }
 }
 
+void PM_foot_change(uint8_t foot, uint8_t pressed)
+{
+    //for now we only use this to close the trail plugin popup
+    if (g_current_popup_id == POPUP_TRAIL_PB_ID) {
+        naveg_trigger_popup(-1);
+        NM_change_pbss(foot, pressed);
+    }
+}
+
 void PM_set_state(void)
 {
     PM_print_screen();

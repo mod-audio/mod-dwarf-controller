@@ -1765,7 +1765,7 @@ void NM_change_pbss(uint8_t next_prev, uint8_t pressed)
         (g_current_list == BANK_LIST_CHECKBOXES_ENGAGED) || (g_current_list == PB_LIST_CHECKBOXES) || (g_current_list == PB_LIST_CHECKBOXES_ENGAGED))
         return;
 
-    //right now the foots are bassed of of the current hover.
+    //right now the foots are bassed of the current hover.
     //this means foot and knob navigation are linked
     if (pressed) {
         if (next_prev) {

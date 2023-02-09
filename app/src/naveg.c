@@ -827,6 +827,9 @@ void naveg_foot_change(uint8_t foot, uint8_t pressed)
         break;
 
         case MODE_POPUP:
+            PM_foot_change(foot, pressed);
+        break;
+
         case MODE_TOOL_MENU:
             //no foots used
         break;

@@ -98,7 +98,7 @@
 #define PBTN3_EMPTY_NAME       CONFIRM_CANCEL_BTN3
 
 #define POPUP_TRAIL_PB_ID    10
-#define POPUP_TRAIL_PB_MSG   "This Pedalboard has a plugin in trail mode, audio will drop out every x seconds"
+#define POPUP_TRAIL_PB_MSG   "The active pedalboard contains\na plugin in trial mode, audio\nwill be temporarily muted\nevery 40 seconds"
 #define PBTN1_TRAIL_PB       "ok"
 #define PBTN2_TRAIL_PB       CONFIRM_CANCEL_BTN2
 #define PBTN3_TRAIL_PB       CONFIRM_CANCEL_BTN2
@@ -164,6 +164,7 @@ void PM_init(void);
 void PM_enter(uint8_t encoder);
 void PM_up(uint8_t encoder);
 void PM_down(uint8_t encoder);
+void PM_foot_change(uint8_t foot, uint8_t pressed);
 void PM_set_state(void);
 void PM_print_screen(void);
 void PM_set_leds(void);
