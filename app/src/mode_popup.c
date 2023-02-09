@@ -117,7 +117,7 @@ void catch_ui_response(void *data, menu_item_t *item)
                 bp_list_t *pedalboards = NM_get_pedalboards();
                 int32_t pedalboard_id = atoi(response[2]);
 
-                //we removed our current bank, so we need to change to the top item, this is 1 as we always start with a divider
+                //we removed our current pb, so we need to change to the top item, this is 1 as we always start with a divider
                 if (pedalboards->hover == pedalboards->selected) {
                     NM_set_selected_index(BANKS_LIST, 1);
                     NM_set_selected_index(PEDALBOARD_LIST, pedalboard_id);

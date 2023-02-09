@@ -511,7 +511,7 @@ void widget_banks_listbox(glcd_t *display, listbox_t *listbox)
                             }
                         }
                         else if (listbox->type == PB_LIST_CHECKBOXES_ENGAGED) {
-                                if (first_line + i + 1 + listbox->page_min_offset == listbox->selected_ids[q]) {
+                                if (first_line + i + listbox->page_min_offset == listbox->selected_ids[q]) {
                                 selected = 1;
                                 continue;
                             }

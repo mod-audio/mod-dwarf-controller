@@ -885,11 +885,9 @@ void screen_bank_list(bp_list_t *list, const char *name)
     //print outlines
     print_menu_outlines();
 
-    //TODO we need to make sure we only allow to delete the right things
     //print the 3 buttons
     switch (type) {
         case BANKS_LIST:
-            //draw the first box, enter bank
             glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
             //draw the second box
             glcd_text(display, 58, DISPLAY_HEIGHT - 7, "NEW", Terminal3x5, GLCD_BLACK);
@@ -903,7 +901,10 @@ void screen_bank_list(bp_list_t *list, const char *name)
         break;
 
         case BANK_LIST_CHECKBOXES:
-            glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
+            if (NM_get_current_bp_flag(BANKS_LIST))
+                glcd_text(display, 28, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);
+            else
+                glcd_text(display, 16, DISPLAY_HEIGHT - 7, "ENTER >", Terminal3x5, GLCD_BLACK);
 
             if (NM_get_current_bp_flag(BANKS_LIST))
                 glcd_text(display, 62, DISPLAY_HEIGHT - 7, "-", Terminal3x5, GLCD_BLACK);

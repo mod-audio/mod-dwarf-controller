@@ -515,7 +515,7 @@ static void exit_checkbox_mode(void)
 
     g_banks->hover = g_current_add_bank;
     g_banks->selected = g_current_add_bank;
-    if ((g_banks->bp_flag[g_banks->hover - g_banks->page_min]))
+    if (g_banks->bp_flag[g_banks->hover - g_banks->page_min] & (FLAG_NAVIGATION_FACTORY | FLAG_NAVIGATION_READ_ONLY))
         g_current_list = PEDALBOARD_LIST;
     else
         g_current_list = PB_LIST_BEGINNING_BOX;
@@ -566,7 +566,7 @@ static void parse_selected_uids(int8_t uid_count, int8_t bank_uid)
 
         //add the uid
         if (bank_uid != ADD_FULL_BANKS)
-            i += int_to_str(g_uids_to_add_to_bank[j]-1, &buffer[i], sizeof(buffer) - i, 0);
+            i += int_to_str(g_uids_to_add_to_bank[j], &buffer[i], sizeof(buffer) - i, 0);
         else
             i += int_to_str(g_uids_to_add_to_bank[j], &buffer[i], sizeof(buffer) - i, 0);
     }
@@ -742,7 +742,7 @@ void NM_enter(void)
         case PEDALBOARD_LIST:
             // request to GUI load the pedalboard
             //index is relevant in the array so - page_min correct here
-            send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), g_pedalboards->uids[g_pedalboards->hover - g_pedalboards->page_min -1]);
+            send_load_pedalboard(atoi(g_banks->uids[g_banks->hover - g_banks->page_min]), g_pedalboards->uids[g_pedalboards->hover - g_pedalboards->page_min]);
 
             g_current_pedalboard = g_pedalboards->hover;
             g_force_update_pedalboard = 1;
@@ -757,7 +757,7 @@ void NM_enter(void)
         break;
 
         case SNAPSHOT_LIST:
-            send_load_snapshot(g_snapshots->uids[g_snapshots->hover - g_snapshots->page_min -1]);
+            send_load_snapshot(g_snapshots->uids[g_snapshots->hover - g_snapshots->page_min]);
 
             g_current_snapshot = g_snapshots->hover;
             g_snapshots->selected = g_snapshots->hover;
@@ -876,21 +876,21 @@ void NM_encoder_released(uint8_t encoder)
         i = copy_command(buffer, CMD_REORDER_PBS_IN_BANK);
         i += int_to_str(g_banks->hover, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
-        i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
+        i += int_to_str(g_item_grabbed_uid, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_pedalboards->hover, &buffer[i], sizeof(buffer) - i, 0);
 
         //did we pass the selected item, if so we need to change that index
         if (g_banks->hover == g_current_bank) {
-            if (g_item_grabbed_uid - 1 == g_pedalboards->selected) {
+            if (g_item_grabbed_uid == g_pedalboards->selected) {
                 g_pedalboards->selected = g_pedalboards->hover;
                 g_current_pedalboard = g_pedalboards->selected;
             }
-            else if (((g_item_grabbed_uid - 1) >= g_pedalboards->selected) && (g_pedalboards->hover <= g_pedalboards->selected)) {
+            else if (((g_item_grabbed_uid) >= g_pedalboards->selected) && (g_pedalboards->hover <= g_pedalboards->selected)) {
                 g_pedalboards->selected++;
                 g_current_pedalboard = g_pedalboards->selected;
             }
-            else if (((g_item_grabbed_uid - 1) <= g_pedalboards->selected) && (g_pedalboards->hover >= g_pedalboards->selected))  {
+            else if (((g_item_grabbed_uid) <= g_pedalboards->selected) && (g_pedalboards->hover >= g_pedalboards->selected))  {
                 g_pedalboards->selected--;
                 g_current_pedalboard = g_pedalboards->selected;
             }
@@ -898,26 +898,26 @@ void NM_encoder_released(uint8_t encoder)
     }
     else {
         i = copy_command(buffer, CMD_REORDER_SSS_IN_PB);
-        i += int_to_str(g_item_grabbed_uid - 1, &buffer[i], sizeof(buffer) - i, 0);
+        i += int_to_str(g_item_grabbed_uid, &buffer[i], sizeof(buffer) - i, 0);
         buffer[i++] = ' ';
         i += int_to_str(g_snapshots->hover, &buffer[i], sizeof(buffer) - i, 0);
 
         //did we pass the selected item, if so we need to change that index
-        if (g_item_grabbed_uid - 1 == g_snapshots->selected) {
+        if (g_item_grabbed_uid == g_snapshots->selected) {
             g_snapshots->selected = g_snapshots->hover;
             g_current_snapshot = g_snapshots->selected;
         }
-        else if (((g_item_grabbed_uid - 1) >= g_snapshots->selected) && (g_snapshots->hover <= g_snapshots->selected)) {
+        else if (((g_item_grabbed_uid) >= g_snapshots->selected) && (g_snapshots->hover <= g_snapshots->selected)) {
             g_snapshots->selected++;
             g_current_snapshot = g_snapshots->selected;
         }
-        else if (((g_item_grabbed_uid - 1) <= g_snapshots->selected) && (g_snapshots->hover >= g_snapshots->selected))  {
+        else if (((g_item_grabbed_uid) <= g_snapshots->selected) && (g_snapshots->hover >= g_snapshots->selected))  {
             g_snapshots->selected--;
             g_current_snapshot = g_snapshots->selected;
         }
     }
 
-    if (g_item_grabbed_uid - 1 != ((g_current_list == SNAPSHOT_LIST)? g_snapshots->hover : g_pedalboards->hover)) {
+    if (g_item_grabbed_uid != ((g_current_list == SNAPSHOT_LIST)? g_snapshots->hover : g_pedalboards->hover)) {
         ui_comm_webgui_send(buffer, i);
         ui_comm_webgui_wait_response();
     }
@@ -1986,31 +1986,28 @@ void NM_set_selected_index(uint8_t list_type, int16_t index)
 {
     switch(list_type) {
         case PEDALBOARD_LIST:
-            if (index < 0) {
-                if (index == -1) {
-                    g_pedalboards->selected = g_pedalboards->menu_max + 1;
-
-                    if (g_pedalboards->hover > 0)
-                        g_pedalboards->hover--;
-                }
-
-                if ((g_banks->bp_flag[g_banks->hover - g_banks->page_min]) == 0)
-                {
-                    if (g_pedalboards->hover == 0)
-                        g_current_list = PB_LIST_BEGINNING_BOX;
-
-                    if (g_pedalboards->menu_max == 0)
-                        g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
-                }
+            if (index == -1) {
+                g_pedalboards->selected = g_pedalboards->menu_max + 1;
             }
             else {                
                 g_current_pedalboard = index;
-
-                if (g_current_bank == g_banks->selected) {
-                    g_pedalboards->selected = index;
-                    g_pedalboards->hover = index;
-                }
             }
+
+            if ((g_banks->bp_flag[g_banks->hover - g_banks->page_min]) == 0)
+            {
+                if (g_pedalboards->hover == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX;
+
+                if (g_pedalboards->menu_max == 0)
+                    g_current_list = PB_LIST_BEGINNING_BOX_SELECTED;
+            }
+
+            if (g_current_bank == g_banks->selected) {
+                g_pedalboards->selected = index;
+                // This is very odd....
+                g_pedalboards->hover = index + 1;
+            }
+
         break;
 
         case SNAPSHOT_LIST:
