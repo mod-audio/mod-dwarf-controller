@@ -1222,6 +1222,9 @@ void CM_dec_control(uint8_t encoder)
                 return;
         }
     }
+    else if (control->properties & FLAG_CONTROL_TRIGGER) {
+        control->value = control->maximum;
+    }
     else if (control->properties & FLAG_CONTROL_TOGGLED) {
         if (float_is_zero(control->value))
             return;
