@@ -787,6 +787,9 @@ static void control_set(uint8_t id, control_t *control)
                         if (control->scale_points_flag & (FLAG_SCALEPOINT_WRAP_AROUND)) {
                             control->step = 0;
 
+                            if (!control->lock_overlays)
+                                CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
+
                             step_to_value(control);
                             send_control_set(control);
 
@@ -831,6 +834,8 @@ static void control_set(uint8_t id, control_t *control)
                 //are we about to reach the end of a page
                 else if (((control->step <= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)){
                     //request new data, a new control we be assigned after
+                    if (!control->lock_overlays)
+                        CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
                     request_control_page(control, 0);
                     CM_set_foot_led(control, LED_UPDATE);
                     return;
@@ -838,6 +843,9 @@ static void control_set(uint8_t id, control_t *control)
                 control->step--;
                 control->scale_point_index--;
             }
+
+            if (!control->lock_overlays)
+                CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
 
             // updates the value and the screen
             step_to_value(control);
@@ -1416,8 +1424,9 @@ void CM_set_control(uint8_t hw_id, float value)
                 (control->value - control->minimum) / ((control->maximum - control->minimum) / control->steps);
         }
 
-        if ((naveg_get_current_mode() != MODE_CONTROL) || (hardware_get_overlay_counter() != 0))
+        if ((naveg_get_current_mode() != MODE_CONTROL) || (hardware_get_overlay_counter() != 0)){
             return;
+        }
 
         //encoder
         if (hw_id < ENCODERS_COUNT)
