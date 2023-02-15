@@ -228,7 +228,7 @@ static void recieve_bluetooth_info(void *data, menu_item_t *item)
     char **values = data;
 
     //protocol ok
-    if (float_is_zero(atof(values[1])))
+    if (!float_is_zero(atof(values[1])))
         return;
 
     char resp[LINE_BUFFER_SIZE];
@@ -269,7 +269,7 @@ static void append_sys_value_popup(void *data, menu_item_t *item)
     char **values = data;
 
     //protocol ok
-    if (float_is_zero(atof(values[1])))
+    if (!float_is_zero(atof(values[1])))
         return;
 
     char *buffer = shared_static_buffer();
