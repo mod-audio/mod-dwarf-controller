@@ -814,6 +814,10 @@ static void control_set(uint8_t id, control_t *control)
                 }
                 //are we about to reach the end of a page
                 else if (((control->step >= (control->scale_points_count - 3))) && (control->scale_points_flag & FLAG_SCALEPOINT_PAGINATED)) {
+
+                    if (!control->lock_overlays)
+                        CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
+
                     //request new data, a new control we be assigned after
                     request_control_page(control, 1);
                     CM_set_foot_led(control, LED_UPDATE);
@@ -836,10 +840,12 @@ static void control_set(uint8_t id, control_t *control)
                     //request new data, a new control we be assigned after
                     if (!control->lock_overlays)
                         CM_print_control_overlay(control, FOOT_CONTROLS_TIMEOUT);
+
                     request_control_page(control, 0);
                     CM_set_foot_led(control, LED_UPDATE);
                     return;
                 }
+
                 control->step--;
                 control->scale_point_index--;
             }
