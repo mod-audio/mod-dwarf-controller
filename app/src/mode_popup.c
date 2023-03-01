@@ -761,6 +761,14 @@ void PM_button_pressed(uint8_t button)
                                 if (banks->selected >= banks->menu_max - 1)
                                     banks->selected--;
 
+                                // if deleted active bank, all user PB's
+                                if (banks->selected == banks->hover)
+                                    banks->selected = 1;
+
+                                // if deleted bank under selected in the list, --
+                                if (banks->selected > banks->hover)
+                                    banks->selected--;
+
                                 //we should not hover over the wrong bank
                                 banks->hover = banks->selected;
 
