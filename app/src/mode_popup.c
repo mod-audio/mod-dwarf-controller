@@ -130,7 +130,7 @@ void catch_ui_response(void *data, menu_item_t *item)
             break;
 
             case POPUP_NEW_BANK_ID: {
-                NM_set_selected_index(BANKS_LIST, atoi(response[2]));
+                NM_set_current_hover(BANKS_LIST, atoi(response[2]));
             }
             break;
 
@@ -691,8 +691,8 @@ void PM_button_pressed(uint8_t button)
                     ui_comm_webgui_wait_response();
 
                     if (g_post_callback_call) {
-                        NM_enter_new_bank();
                         PM_launch_attention_overlay("\n\nbank created\nsuccessfully", exit_popup);
+                        NM_enter_bank();
                     }
                 break;
 

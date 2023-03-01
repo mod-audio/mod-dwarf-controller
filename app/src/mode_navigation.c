@@ -2049,6 +2049,23 @@ uint16_t NM_get_current_hover(uint8_t list_type)
     return 0;
 }
 
+void NM_set_current_hover(uint8_t list_type, int16_t index)
+{
+    switch(list_type) {
+        case PEDALBOARD_LIST:
+            g_pedalboards->hover = index;
+        break;
+
+        case SNAPSHOT_LIST:
+            g_snapshots->hover = index;
+        break;
+
+        case BANKS_LIST:
+            g_banks->hover = index;
+        break;
+    }
+}
+
 uint16_t NM_get_list_count(uint8_t list_type)
 {
     switch(list_type) {
@@ -2116,11 +2133,8 @@ void NM_set_pbss_name(char *name, uint8_t pb_ss_toggle)
         strcpy(g_pedalboard_name, name);
 }
 
-void NM_enter_new_bank(void)
+void NM_enter_bank(void)
 {
-    //set the hover
-    g_banks->hover = g_banks->selected;
-
     //enter the bank
     enter_bank();
 }
