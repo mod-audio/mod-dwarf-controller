@@ -1195,44 +1195,58 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);
 
     // constants configurations
-    const uint8_t num_bar_steps = 5, y_bar = 35, h_bar = 7, w_bar_interval = 12;
+    const uint8_t num_bar_steps = 5, h_bar = 2, w_bar_interval = 12;
     const uint8_t cents_range = 50;
-    uint8_t x, n, i;
+    uint8_t y_bar = 35;
+    uint8_t x, n, i, j, c;
 
-    // calculates the number of bars that need be filled
-    n = (ABS(tuner->cents) + num_bar_steps) / (cents_range / num_bar_steps);
-    
-    // draws the left side bars
-    for (i = 0, x = 4; (i < num_bar_steps) & (tuner->cents < 0); i++)
-    {
-        // checks if need fill the bar
-        if (i < (num_bar_steps - n))
-        {
-            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
-        }
-        else
-        {
-            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
-        }
-        x = x + w_bar_interval;
-    }  
+    // increase bar precision to display finer tuning indicator
+    c = ABS(tuner->cents * 9);
 
-    // draws the right side bars
-    for (i = 0, x = 65; (i < num_bar_steps) & (tuner->cents > 0); i++)
+    // draw the bar splitted into 3 precision levels
+    for (j = 0; j < 3; j++)
     {
-        // checks if need fill the bar
-        if (i < n )
-            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
-        else
-            glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
-        x = x + w_bar_interval;
+        // calculates the number of bars that need be filled
+        n = (c + num_bar_steps) / (cents_range / num_bar_steps);
+
+        // draws the left side bars
+        for (i = 0, x = 4; (i < num_bar_steps) & (tuner->cents < 0); i++)
+        {
+            // checks if need fill the bar
+            if (i < (num_bar_steps - n))
+            {
+                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
+            }
+            else
+            {
+                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
+            }
+            x = x + w_bar_interval;
+        }
+
+        // draws the right side bars
+        for (i = 0, x = 65; (i < num_bar_steps) & (tuner->cents > 0); i++)
+        {
+            // checks if need fill the bar
+            if (i < n )
+                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
+            else
+                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
+            x = x + w_bar_interval;
+        }
+
+        // drop precision
+        if (c > 2) c = c / 3;
+
+        // set y axis for next bar
+        y_bar += 2;
     }
 
     // checks if is tuned
     if (n == 0) 
         glcd_rect_invert(display, 51, 16, 27, 13);
 
-    //draw the outher ends
+    // draw the outher ends
     glcd_vline(display, 3, 25, 17, GLCD_BLACK);
     glcd_vline(display, 4, 25, 17, GLCD_BLACK);
     glcd_vline(display, 125, 25, 17, GLCD_BLACK);
