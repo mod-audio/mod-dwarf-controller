@@ -18,7 +18,7 @@ CPU_SERIE = LPC177x_8x
 endif
 
 # target configuration
-TARGET_ADDR = root@modduo.local
+TARGET_ADDR = root@192.168.51.1
 
 # project directories
 DEVICE_INC	= ./nxp-lpc
@@ -186,5 +186,5 @@ size:
 	@$(SIZE) out/mod-controller.elf
 
 install:
-	scp $(OUT_DIR)/$(PRJNAME).bin $(TARGET_ADDR):/tmp && \
+	scp -O $(OUT_DIR)/$(PRJNAME).bin $(TARGET_ADDR):/tmp && \
 	ssh $(TARGET_ADDR) 'hmi-update /tmp/$(PRJNAME).bin && systemctl restart mod-ui'
