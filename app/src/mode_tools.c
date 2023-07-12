@@ -1003,6 +1003,7 @@ void TM_launch_tool(int8_t tool)
 
                 system_tuner_mute_cb(TM_get_menu_item_by_ID(TUNER_MUTE_ID), MENU_EV_NONE);
                 system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_NONE);
+                system_tuner_ref_freq_cb(TM_get_menu_item_by_ID(TUNER_FREQ_ID), MENU_EV_NONE);
 
                 TM_print_tool();
                 TM_set_leds();

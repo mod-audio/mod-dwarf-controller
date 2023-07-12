@@ -79,6 +79,7 @@ void system_default_tool_cb(void *arg, int event);
 void system_control_header_cb(void *arg, int event);
 void system_tuner_mute_cb(void *arg, int event);
 void system_tuner_input_cb(void *arg, int event);
+void system_tuner_ref_freq_cb(void *arg, int event);
 void system_play_cb (void *arg, int event);
 void system_taptempo_cb (void *arg, int event);
 void system_click_list_cb(void *arg, int event);

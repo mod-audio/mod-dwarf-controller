@@ -33,6 +33,7 @@
 */
 
 #define SHIFT_MENU_ITEMS_COUNT      20
+#define TUNER_REFERENCE_FREQ_MIN    427
 
 /*
 ************************************************************************************************************************
@@ -101,6 +102,7 @@ int8_t g_MIDI_clk_src = -1;
 int8_t g_play_status = -1;
 int8_t g_tuner_mute = -1;
 int8_t g_tuner_input = -1;
+int8_t g_tuner_reference_freq = -1;
 
 int8_t g_display_brightness = -1;
 int8_t g_led_brightness = -1;
@@ -1611,7 +1613,70 @@ void system_tuner_input_cb(void *arg, int event)
         // sends the data to GUI
         ui_comm_webgui_send(buffer, i);
 
-        // waits the pedalboards list be received
+        // waits for the response
+        ui_comm_webgui_wait_response();
+    }
+}
+
+void system_tuner_ref_freq_cb(void *arg, int event)
+{
+    menu_item_t *item = arg;
+    bool send = false;
+
+    if ((event == MENU_EV_NONE) || (event == MENU_EV_ENTER))
+    {
+        // known default
+        if (g_tuner_reference_freq == -1)
+            g_tuner_reference_freq = 440 - TUNER_REFERENCE_FREQ_MIN;
+
+        item->data.value = TUNER_REFERENCE_FREQ_MIN + g_tuner_reference_freq;
+        item->data.min = TUNER_REFERENCE_FREQ_MIN;
+        item->data.max = 453;
+    }
+    //scrolling up/down
+    else if (event == MENU_EV_UP)
+    {
+        if (item->data.value + TUNER_REFERENCE_FREQ_MIN <= item->data.max)
+        {
+            send = true;
+            item->data.value++;
+            g_tuner_reference_freq = item->data.value - TUNER_REFERENCE_FREQ_MIN;
+        }
+    }
+    else if (event == MENU_EV_DOWN)
+    {
+        if (item->data.value + TUNER_REFERENCE_FREQ_MIN >= item->data.min)
+        {
+            send = true;
+            item->data.value--;
+            g_tuner_reference_freq = item->data.value - TUNER_REFERENCE_FREQ_MIN;
+        }
+    }
+
+    static char str_bfr[12] = {};
+    int_to_str(g_tuner_reference_freq + TUNER_REFERENCE_FREQ_MIN, str_bfr, 4, 0);
+    strcat(str_bfr, " Hz");
+    item->data.unit_text = str_bfr;
+
+    item->data.step = 1;
+
+    if (send)
+    {
+        ui_comm_webgui_set_response_cb(NULL, NULL);
+
+        char buffer[40];
+        memset(buffer, 0, 20);
+        uint8_t i;
+
+        i = copy_command(buffer, CMD_TUNER_REF_FREQ);
+
+        // insert the input
+        i += int_to_str(g_tuner_reference_freq + TUNER_REFERENCE_FREQ_MIN, &buffer[i], sizeof(buffer) - i, 0);
+
+        // send the data to GUI
+        ui_comm_webgui_send(buffer, i);
+
+        // waits for the response
         ui_comm_webgui_wait_response();
     }
 }

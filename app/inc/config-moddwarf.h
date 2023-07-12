@@ -282,6 +282,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define TUNER_MUTE_ID           TUNER_ID+1
 #define TUNER_INPUT_ID          TUNER_ID+2
+#define TUNER_FREQ_ID           TUNER_ID+3
 
 #define SHIFT_ITEM_1_ID         SHIFT_ITEMS_ID+1
 #define SHIFT_ITEM_2_ID         SHIFT_ITEMS_ID+2
@@ -342,6 +343,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"TOOL - TUNER",                    MENU_TOOL,      TUNER_ID,               ROOT_ID,            NULL                        , 0},  \
     {"MUTE",                            MENU_FOOT,      TUNER_MUTE_ID,          TUNER_ID,           system_tuner_mute_cb        , 0},  \
     {"INPUT",                           MENU_FOOT,      TUNER_INPUT_ID,         TUNER_ID,           system_tuner_input_cb       , 0},  \
+    {"A REF FREQ",                      MENU_BAR,       TUNER_FREQ_ID,          TUNER_ID,           system_tuner_ref_freq_cb    , 0},  \
     {"TOOL - TEMPO",                    MENU_TOOL,      TEMPO_ID,               ROOT_ID,            NULL                        , 0},  \
     {"BEATS PER BAR",                   MENU_LIST,      BPB_ID,                 TEMPO_ID,           system_bpb_cb               , 0},  \
     {"BEATS PER MINUTE",                MENU_BAR,       BPM_ID,                 TEMPO_ID,           system_tempo_cb             , 0},  \
