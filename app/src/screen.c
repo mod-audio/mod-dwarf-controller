@@ -50,7 +50,7 @@
 ************************************************************************************************************************
 */
 
-static tuner_t g_tuner = {0, NULL, 0, 1};
+static tuner_t g_tuner = {0, NULL, 0, 440, 1};
 static bool g_hide_non_assigned_actuators = 0;
 static bool g_control_mode_header = 0;
 static bool g_foots_grouped = 0;
@@ -1407,6 +1407,15 @@ void screen_update_tuner(float frequency, char *note, int8_t cents)
     g_tuner.frequency = frequency;
     g_tuner.note = note;
     g_tuner.cents = cents;
+
+    //draw tuner
+    if (naveg_get_current_mode() == MODE_TOOL_FOOT)
+        widget_tuner(hardware_glcds(0), &g_tuner);
+}
+
+void screen_update_tuner_ref_freq(int16_t ref_freq)
+{
+    g_tuner.ref_freq = ref_freq;
 
     //draw tuner
     if (naveg_get_current_mode() == MODE_TOOL_FOOT)

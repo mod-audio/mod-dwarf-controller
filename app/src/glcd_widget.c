@@ -1157,16 +1157,16 @@ void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm)
 void widget_tuner(glcd_t *display, tuner_t *tuner)
 {
     glcd_rect_fill(display, 1, 14, DISPLAY_WIDTH-2, DISPLAY_HEIGHT - 32, GLCD_WHITE);
-    
+
     // draw outlines tuner
     glcd_vline(display, 0, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
     glcd_vline(display, DISPLAY_WIDTH - 1, 14, DISPLAY_HEIGHT - 32, GLCD_BLACK);
     glcd_hline(display, 0, DISPLAY_HEIGHT - 51, DISPLAY_WIDTH , GLCD_BLACK);
     glcd_hline(display, 0,  45, DISPLAY_WIDTH, GLCD_BLACK);
-    
+
     //draw the middle line
     glcd_hline(display, 3, 33, DISPLAY_WIDTH - 6, GLCD_BLACK);
-    
+
     //draw the 11 doties
     uint8_t dotie_count;
     uint8_t x_pos_doties = 4;
@@ -1184,12 +1184,19 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_vline(display, 51, 16, 12, GLCD_BLACK);
     glcd_vline(display, 77, 16, 12, GLCD_BLACK);
     glcd_hline(display, 51, 16, 26, GLCD_BLACK);
-    
+
     //print note char
     uint8_t text_width = get_text_width(tuner->note, Terminal7x8);
     uint8_t textbox_x = (DISPLAY_WIDTH / 2) - (text_width / 2);
     uint8_t textbox_y = 19;
+
     glcd_text(display, textbox_x, textbox_y, tuner->note, Terminal7x8, GLCD_BLACK);
+
+    //print reference frequency
+    char buffer[32];
+    memset(buffer, 0, 32);
+    int_to_str(tuner->ref_freq, &buffer[0], sizeof(buffer), 0);
+    glcd_text(display, 19, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
 
     //print value bar
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);

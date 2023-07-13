@@ -787,7 +787,14 @@ void TM_up(uint8_t encoder)
 {
     if (!g_initialized) return;
         
-    if (tool_is_on(TOOL_SYNC))
+    if (tool_is_on(TOOL_TUNER))
+    {
+        if (encoder == 0)
+        {
+            system_tuner_ref_freq_cb(TM_get_menu_item_by_ID(TUNER_FREQ_ID), MENU_EV_DOWN);
+        }
+    }
+    else if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_DOWN);
@@ -841,7 +848,14 @@ void TM_down(uint8_t encoder)
 {
     if (!g_initialized) return;
 
-    if (tool_is_on(TOOL_SYNC))
+    if (tool_is_on(TOOL_TUNER))
+    {
+        if (encoder == 0)
+        {
+            system_tuner_ref_freq_cb(TM_get_menu_item_by_ID(TUNER_FREQ_ID), MENU_EV_UP);
+        }
+    }
+    else if (tool_is_on(TOOL_SYNC))
     {
         if (encoder == 0)
             system_bpb_cb(TM_get_menu_item_by_ID(BPB_ID), MENU_EV_UP);
