@@ -1193,10 +1193,23 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_text(display, textbox_x, textbox_y, tuner->note, Terminal7x8, GLCD_BLACK);
 
     //print reference frequency
-    char buffer[32];
-    memset(buffer, 0, 32);
-    int_to_str(tuner->ref_freq, &buffer[0], sizeof(buffer), 0);
-    glcd_text(display, 19, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
+    char buffer[16] = {0};
+    uint8_t o = copy_command(buffer, "A4: ");
+    int_to_str(tuner->ref_freq, &buffer[o], sizeof(buffer)-0, 0);
+    glcd_text(display, 8, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
+
+    //print bar for reference frequency
+    text_width = get_text_width(buffer, Terminal3x5);
+    uint8_t state = ((tuner->ref_freq - 427.0f) / (453.0f - 427.0f) * text_width);
+    glcd_rect(display, 8, textbox_y+6, text_width, 4, GLCD_BLACK);
+    glcd_rect_fill(display, 8, textbox_y+6, state, 4, GLCD_BLACK);
+
+    //print frequency
+    memset(buffer, 0, sizeof(buffer));
+    float_to_str(tuner->frequency, buffer, sizeof(buffer), 2);
+    strcat(buffer, " Hz");
+    text_width = get_text_width(buffer, Terminal3x5);
+    glcd_text(display, DISPLAY_WIDTH - text_width - 8, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
 
     //print value bar
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);
@@ -1205,10 +1218,11 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     const uint8_t num_bar_steps = 5, h_bar = 2, w_bar_interval = 12;
     const uint8_t cents_range = 50;
     uint8_t y_bar = 35;
-    uint8_t x, n, i, j, c;
+    uint8_t x, n, i, j;
+    uint16_t c;
 
-    // increase bar precision to display finer tuning indicator
-    c = ABS(tuner->cents * 9);
+    // cents been given multiplied by 16 to allow finer tuning (resolution of 0.4 cent)
+    c = ABS(tuner->cents);
 
     // draw the bar splitted into 3 precision levels
     for (j = 0; j < 3; j++)
@@ -1243,7 +1257,7 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
         }
 
         // drop precision
-        if (c > 2) c = c / 3;
+        if (c > 3) c = c / 4;
 
         // set y axis for next bar
         y_bar += 2;

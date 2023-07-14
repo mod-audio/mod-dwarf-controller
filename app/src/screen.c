@@ -1376,7 +1376,7 @@ void screen_tool_control_page(node_t *node)
     glcd_rect_fill(display, DISPLAY_WIDTH-3, DISPLAY_HEIGHT-18, 3, 8, GLCD_WHITE);
 }
 
-void screen_toggle_tuner(float frequency, const char *note, int8_t cents)
+void screen_toggle_tuner(float frequency, const char *note, int16_t cents)
 {
     screen_clear();
 
@@ -1402,7 +1402,7 @@ void screen_toggle_tuner(float frequency, const char *note, int8_t cents)
     widget_tuner(display, &g_tuner);
 }
 
-void screen_update_tuner(float frequency, char *note, int8_t cents)
+void screen_update_tuner(float frequency, char *note, int16_t cents)
 {
     g_tuner.frequency = frequency;
     g_tuner.note = note;
