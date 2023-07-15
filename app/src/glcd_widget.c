@@ -1196,20 +1196,28 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     char buffer[16] = {0};
     uint8_t o = copy_command(buffer, "A4: ");
     int_to_str(tuner->ref_freq, &buffer[o], sizeof(buffer)-0, 0);
-    glcd_text(display, 8, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
+    glcd_text(display, 8, 18, buffer, Terminal3x5, GLCD_BLACK);
 
     //print bar for reference frequency
     text_width = get_text_width(buffer, Terminal3x5);
     uint8_t state = ((tuner->ref_freq - 427.0f) / (453.0f - 427.0f) * text_width);
-    glcd_rect(display, 8, textbox_y+6, text_width, 4, GLCD_BLACK);
-    glcd_rect_fill(display, 8, textbox_y+6, state, 4, GLCD_BLACK);
+    glcd_rect(display, 8, 18 + 6, text_width, 4, GLCD_BLACK);
+    glcd_rect_fill(display, 8, 18 + 6, state, 4, GLCD_BLACK);
 
     //print frequency
     memset(buffer, 0, sizeof(buffer));
     float_to_str(tuner->frequency, buffer, sizeof(buffer), 2);
     strcat(buffer, " Hz");
     text_width = get_text_width(buffer, Terminal3x5);
-    glcd_text(display, DISPLAY_WIDTH - text_width - 8, textbox_y, buffer, Terminal3x5, GLCD_BLACK);
+    glcd_text(display, DISPLAY_WIDTH - text_width - 8, 18, buffer, Terminal3x5, GLCD_BLACK);
+
+    //print cents
+    memset(buffer, 0, sizeof(buffer));
+    float cent = tuner->cents / 100.0f;
+    float_to_str(cent, buffer, sizeof(buffer), 2);
+    strcat(buffer, " c ");
+    text_width = get_text_width(buffer, Terminal3x5);
+    glcd_text(display, DISPLAY_WIDTH - text_width - 8, 18 + 6, buffer, Terminal3x5, GLCD_BLACK);
 
     //print value bar
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);
@@ -1221,7 +1229,8 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     uint8_t x, n, i, j;
     uint16_t c;
 
-    // cents been given multiplied by 16 to allow finer tuning (resolution of 0.4 cent)
+    // cents been given multiplied by 100 to allow finer tuning 
+    // resolution of the bars from top to bottom is 0.04, 0.4, 4.0 cent
     c = ABS(tuner->cents);
 
     // draw the bar splitted into 3 precision levels
@@ -1257,13 +1266,14 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
         }
 
         // drop precision
-        if (c > 3) c = c / 4;
+        if (c > 1) c = c / 10;
 
         // set y axis for next bar
         y_bar += 2;
     }
 
-    // checks if is tuned
+    // checks if is tuned (resolution 1 cent)
+    n = floor(ABS(cent));
     if (n == 0) 
         glcd_rect_invert(display, 51, 16, 27, 13);
 
