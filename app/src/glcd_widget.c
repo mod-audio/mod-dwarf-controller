@@ -1230,8 +1230,8 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     uint16_t c;
 
     // cents been given multiplied by 100 to allow finer tuning 
-    // resolution of the bars from top to bottom is 0.04, 0.4, 4.0 cent
-    c = ABS(tuner->cents);
+    // resolution of the bars from top to bottom is 0.1, 1.0, 10.0 cent per step
+    c = ABS(tuner->cents * 0.5f);
 
     // draw the bar splitted into 3 precision levels
     for (j = 0; j < 3; j++)
@@ -1272,9 +1272,9 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
         y_bar += 2;
     }
 
-    // checks if is tuned (resolution 1 cent)
+    // checks if is tuned (resolution < 3 cent)
     n = floor(ABS(cent));
-    if (n == 0) 
+    if (n <= 2)
         glcd_rect_invert(display, 51, 16, 27, 13);
 
     // draw the outher ends
