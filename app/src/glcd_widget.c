@@ -1223,27 +1223,25 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);
 
     // constants configurations
-    const uint8_t num_bar_steps = 5, h_bar = 2, w_bar_interval = 12;
-    const uint8_t cents_range = 50;
+    const uint8_t h_bar = 2;
+    uint8_t num_bar_steps = 10;
+    uint8_t w_bar_interval = 6;
     uint8_t y_bar = 35;
-    uint8_t x, n, i, j;
+    uint8_t x, i, j;
     uint16_t c;
 
-    // cents been given multiplied by 100 to allow finer tuning 
-    // resolution of the bars from top to bottom is 0.1, 1.0, 10.0 cent per step
-    c = ABS(tuner->cents * 0.5f);
+    // cents been given multiplied by 100
+    // we use a resolution from top to bottom: 0.1, 1.0, 10.0 cent
+    c = ABS(tuner->cents / 10);
 
     // draw the bar splitted into 3 precision levels
     for (j = 0; j < 3; j++)
     {
-        // calculates the number of bars that need be filled
-        n = (c + num_bar_steps) / (cents_range / num_bar_steps);
-
         // draws the left side bars
         for (i = 0, x = 4; (i < num_bar_steps) & (tuner->cents < 0); i++)
         {
             // checks if need fill the bar
-            if (i < (num_bar_steps - n))
+            if (i < (num_bar_steps - c))
             {
                 glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
             }
@@ -1258,7 +1256,7 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
         for (i = 0, x = 65; (i < num_bar_steps) & (tuner->cents > 0); i++)
         {
             // checks if need fill the bar
-            if (i < n )
+            if (i < c )
                 glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
             else
                 glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
@@ -1266,15 +1264,21 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
         }
 
         // drop precision
-        if (c > 1) c = c / 10;
+        c = c / 10;
+        // enlarge the steps when we are in the 10 cent resolution
+        if (j >= 1)
+        {
+            num_bar_steps = 5;
+            w_bar_interval = 12;
+        }
 
         // set y axis for next bar
         y_bar += 2;
     }
 
     // checks if is tuned (resolution < 3 cent)
-    n = floor(ABS(cent));
-    if (n <= 2)
+    c = floor(ABS(cent));
+    if (c <= 2)
         glcd_rect_invert(display, 51, 16, 27, 13);
 
     // draw the outher ends
