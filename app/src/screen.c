@@ -50,10 +50,14 @@
 ************************************************************************************************************************
 */
 
-static tuner_t g_tuner = {0, NULL, 0, 440, 1};
+static tuner_t g_tuner = {0, NULL, 0, TUNER_REFERENCE_FREQ_DEFAULT - TUNER_REFERENCE_FREQ_MIN, 1};
 static bool g_hide_non_assigned_actuators = 0;
 static bool g_control_mode_header = 0;
 static bool g_foots_grouped = 0;
+
+extern int8_t g_tuner_input;
+extern int8_t g_tuner_reference_freq;
+
 /*
 ************************************************************************************************************************
 *           LOCAL FUNCTION PROTOTYPES
@@ -1413,9 +1417,16 @@ void screen_update_tuner(float frequency, char *note, int16_t cents)
         widget_tuner(hardware_glcds(0), &g_tuner);
 }
 
-void screen_update_tuner_ref_freq(int16_t ref_freq)
+void screen_update_tuner_input(uint8_t input)
 {
-    g_tuner.ref_freq = ref_freq;
+    g_tuner_input = input;
+
+    system_tuner_input_cb(TM_get_menu_item_by_ID(TUNER_INPUT_ID), MENU_EV_NONE);
+}
+
+void screen_update_tuner_ref_freq(int8_t ref_freq)
+{
+    g_tuner_reference_freq = g_tuner.ref_freq = ref_freq;
 
     //draw tuner
     if (naveg_get_current_mode() == MODE_TOOL_FOOT)

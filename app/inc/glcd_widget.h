@@ -111,7 +111,7 @@ typedef struct TUNER_T {
     float frequency;
     const char *note;
     int16_t cents;
-    int16_t ref_freq;
+    int8_t ref_freq;
     uint8_t input;
 } tuner_t;
 

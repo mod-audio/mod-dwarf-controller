@@ -46,6 +46,9 @@ enum {MENU_EV_ENTER, MENU_EV_UP, MENU_EV_DOWN, MENU_EV_NONE};
 ************************************************************************************************************************
 */
 
+#define TUNER_REFERENCE_FREQ_MIN     427
+#define TUNER_REFERENCE_FREQ_MAX     453
+#define TUNER_REFERENCE_FREQ_DEFAULT 440
 
 /*
 ************************************************************************************************************************

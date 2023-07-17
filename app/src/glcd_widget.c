@@ -1193,27 +1193,25 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_text(display, textbox_x, textbox_y, tuner->note, Terminal7x8, GLCD_BLACK);
 
     //print reference frequency
-    char buffer[16] = {0};
+    char buffer[16];
     uint8_t o = copy_command(buffer, "A4: ");
-    int_to_str(tuner->ref_freq, &buffer[o], sizeof(buffer)-0, 0);
+    int_to_str(TUNER_REFERENCE_FREQ_MIN + tuner->ref_freq, &buffer[o], sizeof(buffer)-o, 0);
     glcd_text(display, 8, 18, buffer, Terminal3x5, GLCD_BLACK);
 
     //print bar for reference frequency
     text_width = get_text_width(buffer, Terminal3x5);
-    uint8_t state = ((tuner->ref_freq - 427.0f) / (453.0f - 427.0f) * text_width);
+    uint8_t state = ((float)tuner->ref_freq / (TUNER_REFERENCE_FREQ_MAX - TUNER_REFERENCE_FREQ_MIN) * text_width);
     glcd_rect(display, 8, 18 + 6, text_width, 4, GLCD_BLACK);
     glcd_rect_fill(display, 8, 18 + 6, state, 4, GLCD_BLACK);
 
     //print frequency
-    memset(buffer, 0, sizeof(buffer));
     float_to_str(tuner->frequency, buffer, sizeof(buffer), 2);
     strcat(buffer, " Hz");
     text_width = get_text_width(buffer, Terminal3x5);
     glcd_text(display, DISPLAY_WIDTH - text_width - 8, 18, buffer, Terminal3x5, GLCD_BLACK);
 
     //print cents
-    memset(buffer, 0, sizeof(buffer));
-    float cent = tuner->cents / 100.0f;
+    float cent = tuner->cents * 0.01f;
     float_to_str(cent, buffer, sizeof(buffer), 2);
     strcat(buffer, " c ");
     text_width = get_text_width(buffer, Terminal3x5);

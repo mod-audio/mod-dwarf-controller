@@ -105,6 +105,8 @@ void cb_control_set(uint8_t serial_id, proto_t *proto);
 void cb_control_get(uint8_t serial_id, proto_t *proto);
 void cb_initial_state(uint8_t serial_id, proto_t *proto);
 void cb_tuner(uint8_t serial_id, proto_t *proto);
+void cb_tuner_input(uint8_t serial_id, proto_t *proto);
+void cb_tuner_ref_freq(uint8_t serial_id, proto_t *proto);
 void cb_resp(uint8_t serial_id, proto_t *proto);
 void cb_restore(uint8_t serial_id, proto_t *proto);
 void cb_boot(uint8_t serial_id, proto_t *proto);

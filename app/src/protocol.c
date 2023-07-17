@@ -314,6 +314,8 @@ void protocol_init(void)
     protocol_add_command(CMD_CONTROL_GET, cb_control_get);
     protocol_add_command(CMD_INITIAL_STATE, cb_initial_state);
     protocol_add_command(CMD_TUNER, cb_tuner);
+    protocol_add_command(CMD_TUNER_INPUT, cb_tuner_input);
+    protocol_add_command(CMD_TUNER_REF_FREQ, cb_tuner_ref_freq);
     protocol_add_command(CMD_RESPONSE, cb_resp);
     protocol_add_command(CMD_RESTORE, cb_restore);
     protocol_add_command(CMD_DUO_BOOT, cb_boot);
@@ -844,6 +846,30 @@ void cb_tuner(uint8_t serial_id, proto_t *proto)
     UNUSED_PARAM(serial_id);
 
     screen_update_tuner(atof(proto->list[1]), proto->list[2], atoi(proto->list[3]));
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_tuner_input(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    const int input = atoi(proto->list[1]);
+
+    if (input == 1 || input == 2)
+        screen_update_tuner_input(input - 1);
+
+    protocol_send_response(CMD_RESPONSE, 0, proto);
+}
+
+void cb_tuner_ref_freq(uint8_t serial_id, proto_t *proto)
+{
+    UNUSED_PARAM(serial_id);
+
+    const int freq = atoi(proto->list[1]);
+
+    if (freq >= TUNER_REFERENCE_FREQ_MIN && freq <= TUNER_REFERENCE_FREQ_MAX)
+        screen_update_tuner_ref_freq(freq - TUNER_REFERENCE_FREQ_MIN);
+
     protocol_send_response(CMD_RESPONSE, 0, proto);
 }
 

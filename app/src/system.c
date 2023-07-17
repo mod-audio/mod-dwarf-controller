@@ -33,7 +33,6 @@
 */
 
 #define SHIFT_MENU_ITEMS_COUNT      20
-#define TUNER_REFERENCE_FREQ_MIN    427
 
 /*
 ************************************************************************************************************************
@@ -102,7 +101,7 @@ int8_t g_MIDI_clk_src = -1;
 int8_t g_play_status = -1;
 int8_t g_tuner_mute = -1;
 int8_t g_tuner_input = -1;
-int16_t g_tuner_reference_freq = -1;
+int8_t g_tuner_reference_freq = -1;
 
 int8_t g_display_brightness = -1;
 int8_t g_led_brightness = -1;
@@ -1586,7 +1585,6 @@ void system_tuner_input_cb(void *arg, int event)
 
     if (event == MENU_EV_NONE)
     {
-        //TODO, we need to save this and request values from mod-ui, for now just start at 1
         if (g_tuner_input == -1)
             g_tuner_input = 0;
 
@@ -1605,9 +1603,9 @@ void system_tuner_input_cb(void *arg, int event)
         memset(buffer, 0, 20);
         uint8_t i;
 
-        i = copy_command(buffer, CMD_TUNER_INPUT); 
+        i = copy_command(buffer, CMD_TUNER_INPUT);
 
-        //insert the input
+        // insert the input
         i += int_to_str(g_tuner_input + 1, &buffer[i], sizeof(buffer) - i, 0);
 
         // sends the data to GUI
@@ -1625,24 +1623,21 @@ void system_tuner_ref_freq_cb(void *arg, int event)
 
     if ((event == MENU_EV_NONE) || (event == MENU_EV_ENTER))
     {
-        // known default
         if (g_tuner_reference_freq == -1)
-            g_tuner_reference_freq = 440 ;
+            g_tuner_reference_freq = TUNER_REFERENCE_FREQ_DEFAULT - TUNER_REFERENCE_FREQ_MIN;
 
-        item->data.value = g_tuner_reference_freq;
+        item->data.value = TUNER_REFERENCE_FREQ_MIN + g_tuner_reference_freq;
         item->data.min = TUNER_REFERENCE_FREQ_MIN;
-        item->data.max = 453;
-        // forward value to widget_tuner
-        // screen_update_tuner_ref_freq(item->data.value);
+        item->data.max = TUNER_REFERENCE_FREQ_MAX;
     }
-    //scrolling up/down
+    // scrolling up/down
     else if (event == MENU_EV_UP)
     {
         if (item->data.value  < item->data.max)
         {
             send = true;
             item->data.value++;
-            g_tuner_reference_freq = item->data.value;
+            g_tuner_reference_freq = item->data.value - TUNER_REFERENCE_FREQ_MIN;
         }
     }
     else if (event == MENU_EV_DOWN)
@@ -1651,12 +1646,14 @@ void system_tuner_ref_freq_cb(void *arg, int event)
         {
             send = true;
             item->data.value--;
-            g_tuner_reference_freq = item->data.value ;
+            g_tuner_reference_freq = item->data.value - TUNER_REFERENCE_FREQ_MIN;
         }
     }
 
-    static char str_bfr[12] = {};
-    int_to_str(g_tuner_reference_freq , str_bfr, 4, 0);
+    const int16_t realfreq = TUNER_REFERENCE_FREQ_MIN + g_tuner_reference_freq;
+
+    static char str_bfr[12] = {0};
+    int_to_str(realfreq, str_bfr, 4, 0);
     strcat(str_bfr, " Hz");
     item->data.unit_text = str_bfr;
 
@@ -1666,17 +1663,16 @@ void system_tuner_ref_freq_cb(void *arg, int event)
     {
         ui_comm_webgui_set_response_cb(NULL, NULL);
 
-        char buffer[40];
-        memset(buffer, 0, 20);
+        char buffer[40] = {0};
         uint8_t i;
 
         i = copy_command(buffer, CMD_TUNER_REF_FREQ);
 
         // insert the input
-        i += int_to_str(g_tuner_reference_freq , &buffer[i], sizeof(buffer) - i, 0);
+        i += int_to_str(realfreq , &buffer[i], sizeof(buffer) - i, 0);
 
         // forward value to widget_tuner
-        screen_update_tuner_ref_freq(g_tuner_reference_freq );
+        screen_update_tuner_ref_freq(g_tuner_reference_freq);
 
         // send the data to GUI
         ui_comm_webgui_send(buffer, i);

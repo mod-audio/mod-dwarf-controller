@@ -88,7 +88,8 @@ void screen_widget_overlay(int8_t style, char *header, char *text);
 void screen_popup(system_popup_t *popup_data);
 void screen_keyboard(system_popup_t *popup_data, uint8_t keyboard_index);
 void screen_update_tuner(float frequency, char *note, int16_t cents);
-void screen_update_tuner_ref_freq(int16_t ref_freq);
+void screen_update_tuner_input(uint8_t input);
+void screen_update_tuner_ref_freq(int8_t ref_freq);
 void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t tool_mode);
 void screen_text_box(uint8_t x, uint8_t y, const char *text);
 
