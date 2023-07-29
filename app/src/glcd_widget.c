@@ -1204,6 +1204,10 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_rect(display, 8, 18 + 6, text_width, 4, GLCD_BLACK);
     glcd_rect_fill(display, 8, 18 + 6, state, 4, GLCD_BLACK);
 
+    // check if reference frequency is modified
+    if (TUNER_REFERENCE_FREQ_MIN + tuner->ref_freq != 440)
+        glcd_rect_invert(display, 7, 17, text_width+2, 6);
+
     //print frequency
     float_to_str(tuner->frequency, buffer, sizeof(buffer), 2);
     strcat(buffer, " Hz");
@@ -1221,7 +1225,7 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_vline(display, 64, 35, 7, GLCD_BLACK);
 
     // constants configurations
-    const uint8_t h_bar = 2;
+    uint8_t h_bar = 1;
     uint8_t num_bar_steps = 10;
     uint8_t w_bar_interval = 6;
     uint8_t y_bar = 35;
@@ -1261,17 +1265,20 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
             x = x + w_bar_interval;
         }
 
+        // set y axis for next bar
+        y_bar += h_bar;
+
         // drop precision
         c = c / 10;
+        h_bar = 3;
+
         // enlarge the steps when we are in the 10 cent resolution
         if (j >= 1)
         {
+            h_bar = 2;
             num_bar_steps = 5;
             w_bar_interval = 12;
         }
-
-        // set y axis for next bar
-        y_bar += 2;
     }
 
     // checks if is tuned (resolution < 3 cent)
