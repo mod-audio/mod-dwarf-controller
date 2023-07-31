@@ -48,6 +48,7 @@
 
 #define ABS(x)      ((x) > 0 ? (x) : -(x))
 #define ROUND(x)    ((x) > 0.f ? (((float)(x)) + 0.5f) : (((float)(x)) - 0.5f))
+#define MAP(x, Omin, Omax, Nmin, Nmax)     (( x - Omin ) * (Nmax -  Nmin)  / (Omax - Omin) + Nmin);
 
 /*
 ************************************************************************************************************************
@@ -1156,6 +1157,7 @@ void widget_peakmeter(glcd_t *display, uint8_t pkm_id, peakmeter_t *pkm)
 
 void widget_tuner(glcd_t *display, tuner_t *tuner)
 {
+    // clear the display
     glcd_rect_fill(display, 1, 14, DISPLAY_WIDTH-2, DISPLAY_HEIGHT - 32, GLCD_WHITE);
 
     // draw outlines tuner
@@ -1165,31 +1167,15 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     glcd_hline(display, 0,  45, DISPLAY_WIDTH, GLCD_BLACK);
 
     //draw the middle line
-    glcd_hline(display, 3, 33, DISPLAY_WIDTH - 6, GLCD_BLACK);
-
-    //draw the 11 doties
-    uint8_t dotie_count;
-    uint8_t x_pos_doties = 4;
-    for (dotie_count = 0; dotie_count < 11; dotie_count++)
-    {
-        glcd_vline(display, x_pos_doties, 31, 2, GLCD_BLACK);
-        x_pos_doties += 12;
-    }
+    glcd_hline(display, 0, 33, DISPLAY_WIDTH, GLCD_BLACK);
 
     //draw the note box
-    glcd_vline(display, 64, 29, 4, GLCD_BLACK);
-    glcd_vline(display, 63, 29, 4, GLCD_BLACK);
-    glcd_vline(display, 65, 29, 4, GLCD_BLACK);
-    glcd_hline(display, 51, 28, 27, GLCD_BLACK);
-    glcd_vline(display, 51, 16, 12, GLCD_BLACK);
-    glcd_vline(display, 77, 16, 12, GLCD_BLACK);
-    glcd_hline(display, 51, 16, 26, GLCD_BLACK);
+    glcd_rect(display, 51, 16, 27, 13,  GLCD_BLACK);
 
     //print note char
     uint8_t text_width = get_text_width(tuner->note, Terminal7x8);
     uint8_t textbox_x = (DISPLAY_WIDTH / 2) - (text_width / 2);
     uint8_t textbox_y = 19;
-
     glcd_text(display, textbox_x, textbox_y, tuner->note, Terminal7x8, GLCD_BLACK);
 
     //print reference frequency
@@ -1201,12 +1187,12 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     //print bar for reference frequency
     text_width = get_text_width(buffer, Terminal3x5);
     uint8_t state = ((float)tuner->ref_freq / (TUNER_REFERENCE_FREQ_MAX - TUNER_REFERENCE_FREQ_MIN) * text_width);
-    glcd_rect(display, 8, 18 + 6, text_width, 4, GLCD_BLACK);
-    glcd_rect_fill(display, 8, 18 + 6, state, 4, GLCD_BLACK);
+    glcd_rect(display, 8, 18 + 7, text_width, 4, GLCD_BLACK);
+    glcd_rect_fill(display, 8, 18 + 7, state, 4, GLCD_BLACK);
 
     // check if reference frequency is modified
     if (TUNER_REFERENCE_FREQ_MIN + tuner->ref_freq != 440)
-        glcd_rect_invert(display, 7, 17, text_width+2, 6);
+        glcd_rect_invert(display, 7, 17, text_width+2, 7);
 
     //print frequency
     float_to_str(tuner->frequency, buffer, sizeof(buffer), 2);
@@ -1221,76 +1207,40 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
     text_width = get_text_width(buffer, Terminal3x5);
     glcd_text(display, DISPLAY_WIDTH - text_width - 8, 18 + 6, buffer, Terminal3x5, GLCD_BLACK);
 
-    //print value bar
-    glcd_vline(display, 64, 35, 7, GLCD_BLACK);
+    //define some vars for the strobe
+    uint8_t i;
+    const uint8_t strobe_step = 8;
+    const uint8_t strobe_size = (DISPLAY_WIDTH / strobe_step) + 1;
+    static int16_t collect_cents = 0;
 
-    // constants configurations
-    uint8_t h_bar = 1;
-    uint8_t num_bar_steps = 10;
-    uint8_t w_bar_interval = 6;
-    uint8_t y_bar = 35;
-    uint8_t x, i, j;
-    uint16_t c;
-
-    // cents been given multiplied by 100
-    // we use a resolution from top to bottom: 0.1, 1.0, 10.0 cent
-    c = ABS(tuner->cents / 10);
-
-    // draw the bar splitted into 3 precision levels
-    for (j = 0; j < 3; j++)
+    if (tuner->frequency > 0.0f)
     {
-        // draws the left side bars
-        for (i = 0, x = 4; (i < num_bar_steps) & (tuner->cents < 0); i++)
-        {
-            // checks if need fill the bar
-            if (i < (num_bar_steps - c))
-            {
-                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
-            }
-            else
-            {
-                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
-            }
-            x = x + w_bar_interval;
+        //collect the cents
+        collect_cents = collect_cents + tuner->cents /10;
+
+        //watch out for max range (must be divisible by 16 to avoid stutter)
+        if (collect_cents > 1024) collect_cents = 0;
+        if (collect_cents < -1024) collect_cents = 0;
+
+        //map collected cents to strobe move range
+        int8_t strobe_move = MAP(collect_cents, -1024, 1024, -16, 16);
+
+        //draw the strobe
+        for(i = 1; i < strobe_size; i++) {
+            glcd_rect_fill(display, i * strobe_step + strobe_move, 37, strobe_step, 5, GLCD_BLACK);
+            i++;
         }
-
-        // draws the right side bars
-        for (i = 0, x = 65; (i < num_bar_steps) & (tuner->cents > 0); i++)
-        {
-            // checks if need fill the bar
-            if (i < c )
-                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_BLACK);
-            else
-                glcd_rect_fill(display, x, y_bar, w_bar_interval, h_bar, GLCD_WHITE);
-            x = x + w_bar_interval;
-        }
-
-        // set y axis for next bar
-        y_bar += h_bar;
-
-        // drop precision
-        c = c / 10;
-        h_bar = 3;
-
-        // enlarge the steps when we are in the 10 cent resolution
-        if (j >= 1)
-        {
-            h_bar = 2;
-            num_bar_steps = 5;
-            w_bar_interval = 12;
-        }
+    }
+    else
+    {
+        //fill the strobe line when no input detected
+        glcd_rect_fill(display, 0, 37, DISPLAY_WIDTH, 5, GLCD_BLACK);
     }
 
     // checks if is tuned (resolution < 3 cent)
-    c = floor(ABS(cent));
+    uint16_t c = floor(ABS(cent));
     if (c <= 2)
         glcd_rect_invert(display, 51, 16, 27, 13);
-
-    // draw the outher ends
-    glcd_vline(display, 3, 25, 17, GLCD_BLACK);
-    glcd_vline(display, 4, 25, 17, GLCD_BLACK);
-    glcd_vline(display, 125, 25, 17, GLCD_BLACK);
-    glcd_vline(display, 124, 25, 17, GLCD_BLACK);
 } 
 
 void widget_popup(glcd_t *display, popup_t *popup)
