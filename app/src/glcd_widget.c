@@ -1216,7 +1216,8 @@ void widget_tuner(glcd_t *display, tuner_t *tuner)
 
     //print cents
     float cent = tuner->cents * 0.01f;
-    int_to_str(tuner->cents, buffer, sizeof(buffer), 0);
+    int8_t dispcent = roundf(cent);
+    int_to_str(dispcent < -49 ? -49 : dispcent > 49 ? 49 : dispcent, buffer, sizeof(buffer), 0);
     strcat(buffer, " c ");
     text_width = get_text_width(buffer, Terminal3x5);
     glcd_text(display, DISPLAY_WIDTH - text_width - 8, 18 + 6, buffer, Terminal3x5, GLCD_BLACK);
