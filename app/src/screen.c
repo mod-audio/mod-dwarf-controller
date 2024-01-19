@@ -738,9 +738,9 @@ void screen_footer(uint8_t foot_id, const char *name, const char *value, int16_t
         {
             strcpy(text, SCREEN_FOOT_DEFAULT_NAME);
             if (foot_id == 0)
-                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
+                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'A';
             else 
-                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'C';
+                text[sizeof(SCREEN_FOOT_DEFAULT_NAME)-1] = 'B';
             text[sizeof(SCREEN_FOOT_DEFAULT_NAME)] = 0;
         }
 
