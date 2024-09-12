@@ -2,7 +2,7 @@
 
 This is the source code for the MOD Dwarf controller (sometimes referred to as "HMI").
 
-If you don't know what this refers to, see [wiki.mod.audio/wiki/Device_Settings](https://wiki.mod.audio/wiki/Device_Settings).
+If you don't know what this refers to, see [wiki.mod.audio/wiki/Dwarf_Device_Settings](https://wiki.mod.audio/wiki/Dwarf_Device_Settings).
 
 ## Building
 
