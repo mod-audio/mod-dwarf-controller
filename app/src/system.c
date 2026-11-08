@@ -82,6 +82,14 @@ struct TAP_TEMPO_T {
 #define UNUSED_PARAM(var)   do { (void)(var); } while (0)
 #define MAP(x, Omin, Omax, Nmin, Nmax)      ( x - Omin ) * (Nmax -  Nmin)  / (Omax - Omin) + Nmin;
 
+// input gain (MOD OS 1.15, measured 2026-11-08): internal 12..60 is shown as 0..+24 dB in 0.5 dB steps.
+// 0 dB = the lowest setting = the most headroom (clean up to +7.8 dBu at the jack); below it the analog stage would
+// clip before the meters reach peak, above +24 dB the input noise leaves too little dynamic range.
+// mod-amixer maps each value to the gain stage + codec PGA pair that gives exactly that gain.
+#define INPUT_GAIN_MIN                      12.0f
+#define INPUT_GAIN_MAX                      60.0f
+#define INPUT_GAIN_DB(x)                    (((x) - INPUT_GAIN_MIN) * 0.5f)
+
 
 /*
 ************************************************************************************************************************
@@ -145,7 +153,7 @@ static void update_gain_item_value(uint8_t menu_id, float value)
     float value_bfr = 0;
 
     if ((menu_id == INP_1_GAIN_ID) || (menu_id == INP_2_GAIN_ID)) {
-        value_bfr = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+        value_bfr = INPUT_GAIN_DB(item->data.value);
     }
     else {
         value_bfr = item->data.value;
@@ -548,8 +556,8 @@ void system_inp_0_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -580,7 +588,7 @@ void system_inp_0_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float scaled_val = INPUT_GAIN_DB(item->data.value);
     float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
@@ -605,8 +613,8 @@ void system_inp_1_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -633,7 +641,7 @@ void system_inp_1_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float scaled_val = INPUT_GAIN_DB(item->data.value);
     float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
@@ -658,8 +666,8 @@ void system_inp_2_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -686,7 +694,7 @@ void system_inp_2_volume_cb(void *arg, int event)
     }
 
     static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+    float scaled_val = INPUT_GAIN_DB(item->data.value);
     float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
     strcat(str_bfr, " dB");
     item->data.unit_text = str_bfr;
