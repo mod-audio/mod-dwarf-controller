@@ -1056,6 +1056,13 @@ void widget_bar(glcd_t *display, menu_bar_t *bar)
 
     //color in the position area
     glcd_rect_fill(display, (bar->x+1), (bar->y+7), bar_possistion, bar->height - 2, GLCD_BLACK);
+
+    //tick above the bar at the column the fill reaches when the value gets to the mark
+    if (bar->has_mark && (bar->mark > bar->min) && (bar->mark < bar->max))
+    {
+        int32_t mark_possistion = ROUND((((bar->mark - bar->min) * NewRange) / OldRange) + NewMin);
+        glcd_vline(display, bar->x + mark_possistion, bar->y+4, 2, GLCD_BLACK);
+    }
 }
 
 void widget_toggle(glcd_t *display, toggle_t *toggle)
