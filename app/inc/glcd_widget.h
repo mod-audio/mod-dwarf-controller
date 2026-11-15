@@ -93,6 +93,8 @@ typedef struct MENU_BAR_T {
     uint8_t color;
     uint8_t width, height;
     float min, max, value;
+    uint8_t has_mark; // draw a tick above the bar at mark
+    float mark;
 } menu_bar_t;
 
 typedef struct TOGGLE_T {

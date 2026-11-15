@@ -214,15 +214,22 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
             bar.min = item_child->data.min;
             bar.max = item_child->data.max;
             bar.value = item_child->data.value;
+            // input gain: mark where the second analog gain stage switches in (audible click)
+            if ((item_child->desc->id == INP_STEREO_LINK) || (item_child->desc->id == INP_1_GAIN_ID) ||
+                (item_child->desc->id == INP_2_GAIN_ID))
+            {
+                bar.has_mark = 1;
+                bar.mark = INPUT_GAIN_STAGE_1;
+            }
             widget_bar(display, &bar);
                 
             if (item_child->data.unit_text)
             {
-                char bfr_upper_line[7] = {};
-                char bfr_lower_line[7] = {};
+                char bfr_upper_line[9] = {};
+                char bfr_lower_line[9] = {};
 
                 uint8_t t, r = 0, enter = 0;
-                for (t = 0; t < 15; t++) {
+                for (t = 0; t < 19; t++) {
                     if (item_child->data.unit_text[t] != 0) {
                         if (enter) {
                             bfr_lower_line[r] = item_child->data.unit_text[t];
@@ -246,10 +253,13 @@ void print_tripple_menu_items(menu_item_t *item_child, uint8_t knob, uint8_t too
                 if (bfr_lower_line[0] != 0) {
                     //we dont have this in tool mode, so join the strings
                     if (tool_mode) {
-                        char str_bfr[14] = {};
+                        char str_bfr[20] = {};
                         strcat(str_bfr, bfr_upper_line);
-                        strcat(str_bfr, " ");
-                        strcat(str_bfr, bfr_lower_line);
+                        // one line is only 9 characters wide: keep the first part when both do not fit
+                        if (strlen(bfr_upper_line) + 1 + strlen(bfr_lower_line) <= 9) {
+                            strcat(str_bfr, " ");
+                            strcat(str_bfr, bfr_lower_line);
+                        }
                         glcd_text(display, (item_x + 19 - 2*strlen(str_bfr)), item_y+22, str_bfr, Terminal3x5, GLCD_BLACK);
                     }
                     else {

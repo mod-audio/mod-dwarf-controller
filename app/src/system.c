@@ -82,6 +82,20 @@ struct TAP_TEMPO_T {
 #define UNUSED_PARAM(var)   do { (void)(var); } while (0)
 #define MAP(x, Omin, Omax, Nmin, Nmax)      ( x - Omin ) * (Nmax -  Nmin)  / (Omax - Omin) + Nmin;
 
+// input gain (MOD OS 1.15, measured 2026-11-08): internal 12..60 is shown as 0..+24 dB in 0.5 dB steps.
+// 0 dB = the lowest setting = the most headroom (clean up to +7.8 dBu at the jack); below it the analog stage would
+// clip before the meters reach peak, above +24 dB the input noise leaves too little dynamic range.
+// mod-amixer maps each value to the gain stage + codec PGA pair that gives exactly that gain.
+#define INPUT_GAIN_MIN                      12.0f
+#define INPUT_GAIN_MAX                      60.0f
+#define INPUT_GAIN_DB(x)                    (((x) - INPUT_GAIN_MIN) * 0.5f)
+// analog levels in dBu (measured 2026-11-09 on the bench Dwarf)
+// input: max input level (reaches full scale) at 0 dB gain; shown under the gain value
+#define INPUT_MAX_LEVEL_DBU                 7.8f
+#define INPUT_MAX_LEVEL(x)                  (INPUT_MAX_LEVEL_DBU - INPUT_GAIN_DB(x))
+// output: full scale with output gain at 0 dB, unbalanced (TS) cable; a balanced (TRS) cable gives 6 dB more
+#define OUTPUT_MAX_LEVEL_DBU                3.5f
+
 
 /*
 ************************************************************************************************************************
@@ -136,24 +150,50 @@ int8_t g_shift_mode = -1;
 ************************************************************************************************************************
 */
 
+// "+7.8 dBu": sign always shown, one decimal, then the suffix
+static void dbu_text(float dbu, char *buf, uint8_t size, const char *suffix)
+{
+    uint8_t q = 0;
+    if (dbu > 0.04f)
+        buf[q++] = '+';
+    float_to_str(dbu, &buf[q], size - q, 1);
+    strcat(buf, suffix);
+}
+
+// "+6.0dB +1.8dBu": gain, then the max input level (shown on the line below the gain)
+static void input_gain_text(float value, char *buf, uint8_t size)
+{
+    uint8_t q = 0;
+    float gain = INPUT_GAIN_DB(value);
+    if (gain > 0.04f)
+        buf[q++] = '+';
+    q += float_to_str(gain, &buf[q], size - q, 1);
+    buf[q] = 0;
+    strcat(buf, "dB ");
+    dbu_text(INPUT_MAX_LEVEL(value), &buf[strlen(buf)], size - strlen(buf), "dBu");
+}
+
 static void update_gain_item_value(uint8_t menu_id, float value)
 {
     menu_item_t *item = TM_get_menu_item_by_ID(menu_id);
     item->data.value = value;
 
-    static char str_bfr[8] = {};
-    float value_bfr = 0;
+    // one buffer per item: both items of a pair are updated together
+    static char inp_bfr[2][20] = {};
+    static char outp_bfr[2][16] = {};
 
     if ((menu_id == INP_1_GAIN_ID) || (menu_id == INP_2_GAIN_ID)) {
-        value_bfr = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
+        char *bfr = inp_bfr[menu_id == INP_2_GAIN_ID];
+        bfr[0] = 0;
+        input_gain_text(item->data.value, bfr, 20);
+        item->data.unit_text = bfr;
     }
     else {
-        value_bfr = item->data.value;
+        char *bfr = outp_bfr[menu_id == OUTP_2_GAIN_ID];
+        bfr[0] = 0;
+        dbu_text(item->data.value + OUTPUT_MAX_LEVEL_DBU, bfr, 16, " dBu TS");
+        item->data.unit_text = bfr;
     }
-
-    float_to_str(value_bfr, str_bfr, 8, 2);
-    strcat(str_bfr, " dB");
-    item->data.unit_text = str_bfr;
 }
 
 static void set_item_value(const char *command, uint16_t value)
@@ -548,8 +588,8 @@ void system_inp_0_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -579,10 +619,9 @@ void system_inp_0_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[20] = {};
+    str_bfr[0] = 0;
+    input_gain_text(item->data.value, str_bfr, sizeof(str_bfr));
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -605,8 +644,8 @@ void system_inp_1_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -632,10 +671,9 @@ void system_inp_1_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[20] = {};
+    str_bfr[0] = 0;
+    input_gain_text(item->data.value, str_bfr, sizeof(str_bfr));
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -658,8 +696,8 @@ void system_inp_2_volume_cb(void *arg, int event)
         sys_comm_send(CMD_SYS_GAIN, val_buffer);
         sys_comm_wait_response();
 
-        item->data.min = 0.0f;
-        item->data.max = 74.0f;
+        item->data.min = INPUT_GAIN_MIN;
+        item->data.max = INPUT_GAIN_MAX;
     }
     else if ((event == MENU_EV_UP) ||(event == MENU_EV_DOWN))
     {
@@ -685,10 +723,9 @@ void system_inp_2_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float scaled_val = MAP(item->data.value, item->data.min, item->data.max, -12, 25);
-    float_to_str(scaled_val, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[20] = {};
+    str_bfr[0] = 0;
+    input_gain_text(item->data.value, str_bfr, sizeof(str_bfr));
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -743,9 +780,9 @@ void system_outp_0_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[16] = {};
+    str_bfr[0] = 0;
+    dbu_text(item->data.value + OUTPUT_MAX_LEVEL_DBU, str_bfr, sizeof(str_bfr), " dBu TS");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -799,9 +836,9 @@ void system_outp_1_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[14] = {};
-    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[16] = {};
+    str_bfr[0] = 0;
+    dbu_text(item->data.value + OUTPUT_MAX_LEVEL_DBU, str_bfr, sizeof(str_bfr), " dBu TS");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;
@@ -854,9 +891,9 @@ void system_outp_2_volume_cb(void *arg, int event)
         item->data.step = 1.0f;
     }
 
-    static char str_bfr[10] = {};
-    float_to_str(item->data.value, str_bfr, sizeof(str_bfr), 2);
-    strcat(str_bfr, " dB");
+    static char str_bfr[16] = {};
+    str_bfr[0] = 0;
+    dbu_text(item->data.value + OUTPUT_MAX_LEVEL_DBU, str_bfr, sizeof(str_bfr), " dBu TS");
     item->data.unit_text = str_bfr;
 
     item->data.step = 1.0f;

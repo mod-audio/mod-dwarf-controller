@@ -233,6 +233,9 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define APPEARANCE_SET_ID   (20 * 10)
 #define CONTROLLER_SET_ID   (21 * 10)
 
+// first input gain value on the second analog gain stage (mod-amixer xvol: stage 1 from 49 = +18.5 dB)
+#define INPUT_GAIN_STAGE_1      49.0f
+
 #define INP_STEREO_LINK         AUDIO_INP_ID+1
 #define INP_1_GAIN_ID           AUDIO_INP_ID+2
 #define INP_2_GAIN_ID           AUDIO_INP_ID+3
@@ -292,7 +295,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 
 #define SYSTEM_MENU     \
     {"SETTINGS",                        MENU_ROOT,      ROOT_ID,                -1,                 NULL                        , 0},  \
-    {"AUDIO INPUTS",                    MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                        , 0},  \
+    {"ANALOG INPUTS",                   MENU_MAIN,      AUDIO_INP_ID,           ROOT_ID,            NULL                        , 0},  \
     {"INPUT 1+2 GAIN",                  MENU_BAR,       INP_STEREO_LINK,        AUDIO_INP_ID,       system_inp_0_volume_cb      , 0},  \
     {"INPUT-1 GAIN",                    MENU_BAR,       INP_1_GAIN_ID,          AUDIO_INP_ID,       system_inp_1_volume_cb      , 0},  \
     {"INPUT-2 GAIN",                    MENU_BAR,       INP_2_GAIN_ID,          AUDIO_INP_ID,       system_inp_2_volume_cb      , 0},  \
@@ -300,10 +303,10 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"NOISEGATE CHANNEL",               MENU_LIST,      NOISEGATE_CHANNEL_ID,   NOISE_GATE_ID,      system_noisegate_channel_cb , 0},  \
     {"NOISEGATE THRESHOLD",             MENU_BAR,       NOISEGATE_THRES_ID,     NOISE_GATE_ID,      system_noisegate_thres_cb   , 0},  \
     {"NOISEGATE DECAY",                 MENU_BAR,       NOISEGATE_DECAY_ID,     NOISE_GATE_ID,      system_noisegate_decay_cb   , 0},  \
-    {"AUDIO OUTPUTS",                   MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                        , 0},  \
-    {"OUTPUT 1+2 GAIN",                 MENU_BAR,       OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_outp_0_volume_cb     , 0},  \
-    {"OUTPUT-1 GAIN",                   MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb     , 0},  \
-    {"OUTPUT-2 GAIN",                   MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb     , 0},  \
+    {"ANALOG OUTPUTS",                  MENU_MAIN,      AUDIO_OUTP_ID,          ROOT_ID,            NULL                        , 0},  \
+    {"OUT-1+2 MAX LEVEL",               MENU_BAR,       OUTP_STEREO_LINK,       AUDIO_OUTP_ID,      system_outp_0_volume_cb     , 0},  \
+    {"OUT-1 MAX LEVEL",                 MENU_BAR,       OUTP_1_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_1_volume_cb     , 0},  \
+    {"OUT-2 MAX LEVEL",                 MENU_BAR,       OUTP_2_GAIN_ID,         AUDIO_OUTP_ID,      system_outp_2_volume_cb     , 0},  \
     {"HEADPHONE OUTPUT",                MENU_MAIN,      HEADPHONE_ID,           ROOT_ID,            NULL                        , 0},  \
     {"HEADPHONE VOLUME",                MENU_BAR,       HEADPHONE_VOLUME_ID,    HEADPHONE_ID,       system_hp_volume_cb         , 0},  \
     {"OUTPUT PROCESSING",               MENU_MAIN,      COMPRESSOR_ID,          ROOT_ID,            NULL                        , 0},  \
