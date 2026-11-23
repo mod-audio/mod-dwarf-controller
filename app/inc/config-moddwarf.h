@@ -271,7 +271,7 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define KNOB_LIST_ID            CONTROLLER_SET_ID+2
 #define MENU_BUTTON_TOGGLE_ID   CONTROLLER_SET_ID+3
 
-#define USB_MODE_ID             SYSTEM_SET_ID+1
+// SYSTEM_SET_ID+1 was USB_MODE_ID (USB-B MODE menu, removed in MOD OS 1.15: one USB gadget for every host OS)
 #define NOSIE_REMOVAL_ID        SYSTEM_SET_ID+2
 
 #define CONTROL_HEADER_ID       APPEARANCE_SET_ID+1
@@ -330,7 +330,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
     {"CONTROL HEADER",                  MENU_LIST,      CONTROL_HEADER_ID,      APPEARANCE_SET_ID,  system_control_header_cb    , 0},  \
     {"UNASSIGNED ACTUATORS",            MENU_LIST,      UNASSIGNED_ACTUATRS_ID, APPEARANCE_SET_ID,  system_hide_actuator_cb     , 0},  \
     {"SYSTEM BEHAVIOR",                 MENU_MAIN,      SYSTEM_SET_ID,          ROOT_ID,            NULL                        , 0},  \
-    {"USB-B MODE",                      MENU_CLICK_LIST,USB_MODE_ID,            SYSTEM_SET_ID,      system_usb_mode_cb          , 0},  \
     {"COMPENSATE GND LOOP",             MENU_CLICK_LIST,NOSIE_REMOVAL_ID,       SYSTEM_SET_ID,      system_noise_removal_cb     , 0},  \
     {"CONTROLLER BEHAVIOR",             MENU_MAIN,      CONTROLLER_SET_ID,      ROOT_ID,            NULL                        , 0},  \
     {"DEFAULT TOOL",                    MENU_LIST,      DEFAULT_TOOL_ID,        CONTROLLER_SET_ID,  system_default_tool_cb      , 0},  \
@@ -358,7 +357,6 @@ enum {ENCODER0, ENCODER1, ENCODER2, FOOTSWITCH0, FOOTSWITCH1, FOOTSWITCH2, BUTTO
 #define POPUP_CONTENT   \
     {USER_PROFILE_ID+1, "LOAD USER PROFILE", "\n\n\nload user profile "}, \
     {USER_PROFILE_ID+2, "SAVE USER PROFILE", "\n\nsave current settings as user profile "}, \
-    {USB_MODE_ID, "Change USB mode", "\n\nChanging USB modes requires a device reboot\n\nreboot now?"},  \
     {NOSIE_REMOVAL_ID, "Gndloop compensation", "THIS SETTING REDUCES THE\nAMOUNT OF NOISE INTRODUCED\nBY GROUND LOOPS\n\nENABLING IT SLIGHTLY REDUCES\nTHE AMOUNT OF AVAILABLE CPU\nPOWER"},  \
     {BLUETOOTH_ID, "Enable Bluetooth", "\nEnable Bluetooth discovery\nmode for 2 minutes?"},  \
     {INFO_ID, "Device Info", "\nCurrent Release:\n"},  \
