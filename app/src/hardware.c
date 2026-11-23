@@ -391,6 +391,29 @@ void check_eeprom_defaults(uint16_t current_version)
                 write_led_defaults();
             break;
 
+            //new default Shift items (MOD OS 1.15). Units whose Shift items are still the previous defaults
+            //(HEADPHONE VOLUME, PEDALBOARD OUT GAIN, INPUT 1+2 GAIN) get the new ones; chosen items are kept.
+            //Also covers factory units, whose controller first boots an older firmware on the test rig.
+            case 6:;
+            {
+                //one byte per item, each at offset 0 of its own page (as in write_shift_defaults)
+                uint8_t shift_items[3];
+                EEPROM_Read(0, SHIFT_ITEM_ADRESS, &shift_items[0], MODE_8_BIT, 1);
+                EEPROM_Read(0, SHIFT_ITEM_ADRESS + 1, &shift_items[1], MODE_8_BIT, 1);
+                EEPROM_Read(0, SHIFT_ITEM_ADRESS + 2, &shift_items[2], MODE_8_BIT, 1);
+
+                if ((shift_items[0] == 6) && (shift_items[1] == 19) && (shift_items[2] == 0))
+                {
+                    write_buffer = DEFAULT_SHIFT_1_ITEM;
+                    EEPROM_Write(0, SHIFT_ITEM_ADRESS, &write_buffer, MODE_8_BIT, 1);
+                    write_buffer = DEFAULT_SHIFT_2_ITEM;
+                    EEPROM_Write(0, SHIFT_ITEM_ADRESS + 1, &write_buffer, MODE_8_BIT, 1);
+                    write_buffer = DEFAULT_SHIFT_3_ITEM;
+                    EEPROM_Write(0, SHIFT_ITEM_ADRESS + 2, &write_buffer, MODE_8_BIT, 1);
+                }
+            }
+            break;
+
             //nothing saved yet, new unit, write all settings
             default:
                 write_o_settings_defaults();
