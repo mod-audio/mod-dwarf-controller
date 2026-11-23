@@ -1321,6 +1321,8 @@ void screen_menu_page(node_t *node)
             if (i <= 1)
                 glcd_text(display, 105, 26, "-", Terminal3x5, GLCD_BLACK);
 
+            //a page with a single item never reached the outlines below (e.g. HEADPHONE OUTPUT, SYSTEM BEHAVIOR)
+            print_menu_outlines();
             return;
         }
         else
